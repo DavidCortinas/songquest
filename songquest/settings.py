@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['216.128.141.249']
+ALLOWED_HOSTS = ['localhost', '216.128.141.249', 'songquest.io', 'www.songquest.io']
 
 
 # Application definition
