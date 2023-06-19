@@ -9,13 +9,13 @@ import WorkIcon from '@mui/icons-material/Work';
 import { useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
 
-export const SideBar = ({ resetDataLoaded }) => {
+export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
   const isLgScreen = useMediaQuery('(min-width: 1200px)')
   const viewHeight = window.outerHeight;
-  const [collapse, setCollapse] = useState(true);
+
   useEffect(() => {
     function handleResize() {
-      setCollapse(!isLgScreen);
+      onCollapse(!isLgScreen);
     }
 
     window.addEventListener('resize', handleResize);
@@ -39,10 +39,6 @@ export const SideBar = ({ resetDataLoaded }) => {
     navigate(path);
   };
 
-  const handleCollapse = () => {
-    collapse === false ? setCollapse(true) : setCollapse(false);
-  };
-
   return (
     <Sidebar
       style={{ height: viewHeight }}
@@ -51,7 +47,7 @@ export const SideBar = ({ resetDataLoaded }) => {
     >
       <Menu>
         <MenuItem
-          onClick={() => handleCollapse()}
+          onClick={onCollapse}
           style={{ display: 'flex', alignItems: 'center' }}
         >
           <MenuOpenIcon

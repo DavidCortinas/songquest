@@ -10,6 +10,7 @@ import theme from './theme';
 
 function App() {
   const [csrfToken, setCsrfToken] = useState(null);
+  const [collapse, setCollapse] = useState(true);
 
   useEffect(() => {
     // Retrieve the CSRF token
@@ -20,6 +21,10 @@ function App() {
 
     initialize();
   }, []);
+
+  const handleCollapse = () => {
+    setCollapse((collapsed) => !collapsed)
+  }
 
   if (csrfToken === null) {
     // You can show a loading state or spinner until the CSRF token is retrieved
@@ -32,12 +37,10 @@ function App() {
         <NavBar />
         <Grid container style={{ backgroundColor: '#eff3f5' }}>
           <Grid item xs={2}>
-            <SideBar />
+            <SideBar collapse={collapse} onCollapse={handleCollapse}/>
           </Grid>
-          <Grid item xs={10} position={'center'}>
-            <Container maxWidth="xl">
+          <Grid item xs={collapse ? 8 :10} position={'center'}>
               <RoutesContainer />
-            </Container>
           </Grid>
         </Grid>
       </div>
