@@ -6,13 +6,27 @@ import HomeIcon from '@mui/icons-material/Home';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import WorkIcon from '@mui/icons-material/Work';
+import { useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
 
-export const SideBar = ({ resetDataLoaded }) => {
+export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
+  const isLgScreen = useMediaQuery('(min-width: 1200px)')
   const viewHeight = window.outerHeight;
+
+  useEffect(() => {
+    function handleResize() {
+      onCollapse(!isLgScreen);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isLgScreen]);
+
   const location = useLocation();
   const navigate = useNavigate();
-  const [collapse, setCollapse] = useState(false);
 
   useEffect(() => {
     if (location.pathname !== '/') {
@@ -25,10 +39,6 @@ export const SideBar = ({ resetDataLoaded }) => {
     navigate(path);
   };
 
-  const handleCollapse = () => {
-    collapse === false ? setCollapse(true) : setCollapse(false);
-  };
-
   return (
     <Sidebar
       style={{ height: viewHeight }}
@@ -37,7 +47,7 @@ export const SideBar = ({ resetDataLoaded }) => {
     >
       <Menu>
         <MenuItem
-          onClick={() => handleCollapse()}
+          onClick={onCollapse}
           style={{ display: 'flex', alignItems: 'center' }}
         >
           <MenuOpenIcon
@@ -57,9 +67,9 @@ export const SideBar = ({ resetDataLoaded }) => {
         <MenuItem disabled>
           {collapse ? <SavedSearchIcon /> : 'Saved Searches'}
         </MenuItem>
-        <MenuItem disabled>
+        {/* <MenuItem disabled>
           {collapse ? <WorkIcon /> : 'Licensing Projects'}
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
     </Sidebar>
   );
