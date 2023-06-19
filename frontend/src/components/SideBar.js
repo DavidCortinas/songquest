@@ -6,13 +6,27 @@ import HomeIcon from '@mui/icons-material/Home';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import WorkIcon from '@mui/icons-material/Work';
+import { useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
 
 export const SideBar = ({ resetDataLoaded }) => {
+  const isLgScreen = useMediaQuery('(min-width: 1200px)')
   const viewHeight = window.outerHeight;
+  const [collapse, setCollapse] = useState(true);
+  useEffect(() => {
+    function handleResize() {
+      setCollapse(!isLgScreen);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isLgScreen]);
+
   const location = useLocation();
   const navigate = useNavigate();
-  const [collapse, setCollapse] = useState(false);
 
   useEffect(() => {
     if (location.pathname !== '/') {
@@ -57,9 +71,9 @@ export const SideBar = ({ resetDataLoaded }) => {
         <MenuItem disabled>
           {collapse ? <SavedSearchIcon /> : 'Saved Searches'}
         </MenuItem>
-        <MenuItem disabled>
+        {/* <MenuItem disabled>
           {collapse ? <WorkIcon /> : 'Licensing Projects'}
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
     </Sidebar>
   );
