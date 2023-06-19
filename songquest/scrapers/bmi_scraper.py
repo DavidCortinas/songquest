@@ -21,7 +21,7 @@ def get_bmi_results(song, performer):
     options.add_argument(
         '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36')
 
-    service = Service("env/lib/chromedriver")
+    service = Service("env/chromedriver")
     driver = webdriver.Chrome(options=options, service=service)
 
     driver.get("https://repertoire.bmi.com/")
