@@ -82,20 +82,20 @@ export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
               />
             </MenuItem>
             <MenuItem
-              style={{ color: 'black' }}
+              style={{ color: '#006f96' }}
               onClick={() => handleNavigation('/')}
             >
               <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
-                <HomeIcon style={{ color: 'black', paddingRight: '5%' }} />
+                <HomeIcon style={{ color: '#006f96', paddingRight: '5%' }} />
                 {!collapse && 'Home'}
               </Box>
             </MenuItem>
             <MenuItem
-              style={{ color: 'black' }}
+              style={{ color: '#006f96' }}
               onClick={() => handleNavigation('/search')}
             >
               <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
-                <SearchIcon style={{ color: 'black', paddingRight: '5%' }} />
+                <SearchIcon style={{ color: '#006f96', paddingRight: '5%' }} />
                 {!collapse && 'Search Song'}
               </Box>
             </MenuItem>

@@ -32,8 +32,6 @@ export const TopBar = ({ resetDataLoaded, collapse }) => {
     navigate('/', { replace: true });
   };
 
-  console.log(collapse)
-
   return (
     <Box 
       display="flex" 
@@ -62,7 +60,7 @@ export const TopBar = ({ resetDataLoaded, collapse }) => {
           }}
           onClick={handleNavigate}
         >
-          <Typography variant="h6" component="div" color='black'>
+          <Typography variant="h6" component="div" color='#006f96'>
           {/* <Typography variant="h6" component="div" color='#007fbf'> */}
             SongQuest
           </Typography>
