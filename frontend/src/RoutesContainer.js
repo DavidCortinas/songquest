@@ -5,6 +5,8 @@ import { searchSongRequest } from './thunks';
 import { connect } from 'react-redux';
 import { searchSongSuccess } from './actions';
 import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Container } from '@mui/material';
+import { Home } from './components/Home';
 
 const RoutesContainer = ({
   query,
@@ -42,29 +44,35 @@ const RoutesContainer = ({
   };
 
   return (
-    <Routes>
-      <Route
-        exact
-        path={'/'}
-        element={
-          <SongForm
-            onSearchPressed={onSearchPressed}
-            onDataLoaded={onDataLoaded}
-          />
-        }
-      />
-      <Route
-        path={'/song-data'}
-        element={
-          <SongDataTable
-            query={query}
-            onSearchPressed={onSearchPressed}
-            onDataLoaded={onDataLoaded}
-            dataLoaded={dataLoaded}
-          />
-        }
-      />
-    </Routes>
+      <Routes>
+        <Route
+          exact
+          path={'/'}
+          element={
+            <Home />
+          }
+        />
+        <Route
+          path={'/search'}
+          element={
+            <SongForm
+              onSearchPressed={onSearchPressed}
+              onDataLoaded={onDataLoaded}
+            />
+          }
+        />
+        <Route
+          path={'/song-data'}
+          element={
+            <SongDataTable
+              query={query}
+              onSearchPressed={onSearchPressed}
+              onDataLoaded={onDataLoaded}
+              dataLoaded={dataLoaded}
+            />
+          }
+        />
+      </Routes>
   );
 };
 
