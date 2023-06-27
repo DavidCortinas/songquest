@@ -8,13 +8,13 @@ export const searchSongRequest = (query) => async (dispatch) => {
       song: query.song,
       performer: query.performer,
     });
-    const response = await fetch('/search/', {
+    const response = await fetch('http://localhost:8000/search/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
       },
       method: 'post',
-      credentials: 'include',
+      // credentials: 'include',
       body,
     });
 
