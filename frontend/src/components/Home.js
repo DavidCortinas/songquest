@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => (
             paddingBottom: '1rem',
         },
         intro: {
-            color: 'black',
+            color: '#3d3d3d',
             paddingTop: '1rem',
             justifyContent: 'center',
             textAlign: 'center',
@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => (
             border: '1px solid #b0b0b0',
         },
         optionsText: {
-            color: '#000000',
+            color: '#006f96',
             padding: '5%',
             display: 'flex',
             alignItems: 'center',

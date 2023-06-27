@@ -99,7 +99,9 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
     try {
       const songData = await onSearchPressed(newQuery);
       onDataLoaded(songData, newQuery);
+      console.log('songData: ', songData)
       setIsLoading(false);
+      console.log(isLoading);
     } catch (error) {
       console.log('Error: ', error);
       setIsLoading(false);
@@ -136,7 +138,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
           title="Loading Results"
           titleTypographyProps={{ color: 'black' }}
           subheader="Be sure to include the name of the artist who performs the song for the quickest and most accurate search result..."
-          subheaderTypographyProps={{ color: 'black' }}
+          subheaderTypographyProps={{ color: '#3d3d3d' }}
         />
       </Box>
       <LoadingState />
@@ -173,7 +175,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
                     autoFocus
                     variant='outlined'
                     InputLabelProps={{ style: { margin: '2px 5px' }}}
-                    InputProps={{ disableUnderline: 'true', style: { margin: '5px', padding: '5px 0' } }}
+                    InputProps={{ disableUnderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
                     error={invalidSearch}
                     required
                     className={classes.textField}
