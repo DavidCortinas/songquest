@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import MaterialReactTable from 'material-react-table';
-import { IconButton, Tooltip } from '@mui/material';
+import { Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SongForm from './SongForm';
 
@@ -10,7 +10,8 @@ const isEmptyObject = (obj) => {
   return Object.keys(obj).length === 0;
 };
 
-const Table = ({ songData }) => {
+const Table = ({ songData, query }) => {
+  console.log('table: ', songData, query)
   const columns = React.useMemo(
     () => [
       {
@@ -128,33 +129,46 @@ const Table = ({ songData }) => {
     return [...ascapDataRows, ...bmiDataRows];
   }, [songData]);
 
+  const renderTopToolbarCustomActions = () => (
+    <>
+      <Tooltip arrow title="Refresh Data">
+        <IconButton onClick={() => {}}>
+          <RefreshIcon />
+        </IconButton>
+      </Tooltip>
+      <Typography variant="h6" style={{ flex: 1 }}>
+        {`${Object.keys(songData).length} Results for "${query.song}" by ${query.performer}`.toUpperCase()}
+      </Typography>
+    </>
+  );
+
   return (
-    <MaterialReactTable
-      columns={columns}
-      data={dataRows}
-      initialState={{ showColumnFilters: true }}
-      manualFiltering
-      manualPagination
-      manualSorting
-      renderTopToolbarCustomActions={() => (
-        <Tooltip arrow title="Refresh Data">
-          <IconButton onClick={() => {}}>
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    />
+    <Grid container style={{ overflowX: 'none', maxWidth: '100vw', outerHeight: '100vw' }}>
+      <Grid item xs={12} style={{ padding: '2% 0% 2% 2%'}}>
+        <MaterialReactTable
+          columns={columns}
+          data={dataRows}
+          initialState={{ showColumnFilters: true }}
+          manualFiltering
+          manualPagination
+          manualSorting
+          renderTopToolbarCustomActions={renderTopToolbarCustomActions}
+          muiTableBodyProps={{ sx: {maxWidth: '100%' } }}
+        />
+      </Grid>
+    </Grid>
   );
 };
 
 const SongDataTable = ({ onSearchPressed, onDataLoaded, query, songData }) => {
   const queryClient = new QueryClient();
   const showTable = !isEmptyObject(songData);
+  console.log(showTable)
 
   return (
     <QueryClientProvider client={queryClient}>
       {showTable ? (
-        <Table songData={songData} />
+        <Table songData={songData} query={query} />
       ) : (
         <SongForm
           onSearchPressed={onSearchPressed}
