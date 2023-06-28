@@ -12,6 +12,16 @@ const theme = createTheme({
       main: '#eff3f5',
     },
   },
+  breakpoints: {
+    values: {
+      xs: 360,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
+  
 });
 
 export default theme;

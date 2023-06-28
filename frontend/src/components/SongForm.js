@@ -146,7 +146,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
   ) : (
     <>
       <Box display="flex" justifyContent="center" paddingTop='1rem'>
-        <Box width={isSmScreen || isXsScreen ? "75%" : "50%"}>
+        <Box width={isMdScreen || isSmScreen || isXsScreen ? "75%" : "50%"}>
           <Card className={classes.card}>
             <form className={classes.form} onSubmit={handleFormSubmit}>
               {/* <FormControl> */}

@@ -11,27 +11,17 @@ import WorkIcon from '@mui/icons-material/Work';
 import { Box, useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
 import { makeStyles } from '@mui/styles';
+import theme from '../theme';
 import '../App.css';
 
 export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
-  const isLgScreen = useMediaQuery('(min-width: 1200px)')
+  const [resizing, setResizing] = useState(false);
+  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
   const isLandscape = useMediaQuery('(orientation: landscape)');
-
-  useEffect(() => {
-    function handleResize() {
-      if (isLgScreen && !collapse) {
-        onCollapse(true);
-      } else if (!isLgScreen && collapse) {
-        onCollapse(false);
-      }
-    }
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [isLgScreen, collapse]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,7 +44,7 @@ export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
         position: 'fixed', 
         overflow: 'hidden',
       }}
-      collapsed={collapse}
+      collapsed={collapse === false && isSmScreen ? 'true' : collapse}
       // backgroundColor="#012851d6"
       // backgroundImage={radioWall}
       collapsedWidth='64px'
@@ -69,18 +59,20 @@ export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
               },
             },
           }}>
-            <MenuItem
-              onClick={onCollapse}
-              style={{ display: 'flex', alignItems: 'center' }}
-            >
-              <MenuOpenIcon
-                style={{
-                  transform: collapse ? 'scaleX(-1)' : 'scaleX(1)',
-                  transition: 'transform 0.3s ease',
-                  // color: 'white',
-                }}
-              />
-            </MenuItem>
+            {!isSmScreen && 
+              <MenuItem
+                onClick={onCollapse}
+                style={{ display: 'flex', alignItems: 'center' }}
+              >
+                <MenuOpenIcon
+                  style={{
+                    transform: collapse ? 'scaleX(-1)' : 'scaleX(1)',
+                    transition: 'transform 0.3s ease',
+                    // color: 'white',
+                  }}
+                />
+              </MenuItem>
+            }
             <MenuItem
               style={{ color: '#006f96' }}
               onClick={() => handleNavigation('/')}

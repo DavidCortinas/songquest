@@ -24,21 +24,34 @@ const useStyles = makeStyles((theme) => (
             },
             marginTop: '30px',
         },
-          optionsContainer: {
+        optionsContainerColumns: {
             display: 'flex',
             justifyContent: 'space-around',
             width: '70%',
-            [theme.breakpoints.down('sm')]: {
-                width: '85%',
-            },
             margin: '5% auto',
             height: '200px',
             paddingLeft: '1%',
         },  
+        optionsContainerRows: {
+            display: 'inline-flex',
+            justifyContent: 'space-between',
+            width: '70%',
+            margin: '5% auto',
+            height: '200px',
+            paddingLeft: '1%',
+            display: ''
+        },  
         optionsBox: {
             textAlign: 'center',
             display: 'flex',
-            width: '30%'
+            width: '30%',
+        },
+        optionsBar: {
+            textAlign: 'center',
+            display: 'flex',
+            width: '70%',
+            margin: '30px auto',
+            height: '75px'
         },
         optionsLink: {
             textDecoration: 'none',
@@ -59,11 +72,11 @@ const useStyles = makeStyles((theme) => (
         },
         optionsText: {
             color: '#006f96',
-            padding: '5%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             height: '50%',
+            padding: '5px',
         },      
         optionsIcon: {
             color: '#000000',
@@ -78,6 +91,7 @@ export const Home = () => {
     const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
     const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
     const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+    console.log(theme)
 
     return (
         <Box display='flex' flexDirection='column'>
@@ -89,14 +103,20 @@ export const Home = () => {
                     }
                 </Typography>
             </Box>
-            <Box className={classes.optionsContainer}>
-                <Box className={classes.optionsBox}>
+            <Box className={isXsScreen || isSmScreen  
+                ? classes.optionsContainerRows 
+                : classes.optionsContainerColumns
+            }>
+                <Box className={isXsScreen || isSmScreen
+                    ? classes.optionsBar 
+                    : classes.optionsBox
+                }>
                     <Link to='/search' className={classes.optionsLink}>
                         <Card className={classes.optionsCard}>
                             <Typography 
                                 className={classes.optionsText}
                                 variant={isSmScreen || isXsScreen
-                                ? 'body2'
+                                ? 'caption'
                                 : null
                                 }
                             >
@@ -106,13 +126,16 @@ export const Home = () => {
                         </Card>
                     </Link>
                 </Box>
-                <Box className={classes.optionsBox}>
+                <Box className={isXsScreen || isSmScreen
+                    ? classes.optionsBar 
+                    : classes.optionsBox
+                }>
                     <Link className={classes.optionsLinkDisabled}>
                         <Card className={classes.optionsCard}>
                             <Typography 
                                 className={classes.optionsText}
                                 variant={isSmScreen || isXsScreen
-                                ? 'body2'
+                                ? 'caption'
                                 : null
                                 }
                             >
@@ -122,13 +145,16 @@ export const Home = () => {
                         </Card>
                     </Link>
                 </Box>
-                <Box className={classes.optionsBox}>
+                <Box className={isXsScreen || isSmScreen
+                    ? classes.optionsBar 
+                    : classes.optionsBox
+                }>
                     <Link className={classes.optionsLinkDisabled}>
                         <Card className={classes.optionsCard}>
                             <Typography 
                                 className={classes.optionsText}
                                 variant={isSmScreen || isXsScreen
-                                ? 'body2'
+                                ? 'caption'
                                 : null
                                 }
                             >
