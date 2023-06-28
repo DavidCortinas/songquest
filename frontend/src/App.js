@@ -31,6 +31,7 @@ function App() {
   }, []);
 
   const handleCollapse = () => {
+    console.log('handleCollapse')
     setCollapse((collapsed) => !collapsed)
   }
 
@@ -43,15 +44,28 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
-        <NavBar />
-        <Grid container style={{ backgroundColor: '#eff3f5' }}>
-          <Grid item xs={2}>
-            <SideBar collapse={collapse} onCollapse={handleCollapse}/>
-          </Grid>
-          <Grid item xs={collapse ? 8 :10} position={'center'}>
-              <RoutesContainer />
-          </Grid>
-        </Grid>
+        {!isXsScreen &&
+          <div className='sidebar'>
+            <SideBar collapse={collapse} onCollapse={handleCollapse} />
+          </div>
+        }
+        {/* <div className='sidebar'>
+          <SideBar collapse={collapse} onCollapse={handleCollapse} />
+        </div> */}
+        <div className={isXsScreen || isSmScreen
+          ? 'content-wrapper-nosidebar'
+          : collapse 
+          ? "content-wrapper-collapsed" 
+          : "content-wrapper"
+        }>
+          <TopBar collapse={collapse}/>
+          <main className="main-content">
+            <RoutesContainer />
+          </main>
+        </div>
+        {isXsScreen &&
+          <BottomBar />
+        }
       </div>
     </ThemeProvider>
   );
