@@ -11,6 +11,7 @@ const isEmptyObject = (obj) => {
 };
 
 const Table = ({ songData, query }) => {
+  console.log('table: ', songData, query)
   const columns = React.useMemo(
     () => [
       {
@@ -162,6 +163,7 @@ const Table = ({ songData, query }) => {
 const SongDataTable = ({ onSearchPressed, onDataLoaded, query, songData }) => {
   const queryClient = new QueryClient();
   const showTable = !isEmptyObject(songData);
+  console.log(showTable)
 
   return (
     <QueryClientProvider client={queryClient}>

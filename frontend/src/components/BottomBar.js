@@ -45,11 +45,11 @@ export const BottomBar = ({ resetDataLoaded, collapse, onCollapse }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      navigate('/search');
-    }
-  }, [location.pathname, navigate]);
+//   useEffect(() => {
+//     if (location.pathname !== '/') {
+//       navigate('/search');
+//     }
+//   }, [location.pathname, navigate]);
 
   const handleNavigation = (path) => {
     resetDataLoaded();

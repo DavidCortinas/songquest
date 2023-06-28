@@ -31,6 +31,7 @@ function App() {
   }, []);
 
   const handleCollapse = () => {
+    console.log('handleCollapse')
     setCollapse((collapsed) => !collapsed)
   }
 
@@ -51,7 +52,7 @@ function App() {
         {/* <div className='sidebar'>
           <SideBar collapse={collapse} onCollapse={handleCollapse} />
         </div> */}
-        <div className={isXsScreen 
+        <div className={isXsScreen || isSmScreen
           ? 'content-wrapper-nosidebar'
           : collapse 
           ? "content-wrapper-collapsed" 

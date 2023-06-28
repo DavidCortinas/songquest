@@ -40,7 +40,7 @@ export const TopBar = ({ resetDataLoaded, collapse }) => {
       backgroundColor='white'
       className={isXsScreen
         ? 'topbar-nosidebar'
-        : collapse 
+        : collapse || isSmScreen
         ? 'topbar-collapsed'
         : 'topbar'}
     >
