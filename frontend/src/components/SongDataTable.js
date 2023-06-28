@@ -163,7 +163,6 @@ const Table = ({ songData, query }) => {
 const SongDataTable = ({ onSearchPressed, onDataLoaded, query, songData }) => {
   const queryClient = new QueryClient();
   const showTable = !isEmptyObject(songData);
-  console.log(showTable)
 
   return (
     <QueryClientProvider client={queryClient}>

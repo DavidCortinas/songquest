@@ -15,7 +15,6 @@ import theme from '../theme';
 import '../App.css';
 
 export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
-  const [resizing, setResizing] = useState(false);
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));

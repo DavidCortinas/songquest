@@ -104,9 +104,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
     try {
       const songData = await onSearchPressed(newQuery);
       onDataLoaded(songData, newQuery);
-      console.log('songData: ', songData)
       setIsLoading(false);
-      console.log(isLoading);
     } catch (error) {
       console.log('Error: ', error);
       setIsLoading(false);

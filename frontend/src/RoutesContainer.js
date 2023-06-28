@@ -18,7 +18,6 @@ const RoutesContainer = ({
   const navigate = useNavigate();
 
     const getDataTableRoutePath = (query) => {
-      console.log('getDataTableRoutePath: ', query)
       const { song, performer } = query;
       let path = '/song-data';
 
@@ -33,18 +32,13 @@ const RoutesContainer = ({
       const search = searchParams.toString();
       if (search) {
         path += `?${search}`;
-        console.log(path)
       }
-      console.log(path)
 
       return path;
     };
 
   useEffect(() => {
-    console.log('dataLoaded: ', dataLoaded)
-    console.log('error: ', error)
     if (dataLoaded && !error) {
-      console.log('Navigate')
       navigate(getDataTableRoutePath(query)); // Navigate to SongDataTable route programmatically
     }
   }, [dataLoaded, error, query, navigate]);
