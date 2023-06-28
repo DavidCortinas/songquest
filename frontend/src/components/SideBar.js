@@ -23,10 +23,6 @@ export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
   const isLandscape = useMediaQuery('(orientation: landscape)');
 
-export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
-  const isLgScreen = useMediaQuery('(min-width: 1200px)')
-  const viewHeight = window.outerHeight;
-
   useEffect(() => {
     function handleResize() {
       onCollapse(!isLgScreen);
