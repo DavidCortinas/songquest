@@ -91,7 +91,6 @@ export const Home = () => {
     const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
     const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
     const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
-    console.log(theme)
 
     return (
         <Box display='flex' flexDirection='column'>

@@ -31,12 +31,10 @@ function App() {
   }, []);
 
   const handleCollapse = () => {
-    console.log('handleCollapse')
     setCollapse((collapsed) => !collapsed)
   }
 
   if (csrfToken === null) {
-    console.log('LOADING')
     // You can show a loading state or spinner until the CSRF token is retrieved
     return <LoadingState />;
   }
