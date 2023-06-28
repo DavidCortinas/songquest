@@ -52,6 +52,11 @@ const useStyles = makeStyles((theme) => (
       width: '25rem',
     },
   },
+  description: {
+    maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
+    color: '#6f6f71',
+    paddingTop: '1rem',
+  },
   buttonsContainer: {
     display: 'flex',
     justifyContent: 'center',
