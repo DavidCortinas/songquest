@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '216.128.141.249',
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
                  'songquest.io', 'www.songquest.io']
 
 
@@ -40,8 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'rest_framework',
+    'songquest',
+    # 'songquest.user',
+    'songquest.user.apps.UserConfig',
+    # 'audiofield',
     'frontend',
-    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -53,7 +58,32 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'audiofield.middleware.threadlocals.ThreadLocals',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+
+AUTH_USER_MODEL = 'user.User'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Frontend widget values
+# 0-Keep original, 1-Mono, 2-Stereo
+CHANNEL_TYPE_VALUE = 0
+
+# 0-Keep original, 8000-8000Hz, 16000-16000Hz, 22050-22050Hz,
+# 44100-44100Hz, 48000-48000Hz, 96000-96000Hz
+FREQ_TYPE_VALUE = 8000
+
+# 0-Keep original, 1-Convert to MP3, 2-Convert to WAV, 3-Convert to OGG
+CONVERT_TYPE_VALUE = 0
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
@@ -129,3 +159,5 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

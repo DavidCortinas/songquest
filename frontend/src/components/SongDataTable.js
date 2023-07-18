@@ -11,7 +11,6 @@ const isEmptyObject = (obj) => {
 };
 
 const Table = ({ songData, query }) => {
-  console.log('table: ', songData, query)
   const columns = React.useMemo(
     () => [
       {

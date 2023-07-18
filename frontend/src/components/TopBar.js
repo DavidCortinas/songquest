@@ -10,14 +10,17 @@ import {
   useMediaQuery,
   useScrollTrigger,
 } from '@mui/material';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
-import { resetDataLoaded } from '../actions';
-import { connect } from 'react-redux';
+import { resetDataLoaded, setCurrentUser } from '../actions';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import '../App.css';
 import { useTheme } from '@mui/styles';
+import { authSlice } from '../reducers';
 
-export const TopBar = ({ resetDataLoaded, collapse }) => {
+export const TopBar = ({ resetDataLoaded, collapse, user }) => {
   const theme = useTheme();
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -25,12 +28,20 @@ export const TopBar = ({ resetDataLoaded, collapse }) => {
   const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
+  const dispatch = useDispatch()
+
   const navigate = useNavigate();
 
   const handleNavigate = () => {
     resetDataLoaded();
     navigate('/', { replace: true });
   };
+
+  const handleLogout = () => {
+    dispatch(authSlice.actions.logout());
+    dispatch(setCurrentUser(null))
+    navigate('/')
+  }
 
   return (
     <Box 
@@ -46,7 +57,6 @@ export const TopBar = ({ resetDataLoaded, collapse }) => {
     >
       <Box
         display="flex"
-        // backgroundColor={colors.primary[400]}
         borderRadius="3px"
       >
         <Link
@@ -61,7 +71,6 @@ export const TopBar = ({ resetDataLoaded, collapse }) => {
           onClick={handleNavigate}
         >
           <Typography variant="h6" component="div" color='#006f96'>
-          {/* <Typography variant="h6" component="div" color='#007fbf'> */}
             SongQuest
           </Typography>
         </Link>
@@ -75,18 +84,44 @@ export const TopBar = ({ resetDataLoaded, collapse }) => {
         >
           <SearchIcon />
         </IconButton>
-        <IconButton
+        {!user ?
+          <IconButton
+            color="inherit"
+            component={Link}
+            to="/login"
+            style={{ textDecoration: 'none', color: 'darkcyan' }}
+          >
+            {!isXsScreen && <Typography>Login/SignUp</Typography>}
+            <LoginIcon />
+          </IconButton>
+        : 
+          <IconButton
+            color="inherit"
+            component={Link}
+            onClick={handleLogout}
+            style={{ textDecoration: 'none', color: 'darkcyan' }}
+          >
+            {!isXsScreen && <Typography>Logout</Typography>}
+            <LogoutIcon />
+          </IconButton>
+        }
+        {/* <IconButton
           color="inherit"
           component={Link}
-          to="/"
+          to='/song-detector'
           style={{ textDecoration: 'none' }}
-          disabled
         >
           <SpatialAudioIcon />
-        </IconButton>
+        </IconButton> */}
       </Box>
     </Box>
   );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.auth.account,
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -97,4 +132,5 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(null, mapDispatchToProps)(TopBar);
+// export default connect(null, mapDispatchToProps)(TopBar);
+export default connect(mapStateToProps, mapDispatchToProps)(TopBar);

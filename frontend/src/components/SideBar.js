@@ -8,33 +8,23 @@ import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
 import WorkIcon from '@mui/icons-material/Work';
-import { Box, useMediaQuery } from '@mui/material';
+import { Box, Tooltip, useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
 import { makeStyles } from '@mui/styles';
 import theme from '../theme';
 import '../App.css';
 
-export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
-  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+export const SideBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }) => {
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
-  const isLandscape = useMediaQuery('(orientation: landscape)');
 
-  const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      navigate('/search');
-    }
-  }, [location.pathname, navigate]);
 
   const handleNavigation = (path) => {
     resetDataLoaded();
     navigate(path);
   };
+
+  const isSubscribed = false;
 
   return (
     <Sidebar
@@ -90,18 +80,46 @@ export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
                 {!collapse && 'Search Song'}
               </Box>
             </MenuItem>
-            <MenuItem disabled>
+            {currentUser ? 
+            <MenuItem
+              style={{ color: '#006f96' }}
+              onClick={() => handleNavigation('/song-detector')}
+            >
               <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
                 <SpatialAudioIcon style={{ paddingRight: '5%'}}/>
                 {!collapse && 'Detect Song'}
               </Box>
-            </MenuItem>
-            <MenuItem disabled>
+            </MenuItem> :
+            <Tooltip title='Login to access song detection' arrow enterTouchDelay={0}>
+              <span>
+                <MenuItem disabled>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <SpatialAudioIcon style={{ paddingRight: '5%'}}/>
+                    {!collapse && 'Detect Song'}
+                  </Box>
+                </MenuItem>                 
+              </span>  
+            </Tooltip>}
+            {isSubscribed ? 
+            <MenuItem
+              style={{ color: '#006f96' }}
+              onClick={() => handleNavigation('/song-detector')}
+            >
               <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
                 <SavedSearchIcon style={{ paddingRight: '5%'}}/>
                 {!collapse && 'Saved Searches'}
               </Box>
-            </MenuItem>
+            </MenuItem> :
+            <Tooltip title='Upgrade to access saved searches' arrow enterTouchDelay={0}>
+              <span>
+                <MenuItem disabled>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <SavedSearchIcon style={{ paddingRight: '5%'}}/>
+                    {!collapse && 'Saved Searches'}
+                  </Box>
+                </MenuItem>                 
+              </span>  
+            </Tooltip>}
             {/* <MenuItem disabled>
               {collapse ? <WorkIcon /> : 'Licensing Projects'}
             </MenuItem> */}
@@ -112,6 +130,10 @@ export const SideBar = ({ resetDataLoaded, collapse, onCollapse }) => {
   );
 };
 
+const mapStateToProps = (state) => ({
+  currentUser: state.user.currentUser?.user,
+});
+
 const mapDispatchToProps = (dispatch) => {
   return {
     resetDataLoaded: () => {
@@ -120,4 +142,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(null, mapDispatchToProps)(SideBar);
+export default connect(mapStateToProps, mapDispatchToProps)(SideBar);

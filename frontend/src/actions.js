@@ -29,3 +29,16 @@ export const RESET_DATA_LOADED = 'RESET_DATA_LOADED';
 export const resetDataLoaded = () => ({
   type: RESET_DATA_LOADED,
 });
+
+export const CONFIRM_USER = "CONFIRM_USER";
+export const confirmUser = (user) => ({
+  type: CONFIRM_USER,
+  payload: { user },
+})
+
+export const SET_CURRENT_USER = 'SET_CURRENT_USER';
+export const setCurrentUser = (user) => ({
+  type: SET_CURRENT_USER,
+  payload: { user },
+});
+
