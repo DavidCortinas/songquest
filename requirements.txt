@@ -97,7 +97,7 @@ wcwidth==0.2.6
 webdriver-manager==3.8.5
 websockets==10.4
 wsproto==1.2.0
-yt-dlp==2023.3.4
+yt-dlp==2023.7.6
 zipp==3.15.0
 zope.interface==6.0
 
