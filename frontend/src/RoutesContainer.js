@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react';
 import SongForm from './components/SongForm';
 import SongDataTable from './components/SongDataTable';
+import Login from './components/Login';
 import { searchSongRequest } from './thunks';
 import { connect } from 'react-redux';
 import { searchSongSuccess } from './actions';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Container } from '@mui/material';
-import { Home } from './components/Home';
+import Home from './components/Home';
+import { SongDetector } from './components/SongDetector';
+
 
 const RoutesContainer = ({
   query,
@@ -61,6 +64,12 @@ const RoutesContainer = ({
             />
           }
         />
+        <Route 
+          path={'/login'}
+          element={
+            <Login />
+          }
+        />
         <Route
           path={'/song-data'}
           element={
@@ -72,15 +81,21 @@ const RoutesContainer = ({
             />
           }
         />
+        <Route
+          path={'/song-detector'}
+          element={
+            <SongDetector />
+          }
+        />
       </Routes>
   );
 };
 
 const mapStateToProps = (state) => {
   return {
-    query: state.song.query || {},
-    dataLoaded: state.song.dataLoaded || false,
-    error: state.song.error,
+    query: state.song?.query || {},
+    dataLoaded: state.song?.dataLoaded || false,
+    error: state.song?.error,
   };
 };
 

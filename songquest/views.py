@@ -4,6 +4,8 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.http import JsonResponse
 from time import time
+
+from songquest.user.models import User
 from . import spotify_api
 from .scrapers import ascap_scraper, bmi_scraper
 
@@ -72,3 +74,39 @@ def search_song(request):
         status=200,
         headers={'Access-Control-Allow-Origin': '*'}
     )
+
+
+@csrf_exempt
+def get_user(request):
+    data = json.loads(request.body)
+    user = data['email']
+    users = list(User.objects.values_list("email", flat=True))
+    try:
+        if user in users:
+            response_data = {
+                "email": user,
+                "isRegistered": True,
+            }
+            return JsonResponse(
+                response_data,
+                status=200,
+                headers={'Access-Control-Allow-Origin': '*'}
+            )
+        else:
+            response_data = {
+                "email": user,
+                "isRegistered": False,
+            }
+            return JsonResponse(
+                response_data,
+                status=200,
+                headers={'Access-Control-Allow-Origin': '*'}
+            )
+
+    except ValueError:
+        print("ValueError: ", ValueError)
+
+
+@csrf_exempt
+def login_user():
+    pass

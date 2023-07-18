@@ -22,5 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('frontend.urls')),
     path("search/", views.search_song, name='search'),
+    path("user/", views.get_user, name='user'),
     path('get-csrf-token/', views.get_csrf_token, name='get-csrf-token'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('api/', include(('songquest.routers', 'songquest'), namespace='songquest-api')),
 ]

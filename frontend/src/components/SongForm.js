@@ -18,9 +18,10 @@ import { makeStyles, useTheme } from '@mui/styles';
 import { searchSongRequest } from '../thunks';
 import { clearSearchSongError, searchSongSuccess } from '../actions';
 import '../App.css';
+import theme from '../theme'
 import { LoadingState } from './LoadingState';
 
-const useStyles = makeStyles((theme) => (
+const useStyles = makeStyles(() => (
   {
   card: {
     backgroundColor: "white",
@@ -178,7 +179,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
                     autoFocus
                     variant='outlined'
                     InputLabelProps={{ style: { margin: '2px 5px' }}}
-                    InputProps={{ disableUnderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
+                    InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
                     error={invalidSearch}
                     required
                     className={classes.textField}
@@ -191,7 +192,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
                   <TextField
                     variant='outlined'
                     InputLabelProps={{ style: { margin: '2px 5px' }}}
-                    InputProps={{ disableUnderline: 'true', style: { margin: '5px', padding: '5px 0' } }}
+                    InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0' } }}
                     className={classes.textField}
                     onChange={handlePerformerChange}
                     value={performerValue}

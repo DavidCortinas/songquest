@@ -1,10 +1,11 @@
-import { Box, Card, Typography, useMediaQuery } from "@mui/material"
+import { Box, Card, Tooltip, Typography, useMediaQuery } from "@mui/material"
 import { makeStyles } from '@mui/styles';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
 import { Link } from "react-router-dom";
 import theme from "../theme";
+import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => (
     {
@@ -70,6 +71,13 @@ const useStyles = makeStyles((theme) => (
             flexDirection: 'column',
             border: '1px solid #b0b0b0',
         },
+        optionsCardDisabled: {
+            width: '100%',
+            backgroundColor: 'white',
+            flexDirection: 'column',
+            border: '1px solid #b0b0b0',
+            opacity: '0.5',
+        },
         optionsText: {
             color: '#006f96',
             display: 'flex',
@@ -84,21 +92,20 @@ const useStyles = makeStyles((theme) => (
     }
 ))
 
-export const Home = () => {
+export const Home = ({ currentUser }) => {
     const classes = useStyles();
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-    const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-    const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-    const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+
+    const isSubscribed = false;
 
     return (
         <Box display='flex' flexDirection='column'>
             <Box className={classes.introBox}>
                 <Typography className={classes.intro} variant={isXsScreen || isSmScreen ? "body1" : "h6"}>
                     {isXsScreen || isSmScreen
-                    ? "How can SongQuest help you?"
-                    : "Clearing a song is hard enough as it is. Let SongQuest help you get started with your journey. How can we help to move things along?"
+                    ? "Simplify music licensing with SongQuest. Choose from one of the tasks below and unlock a world of possibilities."
+                    : "Simplify music licensing with SongQuest. Instantly find song rights holders and identify captivating tracks effortlessly. Choose from one of the tasks below and unlock a world of possibilities."
                     }
                 </Typography>
             </Box>
@@ -129,7 +136,8 @@ export const Home = () => {
                     ? classes.optionsBar 
                     : classes.optionsBox
                 }>
-                    <Link className={classes.optionsLinkDisabled}>
+                    {currentUser ? 
+                    <Link to='/song-detector' className={classes.optionsLink}>
                         <Card className={classes.optionsCard}>
                             <Typography 
                                 className={classes.optionsText}
@@ -138,17 +146,32 @@ export const Home = () => {
                                 : null
                                 }
                             >
-                                Find The Name Of A Song With Song Detection
+                                Discover The Name Of A Song With Song Detection
                             </Typography>
                             <SpatialAudioIcon className={classes.optionsIcon}/>
                         </Card>
                     </Link>
+                    : <Tooltip title='Login to access song detection' arrow enterTouchDelay={0}>
+                        <Card className={classes.optionsCardDisabled}>
+                            <Typography 
+                                className={classes.optionsText}
+                                variant={isSmScreen || isXsScreen
+                                ? 'caption'
+                                : null
+                                }
+                            >
+                                Discover The Name Of A Song With Song Detection
+                            </Typography>
+                            <SpatialAudioIcon className={classes.optionsIcon}/>
+                        </Card>    
+                    </Tooltip>}
                 </Box>
                 <Box className={isXsScreen || isSmScreen
                     ? classes.optionsBar 
                     : classes.optionsBox
                 }>
-                    <Link className={classes.optionsLinkDisabled}>
+                    {isSubscribed ? 
+                    <Link className={classes.optionsLink}>
                         <Card className={classes.optionsCard}>
                             <Typography 
                                 className={classes.optionsText}
@@ -162,8 +185,28 @@ export const Home = () => {
                             <SavedSearchIcon className={classes.optionsIcon}/>
                         </Card>
                     </Link>
+                    : <Tooltip title='Upgrade to access saved searches' arrow enterTouchDelay={0}>
+                        <Card className={classes.optionsCardDisabled}>
+                            <Typography 
+                                className={classes.optionsText}
+                                variant={isSmScreen || isXsScreen
+                                ? 'caption'
+                                : null
+                                }
+                            >
+                                Review Your Saved Searches
+                            </Typography>
+                            <SavedSearchIcon className={classes.optionsIcon}/>
+                        </Card>    
+                    </Tooltip>}
                 </Box>
             </Box>
         </Box>
     )
 };
+
+const mapStateToProps = (state) => ({
+  currentUser: state.user.currentUser?.user,
+});
+
+export default connect(mapStateToProps)(Home);
