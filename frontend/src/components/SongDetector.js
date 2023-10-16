@@ -1,16 +1,14 @@
 import { makeStyles } from "@mui/styles";
 import theme from "../theme";
-import { Alert, Box, Button, Card, CardHeader, Grid, Snackbar, TextField, Typography, useMediaQuery } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { useCallback, useRef, useState } from "react";
-import { connect, useDispatch } from "react-redux";
+import { Box, Button, Card, CardHeader, Typography, useMediaQuery } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { connect } from "react-redux";
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useDropzone } from 'react-dropzone';
-import 'react-dropzone-uploader/dist/styles.css'
-import Dropzone from 'react-dropzone-uploader'
-import { LoadingState } from "./LoadingState";
-import { clearSearchSongError, searchSongSuccess } from "../actions";
-import { handleUpload, searchSongRequest } from "../thunks";
+import classNames from "classnames";
+import 'react-dropzone-uploader/dist/styles.css';
+import { searchSongSuccess } from "../actions";
+import { searchSongRequest } from "../thunks";
 
 const useStyles = makeStyles(() => (
   {
@@ -52,7 +50,6 @@ const useStyles = makeStyles(() => (
   buttonsContainer: {
     display: 'flex',
     justifyContent: 'center',
-    // marginTop: '1rem',
   },
   uploader: {
     display: 'flex',
@@ -65,13 +62,18 @@ const useStyles = makeStyles(() => (
   },
   uploaderBox: {
     borderStyle: 'dashed',
+    borderColor: '#b9ced5',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
+  highlight: {
+    borderStyle: 'dashed',
     borderColor: '#006f96',
     borderRadius: '5px',
-    // cursor: 'pointer',
+    cursor: 'pointer',
   },
   button: {
-    color: '#295971',
-    marginTop: '3px',
+    margin: '3px 0',
   },
   noBottomLine: {
     borderBottom: 'none',
@@ -84,114 +86,135 @@ const useStyles = makeStyles(() => (
 }));
 
 const Uploader = () => {
-    const classes = useStyles()
+  const classes = useStyles();
+  const [fileList, setFileList] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-    const [fileList, setFileList] = useState(null);
-    console.log(fileList)
-    const [shouldHighlight, setShouldHighlight] = useState(false);
+  const getAudioDuration = (file) => {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio();
+      audio.addEventListener("loadedmetadata", () => {
+        resolve(audio.duration);
+      });
+      audio.addEventListener("error", (error) => {
+        console.error("Error loading audio:", error);
+        reject(error);
+      });
 
-    const preventDefaultHandler = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
+      audio.src = URL.createObjectURL(file);
+    });
+  };
 
-    const fileInputRef = useRef(null);
+  const handleUpload = async (files) => {
+    const UPLOAD_URL = "http://localhost:8000/api/upload/";
+    const data = new FormData();
+    for (let file of files) {
+      data.append("audio_file", file);
+      data.append('title', file.name);
+      data.append('artist', 'artist');
+      try {
+        const audioDuration = await getAudioDuration(file);
+        data.append("duration", audioDuration.toString());
+      } catch (error) {
+        console.error("Error getting audio duration: ", error);
+      }
+      data.append('to_license', 'false');
+      data.append('to_detect', 'true');
+    }
+    
+    // console.log("filelist: ", files);
+    // Log the key-value pairs in the FormData
+    for (let pair of data.entries()) {
+      // console.log(pair[0] + ', ' + pair[1]);
+    }
 
-    const openFileBrowser = () => {
-        console.log('Pre')
-        fileInputRef.current.click();
-        console.log('Post')
-    };
+    const options = {
+    method: "POST",
+    body: data,
+    // headers: {
+    //   "Content-Type": "multipart/form-data", // Set the correct Content-Type
+    // },
+  };
 
-    const handleUpload = async (filelist) => {
-        const UPLOAD_URL = "/api/upload";
-        const data =new FormData();
-        for (let file of filelist) {
-            data.append(file.name, file);
-        }
-        console.log('filelist: ', filelist)
-        fetch(UPLOAD_URL, data)
-        }
+  try {
+    const response = await fetch(UPLOAD_URL, options);
+    if (response.ok) {
+      console.log("Upload successful");
+      // Handle success
+    } else {
+      console.error("Upload failed:", response.statusText);
+      // Handle error
+    }
+  } catch (error) {
+    console.error("Upload error:", error);
+    // Handle error
+  }
+  };
 
-    return (
-        <div 
-            className={classes.uploaderBox}
-            onDragOver={(e) => {
-                preventDefaultHandler(e);
-                setShouldHighlight(true);
-            }}
-            onDragEnter={(e) => {
-                preventDefaultHandler(e);
-                setShouldHighlight(true);
-            }}
-            onDragLeave={(e) => {
-                preventDefaultHandler(e);
-                setShouldHighlight(false);
-            }}
-            onDrop={(e) => {
-                preventDefaultHandler(e);
-                const files = Array.from(e.dataTransfer.files);
-                setFileList(files);
-                setShouldHighlight(false);
-            }}
-            onClick={openFileBrowser} 
-        >
-            <div className={classes.uploader}>
-                {!fileList ? (
-                    <>
-                        <AudioFileIcon  fontSize="large" className={classes.audioIcon} />
-                        <Typography variant="body1" marginBottom='15px' color='#006f96'>
-                            Choose a file or drop the track here
-                        </Typography>
-                    </>
-                ) : (
-                    <>
-                        <Typography 
-                            variant="h6" 
-                            marginBottom='10px'
-                            color='#18395c'
-                        >
-                            Files to Upload
-                        </Typography>
-                        {fileList.map((file, i) => {
-                            return (
-                                <Typography 
-                                    variant="body1" 
-                                    marginBottom='5px'
-                                >
-                                    {file.name}
-                                </Typography>
-                                );
-                        })}
-                        <div className={classes.button}>
-                            <button onClick={() => handleUpload(fileList)}>
-                                Upload
-                            </button>
-                            <button
-                                className={classes.button}
-                                onClick={() => {
-                                setFileList(null);
-                                }}
-                            >
-                                Clear
-                            </button>
-                        </div>
-                    </>
-                )}
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                    // Handle file selection
-                    const file = e.target.files[0];
-                    // Process the selected file
-                    }}
-                />
+  const handleDrop = (droppedFiles) => {
+    setFileList(droppedFiles);
+    setIsDragging(false);
+  };
+
+  const preventDefaultHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop: handleDrop });
+
+  return (
+    <div
+      {...getRootProps({
+        onClick: fileList ? preventDefaultHandler : undefined,
+        onDragOver: () => setIsDragging(true),
+        onDragEnter: () => setIsDragging(true),
+        onDragLeave: () => setIsDragging(false),
+      })}
+      className={classNames(classes.uploaderBox, {
+        [classes.highlight]: isDragging,
+      })}
+    >
+      <div className={classes.uploader}>
+        {!fileList ? (
+          <>
+            <AudioFileIcon fontSize="large" className={classes.audioIcon} />
+            <Typography variant="body1" marginBottom="15px" color="#006f96">
+              Choose a mp3 or wav file or drop the track here
+            </Typography>
+          </>
+        ) : (
+          <>
+            <Typography variant="h6" marginBottom="10px" color="#18395c">
+              Song to Detect
+            </Typography>
+            {fileList.map((file, i) => (
+              <Typography color='black' variant="body1" marginBottom="5px" key={file.name}>
+                {file.name}
+              </Typography>
+            ))}
+            <div className={classes.button}>
+              <Button onClick={() => handleUpload(fileList)}>Detect</Button>
+              <Button
+                onClick={() => {
+                  setFileList(null);
+                }}
+              >
+                Clear
+              </Button>
             </div>
-        </div>
-    )
-}
+          </>
+        )}
+      </div>
+      <input
+        {...getInputProps()}
+        type="file"
+        style={{ display: "none" }}
+      />
+    </div>
+  );
+};
+
 
 export const SongDetector = ({ error, onSearchPressed, onDataLoaded }) => {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -218,7 +241,7 @@ export const SongDetector = ({ error, onSearchPressed, onDataLoaded }) => {
                     textAlign: 'center',
                     color: 'black',
                   }}
-                  subheader={!isXsScreen && "Drop the track in the uploader below or click the button to browse through your local directory"}
+                  subheader={!isXsScreen && "Drop the mp3 or wav file in the uploader below or click the button to browse through your local directory"}
                   subheaderTypographyProps={{ 
                     width: isSmScreen || isXsScreen ? '100%' : '28rem', 
                     variant: isXlScreen || isLgScreen 

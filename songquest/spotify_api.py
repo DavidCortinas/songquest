@@ -6,6 +6,10 @@ from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from time import time
 
+# curl - -request GET \
+#     - -url 'https://api.spotify.com/v1/recommendations?seed_artists=0oK5D6uPhGu4Jk2dbZfodU&seed_genres=funk%2C+soul&seed_tracks=3W4xqKFMKBauuU517t8NIb&min_acousticness=0&max_acousticness=1&target_acousticness=5&min_danceability=0&max_danceability=1&target_danceability=.9&min_duration_ms=0&max_duration_ms=1800000&target_duration_ms=180000&min_energy=0&max_energy=1&target_energy=9&min_instrumentalness=0&max_instrumentalness=1&target_instrumentalness=7&min_key=0&max_key=11&target_key=7&min_liveness=0&max_liveness=1&target_liveness=9&min_loudness=-60&max_loudness=0&target_loudness=-5&min_mode=0&max_mode=1&target_mode=7&min_popularity=0&max_popularity=100&target_popularity=10&min_speechiness=0&max_speechiness=1&target_speechiness=6&min_tempo=0&max_tempo=300&target_tempo=110&min_time_signature=0&max_time_signature=11&target_time_signature=4&min_valence=0&max_valence=1&target_valence=9' \
+#     - -header 'Authorization: Bearer 1POdFZRZbvb...qqillRxMr2z'
+
 load_dotenv()
 
 client_id = os.environ.get('SPOTIFY_CLIENT_ID')
@@ -49,6 +53,35 @@ def get_access_token():
         # Handle the error response
         print(f"Error: {response.status_code} - {response.text}")
         return None, None
+
+
+def check_access_token():
+    try:
+        # Get the initial access token
+        access_token, expires_in = get_access_token()
+
+        if access_token:
+            # Use the access token in your API requests
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+            }
+            # Make your API request with the headers
+
+            # Check if the access token has expired
+            if expires_in <= 0:
+                # Access token has expired, get a new one
+                access_token, expires_in = get_access_token()
+                if access_token:
+                    # Update the headers with the new access token
+                    headers["Authorization"] = f"Bearer {access_token}"
+                    # Make your API request with the updated headers
+            else:
+                # Handle the error case
+                print("Failed to obtain access token.")
+        return access_token
+    except Exception as e:
+        print('Spotify API AccessError: ', e)
+
 
 
 def get_spotify_rights(song, performer):
@@ -116,6 +149,20 @@ def get_spotify_rights(song, performer):
 
                 if target_track:
                     album_id = target_track['album']['id']
+
+                    album = sp.album(album_id=album_id)
+
+                    copyrights = album['copyrights']
+                    label = album['label']
+
+                    copyrights_list = []
+                    for copyright in copyrights:
+                        copyrights_list.append(copyright['text'])
+
+                    data = {
+                        'copyrights': [copyrights_list],
+                        'label': [[label]]
+                    }
                 else:
                     print('Track not found')
 
@@ -127,20 +174,6 @@ def get_spotify_rights(song, performer):
 
     except Exception as e:
         print('Spotify Get Album ID Error: ', e)
-
-    album = sp.album(album_id=album_id)
-
-    copyrights = album['copyrights']
-    label = album['label']
-
-    copyrights_list = []
-    for copyright in copyrights:
-        copyrights_list.append(copyright['text'])
-
-    data = {
-        'copyrights': [copyrights_list],
-        'label': [[label]]
-    }
 
     end_time = time()
 

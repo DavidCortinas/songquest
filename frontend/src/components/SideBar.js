@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
 import WorkIcon from '@mui/icons-material/Work';
+import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
 import { Box, Tooltip, useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
-import { makeStyles } from '@mui/styles';
 import theme from '../theme';
 import '../App.css';
 
@@ -49,38 +49,63 @@ export const SideBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }) 
             },
           }}>
             {!isSmScreen && 
-              <MenuItem
-                onClick={onCollapse}
-                style={{ display: 'flex', alignItems: 'center' }}
+              // <MenuItem
+              //   onClick={onCollapse}
+              //   style={{ display: 'flex', alignItems: 'center' }}
+              // >
+              //   {/* <MenuOpenIcon
+              //     style={{
+              //       transform: collapse ? 'scaleX(-1)' : 'scaleX(1)',
+              //       transition: 'transform 0.3s ease',
+              //       // color: 'white',
+              //     }}
+              //   /> */}
+              //   <img src='frontend/src/images/sq-logo.png'/>
+              // </MenuItem>
+              <MenuItem 
+                onClick={() => handleNavigation('/')}
+                style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  padding: '0',
+                  transform: 'translateY(11.5px)',
+                }}
               >
-                <MenuOpenIcon
-                  style={{
-                    transform: collapse ? 'scaleX(-1)' : 'scaleX(1)',
-                    transition: 'transform 0.3s ease',
-                    // color: 'white',
-                  }}
+                <img
+                  src={require('../images/sq-logo-2.png')}
+                  alt="Logo"
+                  style={{ width: '50%' }}
                 />
               </MenuItem>
             }
-            <MenuItem
-              style={{ color: '#006f96' }}
+            {/* <MenuItem
+              style={{ color: '#006f96', transform: 'translateY(11.5px)' }}
               onClick={() => handleNavigation('/')}
             >
               <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
-                <HomeIcon style={{ color: '#006f96', paddingRight: '5%' }} />
+                <HomeIcon style={{ color: '#006f96' }} />
                 {!collapse && 'Home'}
               </Box>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem
+              style={{ color: '#006f96', transform: 'translateY(3px)' }}
+              onClick={() => handleNavigation('discover')}
+            >
+              <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                <YoutubeSearchedForIcon style={{ color: '#006f96', fontSize: '26px' }} />
+                {!collapse && 'DiscoverMusic'}
+              </Box>
+            </MenuItem>
+            {/* <MenuItem
               style={{ color: '#006f96' }}
               onClick={() => handleNavigation('/search')}
             >
               <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
                 <SearchIcon style={{ color: '#006f96', paddingRight: '5%' }} />
-                {!collapse && 'Search Song'}
+                {!collapse && 'SongSearch'}
               </Box>
-            </MenuItem>
-            {currentUser ? 
+            </MenuItem> */}
+            {/* {currentUser ? 
             <MenuItem
               style={{ color: '#006f96' }}
               onClick={() => handleNavigation('/song-detector')}
@@ -119,7 +144,7 @@ export const SideBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }) 
                   </Box>
                 </MenuItem>                 
               </span>  
-            </Tooltip>}
+            </Tooltip>} */}
             {/* <MenuItem disabled>
               {collapse ? <WorkIcon /> : 'Licensing Projects'}
             </MenuItem> */}

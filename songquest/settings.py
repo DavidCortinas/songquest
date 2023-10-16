@@ -17,6 +17,7 @@ load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -33,6 +34,21 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
 
 # Application definition
 
+CORS_ALLOW_HEADERS = ['x-csrftoken', "X-CSRFToken", 'Content-Type']
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+]
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_COOKIE_DOMAIN = None
+CSRF_COOKIE_SECURE = False
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,8 +59,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'songquest',
-    # 'songquest.user',
     'songquest.user.apps.UserConfig',
+    'songquest.songs.apps.SongsConfig',
     # 'audiofield',
     'frontend',
 ]
@@ -52,8 +68,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -85,16 +101,12 @@ FREQ_TYPE_VALUE = 8000
 # 0-Keep original, 1-Convert to MP3, 2-Convert to WAV, 3-Convert to OGG
 CONVERT_TYPE_VALUE = 0
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-]
-
 ROOT_URLCONF = 'songquest.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'frontend')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,6 +150,39 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'songquest.authentication.SpotifyBackend',
+]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'django.log',  # Customize the log file path
+        },
+    },
+    'root': {
+        'handlers': ['console'],  # Specify which handlers to use
+        'level': 'DEBUG',  # Set the root logger level
+    },
+    'loggers': {
+        'django': {
+            # Log only to the file for Django-related logs
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,  # Prevent logs from being propagated to the root logger
+        },
+    },
+}
 
 
 # Internationalization

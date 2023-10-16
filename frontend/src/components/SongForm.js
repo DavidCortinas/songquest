@@ -7,7 +7,6 @@ import {
   Button,
   Card,
   CardHeader,
-  FormControl,
   Grid,
   Snackbar,
   Typography,
@@ -203,13 +202,12 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
                 <br />
                 <Grid className={classes.buttonsContainer}>
                   <Button
-                    type="submit"
-                    className={classes.button}
+                    type="submit"                 
                     onClick={handleSubmit(onSubmit)}
                   >
                     Submit
                   </Button>
-                  <Button className={classes.button} onClick={handleReset}>
+                  <Button onClick={handleReset}>
                     Reset
                   </Button>
                 </Grid>

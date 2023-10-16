@@ -1,18 +1,19 @@
-import { Box, Button, Card, CardHeader, Grid, TextField, useMediaQuery } from "@mui/material";
-import { useState } from "react";
+import { Box, Button, Card, CardHeader, Grid, TextField, Typography, useMediaQuery } from "@mui/material";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { connect, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import theme from '../theme'
 import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { checkRegistration, login, registerUser } from "../thunks";
-import { setCurrentUser } from "../actions";
+import { checkRegistration, getSpotifyUserAuth, login, registerUser } from "../thunks";
+import { requestSpotifyUserAuth, setCurrentUser } from "../actions";
+import { autoBatchEnhancer } from "@reduxjs/toolkit";
 
 const useStyles = makeStyles(() => (
   {
   card: {
-    backgroundColor: "white",
+    backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
     justifyContent: 'center',
     display: 'flex',
     width: '100%',
@@ -21,16 +22,14 @@ const useStyles = makeStyles(() => (
     display: 'flex',
     flexDirection: 'column',
     color: "#007fbf",
-    backgroundColor: "white",
+    backgroundColor: "transparent",
   },
   textField: {
     width: '300px',
     [theme.breakpoints.down('sm')]: {
-      width: '75%',
+      width: '100%',
     },
-    [theme.breakpoints.down('xs')]: {
-      width: '80%',
-    },
+
     backgroundColor: 'white',
     borderRadius: '5px',
   },
@@ -50,12 +49,15 @@ const useStyles = makeStyles(() => (
     justifyContent: 'center',
     marginTop: '1rem',
   },
+  button: {
+    color: 'white'
+  },
   noBottomLine: {
     borderBottom: 'none',
   }
 }));
 
-export const Login = () => {
+export const Login = ({ onConnectThroughSpotify }) => {
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
     const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -64,7 +66,7 @@ export const Login = () => {
 
     const classes = useStyles();
 
-    const { handleSubmit, register, formState: { errors }, trigger } = useForm();
+    const { handleSubmit, register, formState: { errors } } = useForm();
     
     const [emailValue, setEmailValue] = useState('');
     const [usernameValue, setUsernameValue] = useState('');
@@ -72,6 +74,7 @@ export const Login = () => {
     const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
     const [checkedRegistration, setCheckedRegistration] = useState(false);
     const [userRegistered, setUserRegistered] = useState(false);
+    const [userData, setUserData] = useState(null);
     const [invalidEmail, setInvalidEmail] = useState(false);
     const [invalidUsername, setInvalidUsername] = useState(false);
     const [usernameCreated, setUsernameCreated] = useState(false);
@@ -87,12 +90,15 @@ export const Login = () => {
             return;
         }
         setCheckedRegistration(true);
+        console.log(emailValue)
+        console.log(userRegistered)
 
         try {
             const currentUser = await dispatch(checkRegistration({
                 email: emailValue,
                 isRegistered: userRegistered,
             }));
+            console.log(currentUser)
 
             
             if (currentUser.isRegistered) {
@@ -118,7 +124,8 @@ export const Login = () => {
         }
 
         try {
-            const currentUser = await dispatch(login(emailValue, passwordValue));
+            const currentUser = await dispatch(login(emailValue, passwordValue, null, null));
+            console.log(currentUser)
             dispatch(setCurrentUser(currentUser));
             currentUser && navigate('/')
         } catch (error) {
@@ -138,7 +145,7 @@ export const Login = () => {
         
         try {
             await dispatch(registerUser(emailValue, passwordValue, usernameValue));
-            const currentUser = await dispatch(login(emailValue, passwordValue));
+            const currentUser = await dispatch(login(emailValue, passwordValue, null, null));
             currentUser && navigate('/')
         } catch (error) {
             console.log('Error: ', error);
@@ -180,10 +187,15 @@ export const Login = () => {
         onCreatePassword(); 
     };
 
+    const handleConnectThroughSpotify = (e) => {
+        e.preventDefault();
+        onConnectThroughSpotify();
+    }
+
     return !checkedRegistration && !userRegistered ? (
         <>
-            <Box display='flex' justifyContent='center' paddingTop='3rem'>
-                <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
+            <Box display='flex' justifyContent='center' paddingTop='1rem'>
+                <Box width='100%'>
                     <Card className={classes.card}>
                         <form className={classes.form} onSubmit={handleEmailSubmit}>
                             <CardHeader
@@ -194,7 +206,8 @@ export const Login = () => {
                                     ? 'h6'
                                     : 'h5',
                                     textAlign: 'center',
-                                    color: 'black',
+                                    color: 'white',
+                                    paddingTop: '1rem'
                                 }}
                                 subheader='Enter an email to get started!'
                                 subheaderTypographyProps={{ 
@@ -203,15 +216,25 @@ export const Login = () => {
                                     ? 'body1'
                                     : 'body2',
                                     textAlign: 'center',
-                                    color: 'black',
+                                    color: 'whitesmoke',
                                 }}
                             />
                             <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
                                 <TextField 
                                     autoFocus
-                                    variant="outlined"
+                                    variant="standard"
                                     InputLabelProps={{ style: { margin: '2px 5px' }}}
-                                    InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
+                                    InputProps={
+                                        { 
+                                            disableUnderline: 'true', 
+                                            style: 
+                                                { 
+                                                    margin: '5px', 
+                                                    padding: '5px 0', 
+                                                    fill: 'white',
+                                                }
+                                        }
+                                    }
                                     error={errors.email}
                                     required
                                     className={classes.textField}
@@ -228,6 +251,40 @@ export const Login = () => {
                                 />
                             </Box>
                             <br />
+                            <Typography marginBottom='1em' textAlign='center' color='whitesmoke'>Or Connect Through:</Typography>
+                            {/* <Button
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    '&:hover': {
+                                    backgroundColor: 'transparent !important', // Add !important to override other styles
+                                    },
+                                }}
+                                onClick={handleConnectThroughSpotify} // CALL request-authorization
+                            > */}
+                            <Link
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    '&:hover': {
+                                        backgroundColor: 'transparent !important',
+                                    },
+                                }}
+                                to='http://localhost:8000/request-authorization/'
+                            >
+                                <img
+                                    width='150em'
+                                    style={{
+                                        margin: '0 auto',
+                                        display: 'block', 
+                                    }}
+                                    src={require('../images/spotifyLogo.png')}
+                                />
+                            </Link>
+                            {/* </Button> */}
                             <br />
                             <Grid className={classes.buttonsContainer}>
                                 <Button
@@ -456,4 +513,8 @@ export const Login = () => {
     )
 };
 
-export default connect()(Login);
+const mapDispatchToProps= (dispatch) => ({
+    onConnectThroughSpotify: () => dispatch(getSpotifyUserAuth()),
+})
+
+export default connect(null, mapDispatchToProps)(Login);

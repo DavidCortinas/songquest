@@ -1,16 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
-import WorkIcon from '@mui/icons-material/Work';
-import { BottomNavigation, BottomNavigationAction, Box, Tooltip, useMediaQuery } from '@mui/material';
+import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
+import { BottomNavigation, BottomNavigationAction, Tooltip, useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
-import { makeStyles } from '@mui/styles';
 import '../App.css';
 
 export const BottomBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }) => {
@@ -50,21 +47,35 @@ export const BottomBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }
         >
             <BottomNavigationAction 
                 label='Home' 
-                icon={<HomeIcon />} 
+                icon={
+                <img
+                  src={require('../images/sq-logo.png')}
+                  alt="Logo"
+                  style={{ width: '25%' }}
+                />
+                } 
                 onClick={() => handleNavigation('/')}
                 sx={{
                     color: '#006f96',
                 }}
             />
             <BottomNavigationAction 
+                label='Disocover Music' 
+                icon={<YoutubeSearchedForIcon />} 
+                onClick={() => handleNavigation('/discover')}
+                sx={{
+                    color: '#006f96',
+                }}
+            />
+            {/* <BottomNavigationAction 
                 label='Song Search' 
                 icon={<SearchIcon />} 
                 onClick={() => handleNavigation('/search')}
                 sx={{
                     color: '#006f96',
                 }}
-            />
-            {currentUser ? <BottomNavigationAction 
+            /> */}
+            {/* {currentUser ? <BottomNavigationAction 
                 label='Detect Song' 
                 icon={<SpatialAudioIcon />} 
                 onClick={() => handleNavigation('/song-detector')}
@@ -104,7 +115,7 @@ export const BottomBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }
                   disabled
                 />  
               </span>  
-            </Tooltip>}
+            </Tooltip>} */}
         </BottomNavigation>
     </div>
   );

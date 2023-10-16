@@ -6,9 +6,9 @@ import { searchSongRequest } from './thunks';
 import { connect } from 'react-redux';
 import { searchSongSuccess } from './actions';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { Container } from '@mui/material';
 import Home from './components/Home';
 import { SongDetector } from './components/SongDetector';
+import SongDiscovery from './components/SongDiscovery';
 
 
 const RoutesContainer = ({
@@ -22,7 +22,7 @@ const RoutesContainer = ({
 
     const getDataTableRoutePath = (query) => {
       const { song, performer } = query;
-      let path = '/song-data';
+      let path = '/songdata';
 
       const searchParams = new URLSearchParams();
       if (song) {
@@ -56,6 +56,15 @@ const RoutesContainer = ({
           }
         />
         <Route
+          path={'discover'}
+          element={
+            <SongDiscovery
+              onSearchPressed={onSearchPressed}
+              onDataLoaded={onDataLoaded}
+            />
+          }
+        />
+        <Route
           path={'/search'}
           element={
             <SongForm
@@ -71,7 +80,7 @@ const RoutesContainer = ({
           }
         />
         <Route
-          path={'/song-data'}
+          path={'/songdata'}
           element={
             <SongDataTable
               query={query}
