@@ -1,0 +1,1168 @@
+import TextField from '@mui/material/TextField';
+import React, { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Alert,
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  Chip,
+  Grid,
+  MenuItem,
+  Slider,
+  Snackbar,
+  Typography,
+  useMediaQuery,
+  InputLabel,
+  Select,
+  FormControl,
+  OutlinedInput,
+  Tooltip,
+} from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
+import { useForm } from 'react-hook-form';
+import { makeStyles, useTheme } from '@mui/styles';
+import { getCode, getCountry } from 'iso-3166-1-alpha-2';
+import { SpotifyAuth, discoverSongRequest, getSpotifyGenres, getSpotifyMarkets, getSpotifySearchResult, login } from '../thunks';
+import { clearSearchSongError, discoverSongSuccess, resetDataLoaded, resetQueryParameter, setQueryParameter } from '../actions';
+import '../App.css';
+import theme from '../theme'
+import { LoadingState } from './LoadingState';
+import { Link, useLocation, useParams } from 'react-router-dom';
+
+const useStyles = makeStyles(() => (
+  {
+  card: {
+    backgroundColor: "white",
+    justifyContent: 'center',
+    display: 'flex',
+    width: '100%',
+    marginTop: '2rem'
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    color: "#007fbf",
+    // backgroundColor: "white",
+    width: '90%'
+  },
+  textField: {
+    marginLeft: '8px',
+    width: '66%',
+    [theme.breakpoints.down('sm')]: {
+      width: '80%',
+    },
+    backgroundColor: 'white',
+    borderRadius: '5px',
+  },
+  resultsField: {
+    width: '15%',
+    [theme.breakpoints.down('md')]: {
+      width: '80%',
+    },
+    backgroundColor: 'white',
+    borderRadius: '5px',
+  },
+  primaryField: {
+    width: '50%',
+    backgroundColor: 'white',
+    borderRadius: '5px',
+    marginRight: '10px',
+    [theme.breakpoints.down('md')]: {
+      width: '80%',
+      paddingRight: '0',
+      margin: '0 0 1em'
+    },
+  },
+  secondaryField: {
+    width: '66%',
+    [theme.breakpoints.down('sm')]: {
+      width: '40%',
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: '50%',
+    },
+    backgroundColor: 'white',
+    borderRadius: '5px',
+  },
+  menuList: {
+    '& li': {
+      color: 'black', // Define the color for MenuItem values
+    },
+  },
+  subHeader: {
+    width: '40%',
+    [theme.breakpoints.up('sm')]: {
+      width: '25rem',
+    },
+  },
+  description: {
+    maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
+    color: '#6f6f71',
+    paddingTop: '1rem',
+  },
+  buttonsContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    paddingTop: '2%',
+  },
+  noBottomLine: {
+    borderBottom: 'none',
+  },
+  recommendations: {
+    display: 'flex',
+    justifyContent: 'center',
+    listStyle: 'none',
+  },
+  recommendationsUl: {
+    padding: '1% 0',
+  },
+  resetBtn: {
+    position: 'fixed',
+    bottom: '2%',
+    right: '2%',
+    color: '#006f96',
+    fontSize: 14,
+    [theme.breakpoints.down('md')]: {
+      bottom: '8%'
+    }
+  },
+  discoveryCard: {
+    padding: '2rem',
+    marginTop: '2rem',
+    position: 'fixed',
+    left: '7%',
+    color: 'white',
+    backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
+    width: '15%',
+    maxHeight: '80%',
+    [theme.breakpoints.down('lg')]: {
+      left: '10%',
+      width: '10%',
+    },
+  },
+  accordion: {
+    width: '100%',
+    borderRadius: '5px',
+    overflow: 'hidden',
+    paddingTop: '1%'
+  },
+  inputLabel: {
+    overflow: 'hidden',   
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    margin: '0 1em', 
+  },
+  detailsHeader: {
+    boxShadow: '0 4px 2px -2px #013a57',
+    width: '100%',
+    marginBottom: '1rem',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+}));
+
+const toCapitalCase= (str) => {
+    if (str) {
+        return str
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
+    } else {
+      return str
+    };
+};
+
+const autocompleteParam = ['songs', 'performers', 'genres', 'market']
+
+const AutocompleteParameter = ({
+    parameter, 
+    handleChange, 
+    classes, 
+    invalidSearch, 
+    accessToken,
+    tracks,
+    artists,
+    genres,
+    markets,
+    targetParamValues,
+    setTargetParamValues,
+    onSelectedOptions,
+}) => {
+    const dispatch = useDispatch();
+    const [song, setSong] = useState('');
+    const [performer, setPerformer] = useState('');
+    const [genre, setGenre] = useState('');
+    const [market, setMarket] = useState('');
+
+
+    const handleOptionSelect = (selectedValue) => {
+        const selectedOption = options.find(option => 
+          option.id === selectedValue.id
+        );
+
+        if (selectedOption) {
+          const totalSelectedValues = Object.values(targetParamValues).reduce((total, array) => total + array.length, 0);
+
+          if (totalSelectedValues < 5 && !Object.values(targetParamValues).flat().includes(selectedOption.label)) {
+              
+              setTargetParamValues(prevValues => ({
+                  ...prevValues,
+                  [parameter]: [...prevValues[parameter], selectedOption.label],
+              }));
+
+            if (parameter === 'songs') {
+                setSong(selectedOption.label);
+                handleChange(parameter, selectedOption.id);
+              } else if (parameter === 'performers') {
+                setPerformer(selectedOption.label);
+                handleChange(parameter, selectedOption.id);
+            } else if (parameter === 'genres') {
+                setGenre(selectedOption.label);
+                handleChange(parameter, selectedOption.label);
+            } else {
+                setMarket(selectedOption.label);
+                handleChange(parameter, getCode(selectedOption.label));
+            }
+          }
+        }
+        const selectedOptions = [...targetParamValues[parameter], selectedOption.label];
+        onSelectedOptions(parameter, selectedOptions)
+    };
+
+    useEffect(() => {
+        if (song) {
+            dispatch(getSpotifySearchResult(song, parameter, accessToken));
+        };
+        if (performer) {
+            dispatch(getSpotifySearchResult(performer, parameter, accessToken));
+        };
+        if (genre) {
+          dispatch(getSpotifyGenres(accessToken));
+        };
+        if (market) {
+          dispatch(getSpotifyMarkets(accessToken));
+        };
+    }, [song, performer, genre, market]);
+
+    const options = parameter === 'songs' 
+      ? tracks.items.map((item) => ({
+        id: item.id,
+        label: `${item.name} - ${item.artists[0].name}`,
+        image: item.album.images[2].url
+      }))
+      : parameter === 'performers'
+      ? artists.items.map((item) => ({
+        id: item.id,
+        label: item.name,
+        image: item.images[2]?.url
+      }))
+      : parameter === 'genres'
+      ? genres.map((genre, index) => ({
+        id: `genre_${index}`,
+        label: genre,
+      }))
+      : markets.map((market, index) => ({
+        id: `markets_${index}`,
+        label: getCountry(market),
+      }));
+
+    const filteredOptions = options.filter(option =>
+      !Object.values(targetParamValues).flat().includes(option.label)
+      );
+
+    return (
+      <>
+        <Autocomplete
+          multiple
+          filterSelectedOptions
+          onChange={(e, newInputValues) => {
+              const newInputValue = newInputValues[newInputValues.length - 1]
+              if (newInputValue) {
+                  handleOptionSelect(newInputValue);
+              }
+          }}
+          selectOnFocus
+          clearOnBlur
+          handleHomeEndKeys
+          options={filteredOptions}
+          renderOption={(props, option) => {
+            return (
+              <Box component="li" sx={{justifyContent: 'space-between'}} {...props}>
+                  {option.image && <img
+                      loading="lazy"
+                      width="40"
+                      src={option.image}
+                      alt=""
+                  />}
+                  {option.label}
+              </Box>
+          )}}
+          freeSolo
+          ChipProps={{ 
+            sx: {
+              color: {
+                color: 'white',
+                backgroundColor: '#006f96',
+                '& .MuiChip-deleteIcon': {
+                  color: 'white',
+                },
+              '& .MuiChip-deleteIcon:hover': {
+                color: '#00435a',
+              },
+              
+            }}
+          }}
+          className={classes.textField}
+          renderInput={(params) => (
+              <TextField
+                  {...params} 
+                  label={parameter === 'songs' 
+                    ? 'Select Songs' 
+                    : parameter === 'performers'
+                    ? 'Select Artists'
+                    : parameter === 'genres' 
+                    ? 'Select Genres'
+                    : 'Select Market'
+                  }
+                  value={parameter === 'songs' 
+                    ? song 
+                    : parameter === 'performers'
+                    ? performer
+                    : parameter === 'genres'
+                    ? genre
+                    : market
+                  }
+                  onChange={
+                    parameter === 'songs' 
+                    ? (e) => setSong(e.target.value)
+                    : parameter === 'performers'
+                    ? (e) => setPerformer(e.target.value)
+                    : parameter === 'genres'
+                    ? (e) => setGenre(e.target.value)
+                    : (e) => setMarket(e.target.value)
+                  }
+                  variant='standard'
+                  InputLabelProps={{
+                    style: {paddingLeft: '1em'},
+                  }}
+              />
+          )}
+        />
+      </>
+    );
+};
+
+const SearchParameter = ({ 
+    parameter, 
+    handleChange, 
+    classes, 
+    invalidSearch,  
+}) => (
+        <>
+          <FormControl className={classes.resultsField}>
+            <InputLabel className={classes.inputLabel} variant='standard' >Results</InputLabel>
+            <Select 
+              label='Results'
+              onChange={(e) => handleChange(parameter, e.target.value)}
+              variant="standard"
+              SelectProps={{
+                MenuProps: {
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  },
+                  transformOrigin: {
+                    vertical: 'top',
+                    horizontal: 'left',
+                  },
+                  getContentAnchorEl: null,
+                },
+              }}
+            >
+              {Array.from({ length: 100 }, (_, index) => (
+                <MenuItem key={index} value={index + 1}>
+                  {index + 1}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+      </>
+    ); 
+
+const SliderParameter = ({ parameter, query, onSetQueryParameter, setParameters }) => {
+
+  const min = query && query[parameter]['min'];
+  const max = query && query[parameter]['max'];
+  const target = query && query[parameter]['target'];
+
+  const marks = parameter === 'time_signature' 
+  ? [
+    {
+      value: 3,
+      label: '3/4',
+    },
+    {
+      value: 4,
+      label: '4/4',
+    },
+    {
+      value: 5,
+      label: '5/4',
+    },
+    {
+      value: 6,
+      label: '6/4',
+    },
+    {
+      value: 7,
+      label: '7/4',
+    },
+  ]
+  : parameter === 'key'
+  ? [
+    {
+      value: 0,
+      label: 'C',
+    },
+    {
+      value: 1,
+      label: 'C#',
+    },
+    {
+      value: 2,
+      label: 'D',
+    },
+    {
+      value: 3,
+      label: 'D#',
+    },
+    {
+      value: 4,
+      label: 'E',
+    },
+    {
+      value: 5,
+      label: 'F',
+    },
+    {
+      value: 6,
+      label: 'F#',
+    },
+    {
+      value: 7,
+      label: 'G',
+    },
+    {
+      value: 8,
+      label: 'G#',
+    },
+    {
+      value: 9,
+      label: 'A',
+    },
+    {
+      value: 10,
+      label: 'A#',
+    },
+    {
+      value: 11,
+      label: 'B',
+    },
+  ]
+  : [
+      {
+        value: parameter === 'duration_ms' 
+          ? 30000
+          : parameter === 'loudness'
+          ? -60
+          : 0,
+        label: parameter === 'duration_ms' 
+          ? '30 seconds'
+          : parameter === 'loudness'
+          ? '-60 db'
+          : parameter === 'tempo'
+          ? '0 bpm'
+          : '0%',
+      },
+      {
+        value: parameter === 'duration_ms' 
+          ? 1800000
+          : parameter === 'loudness'
+          ? -30
+          : parameter === 'tempo'
+          ? 150
+          : parameter === 'mode' || parameter === 'popularity' 
+          ? 50
+          : 0.5,
+        label: parameter === 'duration_ms' 
+          ? '30 minutes'
+          : parameter === 'loudness'
+          ? '-30 db'
+          : parameter === 'tempo'
+          ? '150 bpm'
+          : '50%',
+      },
+      {
+        value: parameter === 'duration_ms' 
+          ? 3600000
+          : parameter === 'loudness'
+          ? 0
+          : parameter === 'tempo'
+          ? 300
+          : parameter === 'mode' || parameter === 'popularity'
+          ? 100
+          : 1,
+        label: parameter === 'duration_ms' 
+          ? '1 hr'
+          : parameter === 'loudness'
+          ? '0 db'
+          : parameter === 'tempo'
+          ? '300 bpm'
+          : '100%',
+      },
+    ];
+
+  const [parameterValue, setParameterValue] = useState({
+    min: min !== null ? min : 0,
+    target: max !== null ? max : 50,
+    max: target!== null ? target : 100,
+  });
+
+  useEffect(() => {
+    const min = query && query[parameter] && query[parameter]['min'];
+    const max = query && query[parameter] && query[parameter]['max'];
+    const target = query && query[parameter] && query[parameter]['target'];
+
+    setParameterValue({
+      min: min !== null 
+        ? min
+        : parameter === 'duration_ms'
+        ? 30000
+        : parameter === 'time_signature'
+        ? 1
+        : parameter === 'key'
+        ? -1
+        : parameter === 'loudness'
+        ? -60
+        : 0,
+      target: target !== null 
+      ? target
+      : parameter === 'duration_ms'
+      ? 1800000
+      : parameter === 'key'
+      ? 6
+      : parameter === 'loudness'
+      ? -30
+      : parameter === 'mode' || parameter === 'popularity'
+      ? 50
+      : parameter === 'tempo'
+      ? 150
+      : parameter === 'time_signature'
+      ? 5
+      : .50,
+      max: max !== null 
+        ? max 
+        : parameter === 'duration_ms'
+        ? 3600000
+        : parameter === 'tempo'
+        ? 300
+        : parameter === 'mode' || parameter === 'popularity'
+        ? 100
+        : parameter === 'time_signature' || parameter === 'key'
+        ? 11
+        : parameter === 'loudness'
+        ? 0
+        : 1,
+    });
+  }, [query, parameter]);
+
+  const handleSliderChange = (newValues) => {
+    const [newMin, newTarget, newMax] = newValues;
+
+    setParameterValue({
+      min: newMin,
+      target: newTarget,
+      max: newMax,
+    });
+
+    setParameters(prevParameters => ({
+    ...prevParameters,
+    [parameter]: {
+      min: newMin,
+      target: newTarget,
+      max: newMax,
+      label: query[parameter]['label']
+    },
+
+    }));
+
+    onSetQueryParameter(query, parameter, newValues);
+  };
+  
+  return (
+    <Box display='flex' justifyContent='space-between' paddingRight='2%'>
+      <Typography id="track-false-range-slider" gutterBottom>
+        {toCapitalCase(query[parameter].label)}
+      </Typography>
+      <Slider
+          track={false}
+          aria-labelledby="track-false-range-slider"
+          onChange={(e, newValues) => handleSliderChange(newValues)}
+          // getAriaValueText={valuetext}
+          value={[parameterValue.min, parameterValue.max, parameterValue.target]}
+          marks={marks}
+          valueLabelDisplay="auto"
+          valueLabelFormat={(value, index) => {
+            if (index === 0) return `Min: ${value}`;
+            if (index === 1) return `Target: ${value}`;
+            if (index === 2) return `Max: ${value}`;
+            return '';
+          }}
+          max={
+            parameter === 'duration_ms'
+            ? 3600000
+            : parameter === 'tempo'
+            ? 300
+            : parameter === 'mode' || parameter === 'popularity'
+            ? 100
+            : parameter === 'time_signature' 
+            ? 7
+            : parameter === 'key'
+            ? 11
+            : parameter === 'loudness'
+            ? 0
+            : 1
+          }
+          min={
+            parameter === 'duration_ms'
+            ? 30000
+            : parameter === 'time_signature'
+            ? 3
+            : parameter === 'loudness'
+            ? -60
+            : 0
+          }
+          step={
+            parameter === 'duration_ms' 
+            ? 10
+            : parameter === 'mode' 
+              || parameter === 'popularity' 
+              || parameter === 'key'
+              || parameter === 'time_signature'
+              || parameter === 'tempo'
+            ? 1
+            :0.01
+          }
+          sx={{ width: '75%' }}
+        />
+    </Box>
+  )
+};
+
+const CollapsibleSliders = ({ parameters, setParameters, query, onSetQueryParameter, expanded, setExpanded, handleExpand }) => {
+
+  return (
+    <Accordion expanded={expanded}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon sx={{ color: 'whitesmoke' }}/>}
+        onClick={handleExpand}
+        sx={{ backgroundColor: '#013a57', color: 'white', borderRadius: '3px' }}
+      >
+        <Typography>Fine Tune Your Recommendations</Typography>
+      </AccordionSummary>
+      <AccordionDetails sx={{ maxHeight: '300px', overflowY: 'auto' }}>
+        <>
+          {Object.keys(parameters).map((parameter, index) => { 
+            return parameter !== 'limit' && !autocompleteParam.includes(parameter) && (
+            <SliderParameter
+              key={index}
+              parameter={parameter}
+              setParameters={setParameters}
+              query={query}
+              onSetQueryParameter={onSetQueryParameter}
+            />
+          )})}
+        </>
+      </AccordionDetails>
+    </Accordion>
+  );
+};
+
+export const SongDiscovery = ({ 
+    recommendations, 
+    error, 
+    query, 
+    onSearchPressed, 
+    onDataLoaded, 
+    onResetDataLoaded,
+    onSetQueryParameter, 
+    dataLoaded,
+    tracks,
+    artists,
+    genres,
+    markets,
+ }) => {
+  const theme = useTheme();
+  console.log(theme)
+  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get('email');
+useEffect(() => {
+  // Define an async function inside the useEffect
+  async function fetchData() {
+    const access_token = searchParams.get('access_token');
+    const refresh_token = searchParams.get('refresh_token');
+    const spotify_access_token = searchParams.get('spotify_access_token');
+    const spotify_refresh_token = searchParams.get('spotify_refresh_token');
+
+    console.log(email);
+    console.log(access_token);
+    console.log(refresh_token);
+    console.log(spotify_access_token);
+    console.log(spotify_refresh_token);
+
+    if (spotify_access_token && spotify_refresh_token) {
+      // Use await within the async function
+      const currentUser = await dispatch(login(email, null, spotify_access_token, spotify_refresh_token));
+      console.log('SPOTIFY: ', currentUser);
+    }
+
+    // Check if access_token and refresh_token exist, and then remove them from the URL
+    if (spotify_access_token && spotify_refresh_token) {
+      // Create a new URLSearchParams without the tokens
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('email');
+      newSearchParams.delete('spotify_access_token');
+      newSearchParams.delete('spotify_refresh_token');
+
+      // Replace the URL without the tokens
+      const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
+      window.history.replaceState({}, document.title, newURL);
+    }
+  }
+
+  // Call the async function
+  fetchData();
+}, [email]);
+
+  const [parameters, setParameters] = useState(query);
+  const [isLoading, setIsLoading] = useState(false);
+  const [invalidSearch, setInvalidSearch] = useState(false);
+  
+  const [targetParams, setTargetParams] = useState([]);
+
+  const [targetParamValues, setTargetParamValues] = useState({
+      songs: [],
+      performers: [],
+      genres: [],
+  });
+
+  const [targetParamLabels, setTargetParamLabels] = useState({
+  songs: [],
+  performers: [],
+  genres: [],
+});
+
+  const { handleSubmit } = useForm();
+
+  const handleChange = (param, value) => {
+
+    const sliderParam = value?.hasOwnProperty('min') 
+    || value?.hasOwnProperty('max') 
+    ||value?.hasOwnProperty('target')
+    
+    setInvalidSearch(false);
+
+    if (!sliderParam) {
+      setParameters(prevParameters => {
+        if (param === 'market' || param === 'limit') {
+            return {
+                ...prevParameters,
+                [param]: value
+            };
+        } else {
+            if (!prevParameters[param].includes(value) 
+              && Object.values(targetParamValues).reduce((total, array) => 
+              total + array.length, 0) < 5) {
+              return {
+                ...prevParameters,
+                [param]: [...prevParameters[param], value]
+              };
+            } else {
+                return prevParameters;
+            }
+          }
+      })} 
+  };
+
+  const [selectOpen, setSelectOpen] = useState(false);
+
+  const handleTargetParamChange = (e) => {
+    console.log(e)
+    setSelectOpen(!selectOpen);
+    setTargetParams(e.target.value);
+  }
+  console.log(selectOpen)
+  const handleTargetParamDelete = (value) => {
+    setTargetParams((prevTargetParam) =>
+      prevTargetParam.filter((param) => param !== value)
+    )
+  }
+
+  const dispatch = useDispatch();
+
+  const handleSnackbarClose = () => {
+    dispatch(clearSearchSongError());
+  };
+
+  const onSubmit = async () => {
+    // if (songValue === '') {
+    //   // Empty song value, set invalidSearch to true and exit the onSubmit process
+    //   setInvalidSearch(true);
+    //   return;
+    // }
+    setIsLoading(true);
+    setExpanded(false);
+
+    // const newQuery = {
+    //   song: songValue,
+    //   performer: performerValue,
+    // };
+    try {
+      await onSearchPressed(parameters);
+      onDataLoaded();  
+    //   dispatch(resetQueryParameter());
+      setIsLoading(false);
+    } catch (error) {
+      console.log('Error: ', error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setInvalidSearch(false);
+    setExpanded(false);
+    setParameters(query);
+    setTargetParams([]);
+    setTargetParamLabels(
+      {
+        songs: [],
+        performers: [],
+        genres: [],
+      }
+    );
+    setTargetParamValues(
+      {
+        songs: [],
+        performers: [],
+        genres: [],
+      }
+    );
+    onResetDataLoaded();
+  };
+  console.log(targetParamLabels)
+  console.log(targetParamValues)
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault(); // Prevent form submission
+    onSubmit(); // Call the onSubmit function manually
+  };
+
+  const hasMinMaxKeys = (obj) => {
+    return 'min' in obj && 'max' in obj && 'target' in obj;
+  } ;
+
+  const [expanded, setExpanded] = useState(false);
+
+  const handleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  const handleSelectedOptions = (parameter, selectedOptions) => {
+    console.log(`Selected ${parameter}:`, selectedOptions);
+    setTargetParamLabels(prevLabels => ({
+      ...prevLabels,
+      [parameter]: selectedOptions,
+    }))
+  };
+
+  const handleExploreMoreClick = () => {
+    // Smoothly scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const classes = useStyles();
+  const discoveryRecommendations = recommendations?.tracks
+
+  const showTracks = discoveryRecommendations && dataLoaded && !query.limit
+
+
+  return (
+    <>
+      <Box
+        sx={{
+          minHeight: '20rem',
+          width: '100%',
+          backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <form className={classes.form} onSubmit={handleFormSubmit}>
+          {/* <FormControl> */}
+          <CardHeader
+            title="🎵 Discover New Music 🎶"
+            titleTypographyProps={{
+              width: '100%',
+              variant: isSmScreen || isXsScreen
+                ? 'h6'
+                : 'h5',
+              textAlign: 'center',
+              color: 'white',
+              paddingTop: '2%',
+            }}
+            subheader={!isXsScreen &&
+              "Begin your journey by selecting the songs, artists, and genres you'd like to shape your recommendations."}
+            // "Discover music with Song Explorer. Uncover new tunes based on your preferences - from similar songs to unique genres. Begin your musical journey now!"}
+            subheaderTypographyProps={{
+              width: '100%',
+              variant: isXlScreen || isLgScreen
+                ? 'body1'
+                : 'body2',
+              textAlign: 'center',
+              color: 'whitesmoke',
+            }} />
+          <>
+            <SpotifyAuth>
+              {(accessToken) => (
+                <>
+                  {Object.keys(parameters).map((parameter, index) => {
+                    return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
+                      <Box key={index}>
+                        <Box>
+                          {parameter === 'limit' ? (
+                            <>
+                              <Box
+                                display="flex"
+                                flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
+                                justifyContent='center'
+                                alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
+                                style={{ marginBottom: '1%' }}
+                              >
+                                <FormControl className={classes.primaryField}>
+                                  <InputLabel className={classes.inputLabel} variant='standard'>Set Recommendation Sources (Songs, Artists, or Genres)</InputLabel>
+                                  <Select
+                                    multiple
+                                    open={selectOpen}
+                                    onOpen={() => setSelectOpen(true)}
+                                    onClose={() => setSelectOpen(false)}
+                                    label="Set Recommendation Sources (Songs, Artists, or Genres)"
+                                    value={targetParams}
+                                    onChange={handleTargetParamChange}
+                                    variant="standard"
+                                    SelectProps={{
+                                      MenuProps: {
+                                        anchorOrigin: {
+                                          vertical: 'bottom',
+                                          horizontal: 'left',
+                                        },
+                                        transformOrigin: {
+                                          vertical: 'top',
+                                          horizontal: 'left',
+                                        },
+                                        getContentAnchorEl: null,
+                                      },
+                                    }}
+                                    // input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                                    renderValue={(selected) => (
+                                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value, index) => (
+                                          <Chip
+                                            key={value}
+                                            sx={{
+                                              backgroundColor: '#006f96',
+                                              color: 'white',
+                                              '& .MuiChip-deleteIcon': {
+                                                color: 'white',
+                                              },
+                                              marginLeft: index === 0 ? '8px' : '0px',
+                                            }}
+                                            label={toCapitalCase(value)}
+                                            deleteIcon={<CancelIcon
+                                              onMouseDown={(event) => event.stopPropagation()} />}
+                                            onDelete={() => handleTargetParamDelete(value)} />
+                                        ))}
+                                      </Box>
+                                    )}
+                                  >
+                                    <MenuItem value={'songs'}>Songs</MenuItem>
+                                    <MenuItem value={'performers'}>Performers</MenuItem>
+                                    <MenuItem value={'genres'}>Genres</MenuItem>
+                                  </Select>
+                                </FormControl>
+                                <SearchParameter
+                                  parameter={parameter}
+                                  handleChange={handleChange}
+                                  invalidSearch={invalidSearch}
+                                  classes={classes} 
+                                />
+                              </Box>
+                              <Typography
+                                textAlign='center'
+                                color='whitesmoke'
+                              >
+                                {Object.values(targetParamValues).every(arr => arr.length === 0)
+                                  ? `Choose Up to 5 Recommendation Sources`
+                                  : Object.values(targetParamValues).every(arr => arr.length < 5)
+                                    ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
+                                      .length} More Recommendation Sources`
+                                    : `You Have Run Out Of Target Parameters To Set`}
+                              </Typography>
+                            </>
+                          )
+                            : autocompleteParam.includes(parameter) && targetParams.includes(parameter) ? (
+                              <Box display="flex" flexDirection='column' justifyContent="center" alignItems='center' style={{ marginBottom: '1%' }}>
+                                <AutocompleteParameter
+                                  parameter={parameter}
+                                  handleChange={(parameter, value) => {
+                                    handleChange(parameter, value);
+                                  } }
+                                  classes={classes}
+                                  invalidSearch={invalidSearch}
+                                  accessToken={accessToken}
+                                  tracks={tracks}
+                                  artists={artists}
+                                  genres={genres}
+                                  markets={markets}
+                                  setTargetParamValues={setTargetParamValues}
+                                  targetParamValues={targetParamValues}
+                                  onSelectedOptions={handleSelectedOptions} />
+                              </Box>
+                            ) : null}
+                        </Box>
+                      </Box>
+                    ) : null;
+                  })}
+                  <Box className={classes.accordion}>
+                    <CollapsibleSliders
+                      parameters={parameters}
+                      setParameters={setParameters}
+                      query={query}
+                      onSetQueryParameter={onSetQueryParameter}
+                      expanded={expanded}
+                      setExpanded={setExpanded}
+                      handleExpand={handleExpand} />
+                  </Box>
+                </>
+              )}
+            </SpotifyAuth>
+          </>
+          <Grid className={classes.buttonsContainer}>
+            <Button
+              type="submit"
+              onClick={handleSubmit(onSubmit)}
+              style={{ color: 'white', backgroundColor: 'transparent' }}
+            >
+              Submit
+            </Button>
+            <Button
+              onClick={handleReset}
+              style={{ color: 'white', backgroundColor: 'transparent' }}
+            >
+              Reset
+            </Button>
+          </Grid>
+          <br />
+          {/* </FormControl> */}
+        </form>
+      </Box>
+      {isLoading && (
+        <>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="30vh"
+          >
+            <CardHeader
+              title="Loading Results"
+              titleTypographyProps={{ color: 'black' }}
+              subheaderTypographyProps={{ color: '#3d3d3d' }}
+            />
+          </Box>
+          <LoadingState />
+        </>
+      )}
+      {showTracks && (
+        <>
+          {!isXsScreen && !isSmScreen && !isMdScreen ? (
+            <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
+              Explore More
+            </Button>
+            ) : (
+            <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
+              <ArrowUpwardIcon />
+            </Button>
+          )}
+          <ul className={classes.recommendationsUl}>
+            {discoveryRecommendations.map((recommendation, index) => (
+              <li className={classes.recommendations}>
+                <iframe
+                  key={index}
+                  src={`https://open.spotify.com/embed/track/${recommendation.id}?utm_source=generator`}
+                  width={'70%'}
+                  height="100%"
+                  frameBorder="0"
+                  allowFullScreen=""
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy" />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </>
+  );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    query: state.discovery.query,
+    error: state.discovery.error,
+    recommendations: state.discovery.recommendations,
+    dataLoaded: state.discovery.dataLoaded,
+    tracks: state.discovery.tracks,
+    artists: state.discovery.artists,
+    genres: state.discovery.genres,
+    markets: state.discovery.markets,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  onSearchPressed: (query) => dispatch(discoverSongRequest(query)),
+  onDataLoaded: () =>
+    dispatch(resetQueryParameter()),
+  onResetDataLoaded: () =>
+    dispatch(resetDataLoaded()),
+  onSetQueryParameter: (query, parameter, newValues) => dispatch(setQueryParameter(query, parameter, newValues)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SongDiscovery);

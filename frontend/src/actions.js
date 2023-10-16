@@ -42,3 +42,66 @@ export const setCurrentUser = (user) => ({
   payload: { user },
 });
 
+export const DISCOVER_SONG= 'DISCOVER_SONG';
+export const discoverSong = (recommendations, dataLoaded, query) => {
+  return {
+    type: DISCOVER_SONG,
+    payload: { recommendations, dataLoaded, query },
+  };
+};
+
+export const DISCOVER_SONG_SUCCESS = 'DISCOVER_SONG_SUCCESS';
+export const discoverSongSuccess = (recommendations, dataLoaded) => {
+  return {
+    type: DISCOVER_SONG_SUCCESS,
+    payload: { recommendations, dataLoaded },
+  };
+};
+
+export const DISCOVER_SONG_FAILURE = 'DISCOVER_SONG_FAILURE';
+export const discoverSongFailure = (error) => ({
+  type: DISCOVER_SONG_FAILURE,
+  payload: error,
+}); 
+
+export const RESET_QUERY_PARAMETER = 'RESET_QUERY_PARAMETER';
+export const resetQueryParameter = () => ({
+  type: RESET_QUERY_PARAMETER,
+});
+
+export const SET_QUERY_PARAMETER = 'SET_QUERY_PARAMETER';
+export const setQueryParameter = (query, parameter, newValues) => ({
+  type: SET_QUERY_PARAMETER,
+  payload: { query, parameter, newValues },
+})
+
+export const RECEIVE_SPOTIFY_SONG_RESULTS = 'RECEIVE_SPOTIFY_SONG_RESULTS';
+export const receiveSongResults = (tracks) => ({
+  type: RECEIVE_SPOTIFY_SONG_RESULTS,
+  payload: { tracks },
+})
+
+export const RECEIVE_SPOTIFY_PERFORMER_RESULTS = 'RECEIVE_SPOTIFY_PERFORMER_RESULTS';
+export const receivePerformerResults = (artists) => ({
+  type: RECEIVE_SPOTIFY_PERFORMER_RESULTS,
+  payload: { artists },
+})
+
+export const RECEIVE_SPOTIFY_SEED_GENRES = 'RECEIVE_SPOTIFY_SEED_GENRES';
+export const receiveSpotifySeedGenres = (genres) => ({
+  type: RECEIVE_SPOTIFY_SEED_GENRES,
+  payload: { genres },
+}) 
+
+export const RECEIVE_SPOTIFY_MARKETS = 'RECEIVE_SPOTIFY_MARKETS';
+export const receiveSpotifyMarkets = (markets) => ({
+  type: RECEIVE_SPOTIFY_MARKETS,
+  payload: { markets },
+})
+
+export const REQUEST_SPOTIFY_USER_AUTH = 'REQUEST_SPOTIFY_USER_AUTH';
+export const requestSpotifyUserAuth = () => ({
+  type: REQUEST_SPOTIFY_USER_AUTH
+})
+
+

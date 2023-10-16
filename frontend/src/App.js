@@ -7,15 +7,12 @@ import { ThemeProvider } from '@mui/material/styles';
 import SideBar from './components/SideBar';
 import theme from './theme';
 import { LoadingState } from './components/LoadingState';
-import { useMediaQuery } from '@mui/material';
+import { Box, CardHeader, useMediaQuery } from '@mui/material';
 import BottomBar from './components/BottomBar';
 
 function App() {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
   const [csrfToken, setCsrfToken] = useState(null);
   const [collapse, setCollapse] = useState(true);
@@ -23,6 +20,7 @@ function App() {
   useEffect(() => {
     // Retrieve the CSRF token
     async function initialize() {
+      console.log('INITIALIZE')
       const token = await getCSRFToken();
       setCsrfToken(token); // Store the CSRF token in state
     }
@@ -36,13 +34,29 @@ function App() {
 
   if (csrfToken === null) {
     // You can show a loading state or spinner until the CSRF token is retrieved
-    return <LoadingState />;
+    return (
+      <>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="50vh"
+        >
+          <CardHeader
+            title="Loading..."
+            titleTypographyProps={{ color: 'black' }}
+            subheaderTypographyProps={{ color: '#3d3d3d' }}
+          />
+        </Box>
+        <LoadingState />
+      </>
+    );
   }
 
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
-        {!isXsScreen &&
+        {!isXsScreen && !isSmScreen &&
           <div className='sidebar'>
             <SideBar collapse={collapse} onCollapse={handleCollapse} />
           </div>
@@ -61,7 +75,7 @@ function App() {
             <RoutesContainer />
           </main>
         </div>
-        {isXsScreen &&
+        {(isXsScreen || isSmScreen) &&
           <BottomBar />
         }
       </div>

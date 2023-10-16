@@ -41,6 +41,7 @@ lxml==4.9.2
 matplotlib-inline==0.1.6
 mutagen==1.46.0
 numpy==1.24.2
+openai
 outcome==1.2.0
 packaging==23.0
 pandas==1.4.0  # Updated version to resolve conflict

@@ -1,21 +1,17 @@
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  AppBar,
   Box,
   IconButton,
-  Slide,
-  Toolbar,
   Typography,
   useMediaQuery,
-  useScrollTrigger,
 } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
-import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
+import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
 import { resetDataLoaded, setCurrentUser } from '../actions';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import '../App.css';
 import { useTheme } from '@mui/styles';
 import { authSlice } from '../reducers';
@@ -24,9 +20,6 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
   const theme = useTheme();
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
   const dispatch = useDispatch()
 
@@ -42,6 +35,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
     dispatch(setCurrentUser(null))
     navigate('/')
   }
+  console.log('user: ', user)
 
   return (
     <Box 
@@ -49,7 +43,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
       justifyContent="space-between" 
       p={2}
       backgroundColor='white'
-      className={isXsScreen
+      className={isXsScreen || isSmScreen
         ? 'topbar-nosidebar'
         : collapse || isSmScreen
         ? 'topbar-collapsed'
@@ -70,6 +64,13 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
           }}
           onClick={handleNavigate}
         >
+          {(isXsScreen || isSmScreen) && (
+            <img
+              src={require('../images/sq-logo.png')}
+              alt="Logo"
+              style={{ width: '13%' }}
+            />
+          )}
           <Typography variant="h6" component="div" color='#006f96'>
             SongQuest
           </Typography>
@@ -79,10 +80,10 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
         <IconButton
           color="inherit"
           component={Link}
-          to="/search"
+          to="/discover"
           style={{ textDecoration: 'none', color: 'black' }}
         >
-          <SearchIcon />
+          <YoutubeSearchedForIcon />
         </IconButton>
         {!user ?
           <IconButton
@@ -91,7 +92,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
             to="/login"
             style={{ textDecoration: 'none', color: 'darkcyan' }}
           >
-            {!isXsScreen && <Typography>Login/SignUp</Typography>}
+            {!isXsScreen && !isSmScreen && <Typography>Login/SignUp</Typography>}
             <LoginIcon />
           </IconButton>
         : 
@@ -101,7 +102,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
             onClick={handleLogout}
             style={{ textDecoration: 'none', color: 'darkcyan' }}
           >
-            {!isXsScreen && <Typography>Logout</Typography>}
+            {!isXsScreen && !isSmScreen && <Typography>Logout</Typography>}
             <LogoutIcon />
           </IconButton>
         }
