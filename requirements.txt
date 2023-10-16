@@ -16,10 +16,10 @@ charset-normalizer==3.1.0
 chromedriver==2.24.1
 chromedriver-binary==112.0.5615.49.0
 constantly==15.1.0
-cryptography==38.0.0
+cryptography==41.0.2
 cssselect==1.2.0
 decorator==5.1.1
-Django==4.2.2
+Django==4.2.3
 django-cors-headers==4.0.0
 exceptiongroup==1.1.1
 executing==1.2.0
@@ -98,7 +98,7 @@ wcwidth==0.2.6
 webdriver-manager==3.8.5
 websockets==10.4
 wsproto==1.2.0
-yt-dlp==2023.3.4
+yt-dlp==2023.7.6
 zipp==3.15.0
 zope.interface==6.0
 
