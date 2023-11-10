@@ -20,7 +20,6 @@ function App() {
   useEffect(() => {
     // Retrieve the CSRF token
     async function initialize() {
-      console.log('INITIALIZE')
       const token = await getCSRFToken();
       setCsrfToken(token); // Store the CSRF token in state
     }

@@ -6,8 +6,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import theme from '../theme'
 import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { checkRegistration, getSpotifyUserAuth, login, registerUser } from "../thunks";
-import { requestSpotifyUserAuth, setCurrentUser } from "../actions";
+import { LoadingState } from './LoadingState';
+import { checkRegistration, getSpotifyUserAuth, handleUpdateUsername, login, registerUser } from "../thunks";
+import { requestSpotifyUserAuth, setCurrentUser, updateUsername } from "../actions";
 import { autoBatchEnhancer } from "@reduxjs/toolkit";
 
 const useStyles = makeStyles(() => (
@@ -23,6 +24,14 @@ const useStyles = makeStyles(() => (
     flexDirection: 'column',
     color: "#007fbf",
     backgroundColor: "transparent",
+  },
+  box: {
+    width: '30%',
+    display: 'flex',
+    flexDirection: 'column',
+    color: "#007fbf",
+    backgroundColor: "transparent",
+    marginBottom: '5%',
   },
   textField: {
     width: '300px',
@@ -57,7 +66,91 @@ const useStyles = makeStyles(() => (
   }
 }));
 
-export const Login = ({ onConnectThroughSpotify }) => {
+const UsernameInput = ({
+    isXlScreen,
+    isLgScreen,
+    isMdScreen,
+    isSmScreen,
+    isXsScreen,
+    classes,
+    errors,
+    usernameValue,
+    register,
+    handleUsernameChange,
+    invalidUsername,
+    handleSubmit,
+    onCreateUsername
+}) => {
+
+    return (
+        <>
+            <Box display='flex' justifyContent='center' paddingTop='1rem'>
+                <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
+                    <Card className={classes.card}>
+                        <form className={classes.form}>
+                            <CardHeader
+                                title="Welcome to SongQuest"
+                                titleTypographyProps={{
+                                    width: '100%',
+                                    variant: isSmScreen || isXsScreen
+                                    ? 'h6'
+                                    : 'h5',
+                                    textAlign: 'center',
+                                    color: 'black',
+                                }}
+                                subheader="Enter a username to get started"
+                                subheaderTypographyProps={{ 
+                                    width: '100%', 
+                                    variant: isXlScreen || isLgScreen 
+                                    ? 'body1'
+                                    : 'body2',
+                                    textAlign: 'center',
+                                    color: 'black',
+                                }}
+                            />
+                            <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
+                                <TextField 
+                                    autoFocus
+                                    variant="outlined"
+                                    InputLabelProps={{ style: { margin: '2px 5px' }}}
+                                    InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
+                                    error={errors.username}
+                                    required
+                                    className={classes.textField}
+                                    value={usernameValue}
+                                    label={errors.username ? "Invalid Username" : "username"}
+                                    type="username"
+                                    {...register('username', 
+                                        { 
+                                            required: true, 
+                                            onChange: (e) => handleUsernameChange(e),
+                                            error: invalidUsername,
+                                        })
+                                    }
+                                />
+                            </Box>
+                            <br />
+                            <br />
+                            <Grid className={classes.buttonsContainer}>
+                                <Button
+                                    type="submit"
+                                    className={classes.button}
+                                    onClick={handleSubmit(onCreateUsername)}
+                                >
+                                    Next
+                                    <NavigateNextIcon />
+                                </Button>
+                            </Grid>
+                            <br />
+                        </form>
+                    </Card>
+                </Box>
+            </Box>
+        </>    
+    );
+};
+
+export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
     const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -74,15 +167,24 @@ export const Login = ({ onConnectThroughSpotify }) => {
     const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
     const [checkedRegistration, setCheckedRegistration] = useState(false);
     const [userRegistered, setUserRegistered] = useState(false);
-    const [userData, setUserData] = useState(null);
+    // const [isLoading, setIsLoading] = useState(false);
     const [invalidEmail, setInvalidEmail] = useState(false);
     const [invalidUsername, setInvalidUsername] = useState(false);
-    const [usernameCreated, setUsernameCreated] = useState(false);
+    const [usernameCreated, setUsernameCreated] = useState(Boolean(user?.user));
     const [invalidPassword, setInvalidPassword] = useState(false);
     const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
+    // const [spotifyAuthorized, setSpotifyAuthorized] =  useState(false);
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log('useEffect')
+        console.log(user && user)
+        if (user?.user.username) {
+            setUsernameCreated(true);
+        };
+    }, [user])
 
     const onEmailSubmit = async () => {
         if (!emailValue) {
@@ -90,15 +192,12 @@ export const Login = ({ onConnectThroughSpotify }) => {
             return;
         }
         setCheckedRegistration(true);
-        console.log(emailValue)
-        console.log(userRegistered)
 
         try {
             const currentUser = await dispatch(checkRegistration({
                 email: emailValue,
                 isRegistered: userRegistered,
             }));
-            console.log(currentUser)
 
             
             if (currentUser.isRegistered) {
@@ -109,13 +208,26 @@ export const Login = ({ onConnectThroughSpotify }) => {
         }
     }
 
+    console.log('login user: ', usernameValue)
+    console.log('username created: ', usernameCreated)
+
     const onCreateUsername = async () => {
-        setUsernameCreated(true);
         if (!usernameValue) {
             setInvalidUsername(true);
             return;
-        }
-    }
+        };
+
+        // if (spotifyAuthorized) {
+        //     console.log('spotifyAuthorized && onCreateUsername')
+        //     // call update username
+        //     onUpdateUsername(user?.user.id , usernameValue);
+        //     user && navigate('/discover')
+        // };
+
+        // setUsernameValue(user)
+        console.log('onCreateUsername')
+        setUsernameCreated(true);
+    };
 
     const onPasswordSubmit = async () => {
         if (!passwordValue) {
@@ -125,9 +237,10 @@ export const Login = ({ onConnectThroughSpotify }) => {
 
         try {
             const currentUser = await dispatch(login(emailValue, passwordValue, null, null));
-            console.log(currentUser)
+            console.log('currentUser: ', currentUser)
+
             dispatch(setCurrentUser(currentUser));
-            currentUser && navigate('/')
+            currentUser && navigate('/discover')
         } catch (error) {
             console.log('Error: ', error);
         }
@@ -142,11 +255,15 @@ export const Login = ({ onConnectThroughSpotify }) => {
             setInvalidConfirmPassword(true);
             return;
         }
+        console.log('onCreatePassword')
+        console.log(emailValue)
+        console.log(passwordValue)
+        console.log(usernameValue)
         
         try {
             await dispatch(registerUser(emailValue, passwordValue, usernameValue));
             const currentUser = await dispatch(login(emailValue, passwordValue, null, null));
-            currentUser && navigate('/')
+            dispatch(setCurrentUser(currentUser))
         } catch (error) {
             console.log('Error: ', error);
         }
@@ -187,17 +304,21 @@ export const Login = ({ onConnectThroughSpotify }) => {
         onCreatePassword(); 
     };
 
-    const handleConnectThroughSpotify = (e) => {
+    const handleConnectThroughSpotify = async (e) => {
         e.preventDefault();
-        onConnectThroughSpotify();
-    }
+
+        const authorizationUrl = `http://localhost:8000/request-authorization/`;
+
+        // Redirect the user to Spotify for authorization
+        window.location.href = authorizationUrl;
+    };
 
     return !checkedRegistration && !userRegistered ? (
         <>
             <Box display='flex' justifyContent='center' paddingTop='1rem'>
                 <Box width='100%'>
                     <Card className={classes.card}>
-                        <form className={classes.form} onSubmit={handleEmailSubmit}>
+                        <Box className={classes.form}>
                             <CardHeader
                                 title='Login/SignUp'
                                 titleTypographyProps={{
@@ -252,7 +373,7 @@ export const Login = ({ onConnectThroughSpotify }) => {
                             </Box>
                             <br />
                             <Typography marginBottom='1em' textAlign='center' color='whitesmoke'>Or Connect Through:</Typography>
-                            {/* <Button
+                            <Button
                                 sx={{
                                     display: 'flex',
                                     flexDirection: 'column',
@@ -261,30 +382,17 @@ export const Login = ({ onConnectThroughSpotify }) => {
                                     backgroundColor: 'transparent !important', // Add !important to override other styles
                                     },
                                 }}
-                                onClick={handleConnectThroughSpotify} // CALL request-authorization
-                            > */}
-                            <Link
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    '&:hover': {
-                                        backgroundColor: 'transparent !important',
-                                    },
-                                }}
-                                to='http://localhost:8000/request-authorization/'
-                            >
+                                onClick={handleConnectThroughSpotify} // Call the handleConnectThroughSpotify function
+                                >
                                 <img
                                     width='150em'
                                     style={{
-                                        margin: '0 auto',
-                                        display: 'block', 
+                                    margin: '0 auto',
+                                    display: 'block', 
                                     }}
                                     src={require('../images/spotifyLogo.png')}
                                 />
-                            </Link>
-                            {/* </Button> */}
+                                </Button>
                             <br />
                             <Grid className={classes.buttonsContainer}>
                                 <Button
@@ -297,7 +405,7 @@ export const Login = ({ onConnectThroughSpotify }) => {
                                 </Button>
                             </Grid>
                             <br />
-                        </form>
+                        </Box>
                     </Card>
                 </Box>
             </Box>
@@ -370,70 +478,86 @@ export const Login = ({ onConnectThroughSpotify }) => {
         </>     
     ) : !usernameCreated
     ? (
-        <>
-            <Box display='flex' justifyContent='center' paddingTop='1rem'>
-                <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
-                    <Card className={classes.card}>
-                        <form className={classes.form}>
-                            <CardHeader
-                                title="Looks like you're new here!"
-                                titleTypographyProps={{
-                                    width: '100%',
-                                    variant: isSmScreen || isXsScreen
-                                    ? 'h6'
-                                    : 'h5',
-                                    textAlign: 'center',
-                                    color: 'black',
+        <UsernameInput
+            errors={errors}
+            isXlScreen={isXlScreen}
+            isLgScreen={isLgScreen} 
+            isMdScreen={isMdScreen} 
+            isSmScreen={isSmScreen} 
+            isXsScreen={isXsScreen} 
+            classes={classes}
+            usernameValue={usernameValue}
+            register={register}
+            handleUsernameChange={handleUsernameChange}
+            invalidUsername={invalidUsername}
+            handleSubmit={handleSubmit}
+            onCreateUsername={onCreateUsername}
+        />
+    ) : user
+    ? (
+        <Box display='flex' justifyContent='center' paddingTop='1rem'>
+            <Box width='100%'>
+                <Card className={classes.card}>
+                    <Box className={classes.box}>
+                        <CardHeader
+                            title='Connect to Spotify'
+                            titleTypographyProps={{
+                                width: '100%',
+                                variant: isSmScreen || isXsScreen
+                                ? 'h6'
+                                : 'h5',
+                                textAlign: 'center',
+                                color: 'white',
+                                paddingTop: '1rem'
+                            }}
+                            subheader='Link to your Spotify library to add tracks, create playlists and more!'
+                            subheaderTypographyProps={{ 
+                                width: '100%', 
+                                variant: isXlScreen || isLgScreen 
+                                ? 'body1'
+                                : 'body2',
+                                textAlign: 'center',
+                                alignItems: 'center',
+                                color: 'whitesmoke',
+                            }}
+                        />
+                        <Link
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                '&:hover': {
+                                    backgroundColor: 'transparent !important',
+                                },
+                            }}
+                            to='http://localhost:8000/request-authorization/'
+                        >
+                            <img
+                                width='300em'
+                                style={{
+                                    margin: '0 auto',
+                                    display: 'block', 
                                 }}
-                                subheader="Enter a username"
-                                subheaderTypographyProps={{ 
-                                    width: '100%', 
-                                    variant: isXlScreen || isLgScreen 
-                                    ? 'body1'
-                                    : 'body2',
-                                    textAlign: 'center',
-                                    color: 'black',
-                                }}
+                                src={require('../images/spotifyLogo.png')}
                             />
-                            <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-                                <TextField 
-                                    autoFocus
-                                    variant="outlined"
-                                    InputLabelProps={{ style: { margin: '2px 5px' }}}
-                                    InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
-                                    error={errors.username}
-                                    required
-                                    className={classes.textField}
-                                    value={usernameValue}
-                                    label={errors.username ? "Invalid Username" : "username"}
-                                    type="username"
-                                    {...register('username', 
-                                        { 
-                                            required: true, 
-                                            onChange: (e) => handleUsernameChange(e),
-                                            error: invalidUsername,
-                                        })
-                                    }
-                                />
-                            </Box>
-                            <br />
-                            <br />
-                            <Grid className={classes.buttonsContainer}>
-                                <Button
-                                    type="submit"
-                                    className={classes.button}
-                                    onClick={handleSubmit(onCreateUsername)}
-                                >
-                                    Next
-                                    <NavigateNextIcon />
-                                </Button>
-                            </Grid>
-                            <br />
-                        </form>
-                    </Card>
-                </Box>
+                        </Link>
+                        <br />
+                        <Grid className={classes.buttonsContainer}>
+                            <Button
+                                type="submit"
+                                className={classes.button}
+                                onClick={handleSubmit(onPasswordSubmit)}
+                            >
+                                Skip
+                                <NavigateNextIcon />
+                            </Button>
+                        </Grid>
+                        <br />
+                    </Box>
+                </Card>
             </Box>
-        </>     
+        </Box>
     ) : (
         <>
             <Box display='flex' justifyContent='center' paddingTop='1rem'>
@@ -513,8 +637,13 @@ export const Login = ({ onConnectThroughSpotify }) => {
     )
 };
 
+const mapStateToProps = (state) => ({
+    user: state.user.currentUser,
+});
+
 const mapDispatchToProps= (dispatch) => ({
     onConnectThroughSpotify: () => dispatch(getSpotifyUserAuth()),
-})
+    onUpdateUsername: (userId, username) => dispatch(handleUpdateUsername(userId, username)),
+});
 
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

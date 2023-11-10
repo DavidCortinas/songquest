@@ -15,6 +15,10 @@ class LoginSerializer(TokenObtainPairSerializer):
         # Check if 'spotify_access_token' is present in the request data
         spotify_access_token = self.context['request'].data.get(
             'spotify_access_token')
+        spotify_refresh_token = self.context['request'].data.get(
+            'spotify_refresh_token')
+        print('spotify_access: ', spotify_access_token)
+        print('spotify_refresh: ', spotify_refresh_token)
         if spotify_access_token:
             # Handle Spotify authentication without requiring a password
             user = User.objects.get(email=attrs['email'])
@@ -29,6 +33,8 @@ class LoginSerializer(TokenObtainPairSerializer):
                 'user': UserSerializer(user).data,
                 'refresh': refresh_token,
                 'access': str(refresh.access_token),
+                'spotify_access': spotify_access_token,
+                'spotify_refresh': spotify_refresh_token,
             }
         else:
             # Perform regular login validation
@@ -51,7 +57,7 @@ class RegisterSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'spotify_email', 'spotify_auth']
+        fields = ['email', 'password', 'username', 'spotify_email', 'spotify_auth']
 
     def create(self, validated_data):
         spotify_auth = validated_data.get('spotify_auth', False)

@@ -23,20 +23,26 @@ import {
   FormControl,
   OutlinedInput,
   Tooltip,
+  Input,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import QueueMusicIcon from '@mui/icons-material/QueueMusic';
 import { useForm } from 'react-hook-form';
 import { makeStyles, useTheme } from '@mui/styles';
 import { getCode, getCountry } from 'iso-3166-1-alpha-2';
-import { SpotifyAuth, discoverSongRequest, getSpotifyGenres, getSpotifyMarkets, getSpotifySearchResult, login } from '../thunks';
-import { clearSearchSongError, discoverSongSuccess, resetDataLoaded, resetQueryParameter, setQueryParameter } from '../actions';
+import { SpotifyAuth, addToSpotify, checkUsersTracks, createPlaylistRequest, discoverSongRequest, getSpotifyGenres, getSpotifyMarkets, getSpotifySearchResult, login, refreshAccessToken, removeUsersTracks } from '../thunks';
+import { clearSearchSongError, discoverSongSuccess, resetDataLoaded, resetQueryParameter, setCurrentUser, setQueryParameter } from '../actions';
 import '../App.css';
 import theme from '../theme'
 import { LoadingState } from './LoadingState';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { SpotifyConnect } from './SpotifyConnect';
 
 const useStyles = makeStyles(() => (
   {
@@ -123,7 +129,7 @@ const useStyles = makeStyles(() => (
     listStyle: 'none',
   },
   recommendationsUl: {
-    padding: '1% 0',
+    // padding: '0',
   },
   resetBtn: {
     position: 'fixed',
@@ -132,8 +138,23 @@ const useStyles = makeStyles(() => (
     color: '#006f96',
     fontSize: 14,
     [theme.breakpoints.down('md')]: {
-      bottom: '8%'
+      bottom: '12%',
+      right: '0',
     }
+  },
+  createPlaylistBtn: {
+    position: 'fixed',
+    bottom: '2%',
+    left: '6%',
+    color: '#006f96',
+    fontSize: 14,
+    [theme.breakpoints.down('lg')]: {
+      left: '7%',
+    },
+    [theme.breakpoints.down('md')]: {
+      bottom: '12%',
+      left: '0'
+    },
   },
   discoveryCard: {
     padding: '2rem',
@@ -698,6 +719,77 @@ const CollapsibleSliders = ({ parameters, setParameters, query, onSetQueryParame
   );
 };
 
+const Recommendation = ({ 
+  classes,
+  index,
+  recommendation,
+  user,
+  handleAddToSpotify,
+  handleCheckUsersTracks,
+  handleRemoveUsersTracks,
+  setConnectToSpotify, 
+}) => {
+  const [isSavedTrack, setIsSavedTrack] = useState(false);
+
+  useEffect(() => {
+    // Call the thunk when the component mounts
+    const fetchData = async () => {
+      const data = await handleCheckUsersTracks(recommendation, user?.spotify_access, user?.spotify_refresh, user?.spotify_expires_at);
+      data && setIsSavedTrack(data[0]); // Set the response data in the state
+    };
+
+    fetchData();
+    console.log('fetch: ')
+    console.log(recommendation)
+    console.log(isSavedTrack)
+  }, [recommendation, user, handleCheckUsersTracks]);
+
+  console.log(recommendation)
+  console.log(isSavedTrack)
+
+  const handleLikeClick = () => {
+
+    if (user?.user.spotify_email && user?.spotify_access) {
+      if (isSavedTrack) {
+        handleRemoveUsersTracks(recommendation, user?.spotify_access, user?.spotify_refresh, user?.spotify_expires_at);
+      }
+      else {
+        handleAddToSpotify(recommendation);
+      };
+
+      setIsSavedTrack(!isSavedTrack);
+    } else {
+      setConnectToSpotify(true);
+    };
+
+  };
+
+  
+
+  return (
+    <li className={classes.recommendations}>
+      <iframe
+        key={index}
+        src={`https://open.spotify.com/embed/track/${recommendation.id}?utm_source=generator`}
+        width={'70%'}
+        height="100%"
+        frameBorder="0"
+        allowFullScreen=""
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy" 
+      />
+      <Tooltip 
+        arrow
+        title={user?.user.spotify_email && user?.spotify_access ? "Save to your Spotify library" : "Connect to Spotify to save to libary"}
+      >
+        <Button onClick={handleLikeClick}>
+          <FavoriteIcon color={isSavedTrack ? 'success' : 'action'} />
+        </Button>
+      </Tooltip>
+    </li>
+  );
+};
+
 export const SongDiscovery = ({ 
     recommendations, 
     error, 
@@ -705,65 +797,34 @@ export const SongDiscovery = ({
     onSearchPressed, 
     onDataLoaded, 
     onResetDataLoaded,
-    onSetQueryParameter, 
+    onSetQueryParameter,
+    onAddToSpotify, 
+    handleCheckUsersTracks,
+    handleRemoveUsersTracks,
     dataLoaded,
     tracks,
     artists,
     genres,
     markets,
+    user,
  }) => {
+  console.log('USER: ', user)
   const theme = useTheme();
-  console.log(theme)
+
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
   const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const email = searchParams.get('email');
-useEffect(() => {
-  // Define an async function inside the useEffect
-  async function fetchData() {
-    const access_token = searchParams.get('access_token');
-    const refresh_token = searchParams.get('refresh_token');
-    const spotify_access_token = searchParams.get('spotify_access_token');
-    const spotify_refresh_token = searchParams.get('spotify_refresh_token');
-
-    console.log(email);
-    console.log(access_token);
-    console.log(refresh_token);
-    console.log(spotify_access_token);
-    console.log(spotify_refresh_token);
-
-    if (spotify_access_token && spotify_refresh_token) {
-      // Use await within the async function
-      const currentUser = await dispatch(login(email, null, spotify_access_token, spotify_refresh_token));
-      console.log('SPOTIFY: ', currentUser);
-    }
-
-    // Check if access_token and refresh_token exist, and then remove them from the URL
-    if (spotify_access_token && spotify_refresh_token) {
-      // Create a new URLSearchParams without the tokens
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.delete('email');
-      newSearchParams.delete('spotify_access_token');
-      newSearchParams.delete('spotify_refresh_token');
-
-      // Replace the URL without the tokens
-      const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
-      window.history.replaceState({}, document.title, newURL);
-    }
-  }
-
-  // Call the async function
-  fetchData();
-}, [email]);
-
   const [parameters, setParameters] = useState(query);
   const [isLoading, setIsLoading] = useState(false);
   const [invalidSearch, setInvalidSearch] = useState(false);
+  const [createPlaylist, setCreatePlaylist] = useState(false);
+  const [playlistName, setPlaylistName] = useState('');
+  const [playlistDescription, setPlaylistDescription] = useState('Created with SongQuest');
+  const [isPlaylistPublic, setIsPlaylistPublic] = useState(false);
+  const [connnectToSpotify, setConnectToSpotify] = useState(false);
   
   const [targetParams, setTargetParams] = useState([]);
 
@@ -777,7 +838,68 @@ useEffect(() => {
   songs: [],
   performers: [],
   genres: [],
-});
+  });
+
+  const [usernameValue, setUsernameValue] = useState('');
+  const [usernameCreated, setUsernameCreated] = useState(Boolean(user?.user));
+  const [spotifyAuthorized, setSpotifyAuthorized] =  useState(false);
+
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get('email');
+
+  useEffect(() => {
+          // Define an async function inside the useEffect
+          async function fetchData() {
+              const access_token = searchParams.get('access_token');
+              const refresh_token = searchParams.get('refresh_token');
+              const spotify_access_token = searchParams.get('spotify_access_token');
+              const spotify_refresh_token = searchParams.get('spotify_refresh_token');
+              const spotify_expires_at = searchParams.get('spotify_expires_at');
+              const spotify_username = searchParams.get('username')
+
+              if (spotify_access_token && spotify_refresh_token && spotify_expires_at) {
+                  // Use await within the async function
+                  const currentUser = await dispatch(login(email, null, spotify_access_token, spotify_refresh_token, spotify_expires_at));
+                  console.log('SPOTIFY: ', currentUser);
+                  dispatch(setCurrentUser(currentUser));
+
+                  setSpotifyAuthorized(true);
+              };
+
+              // Check if access_token and refresh_token exist, and then remove them from the URL
+              if (spotify_access_token && spotify_refresh_token && spotify_expires_at) {
+              // Create a new URLSearchParams without the tokens
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.delete('email');
+              newSearchParams.delete('spotify_access_token');
+              newSearchParams.delete('spotify_refresh_token');
+              newSearchParams.delete('spotify_expires_at');
+
+              // Replace the URL without the tokens
+              const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
+              window.history.replaceState({}, document.title, newURL);
+              };
+
+              if (spotify_username) {
+                  const newSearchParams = new URLSearchParams(searchParams);
+
+                  setUsernameValue(spotify_username);
+                  newSearchParams.delete('username');
+                  newSearchParams.delete('email');
+                  newSearchParams.delete('spotify_access_token');
+                  newSearchParams.delete('spotify_refresh_token');
+                  newSearchParams.delete('spotify_expires_at');
+
+                  const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
+                  window.history.replaceState({}, document.title, newURL);
+              };
+          };
+
+          // Call the async function
+          fetchData();
+      }, [email, spotifyAuthorized, usernameCreated]);
 
   const { handleSubmit } = useForm();
 
@@ -814,11 +936,10 @@ useEffect(() => {
   const [selectOpen, setSelectOpen] = useState(false);
 
   const handleTargetParamChange = (e) => {
-    console.log(e)
     setSelectOpen(!selectOpen);
     setTargetParams(e.target.value);
   }
-  console.log(selectOpen)
+
   const handleTargetParamDelete = (value) => {
     setTargetParams((prevTargetParam) =>
       prevTargetParam.filter((param) => param !== value)
@@ -845,15 +966,46 @@ useEffect(() => {
     //   performer: performerValue,
     // };
     try {
-      await onSearchPressed(parameters);
-      onDataLoaded();  
-    //   dispatch(resetQueryParameter());
-      setIsLoading(false);
+      if (createPlaylist) {
+        console.log('create playlist')
+        console.log(user)
+        console.log({
+          playlist_name: playlistName,
+          playlist_description: playlistDescription,
+          is_public: isPlaylistPublic,
+        })
+        await createPlaylistRequest(
+          user.user.id, 
+          playlistName, 
+          playlistDescription, 
+          isPlaylistPublic, 
+          user?.spotify_access,
+          user?.spotify_refresh,
+          user?.spotify_expires_at,
+        )
+      } else {
+        await onSearchPressed(parameters);
+        onDataLoaded();  
+      //   dispatch(resetQueryParameter());
+        setIsLoading(false);
+      }
+
     } catch (error) {
       console.log('Error: ', error);
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isLoading) {
+      const targetHeight = 650; // Replace 500 with the desired vertical position (height) in pixels.
+
+      window.scrollTo({
+        top: targetHeight,
+        behavior: 'smooth', // Use 'auto' for instant scrolling.
+      });
+    };
+  }, [isLoading])
 
   const handleReset = () => {
     setInvalidSearch(false);
@@ -876,8 +1028,6 @@ useEffect(() => {
     );
     onResetDataLoaded();
   };
-  console.log(targetParamLabels)
-  console.log(targetParamValues)
 
   const handleFormSubmit = (e) => {
     e.preventDefault(); // Prevent form submission
@@ -895,7 +1045,6 @@ useEffect(() => {
   };
 
   const handleSelectedOptions = (parameter, selectedOptions) => {
-    console.log(`Selected ${parameter}:`, selectedOptions);
     setTargetParamLabels(prevLabels => ({
       ...prevLabels,
       [parameter]: selectedOptions,
@@ -905,7 +1054,23 @@ useEffect(() => {
   const handleExploreMoreClick = () => {
     // Smoothly scroll to the top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setCreatePlaylist(false);
   };
+
+  const handleAddToSpotify = (recommendation) => {
+    console.log('Add to spotify')
+    console.log(recommendation)
+    onAddToSpotify(recommendation, user.spotify_access, user.spotify_refresh, user.spotify_expires_at);
+  }
+
+  const handleCreatePlaylist = () => {
+    console.log('handleCreatePlaylist')
+    console.log('recommendations: ', recommendations)
+    console.log('user: ', user)
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setCreatePlaylist(true);
+
+  }
 
   const classes = useStyles();
   const discoveryRecommendations = recommendations?.tracks
@@ -913,7 +1078,16 @@ useEffect(() => {
   const showTracks = discoveryRecommendations && dataLoaded && !query.limit
 
 
-  return (
+  return connnectToSpotify ? 
+  (
+    <SpotifyConnect 
+      isSmScreen={isSmScreen}
+      isXsScreen={isXsScreen}
+      isLgScreen={isLgScreen}
+      isXlScreen={isXlScreen}
+      setConnectToSpotify={setConnectToSpotify} 
+    />
+  ) : (
     <>
       <Box
         sx={{
@@ -929,7 +1103,7 @@ useEffect(() => {
         <form className={classes.form} onSubmit={handleFormSubmit}>
           {/* <FormControl> */}
           <CardHeader
-            title="🎵 Discover New Music 🎶"
+            title={createPlaylist ? "🎵 Create New Playlist 🎶" : "🎵 Discover New Music 🎶"}
             titleTypographyProps={{
               width: '100%',
               variant: isSmScreen || isXsScreen
@@ -939,7 +1113,7 @@ useEffect(() => {
               color: 'white',
               paddingTop: '2%',
             }}
-            subheader={!isXsScreen &&
+            subheader={!isXsScreen && !createPlaylist &&
               "Begin your journey by selecting the songs, artists, and genres you'd like to shape your recommendations."}
             // "Discover music with Song Explorer. Uncover new tunes based on your preferences - from similar songs to unique genres. Begin your musical journey now!"}
             subheaderTypographyProps={{
@@ -952,127 +1126,167 @@ useEffect(() => {
             }} />
           <>
             <SpotifyAuth>
-              {(accessToken) => (
-                <>
-                  {Object.keys(parameters).map((parameter, index) => {
-                    return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
-                      <Box key={index}>
-                        <Box>
-                          {parameter === 'limit' ? (
-                            <>
-                              <Box
-                                display="flex"
-                                flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
-                                justifyContent='center'
-                                alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
-                                style={{ marginBottom: '1%' }}
-                              >
-                                <FormControl className={classes.primaryField}>
-                                  <InputLabel className={classes.inputLabel} variant='standard'>Set Recommendation Sources (Songs, Artists, or Genres)</InputLabel>
-                                  <Select
-                                    multiple
-                                    open={selectOpen}
-                                    onOpen={() => setSelectOpen(true)}
-                                    onClose={() => setSelectOpen(false)}
-                                    label="Set Recommendation Sources (Songs, Artists, or Genres)"
-                                    value={targetParams}
-                                    onChange={handleTargetParamChange}
-                                    variant="standard"
-                                    SelectProps={{
-                                      MenuProps: {
-                                        anchorOrigin: {
-                                          vertical: 'bottom',
-                                          horizontal: 'left',
-                                        },
-                                        transformOrigin: {
-                                          vertical: 'top',
-                                          horizontal: 'left',
-                                        },
-                                        getContentAnchorEl: null,
-                                      },
-                                    }}
-                                    // input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                                    renderValue={(selected) => (
-                                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {selected.map((value, index) => (
-                                          <Chip
-                                            key={value}
-                                            sx={{
-                                              backgroundColor: '#006f96',
-                                              color: 'white',
-                                              '& .MuiChip-deleteIcon': {
-                                                color: 'white',
-                                              },
-                                              marginLeft: index === 0 ? '8px' : '0px',
-                                            }}
-                                            label={toCapitalCase(value)}
-                                            deleteIcon={<CancelIcon
-                                              onMouseDown={(event) => event.stopPropagation()} />}
-                                            onDelete={() => handleTargetParamDelete(value)} />
-                                        ))}
-                                      </Box>
-                                    )}
-                                  >
-                                    <MenuItem value={'songs'}>Songs</MenuItem>
-                                    <MenuItem value={'performers'}>Performers</MenuItem>
-                                    <MenuItem value={'genres'}>Genres</MenuItem>
-                                  </Select>
-                                </FormControl>
-                                <SearchParameter
-                                  parameter={parameter}
-                                  handleChange={handleChange}
-                                  invalidSearch={invalidSearch}
-                                  classes={classes} 
-                                />
-                              </Box>
-                              <Typography
-                                textAlign='center'
-                                color='whitesmoke'
-                              >
-                                {Object.values(targetParamValues).every(arr => arr.length === 0)
-                                  ? `Choose Up to 5 Recommendation Sources`
-                                  : Object.values(targetParamValues).every(arr => arr.length < 5)
-                                    ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
-                                      .length} More Recommendation Sources`
-                                    : `You Have Run Out Of Target Parameters To Set`}
-                              </Typography>
-                            </>
-                          )
-                            : autocompleteParam.includes(parameter) && targetParams.includes(parameter) ? (
-                              <Box display="flex" flexDirection='column' justifyContent="center" alignItems='center' style={{ marginBottom: '1%' }}>
-                                <AutocompleteParameter
-                                  parameter={parameter}
-                                  handleChange={(parameter, value) => {
-                                    handleChange(parameter, value);
-                                  } }
-                                  classes={classes}
-                                  invalidSearch={invalidSearch}
-                                  accessToken={accessToken}
-                                  tracks={tracks}
-                                  artists={artists}
-                                  genres={genres}
-                                  markets={markets}
-                                  setTargetParamValues={setTargetParamValues}
-                                  targetParamValues={targetParamValues}
-                                  onSelectedOptions={handleSelectedOptions} />
-                              </Box>
-                            ) : null}
-                        </Box>
-                      </Box>
-                    ) : null;
-                  })}
-                  <Box className={classes.accordion}>
-                    <CollapsibleSliders
-                      parameters={parameters}
-                      setParameters={setParameters}
-                      query={query}
-                      onSetQueryParameter={onSetQueryParameter}
-                      expanded={expanded}
-                      setExpanded={setExpanded}
-                      handleExpand={handleExpand} />
+              {(accessToken) => {
+                return createPlaylist ? (
+                  <Box
+                    display="flex"
+                    flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
+                    justifyContent='center'
+                    alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
+                    style={{ marginBottom: '1%' }}
+                  >
+                    <FormControl style={{ width: '50%' }}>
+                      <TextField 
+                        label="Enter Playlist Name" 
+                        style={{ 
+                          marginBottom: '8px',
+                          backgroundColor: 'white',
+                        }}
+                        value={playlistName}
+                        onChange={(e) => setPlaylistName(e.target.value)}
+                      />
+                      <TextField 
+                        value={playlistDescription}
+                        style={{ 
+                          marginBottom: '8px',
+                          backgroundColor: 'white',
+                        }}
+                        multiline
+                        rows={3}
+                        disabled 
+                      />
+                      <FormControlLabel 
+                        disabled 
+                        value={isPlaylistPublic}
+                        control={<Switch />} 
+                        label={
+                          <span style={{ color: 'lightgrey' }}>Make Playlist Public</span>
+                        }
+                      />
+                    </FormControl>
                   </Box>
-                </>
-              )}
+                ) : (
+                  <>
+                    {Object.keys(parameters).map((parameter, index) => {
+                      return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
+                        <Box key={index}>
+                          <Box>
+                            {parameter === 'limit' ? (
+                              <>
+                                <Box
+                                  display="flex"
+                                  flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
+                                  justifyContent='center'
+                                  alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
+                                  style={{ marginBottom: '1%' }}
+                                >
+                                  <FormControl className={classes.primaryField}>
+                                    <InputLabel className={classes.inputLabel} variant='standard'>Set Recommendation Sources (Songs, Artists, or Genres)</InputLabel>
+                                    <Select
+                                      multiple
+                                      open={selectOpen}
+                                      onOpen={() => setSelectOpen(true)}
+                                      onClose={() => setSelectOpen(false)}
+                                      label="Set Recommendation Sources (Songs, Artists, or Genres)"
+                                      value={targetParams}
+                                      onChange={handleTargetParamChange}
+                                      variant="standard"
+                                      SelectProps={{
+                                        MenuProps: {
+                                          anchorOrigin: {
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                          },
+                                          transformOrigin: {
+                                            vertical: 'top',
+                                            horizontal: 'left',
+                                          },
+                                          getContentAnchorEl: null,
+                                        },
+                                      }}
+                                      // input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                                      renderValue={(selected) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                          {selected.map((value, index) => (
+                                            <Chip
+                                              key={value}
+                                              sx={{
+                                                backgroundColor: '#006f96',
+                                                color: 'white',
+                                                '& .MuiChip-deleteIcon': {
+                                                  color: 'white',
+                                                },
+                                                marginLeft: index === 0 ? '8px' : '0px',
+                                              }}
+                                              label={toCapitalCase(value)}
+                                              deleteIcon={<CancelIcon
+                                                onMouseDown={(event) => event.stopPropagation()} />}
+                                              onDelete={() => handleTargetParamDelete(value)} />
+                                          ))}
+                                        </Box>
+                                      )}
+                                    >
+                                      <MenuItem value={'songs'}>Songs</MenuItem>
+                                      <MenuItem value={'performers'}>Performers</MenuItem>
+                                      <MenuItem value={'genres'}>Genres</MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                  <SearchParameter
+                                    parameter={parameter}
+                                    handleChange={handleChange}
+                                    invalidSearch={invalidSearch}
+                                    classes={classes} 
+                                  />
+                                </Box>
+                                <Typography
+                                  textAlign='center'
+                                  color='whitesmoke'
+                                >
+                                  {Object.values(targetParamValues).every(arr => arr.length === 0)
+                                    ? `Choose Up to 5 Recommendation Sources`
+                                    : Object.values(targetParamValues).every(arr => arr.length < 5)
+                                      ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
+                                        .length} More Recommendation Sources`
+                                      : `You Have Run Out Of Target Parameters To Set`}
+                                </Typography>
+                              </>
+                            )
+                              : autocompleteParam.includes(parameter) && targetParams.includes(parameter) ? (
+                                <Box display="flex" flexDirection='column' justifyContent="center" alignItems='center' style={{ marginBottom: '1%' }}>
+                                  <AutocompleteParameter
+                                    parameter={parameter}
+                                    handleChange={(parameter, value) => {
+                                      handleChange(parameter, value);
+                                    } }
+                                    classes={classes}
+                                    invalidSearch={invalidSearch}
+                                    accessToken={accessToken}
+                                    tracks={tracks}
+                                    artists={artists}
+                                    genres={genres}
+                                    markets={markets}
+                                    setTargetParamValues={setTargetParamValues}
+                                    targetParamValues={targetParamValues}
+                                    onSelectedOptions={handleSelectedOptions} />
+                                </Box>
+                              ) : null}
+                          </Box>
+                        </Box>
+                      ) : null;
+                    })}
+                    <Box className={classes.accordion}>
+                      <CollapsibleSliders
+                        parameters={parameters}
+                        setParameters={setParameters}
+                        query={query}
+                        onSetQueryParameter={onSetQueryParameter}
+                        expanded={expanded}
+                        setExpanded={setExpanded}
+                        handleExpand={handleExpand} />
+                    </Box>
+                  </>
+                )
+              }}
             </SpotifyAuth>
           </>
           <Grid className={classes.buttonsContainer}>
@@ -1101,6 +1315,7 @@ useEffect(() => {
             justifyContent="center"
             alignItems="center"
             height="30vh"
+            id='loadingState'
           >
             <CardHeader
               title="Loading Results"
@@ -1122,19 +1337,42 @@ useEffect(() => {
               <ArrowUpwardIcon />
             </Button>
           )}
+          {user && 
+            // <Box 
+            //   display='flex' 
+            //   flexDirection='row' 
+            //   alignItems='center'
+            //   padding='15px 15px 0'
+            // >
+              <Tooltip 
+                arrow 
+                title="Create playlist from recommendations" 
+              >
+                {!isXsScreen && !isSmScreen && !isMdScreen ? 
+                (
+                  <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
+                    Create Playlist
+                  </Button>
+                ) : (
+                  <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
+                    <QueueMusicIcon />
+                  </Button>
+                )}
+              </Tooltip>
+            // {/* </Box> */}
+          }
           <ul className={classes.recommendationsUl}>
             {discoveryRecommendations.map((recommendation, index) => (
-              <li className={classes.recommendations}>
-                <iframe
-                  key={index}
-                  src={`https://open.spotify.com/embed/track/${recommendation.id}?utm_source=generator`}
-                  width={'70%'}
-                  height="100%"
-                  frameBorder="0"
-                  allowFullScreen=""
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy" />
-              </li>
+              <Recommendation 
+                classes={classes} 
+                index={index}
+                recommendation={recommendation}
+                user={user}
+                handleAddToSpotify={handleAddToSpotify}
+                handleCheckUsersTracks={handleCheckUsersTracks}
+                handleRemoveUsersTracks={handleRemoveUsersTracks}
+                setConnectToSpotify={setConnectToSpotify}
+              />
             ))}
           </ul>
         </>
@@ -1153,6 +1391,7 @@ const mapStateToProps = (state) => {
     artists: state.discovery.artists,
     genres: state.discovery.genres,
     markets: state.discovery.markets,
+    user: state.user.currentUser,
   };
 };
 
@@ -1163,6 +1402,9 @@ const mapDispatchToProps = (dispatch) => ({
   onResetDataLoaded: () =>
     dispatch(resetDataLoaded()),
   onSetQueryParameter: (query, parameter, newValues) => dispatch(setQueryParameter(query, parameter, newValues)),
+  onAddToSpotify: (recommendation, spotify_access, spotify_refresh, spotify_expires_at) => dispatch(addToSpotify(recommendation, spotify_access, spotify_refresh, spotify_expires_at)),
+  handleCheckUsersTracks: (recommendation, spotify_access, spotify_refresh, spotify_expires_at) => dispatch(checkUsersTracks(recommendation, spotify_access, spotify_refresh, spotify_expires_at)),
+  handleRemoveUsersTracks: (recommendation, spotify_access, spotify_refresh, spotify_expires_at) => dispatch(removeUsersTracks(recommendation, spotify_access, spotify_refresh, spotify_expires_at)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SongDiscovery);

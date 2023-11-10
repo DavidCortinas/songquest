@@ -36,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(db_index=True, unique=True)
     spotify_email = models.EmailField(null=True, blank=True)
     spotify_auth = models.BooleanField(default=False)
+    # spotify_refresh = models.Ch
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)

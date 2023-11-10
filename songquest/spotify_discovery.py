@@ -37,7 +37,7 @@ def get_access_token():
         token_data = response.json()
         access_token = token_data["access_token"]
         expires_in = token_data["expires_in"]
-        print(access_token)
+
         return access_token, expires_in
     else:
         # Handle the error response
@@ -46,7 +46,6 @@ def get_access_token():
 
 
 def format_spotify_url(parameters):
-    print('Format: ', parameters)
     base_url = 'https://api.spotify.com/v1/recommendations?'
     query_params = []
 
@@ -54,7 +53,6 @@ def format_spotify_url(parameters):
         if param_value is not None:
             query_params.append(f'{param_name}={param_value}')
 
-    print('before gets')
     limit = parameters.get('limit')
     market = parameters.get('market')
     performers = parameters.get('performers')
@@ -105,20 +103,17 @@ def format_spotify_url(parameters):
     min_valence = parameters.get('valence')['min']
     max_valence = parameters.get('valence')['max']
     target_valence = parameters.get('valence')['target']
-    print('after gets')
 
     add_param('limit', limit) if limit else None
     add_param('market', market) if market else None
     add_param('seed_artists', performers_string) if performers else None
     add_param('seed_genres', genres_string) if genres else None
     add_param('seed_tracks', songs_string) if songs else None
-    print(query_params)
 
     add_param('min_acousticness', min_acousticness) if min_acousticness else None
     add_param('max_acousticness', max_acousticness) if max_acousticness else None
     add_param('target_acousticness',
               target_acousticness) if target_acousticness else None
-    print(query_params)
 
     add_param('min_danceability', min_danceability) if min_danceability else None
     add_param('max_danceability', max_danceability) if max_danceability else None
@@ -189,10 +184,8 @@ def format_spotify_url(parameters):
     add_param('target_valence',
               target_valence) if target_valence else None
 
-    print('params: ', query_params)
-
     formatted_url = base_url + '&'.join(query_params)
-    print('formatted: ', formatted_url)
+
     return formatted_url
 
 
@@ -218,7 +211,6 @@ def get_recommendations(parameters):
 
             # Get the initial access token
             access_token, expires_in = get_access_token()
-            print(access_token, expires_in)
 
             if access_token:
                 # Use the access token in your API requests
