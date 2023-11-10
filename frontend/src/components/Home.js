@@ -155,7 +155,6 @@ const copy = {
 
 const Carousel = ({ isSmScreen, isXsScreen }) => {
   const theme = useTheme();
-  console.log(theme)
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
   const maxSteps = copy.section.length;

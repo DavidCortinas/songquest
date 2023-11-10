@@ -9,6 +9,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import Home from './components/Home';
 import { SongDetector } from './components/SongDetector';
 import SongDiscovery from './components/SongDiscovery';
+import { LyricSearch } from './components/LyricSearch';
 
 
 const RoutesContainer = ({
@@ -56,7 +57,7 @@ const RoutesContainer = ({
           }
         />
         <Route
-          path={'discover'}
+          path={'/discover'}
           element={
             <SongDiscovery
               onSearchPressed={onSearchPressed}
@@ -64,7 +65,13 @@ const RoutesContainer = ({
             />
           }
         />
-        <Route
+        {/* <Route
+          path={'/lyric-search'}
+          element={
+            <LyricSearch />
+          }
+        /> */}
+        {/* <Route
           path={'/search'}
           element={
             <SongForm
@@ -72,14 +79,14 @@ const RoutesContainer = ({
               onDataLoaded={onDataLoaded}
             />
           }
-        />
+        /> */}
         <Route 
           path={'/login'}
           element={
             <Login />
           }
         />
-        <Route
+        {/* <Route
           path={'/songdata'}
           element={
             <SongDataTable
@@ -89,13 +96,13 @@ const RoutesContainer = ({
               dataLoaded={dataLoaded}
             />
           }
-        />
-        <Route
+        /> */}
+        {/* <Route
           path={'/song-detector'}
           element={
             <SongDetector />
           }
-        />
+        /> */}
       </Routes>
   );
 };

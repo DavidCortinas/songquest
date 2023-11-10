@@ -42,6 +42,24 @@ export const setCurrentUser = (user) => ({
   payload: { user },
 });
 
+export const REFRESH_SPOTIFY_ACCESS = 'REFRESH_SPOTIFY_ACCESS';
+export const refreshSpotifyAccess = (newAccessToken, expiresAt) => ({
+  type: REFRESH_SPOTIFY_ACCESS,
+  payload: { newAccessToken, expiresAt },
+});
+
+export const UPDATE_USERNAME = 'UPDATE_USERNAME';
+export const updateUsername = (newUsername) => ({
+  type: UPDATE_USERNAME,
+  payload: { newUsername },
+});
+
+export const UPDATE_EMAIL = 'UPDATE_EMAIL';
+export const updateEmail = (newEmail) => ({
+  type: UPDATE_EMAIL,
+  payload: { newEmail },
+});
+
 export const DISCOVER_SONG= 'DISCOVER_SONG';
 export const discoverSong = (recommendations, dataLoaded, query) => {
   return {
@@ -74,6 +92,14 @@ export const setQueryParameter = (query, parameter, newValues) => ({
   type: SET_QUERY_PARAMETER,
   payload: { query, parameter, newValues },
 })
+
+export const RECEIVE_LYRIC_RESULTS = 'RECEIVE_LYRIC_RESULTS';
+export const receiveLyricResults = (tracks) => {
+  console.log(tracks)
+  return ({
+  type: RECEIVE_LYRIC_RESULTS,
+  payload: { tracks },
+})}
 
 export const RECEIVE_SPOTIFY_SONG_RESULTS = 'RECEIVE_SPOTIFY_SONG_RESULTS';
 export const receiveSongResults = (tracks) => ({

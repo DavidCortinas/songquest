@@ -13,8 +13,7 @@ class SpotifyBackend(ModelBackend):
             try:
                 # Query the database for a user with the given email
                 user = User.objects.get(email=email)
-                print('user: ', user)
-                print('USERS: ', User.objects.values())
+
                 return user
             except User.DoesNotExist:
                 pass

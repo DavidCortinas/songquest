@@ -4,11 +4,13 @@ import {
   CONFIRM_USER,
   DISCOVER_SONG,
   DISCOVER_SONG_SUCCESS,
+  RECEIVE_LYRIC_RESULTS,
   RECEIVE_SPOTIFY_MARKETS,
   RECEIVE_SPOTIFY_PERFORMER_RESULTS,
   RECEIVE_SPOTIFY_SEED_GENRES,
   RECEIVE_SPOTIFY_SONG_RESULTS,
   RECEIVE_SPOTIFY_TRACK,
+  REFRESH_SPOTIFY_ACCESS,
   RESET_DATA_LOADED,
   RESET_QUERY_PARAMETER,
   SEARCH_SONG,
@@ -16,6 +18,8 @@ import {
   SEARCH_SONG_SUCCESS,
   SET_CURRENT_USER,
   SET_QUERY_PARAMETER,
+  UPDATE_EMAIL,
+  UPDATE_USERNAME,
 } from './actions';
 
 const initialSongState = {
@@ -206,9 +210,40 @@ export const user = (state = { currentUser: null }, action) => {
         ...state,
         currentUser: payload.user,
       };
+    case REFRESH_SPOTIFY_ACCESS:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          spotify_access: payload.newAccessToken,
+          spotify_expires_at: payload.expiresAt,
+        },
+      };
+    case UPDATE_USERNAME:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            username: payload.newUsername,
+          },
+        },
+      };
+    case UPDATE_EMAIL:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            email: payload.newEmail,
+          },
+        },
+      };
     default:
       return state;
-  }
+  };
 };
 
 export const authSlice = createSlice({
@@ -273,6 +308,12 @@ export const discovery = (state = initialDiscoveryState, action) => {
               target: newValues[2],
             }
             }
+        };
+      case RECEIVE_LYRIC_RESULTS:
+        console.log(payload)
+        return {
+          ...state,
+          lyricResults: payload.tracks,
         };
       case RECEIVE_SPOTIFY_SONG_RESULTS:
         return {

@@ -35,7 +35,6 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
     dispatch(setCurrentUser(null))
     navigate('/')
   }
-  console.log('user: ', user)
 
   return (
     <Box 
