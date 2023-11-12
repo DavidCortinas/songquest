@@ -10,3 +10,4 @@ env/
 *.pyc
 .pytest_cache/
 .coverage
+frontend/.env

@@ -1,12 +1,16 @@
 import React, { useEffect } from 'react';
 import SongForm from './components/SongForm';
 import SongDataTable from './components/SongDataTable';
+import Login from './components/Login';
 import { searchSongRequest } from './thunks';
 import { connect } from 'react-redux';
 import { searchSongSuccess } from './actions';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { Container } from '@mui/material';
-import { Home } from './components/Home';
+import Home from './components/Home';
+import { SongDetector } from './components/SongDetector';
+import SongDiscovery from './components/SongDiscovery';
+import { LyricSearch } from './components/LyricSearch';
+
 
 const RoutesContainer = ({
   query,
@@ -18,9 +22,8 @@ const RoutesContainer = ({
   const navigate = useNavigate();
 
     const getDataTableRoutePath = (query) => {
-      console.log('getDataTableRoutePath: ', query)
       const { song, performer } = query;
-      let path = '/song-data';
+      let path = '/songdata';
 
       const searchParams = new URLSearchParams();
       if (song) {
@@ -33,18 +36,13 @@ const RoutesContainer = ({
       const search = searchParams.toString();
       if (search) {
         path += `?${search}`;
-        console.log(path)
       }
-      console.log(path)
 
       return path;
     };
 
   useEffect(() => {
-    console.log('dataLoaded: ', dataLoaded)
-    console.log('error: ', error)
     if (dataLoaded && !error) {
-      console.log('Navigate')
       navigate(getDataTableRoutePath(query)); // Navigate to SongDataTable route programmatically
     }
   }, [dataLoaded, error, query, navigate]);
@@ -59,6 +57,21 @@ const RoutesContainer = ({
           }
         />
         <Route
+          path={'/discover'}
+          element={
+            <SongDiscovery
+              onSearchPressed={onSearchPressed}
+              onDataLoaded={onDataLoaded}
+            />
+          }
+        />
+        {/* <Route
+          path={'/lyric-search'}
+          element={
+            <LyricSearch />
+          }
+        /> */}
+        {/* <Route
           path={'/search'}
           element={
             <SongForm
@@ -66,9 +79,15 @@ const RoutesContainer = ({
               onDataLoaded={onDataLoaded}
             />
           }
+        /> */}
+        <Route 
+          path={'/login'}
+          element={
+            <Login />
+          }
         />
-        <Route
-          path={'/song-data'}
+        {/* <Route
+          path={'/songdata'}
           element={
             <SongDataTable
               query={query}
@@ -77,16 +96,22 @@ const RoutesContainer = ({
               dataLoaded={dataLoaded}
             />
           }
-        />
+        /> */}
+        {/* <Route
+          path={'/song-detector'}
+          element={
+            <SongDetector />
+          }
+        /> */}
       </Routes>
   );
 };
 
 const mapStateToProps = (state) => {
   return {
-    query: state.song.query || {},
-    dataLoaded: state.song.dataLoaded || false,
-    error: state.song.error,
+    query: state.song?.query || {},
+    dataLoaded: state.song?.dataLoaded || false,
+    error: state.song?.error,
   };
 };
 

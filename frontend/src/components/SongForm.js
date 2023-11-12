@@ -7,7 +7,6 @@ import {
   Button,
   Card,
   CardHeader,
-  FormControl,
   Grid,
   Snackbar,
   Typography,
@@ -18,9 +17,10 @@ import { makeStyles, useTheme } from '@mui/styles';
 import { searchSongRequest } from '../thunks';
 import { clearSearchSongError, searchSongSuccess } from '../actions';
 import '../App.css';
+import theme from '../theme'
 import { LoadingState } from './LoadingState';
 
-const useStyles = makeStyles((theme) => (
+const useStyles = makeStyles(() => (
   {
   card: {
     backgroundColor: "white",
@@ -104,9 +104,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
     try {
       const songData = await onSearchPressed(newQuery);
       onDataLoaded(songData, newQuery);
-      console.log('songData: ', songData)
       setIsLoading(false);
-      console.log(isLoading);
     } catch (error) {
       console.log('Error: ', error);
       setIsLoading(false);
@@ -180,7 +178,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
                     autoFocus
                     variant='outlined'
                     InputLabelProps={{ style: { margin: '2px 5px' }}}
-                    InputProps={{ disableUnderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
+                    InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
                     error={invalidSearch}
                     required
                     className={classes.textField}
@@ -193,7 +191,7 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
                   <TextField
                     variant='outlined'
                     InputLabelProps={{ style: { margin: '2px 5px' }}}
-                    InputProps={{ disableUnderline: 'true', style: { margin: '5px', padding: '5px 0' } }}
+                    InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0' } }}
                     className={classes.textField}
                     onChange={handlePerformerChange}
                     value={performerValue}
@@ -204,13 +202,12 @@ export const SongForm = ({ error, onSearchPressed, onDataLoaded }) => {
                 <br />
                 <Grid className={classes.buttonsContainer}>
                   <Button
-                    type="submit"
-                    className={classes.button}
+                    type="submit"                 
                     onClick={handleSubmit(onSubmit)}
                   >
                     Submit
                   </Button>
-                  <Button className={classes.button} onClick={handleReset}>
+                  <Button onClick={handleReset}>
                     Reset
                   </Button>
                 </Grid>

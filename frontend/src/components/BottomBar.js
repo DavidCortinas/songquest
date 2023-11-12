@@ -1,30 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
-import WorkIcon from '@mui/icons-material/Work';
-import { BottomNavigation, BottomNavigationAction, Box, useMediaQuery } from '@mui/material';
+import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
+import { BottomNavigation, BottomNavigationAction, Tooltip, useMediaQuery } from '@mui/material';
 import { resetDataLoaded } from '../actions';
-import { makeStyles } from '@mui/styles';
 import '../App.css';
 
-const useStyles = () => makeStyles(() => (
-    {
-        bottomLinks: {
-            color: 'white',
-        },
-    }
-))
-
-export const BottomBar = ({ resetDataLoaded, collapse, onCollapse }) => {
+export const BottomBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }) => {
   const isLgScreen = useMediaQuery('(min-width: 1200px)');
-  const isLandscape = useMediaQuery('(orientation: landscape)');
-  const classes = useStyles();
 
   useEffect(() => {
     function handleResize() {
@@ -42,19 +29,14 @@ export const BottomBar = ({ resetDataLoaded, collapse, onCollapse }) => {
     };
   }, [isLgScreen, collapse]);
 
-  const location = useLocation();
   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     if (location.pathname !== '/') {
-//       navigate('/search');
-//     }
-//   }, [location.pathname, navigate]);
 
   const handleNavigation = (path) => {
     resetDataLoaded();
     navigate(path);
   };
+
+  const isSubscribed = false;
 
   return (
     <div className='bottombar'>
@@ -65,42 +47,83 @@ export const BottomBar = ({ resetDataLoaded, collapse, onCollapse }) => {
         >
             <BottomNavigationAction 
                 label='Home' 
-                icon={<HomeIcon />} 
+                icon={
+                <img
+                  src={require('../images/sq-logo.png')}
+                  alt="Logo"
+                  style={{ width: '25%' }}
+                />
+                } 
                 onClick={() => handleNavigation('/')}
-                className={classes.bottomLinks}
                 sx={{
-                    color: '#0b0b0b',
+                    color: '#006f96',
                 }}
             />
             <BottomNavigationAction 
+                label='Disocover Music' 
+                icon={<YoutubeSearchedForIcon />} 
+                onClick={() => handleNavigation('/discover')}
+                sx={{
+                    color: '#006f96',
+                }}
+            />
+            {/* <BottomNavigationAction 
                 label='Song Search' 
                 icon={<SearchIcon />} 
                 onClick={() => handleNavigation('/search')}
-                className={classes.bottomLinks}
                 sx={{
-                    color: '#0b0b0b',
+                    color: '#006f96',
                 }}
-            />
-            <BottomNavigationAction 
+            /> */}
+            {/* {currentUser ? <BottomNavigationAction 
                 label='Detect Song' 
                 icon={<SpatialAudioIcon />} 
-                className={classes.bottomLinks}
+                onClick={() => handleNavigation('/song-detector')}
                 sx={{
-                    color: '#0b0b0b',
+                    color: '#006f96',
                 }}
-            />
-            <BottomNavigationAction 
+            /> :
+            <Tooltip title='Login to access song detection' arrow enterTouchDelay={0}>
+              <span>
+                <BottomNavigationAction 
+                    label='Detect Song' 
+                    icon={<SpatialAudioIcon />} 
+                    sx={{
+                        color: '#006f96',
+                        opacity: '0.5',
+                    }}
+                    disabled
+                  />  
+              </span>  
+            </Tooltip>}
+            {isSubscribed ? <BottomNavigationAction 
                 label='Saved Searches' 
                 icon={<SavedSearchIcon />} 
-                className={classes.bottomLinks}
                 sx={{
-                    color: '#0b0b0b',
+                    color: '#006f96',
                 }}
-            />
+            /> :
+            <Tooltip title='Upgrade to access saved searches' arrow enterTouchDelay={0}>
+              <span>
+                <BottomNavigationAction 
+                  label='Saved Searches' 
+                  icon={<SavedSearchIcon />} 
+                  sx={{
+                      color: '#006f96',
+                      opacity: '0.5',
+                  }}
+                  disabled
+                />  
+              </span>  
+            </Tooltip>} */}
         </BottomNavigation>
     </div>
   );
 };
+
+const mapStateToProps = (state) => ({
+  currentUser: state.user.currentUser?.user,
+});
 
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -110,4 +133,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(null, mapDispatchToProps)(BottomBar);
+export default connect(mapStateToProps, mapDispatchToProps)(BottomBar);
