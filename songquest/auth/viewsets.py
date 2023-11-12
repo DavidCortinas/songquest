@@ -22,21 +22,17 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
-        print('CREATE')
 
         # Check if a Spotify access token is provided in the request data
         spotify_access_token = request.data.get('spotify_access_token')
         spotify_refresh_token = request.data.get('spotify_refresh_token')
         spotify_expires_at = request.data.get('spotify_expires_at')
-        print('spotify_access: ', spotify_access_token)
-        print('spotify_refresh: ', spotify_refresh_token)
-        print('spotify_expires_at: ', spotify_expires_at)
 
         if spotify_access_token:
             # Handle Spotify authentication
             email = request.data.get('email')
             user = get_user_model().objects.get(email=email)
-            print('login user: ', user)
+
             if user:
                 # Log the user in without requiring a password
                 serializer = LoginSerializer()
@@ -76,8 +72,6 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        print('register request: ', request)
-        print('register serializer: ', serializer)
 
         if not serializer.is_valid():
             print('Validation Errors:', serializer.errors)
