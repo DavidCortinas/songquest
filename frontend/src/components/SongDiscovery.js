@@ -739,13 +739,7 @@ const Recommendation = ({
     };
 
     fetchData();
-    console.log('fetch: ')
-    console.log(recommendation)
-    console.log(isSavedTrack)
   }, [recommendation, user, handleCheckUsersTracks]);
-
-  console.log(recommendation)
-  console.log(isSavedTrack)
 
   const handleLikeClick = () => {
 
@@ -808,7 +802,6 @@ export const SongDiscovery = ({
     markets,
     user,
  }) => {
-  console.log('USER: ', user)
   const theme = useTheme();
 
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -862,7 +855,6 @@ export const SongDiscovery = ({
               if (spotify_access_token && spotify_refresh_token && spotify_expires_at) {
                   // Use await within the async function
                   const currentUser = await dispatch(login(email, null, spotify_access_token, spotify_refresh_token, spotify_expires_at));
-                  console.log('SPOTIFY: ', currentUser);
                   dispatch(setCurrentUser(currentUser));
 
                   setSpotifyAuthorized(true);
@@ -1058,18 +1050,12 @@ export const SongDiscovery = ({
   };
 
   const handleAddToSpotify = (recommendation) => {
-    console.log('Add to spotify')
-    console.log(recommendation)
     onAddToSpotify(recommendation, user.spotify_access, user.spotify_refresh, user.spotify_expires_at);
   }
 
   const handleCreatePlaylist = () => {
-    console.log('handleCreatePlaylist')
-    console.log('recommendations: ', recommendations)
-    console.log('user: ', user)
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setCreatePlaylist(true);
-
   }
 
   const classes = useStyles();

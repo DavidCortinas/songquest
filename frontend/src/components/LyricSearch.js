@@ -88,14 +88,11 @@ export const LyricSearch = (lyricResults) => {
 
     const onSubmit = async (accessToken) => {
         const tracks = await sendLyricsToServer(lyrics);
-        console.log('tracks: ', tracks)
 
         // Extracting track_name and artist_name
         const extractedTracks = tracks.map((track) => {
             return `${track.track_name} - ${track.artist_name}`
         });
-
-        console.log('Extracted Tracks: ', extractedTracks);
 
         if (extractedTracks) { 
             const spotifyResults = tracks.map((track) => {

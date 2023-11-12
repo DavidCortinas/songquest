@@ -310,7 +310,6 @@ export const discovery = (state = initialDiscoveryState, action) => {
             }
         };
       case RECEIVE_LYRIC_RESULTS:
-        console.log(payload)
         return {
           ...state,
           lyricResults: payload.tracks,

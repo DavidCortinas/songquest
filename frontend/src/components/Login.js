@@ -179,8 +179,6 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log('useEffect')
-        console.log(user && user)
         if (user?.user.username) {
             setUsernameCreated(true);
         };
@@ -208,24 +206,12 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
         }
     }
 
-    console.log('login user: ', usernameValue)
-    console.log('username created: ', usernameCreated)
-
     const onCreateUsername = async () => {
         if (!usernameValue) {
             setInvalidUsername(true);
             return;
         };
 
-        // if (spotifyAuthorized) {
-        //     console.log('spotifyAuthorized && onCreateUsername')
-        //     // call update username
-        //     onUpdateUsername(user?.user.id , usernameValue);
-        //     user && navigate('/discover')
-        // };
-
-        // setUsernameValue(user)
-        console.log('onCreateUsername')
         setUsernameCreated(true);
     };
 
@@ -237,7 +223,6 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
 
         try {
             const currentUser = await dispatch(login(emailValue, passwordValue, null, null));
-            console.log('currentUser: ', currentUser)
 
             dispatch(setCurrentUser(currentUser));
             currentUser && navigate('/discover')
@@ -255,10 +240,6 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
             setInvalidConfirmPassword(true);
             return;
         }
-        console.log('onCreatePassword')
-        console.log(emailValue)
-        console.log(passwordValue)
-        console.log(usernameValue)
         
         try {
             await dispatch(registerUser(emailValue, passwordValue, usernameValue));

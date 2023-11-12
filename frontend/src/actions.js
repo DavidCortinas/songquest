@@ -95,7 +95,6 @@ export const setQueryParameter = (query, parameter, newValues) => ({
 
 export const RECEIVE_LYRIC_RESULTS = 'RECEIVE_LYRIC_RESULTS';
 export const receiveLyricResults = (tracks) => {
-  console.log(tracks)
   return ({
   type: RECEIVE_LYRIC_RESULTS,
   payload: { tracks },
