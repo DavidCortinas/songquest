@@ -129,7 +129,6 @@ export const login = (
   spotify_refresh_token, 
   spotify_expires_at
 ) => async (dispatch) => {
-  console.log('login expires: ', spotify_expires_at)
   try {
     const csrfToken = await getCSRFToken();
     const body = JSON.stringify({
@@ -272,16 +271,12 @@ export const getSpotifyUserAuth = () => async (dispatch) => {
 
 
 export const getSpotifySearchResult = (value, parameter, accessToken) => async (dispatch) => {
-  console.log('parameter: ', parameter)
+
   const type = (parameter === 'songs' || parameter === 'lyrics') 
     ? 'track' 
     : 'artist'
 
-  console.log('type: ', type)
-  console.log(encodeURIComponent(value))
-
   const lyricsQuery = parameter === 'lyrics' ? `track:${value.track_name} artist:${value.artist_name}` : null
-  console.log(encodeURIComponent(lyricsQuery))
 
   try {
     const API_URL =  `https://api.spotify.com/v1/search?q=${
@@ -307,7 +302,6 @@ export const getSpotifySearchResult = (value, parameter, accessToken) => async (
       dispatch(receivePerformerResults(result.artists))
     };
     if (parameter === 'lyrics') {
-      console.log(result)
       dispatch(receiveLyricResults(result.tracks))
     }
   } catch (error) {
@@ -351,10 +345,6 @@ export const addToSpotify = (
   spotify_refresh, 
   spotify_expires_at
 ) => async (dispatch) => {
-  console.log('add to spotify')
-  console.log(recommendation)
-  console.log(spotify_access)
-  console.log(spotify_refresh)
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -385,7 +375,6 @@ export const addToSpotify = (
       headers: headers,
       credentials: 'include',
     });
-    console.log(response)
 
     if (response.status === 200) {
       // Authorization request was successful, you can handle the response here
@@ -421,7 +410,6 @@ export const checkTokenExpiration = async(
         // Successfully refreshed the access token
         const tokenInfo = await response.json();
         const newAccessToken = tokenInfo.access_token;
-        console.log('New access token:', newAccessToken);
 
         // Continue your API requests using the new access token
         spotify_access = newAccessToken;
@@ -441,7 +429,6 @@ export const checkUsersTracks = (
   spotify_refresh,
   spotify_expires_at
 ) => async (dispatch) => {
-  console.log('checkUserTracks');
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -454,11 +441,6 @@ export const checkUsersTracks = (
       // 'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
     };
-
-    console.log('check users tracks');
-    console.log(recommendation);
-    console.log(spotify_access);
-    console.log(spotify_refresh);
 
     // Check if the token has expired
     const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
@@ -500,10 +482,6 @@ export const removeUsersTracks = (
   spotify_expires_at
 ) => async (dispatch) => {
 
-  console.log('remove users tracks')
-  console.log(recommendation)
-  console.log(spotify_access)
-  console.log(spotify_refresh)
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -567,7 +545,6 @@ export const handleUpdateUsername = (userId, newUsername) => async (dispatch) =>
     }
 
     const res = await response.json();
-    console.log(res);
 
     // You can dispatch an action if needed
     dispatch(updateUsername(newUsername));
@@ -588,11 +565,6 @@ export const createPlaylistRequest = async (
   spotify_refresh,
   spotify_expires_at,
 ) => {
-  console.log('createPlaylistRequest')
-  console.log(userId)
-  console.log(playlistName)
-  console.log(playlistDescription)
-  console.log(isPublic)
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
@@ -619,8 +591,7 @@ export const createPlaylistRequest = async (
       throw new Error('Request failed with status ' + response.status);
     }
 
-    const res = await response.json();
-    console.log(res);    
+    const res = await response.json();    
   } catch (error) {
     console.log('Error: ' + error.message);
   };
@@ -636,15 +607,11 @@ export const sendLyricsToServer = async (lyrics) => {
       'X-CSRFToken': csrfToken,
     };
 
-    console.log('lyrics: ', lyrics)
-
     const response = await fetch('http://localhost:8000/search-lyrics/', {
       method: 'POST',
       headers: headers,
       body: lyrics,
     });
-
-    console.log(response)
 
     if (!response.ok) {
       throw new Error('Request failed with status ' + response.status);
