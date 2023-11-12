@@ -200,7 +200,6 @@ redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
 
 @csrf_exempt
 def request_authorization(request):
-    print('REQUEST AUTH')
     # Generate a state and store it in the session for later verification
     state = generate_random_string(16)
     request.session['spotify_state'] = state
@@ -210,7 +209,6 @@ def request_authorization(request):
         'https://accounts.spotify.com/authorize/?'
         'client_id={}&response_type=code&redirect_uri={}&scope=user-library-read%20user-library-modify%20user-read-email%20playlist-modify-public%20playlist-modify-private&state={}'
     ).format(client_id, redirect_uri, state)
-    print('PRE RETURN')
 
     return redirect(authorization_url)
 
@@ -347,7 +345,6 @@ def get_spotify_token_info(request):
         if token_response.status_code == 200:
             # Successfully obtained access token
             token_info = token_response.json()
-            print('token_info: ', token_info)
             return token_info
 
         else:
@@ -358,7 +355,6 @@ def get_spotify_token_info(request):
 
 def handle_spotify_callback(request):
     token_info = get_spotify_token_info(request)
-    print('callback token info: ', token_info)
     access_token = token_info.get('access_token')
     refresh_token = token_info.get('refresh_token')
     expires_at = time() + token_info.get('expires_in', 0)
@@ -366,7 +362,6 @@ def handle_spotify_callback(request):
     spotify_email = get_spotify_user_email(access_token)
     spotify_display_name = get_spotify_user_display_name(access_token)
     existing_user = check_user_exists(spotify_email)
-    print('callback expires: ', expires_at)
 
     if existing_user:
         token_request_data = {
@@ -378,12 +373,10 @@ def handle_spotify_callback(request):
 
         if not existing_user.spotify_email:
             existing_user.spotify_email = spotify_email
-            print(f"Existing user: {existing_user}")
             existing_user.save()
 
         # Check if the user is logged in
         if request.user.is_authenticated:
-            print('is_authenticated: ', request.user)
             user_data = {
                 'email': request.user.email,
                 # Replace with the actual attribute name
@@ -432,8 +425,6 @@ def handle_spotify_callback(request):
                 'spotify_expires_at': expires_at,
             }
 
-        print('user_data: ', user_data)
-
     # Build a query string with user data
     user_data_query = '&'.join(
         [f"{key}={value}" for key, value in user_data.items()])
@@ -444,9 +435,7 @@ def handle_spotify_callback(request):
 
 
 def token_expired(expiration_time):
-    print('expiration_time: ', expiration_time)
     current_time = time()
-    print('current_time: ', current_time)
 
     # Convert the expiration_time to a floating-point number
     expiration_time = float(expiration_time)
@@ -458,8 +447,6 @@ def refresh_access_token(request):
     # # Retrieve the refresh token from the request
     data = json.loads(request.body.decode('utf-8'))
     refresh_token = data['refresh_token']
-    print('refresh_token: ', refresh_token)
-    print('data: ', data)
 
     if refresh_token:
         client_id = os.environ.get('SPOTIFY_CLIENT_ID')
@@ -489,9 +476,7 @@ def refresh_access_token(request):
         if token_response.status_code == 200:
             # Successfully obtained refreshed access token
             token_info = token_response.json()
-            print('refresh token_info: ', token_info)
             access_token = token_info.get('access_token')
-            print('access token from response: ', access_token)
 
             # You can now use the refreshed access_token for Spotify API requests
 
@@ -576,16 +561,12 @@ def add_to_spotify(request):
 
 @csrf_exempt
 def check_users_tracks(request):
-    print('check_users_tracks: ', json.loads(request.body.decode('utf-8')))
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
-        print('data: ', data)
         recommendation = data.get('recommendation')
         spotify_access = data.get('spotify_access')
         spotify_refresh = data.get('spotify_refresh')
         expires_at = data.get('spotify_expires_at')
-        print('expires_at: ', expires_at)
-        print('spotify_refresh: ', spotify_refresh)
 
         try:
             # # Check if the access token is expired -- MOVED TO FRONTEND

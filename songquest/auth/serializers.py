@@ -11,14 +11,12 @@ from songquest.user.models import User
 
 class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        print('VALIDATE')
         # Check if 'spotify_access_token' is present in the request data
         spotify_access_token = self.context['request'].data.get(
             'spotify_access_token')
         spotify_refresh_token = self.context['request'].data.get(
             'spotify_refresh_token')
-        print('spotify_access: ', spotify_access_token)
-        print('spotify_refresh: ', spotify_refresh_token)
+
         if spotify_access_token:
             # Handle Spotify authentication without requiring a password
             user = User.objects.get(email=attrs['email'])
