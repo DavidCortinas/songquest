@@ -65,7 +65,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
         >
           {(isXsScreen || isSmScreen) && (
             <img
-              src={require('../images/sq-logo.png')}
+              src={'static/images/sq-logo.png'}
               alt="Logo"
               style={{ width: '13%' }}
             />
