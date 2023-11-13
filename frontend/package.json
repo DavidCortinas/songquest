@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production",
-    "start": "react-scripts start"
+    "start": "react-scripts start",
+    "relocate": "react-scripts build && rm -rf ../backend/build && mv -f build ../backend"
   },
   "keywords": [],
   "author": "",

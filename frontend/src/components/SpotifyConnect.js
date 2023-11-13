@@ -105,7 +105,7 @@ export const SpotifyConnect = ({
                                     backgroundColor: 'transparent !important',
                                 },
                             }}
-                            to='http://localhost:8000/request-authorization/'
+                            to='/request-authorization/'
                         >
                             <img
                                 width='300em'
@@ -113,7 +113,7 @@ export const SpotifyConnect = ({
                                     margin: '0 auto',
                                     display: 'block', 
                                 }}
-                                src={require('../images/spotifyLogo.png')}
+                                src={'/static/images/spotifyLogo.png'}
                             />
                         </Link>
                         <br />

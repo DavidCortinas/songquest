@@ -288,7 +288,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
     const handleConnectThroughSpotify = async (e) => {
         e.preventDefault();
 
-        const authorizationUrl = `http://localhost:8000/request-authorization/`;
+        const authorizationUrl = `/request-authorization/`;
 
         // Redirect the user to Spotify for authorization
         window.location.href = authorizationUrl;
@@ -371,7 +371,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                     margin: '0 auto',
                                     display: 'block', 
                                     }}
-                                    src={require('../images/spotifyLogo.png')}
+                                    src={'/static/images/spotifyLogo.png'}
                                 />
                                 </Button>
                             <br />
@@ -512,7 +512,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                     backgroundColor: 'transparent !important',
                                 },
                             }}
-                            to='http://localhost:8000/request-authorization/'
+                            to='/request-authorization/'
                         >
                             <img
                                 width='300em'
@@ -520,7 +520,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                     margin: '0 auto',
                                     display: 'block', 
                                 }}
-                                src={require('../images/spotifyLogo.png')}
+                                src={'/static/images/spotifyLogo.png'}
                             />
                         </Link>
                         <br />

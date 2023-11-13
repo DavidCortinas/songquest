@@ -1,4 +1,3 @@
-
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -72,7 +71,7 @@ export const SideBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }) 
                 }}
               >
                 <img
-                  src={require('../images/sq-logo-2.png')}
+                  src="/static/images/sq-logo-2.png"
                   alt="Logo"
                   style={{ width: '50%' }}
                 />
