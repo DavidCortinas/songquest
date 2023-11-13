@@ -71,7 +71,7 @@ export const SideBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }) 
                 }}
               >
                 <img
-                  src="/staticfiles/images/sq-logo-2.png"
+                  src="/static/images/sq-logo-2.png"
                   alt="Logo"
                   style={{ width: '50%' }}
                 />
