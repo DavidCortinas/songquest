@@ -49,7 +49,7 @@ export const BottomBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }
                 label='Home' 
                 icon={
                 <img
-                  src="/static/images/sq-logo-2.png"
+                  src="/staticfiles/images/sq-logo-2.png"
                   alt="Logo"
                   style={{ width: '25%' }}
                 />
