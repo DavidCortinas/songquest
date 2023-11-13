@@ -10,6 +10,8 @@ import Home from './components/Home';
 import { SongDetector } from './components/SongDetector';
 import SongDiscovery from './components/SongDiscovery';
 import { LyricSearch } from './components/LyricSearch';
+import TopBar from './components/TopBar';
+import { Box, makeStyles } from '@mui/material';
 
 
 const RoutesContainer = ({
@@ -48,62 +50,68 @@ const RoutesContainer = ({
   }, [dataLoaded, error, query, navigate]);
 
   return (
-      <Routes>
-        <Route
-          exact
-          path={'/'}
-          element={
-            <Home />
-          }
-        />
-        <Route
-          path={'/discover'}
-          element={
-            <SongDiscovery
-              onSearchPressed={onSearchPressed}
-              onDataLoaded={onDataLoaded}
-            />
-          }
-        />
-        {/* <Route
-          path={'/lyric-search'}
-          element={
-            <LyricSearch />
-          }
-        /> */}
-        {/* <Route
-          path={'/search'}
-          element={
-            <SongForm
-              onSearchPressed={onSearchPressed}
-              onDataLoaded={onDataLoaded}
-            />
-          }
-        /> */}
-        <Route 
-          path={'/login'}
-          element={
-            <Login />
-          }
-        />
-        {/* <Route
-          path={'/songdata'}
-          element={
-            <SongDataTable
-              query={query}
-              onSearchPressed={onSearchPressed}
-              onDataLoaded={onDataLoaded}
-              dataLoaded={dataLoaded}
-            />
-          }
-        /> */}
-        {/* <Route
-          path={'/song-detector'}
-          element={
-            <SongDetector />
-          }
-        /> */}
-      </Routes>
+      <Box className='main'>
+        <TopBar collapse={true}/>
+        <Routes>
+          <Route
+            exact
+            path={'/'}
+            element={
+              <Home 
+                onSearchPressed={onSearchPressed}
+                onDataLoaded={onDataLoaded}
+              />
+            }
+          />
+          {/* <Route
+            path={'/discover'}
+            element={
+              <SongDiscovery
+                onSearchPressed={onSearchPressed}
+                onDataLoaded={onDataLoaded}
+              />
+            }
+          /> */}
+          {/* <Route
+            path={'/lyric-search'}
+            element={
+              <LyricSearch />
+            }
+          /> */}
+          {/* <Route
+            path={'/search'}
+            element={
+              <SongForm
+                onSearchPressed={onSearchPressed}
+                onDataLoaded={onDataLoaded}
+              />
+            }
+          /> */}
+          <Route 
+            path={'/login'}
+            element={
+              <Login />
+            }
+          />
+          {/* <Route
+            path={'/songdata'}
+            element={
+              <SongDataTable
+                query={query}
+                onSearchPressed={onSearchPressed}
+                onDataLoaded={onDataLoaded}
+                dataLoaded={dataLoaded}
+              />
+            }
+          /> */}
+          {/* <Route
+            path={'/song-detector'}
+            element={
+              <SongDetector />
+            }
+          /> */}
+        </Routes>
+      </Box>
   );
 };
 

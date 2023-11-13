@@ -41,12 +41,13 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
       display="flex" 
       justifyContent="space-between" 
       p={2}
-      backgroundColor='white'
-      className={isXsScreen || isSmScreen
-        ? 'topbar-nosidebar'
-        : collapse || isSmScreen
-        ? 'topbar-collapsed'
-        : 'topbar'}
+      // backgroundColor='#013a57'
+      className='topbar-nosidebar'
+      // className={isXsScreen || isSmScreen
+      //   ? 'topbar-nosidebar'
+      //   : collapse || isSmScreen
+      //   ? 'topbar-collapsed'
+      //   : 'topbar'}
     >
       <Box
         display="flex"
@@ -63,35 +64,53 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
           }}
           onClick={handleNavigate}
         >
-          {(isXsScreen || isSmScreen) && (
-            <img
-              src={'static/images/sq-logo.png'}
-              alt="Logo"
-              style={{ width: '13%' }}
-            />
-          )}
-          <Typography variant="h6" component="div" color='#006f96'>
+          <img
+            src={'static/images/sq-logo-2.png'}
+            alt="Logo"
+            style={{ 
+              width: '13%',
+              paddingRight: '15px'
+           }}
+          />
+          <Typography variant="h5" component="div" color='white'>
             SongQuest
           </Typography>
         </Link>
       </Box>
       <Box display='flex'>
-        <IconButton
+        {/* <IconButton
           color="inherit"
           component={Link}
           to="/discover"
-          style={{ textDecoration: 'none', color: 'black' }}
+          style={{ 
+            textDecoration: 'none', 
+            color: 'white',
+            marginRight: '50px',  
+          }}
+        > */}
+          {/* <YoutubeSearchedForIcon /> */}
+          {/* <Typography variant='body1'>Discover New Music</Typography> */}
+        {/* </IconButton> */}
+        {/* <IconButton
+          color="inherit"
+          component={Link}
+          to="/discover"
+          style={{ textDecoration: 'none', color: 'white' }}
         >
-          <YoutubeSearchedForIcon />
-        </IconButton>
+          {/* <YoutubeSearchedForIcon /> */}
+          {/* <Typography>Discover New Music</Typography> */}
+        {/* </IconButton> */}
         {!user ?
           <IconButton
             color="inherit"
             component={Link}
             to="/login"
-            style={{ textDecoration: 'none', color: 'darkcyan' }}
+            style={{ 
+              textDecoration: 'none', 
+              color: 'white',
+            }}
           >
-            {!isXsScreen && !isSmScreen && <Typography>Login/SignUp</Typography>}
+            {!isXsScreen && !isSmScreen && <Typography variant='h6'>Login/SignUp</Typography>}
             <LoginIcon />
           </IconButton>
         : 
@@ -99,7 +118,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
             color="inherit"
             component={Link}
             onClick={handleLogout}
-            style={{ textDecoration: 'none', color: 'darkcyan' }}
+            style={{ textDecoration: 'none', color: 'white' }}
           >
             {!isXsScreen && !isSmScreen && <Typography>Logout</Typography>}
             <LogoutIcon />

@@ -58,7 +58,8 @@ const useStyles = makeStyles(() => (
     flexDirection: 'column',
     color: "#007fbf",
     // backgroundColor: "white",
-    width: '90%'
+    width: '90%',
+    marginTop: '30px',
   },
   textField: {
     marginLeft: '8px',
@@ -162,7 +163,7 @@ const useStyles = makeStyles(() => (
     position: 'fixed',
     left: '7%',
     color: 'white',
-    backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
+    // backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
     width: '15%',
     maxHeight: '80%',
     [theme.breakpoints.down('lg')]: {
@@ -819,7 +820,7 @@ export const SongDiscovery = ({
   const [isPlaylistPublic, setIsPlaylistPublic] = useState(false);
   const [connnectToSpotify, setConnectToSpotify] = useState(false);
   
-  const [targetParams, setTargetParams] = useState([]);
+  const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
 
   const [targetParamValues, setTargetParamValues] = useState({
       songs: [],
@@ -1077,9 +1078,9 @@ export const SongDiscovery = ({
     <>
       <Box
         sx={{
-          minHeight: '20rem',
+          // minHeight: '20rem',
           width: '100%',
-          backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
+          // backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -1088,7 +1089,7 @@ export const SongDiscovery = ({
       >
         <form className={classes.form} onSubmit={handleFormSubmit}>
           {/* <FormControl> */}
-          <CardHeader
+          {/* <CardHeader
             title={createPlaylist ? "🎵 Create New Playlist 🎶" : "🎵 Discover New Music 🎶"}
             titleTypographyProps={{
               width: '100%',
@@ -1109,7 +1110,14 @@ export const SongDiscovery = ({
                 : 'body2',
               textAlign: 'center',
               color: 'whitesmoke',
-            }} />
+            }} /> */}
+          <Typography 
+            color='white' 
+            textAlign='center'
+            paddingBottom='5px'
+          >
+            Begin your journey by selecting the songs, artists, and genres you'd like to shape your recommendations
+          </Typography>
           <>
             <SpotifyAuth>
               {(accessToken) => {
@@ -1278,10 +1286,11 @@ export const SongDiscovery = ({
           <Grid className={classes.buttonsContainer}>
             <Button
               type="submit"
+              variant='contained'
               onClick={handleSubmit(onSubmit)}
-              style={{ color: 'white', backgroundColor: 'transparent' }}
+              style={{ color: 'white', backgroundColor: '#3fc98e', borderRadius: '8px' }}
             >
-              Submit
+              Try For Free
             </Button>
             <Button
               onClick={handleReset}

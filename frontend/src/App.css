@@ -82,6 +82,10 @@ html {
   transition: left 0.3s ease;
 }
 
+.main {
+  background-image: linear-gradient(to bottom right, #004b7f, #006f96, #0090c3);
+}
+
 .main-content {
   flex-grow: 1;
   overflow: auto;
@@ -90,7 +94,7 @@ html {
   /* url("./images/sound-wall.jpg") center; */
   -webkit-overflow-scrolling: touch;
   min-height: 100vh;
-  padding-top: 50px;
+  padding-top: 60px;
 }
 
 .vinyl-loader {
