@@ -121,7 +121,7 @@ export const SpotifyConnect = ({
                                 margin: '0 auto',
                                 display: 'block', 
                                 }}
-                                src={'/staticfiles/images/spotifyLogo.png'}
+                                src={'/static/images/spotifyLogo.png'}
                             />
                             </Button>
                         <br />

@@ -371,7 +371,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                     margin: '0 auto',
                                     display: 'block', 
                                     }}
-                                    src={'/staticfiles/images/spotifyLogo.png'}
+                                    src={'/static/images/spotifyLogo.png'}
                                 />
                                 </Button>
                             <br />
@@ -519,7 +519,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                 margin: '0 auto',
                                 display: 'block', 
                                 }}
-                                src={'/staticfiles/images/spotifyLogo.png'}
+                                src={'/static/images/spotifyLogo.png'}
                             />
                             </Button>
                         <br />
