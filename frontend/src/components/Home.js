@@ -189,7 +189,7 @@ export const Carousel = ({ isSmScreen, isXsScreen }) => {
 
   return (
     <Box sx={{ width: '100%', flexGrow: 1 }}>
-        <Link to='/discover' className={classes.link}>
+        <Link to='/' className={classes.link}>
             <Box
                 sx={{
                 height: '20rem',

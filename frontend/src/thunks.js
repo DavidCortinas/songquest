@@ -246,7 +246,7 @@ export const getSpotifyUserAuth = () => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
     // Your asynchronous logic here, e.g., making a network request
-    const response = await fetch('/request-authorization/', {
+    const response = await fetch('http://localhost:8000/request-authorization/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
