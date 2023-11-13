@@ -55,28 +55,29 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
-        {!isXsScreen && !isSmScreen &&
+        {/* {!isXsScreen && !isSmScreen &&
           <div className='sidebar'>
             <SideBar collapse={collapse} onCollapse={handleCollapse} />
           </div>
-        }
+        } */}
         {/* <div className='sidebar'>
           <SideBar collapse={collapse} onCollapse={handleCollapse} />
         </div> */}
-        <div className={isXsScreen || isSmScreen
+        <div className='content-wrapper-nosidebar'>
+        {/* <div className={isXsScreen || isSmScreen
           ? 'content-wrapper-nosidebar'
           : collapse 
           ? "content-wrapper-collapsed" 
           : "content-wrapper"
-        }>
-          <TopBar collapse={collapse}/>
-          <main className="main-content">
+        }> */}
+          {/* <TopBar collapse={collapse}/> */}
+          {/* <main className="main-content"> */}
             <RoutesContainer />
-          </main>
+          {/* </main> */}
         </div>
-        {(isXsScreen || isSmScreen) &&
+        {/* {(isXsScreen || isSmScreen) &&
           <BottomBar />
-        }
+        } */}
       </div>
     </ThemeProvider>
   );

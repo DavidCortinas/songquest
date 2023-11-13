@@ -21,6 +21,7 @@ import theme from "../theme";
 import { connect } from "react-redux";
 import { useTheme } from "@emotion/react";
 import { useEffect, useState } from "react";
+import SongDiscovery from "./SongDiscovery";
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
@@ -31,10 +32,10 @@ const useStyles = makeStyles((theme) => (
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingBottom: '1rem',
+            // paddingBottom: '1rem',
         },
         intro: {
-            color: '#3d3d3d',
+            color: 'white',
             // paddingTop: '1rem',
             // justifyContent: 'center',
             textAlign: 'center',
@@ -42,7 +43,7 @@ const useStyles = makeStyles((theme) => (
             [theme.breakpoints.down('sm')]: {
                 width: '85%',
             },
-            marginTop: '20px',
+            marginTop: '75px',
         },
           link: {
             textDecoration: 'none', // Remove underline
@@ -52,7 +53,7 @@ const useStyles = makeStyles((theme) => (
             },
         },
         subIntro: {
-            color: '#3d3d3d',
+            color: 'white',
             width: '70%',
             textAlign: 'center',
             [theme.breakpoints.down('sm')]: {
@@ -153,7 +154,7 @@ const copy = {
     ]
 };
 
-const Carousel = ({ isSmScreen, isXsScreen }) => {
+export const Carousel = ({ isSmScreen, isXsScreen }) => {
   const theme = useTheme();
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
@@ -192,16 +193,17 @@ const Carousel = ({ isSmScreen, isXsScreen }) => {
             <Box
                 sx={{
                 height: '20rem',
-                backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
+                // backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
+                margin: '0 5%'
                 }}
             >
                 <Typography 
                     variant={isSmScreen || isXsScreen ? 'h6' : 'h5'} 
-                    sx={isXsScreen ? { padding: '1em 0', color: 'white' } : { padding: '1em 0 2em', color: 'white' }}
+                    sx={isXsScreen ? { padding: '1em 0', color: 'white' } : { padding: '1em 0 1em', color: 'white' }}
                 >
                     {copy.section[activeStep].header}
                 </Typography>
@@ -210,12 +212,12 @@ const Carousel = ({ isSmScreen, isXsScreen }) => {
                         {
                            padding: '0 5em 1em', 
                             color: 'whitesmoke',
-                            height: '50em' 
+                            height: '20%' 
                         } : 
                         { 
-                        padding: '0 5em', 
-                        color: 'whitesmoke',
-                        height: '50em' 
+                            padding: '0 5em', 
+                            color: 'whitesmoke',
+                            height: '20%' 
                         }
                     }
                     variant={isSmScreen || isXsScreen ? 'body2' : 'body1'}
@@ -267,7 +269,7 @@ const Carousel = ({ isSmScreen, isXsScreen }) => {
   );
 };
 
-export const Home = ({ currentUser }) => {
+export const Home = ({ currentUser, onSearchPressed, onDataLoaded }) => {
     const classes = useStyles();
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -283,7 +285,11 @@ export const Home = ({ currentUser }) => {
                 <Typography className={classes.subIntro} variant={isXsScreen || isSmScreen ? "body1" : "h6"}>
                     Welcome to the future of music discovery! At SongQuest, we're revolutionizing the way you explore and connect with the music you love.
                 </Typography>
-                <Carousel isSmScreen={isSmScreen} isXsScreen={isXsScreen}/>
+                {/* <Carousel isSmScreen={isSmScreen} isXsScreen={isXsScreen}/> */}
+                <SongDiscovery 
+                    onSearchPressed={onSearchPressed}
+                    onDataLoaded={onDataLoaded}
+                />
             </Box>
         </Box>
     )
