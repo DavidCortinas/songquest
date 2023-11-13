@@ -14,7 +14,7 @@ import { autoBatchEnhancer } from "@reduxjs/toolkit";
 const useStyles = makeStyles(() => (
   {
   card: {
-    backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
+    backgroundColor: "transparent",
     justifyContent: 'center',
     display: 'flex',
     width: '100%',
@@ -296,7 +296,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
 
     return !checkedRegistration && !userRegistered ? (
         <>
-            <Box display='flex' justifyContent='center' paddingTop='1rem'>
+            <Box display='flex' justifyContent='center'>
                 <Box width='100%'>
                     <Card className={classes.card}>
                         <Box className={classes.form}>
