@@ -67,6 +67,15 @@ export const SpotifyConnect = ({
     setConnectToSpotify,
 }) => {
     const classes = useStyles();
+
+        const handleConnectThroughSpotify = async (e) => {
+        e.preventDefault();
+
+        const authorizationUrl = `/request-authorization/`;
+
+        // Redirect the user to Spotify for authorization
+        window.location.href = authorizationUrl;
+    };
     
     return (
         <Box display='flex' justifyContent='center' paddingTop='1rem'>
@@ -95,27 +104,26 @@ export const SpotifyConnect = ({
                                 color: 'whitesmoke',
                             }}
                         />
-                        <Link
+                        <Button
                             sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                justifyContent: 'center',
                                 '&:hover': {
-                                    backgroundColor: 'transparent !important',
+                                backgroundColor: 'transparent !important', // Add !important to override other styles
                                 },
                             }}
-                            to='http://localhost:8000/request-authorization/'
-                        >
+                            onClick={handleConnectThroughSpotify} // Call the handleConnectThroughSpotify function
+                            >
                             <img
-                                width='300em'
+                                width='150em'
                                 style={{
-                                    margin: '0 auto',
-                                    display: 'block', 
+                                margin: '0 auto',
+                                display: 'block', 
                                 }}
-                                src={require('../images/spotifyLogo.png')}
+                                src={'/static/images/spotifyLogo.png'}
                             />
-                        </Link>
+                            </Button>
                         <br />
                         <Grid className={classes.buttonsContainer}>
                             <Button

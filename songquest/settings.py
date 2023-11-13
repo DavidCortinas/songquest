@@ -26,7 +26,7 @@ SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
                  'songquest.io', 'www.songquest.io']
@@ -35,14 +35,14 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
 # Application definition
 
 CORS_ALLOW_HEADERS = ['x-csrftoken', "X-CSRFToken", 'Content-Type']
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-]
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:3000',
+#     'http://localhost:8000',
+# ]
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://localhost:3000',
+#     'http://localhost:8000',
+# ]
 CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOW_ALL_ORIGINS = True
 
@@ -106,7 +106,7 @@ ROOT_URLCONF = 'songquest.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend')],
+        'DIRS': [os.path.join(BASE_DIR, 'frontend', 'public')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -127,8 +127,12 @@ WSGI_APPLICATION = 'songquest.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'songquest',
+        'USER': 'cortinas',
+        'PASSWORD': 'mQ!%jqV9e~$4=due',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
@@ -202,7 +206,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend', 'public'),
+]
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
