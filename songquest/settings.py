@@ -26,7 +26,7 @@ SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
                  'songquest.io', 'www.songquest.io']
@@ -127,8 +127,12 @@ WSGI_APPLICATION = 'songquest.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'songquest',
+        'USER': 'cortinas',
+        'PASSWORD': 'mQ!%jqV9e~$4=due',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
