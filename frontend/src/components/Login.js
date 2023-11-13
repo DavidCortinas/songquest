@@ -371,7 +371,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                     margin: '0 auto',
                                     display: 'block', 
                                     }}
-                                    src={'/static/images/spotifyLogo.png'}
+                                    src={'/staticfiles/images/spotifyLogo.png'}
                                 />
                                 </Button>
                             <br />
@@ -502,27 +502,26 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                 color: 'whitesmoke',
                             }}
                         />
-                        <Link
+                        <Button
                             sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                justifyContent: 'center',
                                 '&:hover': {
-                                    backgroundColor: 'transparent !important',
+                                backgroundColor: 'transparent !important', // Add !important to override other styles
                                 },
                             }}
-                            to='/request-authorization/'
-                        >
+                            onClick={handleConnectThroughSpotify} // Call the handleConnectThroughSpotify function
+                            >
                             <img
-                                width='300em'
+                                width='150em'
                                 style={{
-                                    margin: '0 auto',
-                                    display: 'block', 
+                                margin: '0 auto',
+                                display: 'block', 
                                 }}
-                                src={'/static/images/spotifyLogo.png'}
+                                src={'/staticfiles/images/spotifyLogo.png'}
                             />
-                        </Link>
+                            </Button>
                         <br />
                         <Grid className={classes.buttonsContainer}>
                             <Button
