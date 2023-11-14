@@ -287,7 +287,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
     const handleConnectThroughSpotify = async (e) => {
         e.preventDefault();
 
-        const authorizationUrl = `http://localhost:8000/request-authorization/`;
+        const authorizationUrl = `/request-authorization/`;
 
         // Redirect the user to Spotify for authorization
         window.location.href = authorizationUrl;

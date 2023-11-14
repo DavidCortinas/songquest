@@ -106,7 +106,7 @@ const Uploader = () => {
   };
 
   const handleUpload = async (files) => {
-    const UPLOAD_URL = "http://localhost:8000/api/upload/";
+    const UPLOAD_URL = "/api/upload/";
     const data = new FormData();
     for (let file of files) {
       data.append("audio_file", file);
