@@ -3,11 +3,12 @@ import { makeStyles } from '@mui/styles';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Link } from 'react-router-dom';
 import theme from '../theme';
+import { Body } from './Home';
 
 const useStyles = makeStyles(() => (
   {
   card: {
-    backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
+    backgroundColor: "transparent",
     justifyContent: 'center',
     display: 'flex',
     width: '100%',
@@ -78,7 +79,8 @@ export const SpotifyConnect = ({
     };
     
     return (
-        <Box display='flex' justifyContent='center' paddingTop='1rem'>
+        <>
+          <Box display='flex' justifyContent='center' paddingTop='1rem'>
             <Box width='100%'>
                 <Card className={classes.card}>
                     <Box className={classes.box}>
@@ -139,6 +141,8 @@ export const SpotifyConnect = ({
                     </Box>
                 </Card>
             </Box>
-        </Box>
-    )
-}
+          </Box>
+        <Body />
+        </>
+      )
+  }

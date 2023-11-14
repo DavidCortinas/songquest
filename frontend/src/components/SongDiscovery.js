@@ -41,7 +41,7 @@ import { clearSearchSongError, discoverSongSuccess, resetDataLoaded, resetQueryP
 import '../App.css';
 import theme from '../theme'
 import { LoadingState } from './LoadingState';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { SpotifyConnect } from './SpotifyConnect';
 import { Body } from './Home';
 
@@ -733,6 +733,8 @@ const Recommendation = ({
 }) => {
   const [isSavedTrack, setIsSavedTrack] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Call the thunk when the component mounts
     const fetchData = async () => {
@@ -755,7 +757,7 @@ const Recommendation = ({
 
       setIsSavedTrack(!isSavedTrack);
     } else {
-      setConnectToSpotify(true);
+      navigate('/spotify-connect');
     };
 
   };
@@ -1083,16 +1085,7 @@ export const SongDiscovery = ({
     }
   });
 
-  return connnectToSpotify ? 
-  (
-    <SpotifyConnect 
-      isSmScreen={isSmScreen}
-      isXsScreen={isXsScreen}
-      isLgScreen={isLgScreen}
-      isXlScreen={isXlScreen}
-      setConnectToSpotify={setConnectToSpotify} 
-    />
-  ) : (
+  return (
     <>
       <Box
         sx={{
