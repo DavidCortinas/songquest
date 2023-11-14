@@ -12,6 +12,7 @@ import SongDiscovery from './components/SongDiscovery';
 import { LyricSearch } from './components/LyricSearch';
 import TopBar from './components/TopBar';
 import { Box, makeStyles } from '@mui/material';
+import { BottomContainer } from './components/BottomContainer';
 
 
 const RoutesContainer = ({
@@ -111,6 +112,7 @@ const RoutesContainer = ({
             }
           /> */}
         </Routes>
+        <BottomContainer />
       </Box>
   );
 };
