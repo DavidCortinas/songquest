@@ -6,7 +6,9 @@ import {
     MobileStepper, 
     Tooltip, 
     Typography, 
-    useMediaQuery } from "@mui/material"
+    useMediaQuery, 
+    Grid,
+    CardHeader} from "@mui/material"
 import { makeStyles } from '@mui/styles';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
@@ -27,6 +29,20 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const useStyles = makeStyles((theme) => (
     {
+        root: {
+            flexGrow: 1,
+        },
+        card: {
+            padding: theme.spacing(2),
+            textAlign: 'center',
+            width: '75%',
+            height: '95%',
+        },
+        fourthCard: {
+            marginTop: '2%',
+            width: '92%',
+            height: '200px', // Adjust the height as needed
+        },
         introBox: {
             display: 'flex',
             flexDirection: 'column',
@@ -132,26 +148,80 @@ const useStyles = makeStyles((theme) => (
 const copy = {
     section: [
         {
-            header: "🔮 Unlock a World of Music",
+            emoji: "🔮",
+            header: "Unlock a World of Music",
             description: "Discover a universe of melodies, beats, and harmonies, all thoughtfully curated for you. We leverage Spotify's powerful recommendation algorithm to handpick selections based on your unique tastes, ensuring you find the perfect tunes for your search.",
             mobileDescription: "We leverage Spotify's powerful recommendation algorithm to handpick selections based on your unique tastes, ensuring you find the perfect tunes for your search.",
         },
         {
-            header: "🎸 Fine-Tune Your Sound Journey",
+            emoji: "🎸",
+            header: "Fine-Tune Your Sound Journey",
             description: "Take control of your musical adventure like never before. With SongQuest, you have the power to fine-tune your recommendations. Want tracks with a touch of acoustic warmth? Or perhaps something that'll get you grooving on the dance floor? You're in charge!",
             mobileDescription: 'Take control of your musical adventure like never before. With SongQuest, you have the power to fine-tune your recommendations.',
         },
         {
-            header: "📊 Set Your Musical Parameters",
+            emoji: "📊",
+            header: "Set Your Musical Parameters",
             description: "Explore the musical spectrum with parameters like acousticness, danceability, duration, energy, instrumentalness, key, liveliness, loudness, mode, popularity, speechiness, tempo, time signature, and valence. Customize your music discovery experience down to the finest detail.",
             mobileDescription: 'Customize your music discovery experience down to the finest detail.',
         },
         {
-            header: "🎉 Your Journey Starts Here",
-            description: "Ready to embark on a musical journey like no other? Click below to start discovering your new favorite songs. Let the rhythm of SongQuest guide you to sonic bliss.",
+            emoji: "🎉",
+            header: "Your Journey Starts Here",
+            description: "Ready to embark on a musical journey like no other? Enter up to five recommendation sources, including songs, artists, and genres, above. Expand the fine tuning parameters menu to dial up just the right sound you are looking for and let your musical journey begin.",
             mobileDescription: 'Click below to start discovering your new favorite songs.',
         },
     ]
+};
+
+export const Body = () => {
+    const classes = useStyles();
+
+    return (
+        <Box flex="row" backgroundColor="#f6f8fc">
+            <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                paddingTop='5%'
+            >
+                <Typography variant="h4" textAlign='center'>
+                    Advanced Features
+                </Typography>
+                <Typography textAlign='center' variant="h6" width='80%'>
+                    Explore recommendations by song, artist, genre, or a combination of sources, and leverage Spotify's audio analysis tools and features to zero in on the sound that you are looking for.
+                </Typography>
+            </Box>
+            <Grid container spacing={2} style={{ padding: '3% 0 3% 5%' }}>
+                {copy.section.slice(0, 3).map((item, index) => (
+                    <Grid item xs={12} sm={4} key={index}>
+                    <Card className={classes.card}>
+                        <Typography variant="h2">{item.emoji}</Typography>
+                        <CardHeader 
+                        title={item.header}
+                        subheader={item.description}
+                        />
+                    </Card>
+                    </Grid>
+                ))}
+
+                <Grid item xs={12} sm={12}>
+                    <Card className={`${classes.card} ${classes.fourthCard}`} style={{ display: 'flex' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', padding: '5%' }}>
+                            <Typography variant="h1">{copy.section[3].emoji}</Typography>
+                            <div>
+                            <CardHeader 
+                                title={copy.section[3].header}
+                                subheader={copy.section[3].description}
+                                style={{ textAlign: 'left', paddingLeft: '10%' }}
+                            />
+                            </div>
+                        </div>
+                    </Card>
+                </Grid>
+            </Grid>
+        </Box>
+    );
 };
 
 export const Carousel = ({ isSmScreen, isXsScreen }) => {

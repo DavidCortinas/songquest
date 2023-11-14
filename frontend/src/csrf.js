@@ -3,7 +3,7 @@ async function getCSRFToken() {
     console.log('Fetching CSRF token...');
     
     // Attempt to fetch the CSRF token
-    const response = await fetch('/get-csrf-token/', {
+    const response = await fetch('http://localhost:8000/get-csrf-token/', {
       method: 'GET',
       credentials: 'include', // Add this line
     });
