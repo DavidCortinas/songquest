@@ -96,7 +96,7 @@ const UsernameInput = ({
                                     ? 'h6'
                                     : 'h5',
                                     textAlign: 'center',
-                                    color: 'black',
+                                    color: 'white',
                                 }}
                                 subheader="Enter a username to get started"
                                 subheaderTypographyProps={{ 
@@ -105,7 +105,7 @@ const UsernameInput = ({
                                     ? 'body1'
                                     : 'body2',
                                     textAlign: 'center',
-                                    color: 'black',
+                                    color: 'white',
                                 }}
                             />
                             <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
@@ -287,7 +287,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
     const handleConnectThroughSpotify = async (e) => {
         e.preventDefault();
 
-        const authorizationUrl = `http://localhost:8000/request-authorization/`;
+        const authorizationUrl = `/request-authorization/`;
 
         // Redirect the user to Spotify for authorization
         window.location.href = authorizationUrl;
@@ -404,7 +404,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                                 ? 'h6'
                                                 : 'h5',
                                                 textAlign: 'center',
-                                                color: 'black',
+                                                color: 'white',
                                             }}
                                             subheader={"Enter password to continue to workspace"}
                                             subheaderTypographyProps={{ 
@@ -413,7 +413,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                                 ? 'body1'
                                                 : 'body2',
                                                 textAlign: 'center',
-                                                color: 'black',
+                                                color: 'white',
                                                 }}
                                         />
                                         <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
@@ -546,7 +546,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                                 ? 'h6'
                                                 : 'h5',
                                                 textAlign: 'center',
-                                                color: 'black',
+                                                color: 'white',
                                             }}
                                         />
                                         <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
