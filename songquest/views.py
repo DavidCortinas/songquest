@@ -303,7 +303,7 @@ def spotify_redirect(request):
     user_data = request.GET.get('user')
 
     # Define the target URL where you want to redirect
-    target_url = f'/discover?user={user_data}&access_token={access_token}'
+    target_url = f'/?user={user_data}&access_token={access_token}'
 
     # Redirect the user's browser to the target URL
     return HttpResponseRedirect(target_url)
@@ -397,7 +397,7 @@ def handle_spotify_callback(request):
             [f"{key}={value}" for key, value in token_request_data.items()])
 
         # Redirect to your frontend with user data as query parameters
-        redirect_url = f'/discover?{user_data_query}'
+        redirect_url = f'http://localhost:3000/?{user_data_query}'
 
         return redirect(redirect_url)
 
@@ -411,7 +411,7 @@ def handle_spotify_callback(request):
         json_data = json.dumps(user_data)
 
         registration_response = requests.post(
-            '/api/auth/register/',
+            'http://localhost:8000/api/auth/register/',
             data=json_data,
             headers={'Content-Type': 'application/json'}
         )
@@ -430,7 +430,7 @@ def handle_spotify_callback(request):
         [f"{key}={value}" for key, value in user_data.items()])
 
     # Redirect to your frontend with user data as query parameters
-    redirect_url = f'/discover?{user_data_query}'
+    redirect_url = f'http://localhost:3000/?{user_data_query}'
     return redirect(redirect_url)
 
 

@@ -62,7 +62,7 @@ export const BottomBar = ({ currentUser, resetDataLoaded, collapse, onCollapse }
             <BottomNavigationAction 
                 label='Disocover Music' 
                 icon={<YoutubeSearchedForIcon />} 
-                onClick={() => handleNavigation('/discover')}
+                onClick={() => handleNavigation('/')}
                 sx={{
                     color: '#006f96',
                 }}

@@ -43,6 +43,7 @@ import theme from '../theme'
 import { LoadingState } from './LoadingState';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { SpotifyConnect } from './SpotifyConnect';
+import { Body } from './Home';
 
 const useStyles = makeStyles(() => (
   {
@@ -130,7 +131,7 @@ const useStyles = makeStyles(() => (
     listStyle: 'none',
   },
   recommendationsUl: {
-    // padding: '0',
+    width: '100%'
   },
   resetBtn: {
     position: 'fixed',
@@ -146,7 +147,7 @@ const useStyles = makeStyles(() => (
   createPlaylistBtn: {
     position: 'fixed',
     bottom: '2%',
-    left: '6%',
+    left: '2%',
     color: '#006f96',
     fontSize: 14,
     [theme.breakpoints.down('lg')]: {
@@ -1064,6 +1065,23 @@ export const SongDiscovery = ({
 
   const showTracks = discoveryRecommendations && dataLoaded && !query.limit
 
+  window.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const pageHeight = document.documentElement.scrollHeight;
+
+    const buttonsContainer = document.querySelector('.buttons-container');
+
+    const distanceFromTop = 200;
+    const distanceFromBottom = 225;
+
+    if (buttonsContainer && (scrollPosition < distanceFromTop || pageHeight - (scrollPosition + windowHeight) < distanceFromBottom)) {
+      buttonsContainer.style.display = 'none';
+    } 
+    if (buttonsContainer && !(scrollPosition < distanceFromTop || pageHeight - (scrollPosition + windowHeight) < distanceFromBottom)) {
+      buttonsContainer.style.display = 'block';
+    }
+  });
 
   return connnectToSpotify ? 
   (
@@ -1304,7 +1322,7 @@ export const SongDiscovery = ({
         </form>
       </Box>
       {isLoading && (
-        <>
+        <Box backgroundColor='white' width='100%' paddingBottom='5%'>
           <Box
             display="flex"
             justifyContent="center"
@@ -1319,43 +1337,45 @@ export const SongDiscovery = ({
             />
           </Box>
           <LoadingState />
-        </>
+        </Box>
       )}
-      {showTracks && (
-        <>
-          {!isXsScreen && !isSmScreen && !isMdScreen ? (
-            <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-              Explore More
-            </Button>
-            ) : (
-            <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-              <ArrowUpwardIcon />
-            </Button>
-          )}
-          {user && 
-            // <Box 
-            //   display='flex' 
-            //   flexDirection='row' 
-            //   alignItems='center'
-            //   padding='15px 15px 0'
-            // >
-              <Tooltip 
-                arrow 
-                title="Create playlist from recommendations" 
-              >
-                {!isXsScreen && !isSmScreen && !isMdScreen ? 
-                (
-                  <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
-                    Create Playlist
-                  </Button>
-                ) : (
-                  <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
-                    <QueueMusicIcon />
-                  </Button>
-                )}
-              </Tooltip>
-            // {/* </Box> */}
-          }
+      {showTracks ? (
+        <Box backgroundColor='white' width='100%'>
+          <Box className='buttons-container'>
+            {!isXsScreen && !isSmScreen && !isMdScreen ? (
+              <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
+                Explore More
+              </Button>
+              ) : (
+              <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
+                <ArrowUpwardIcon />
+              </Button>
+            )}
+            {/* {user && 
+              // <Box 
+              //   display='flex' 
+              //   flexDirection='row' 
+              //   alignItems='center'
+              //   padding='15px 15px 0'
+              // >
+                <Tooltip 
+                  arrow 
+                  title="Create playlist from recommendations" 
+                >
+                  {!isXsScreen && !isSmScreen && !isMdScreen ? 
+                  (
+                    <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
+                      Create Playlist
+                    </Button>
+                  ) : (
+                    <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
+                      <QueueMusicIcon />
+                    </Button>
+                  )}
+                </Tooltip>
+              // {/* </Box> */}
+            {/* } */} 
+          </Box>
           <ul className={classes.recommendationsUl}>
             {discoveryRecommendations.map((recommendation, index) => (
               <Recommendation 
@@ -1370,7 +1390,9 @@ export const SongDiscovery = ({
               />
             ))}
           </ul>
-        </>
+        </Box>
+      ) : !isLoading && (
+        <Body />
       )}
     </>
   );
