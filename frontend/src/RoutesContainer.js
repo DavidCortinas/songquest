@@ -13,6 +13,7 @@ import { LyricSearch } from './components/LyricSearch';
 import TopBar from './components/TopBar';
 import { Box, makeStyles } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
+import { SpotifyConnect } from './components/SpotifyConnect';
 
 
 const RoutesContainer = ({
@@ -92,6 +93,12 @@ const RoutesContainer = ({
             path={'/login'}
             element={
               <Login />
+            }
+          />
+          <Route 
+            path={'/spotify-connect'}
+            element={
+              <SpotifyConnect />
             }
           />
           {/* <Route
