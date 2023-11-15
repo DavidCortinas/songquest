@@ -243,6 +243,7 @@ def authenticate_spotify(request, spotify_access_token):
 
 
 def get_spotify_user_data(access_token):
+    logging.info(f'UD Access Token: {access_token}')
     # Define the URL for the Spotify API's current user profile endpoint
     spotify_url = 'https://api.spotify.com/v1/me'
 
@@ -275,14 +276,17 @@ def get_spotify_user_data(access_token):
 
 
 def get_spotify_user_email(access_token):
-    user_data = get_spotify_user_data(access_token)
-    email = user_data.get('email')
+    logging.info(f'Access Token: {access_token}')  # Log the access token
 
-    # Check if the email field exists
-    if email:
-        return email
+    user_data = get_spotify_user_data(access_token)
+
+    if user_data is not None:
+        email = user_data.get('email')
+        # Rest of your code...
     else:
-        return None  # Email not available
+        logging.warning('user_data is None in get_spotify_user_email')
+        # Handle the case where user_data is None
+        # You might want to log a message or return an appropriate value
 
 
 def get_spotify_user_display_name(access_token):
@@ -310,6 +314,7 @@ def spotify_redirect(request):
 
 
 def get_spotify_token_info(request):
+    logging.info('Get Spotify Token: {request}'
     code = request.GET.get('code', None)
     state = request.GET.get('state', None)
 
@@ -320,8 +325,11 @@ def get_spotify_token_info(request):
     else:
         # Define your Spotify API credentials
         client_id = os.environ.get('SPOTIFY_CLIENT_ID')
+        logging.info(f'Client ID: {client_id}')
         client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
+        logging.info(f'Client Secret: {client_secret}')
         redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
+	logging.info(f'Redirect URI: {redirect_uri}')
 
         # Prepare the data to send to the Spotify API to obtain an access token
         token_data = {
@@ -355,6 +363,11 @@ def get_spotify_token_info(request):
 
 def handle_spotify_callback(request):
     token_info = get_spotify_token_info(request)
+    if token_info is not None:
+        access_token = token_info.get('access_token')
+        # Rest of your code...
+    else:
+        logging.warning('Token info is None in handle_spotify_callback')
     access_token = token_info.get('access_token')
     refresh_token = token_info.get('refresh_token')
     expires_at = time() + token_info.get('expires_in', 0)
