@@ -101,7 +101,7 @@ export const registerUser = (email, password, username) => async (dispatch) => {
       password: password,
       username: username,
     });
-    const response = await fetch(`http://localhost:8000/api/auth/register/`, {
+    const response = await fetch(`/api/auth/register/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
@@ -138,7 +138,7 @@ export const login = (
       spotify_refresh_token: spotify_refresh_token,
       spotify_expires_at: spotify_expires_at,
     });
-    const response = await fetch(`http://localhost:8000/api/auth/login/`, {
+    const response = await fetch(`/api/auth/login/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -170,7 +170,7 @@ export const login = (
 }
 
 export const handleUpload = (filelist) => async (filelist) => {
-  const UPLOAD_URL = "http://localhost:8000/api/upload";
+  const UPLOAD_URL = "/api/upload";
   const data =new FormData();
   for (let file of filelist) {
     data.append(file.name, file);
@@ -183,7 +183,7 @@ export const discoverSongRequest = (parameters) => async (dispatch) => {
     const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
     const body = JSON.stringify(parameters);
 
-    const response = await fetch('http://localhost:8000/api/discover/', {
+    const response = await fetch('/api/discover/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
@@ -227,9 +227,10 @@ export const SpotifyAuth = ({ children }) => {
   useEffect(() => {
     async function fetchAccessToken() {
       try {
-        const response = await fetch('http://localhost:8000/api/get-access-token/');
+        const response = await fetch('/api/get-access-token/');
         const data = await response.json();
         const { access_token } = data;
+        console.log('access_token: ', access_token)
         setAccessToken(access_token);
       } catch (error) {
         console.error('Error fetching access token: ', error);
@@ -446,7 +447,7 @@ export const checkUsersTracks = (
     const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
 
     // Continue with your API requests using the current or refreshed access token
-    const apiResponse = await fetch('http://localhost:8000/check-users-tracks/', {
+    const apiResponse = await fetch('/check-users-tracks/', {
       method: 'POST', // Adjust the method and endpoint as needed
       body: JSON.stringify({
         'recommendation': recommendation,
