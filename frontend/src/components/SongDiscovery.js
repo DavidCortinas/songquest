@@ -67,8 +67,8 @@ const useStyles = makeStyles(() => (
   textField: {
     marginLeft: '8px',
     width: '66%',
-    [theme.breakpoints.down('sm')]: {
-      width: '80%',
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
     },
     backgroundColor: 'white',
     borderRadius: '5px',
@@ -76,7 +76,7 @@ const useStyles = makeStyles(() => (
   resultsField: {
     width: '15%',
     [theme.breakpoints.down('md')]: {
-      width: '80%',
+      width: '100%',
     },
     backgroundColor: 'white',
     borderRadius: '5px',
@@ -87,7 +87,7 @@ const useStyles = makeStyles(() => (
     borderRadius: '5px',
     marginRight: '10px',
     [theme.breakpoints.down('md')]: {
-      width: '80%',
+      width: '100%',
       paddingRight: '0',
       margin: '0 0 1em'
     },
@@ -407,7 +407,7 @@ const SearchParameter = ({
             <Select 
               label='Results'
               onChange={(e) => handleChange(parameter, e.target.value)}
-              variant="standard"
+              variant="filled"
               SelectProps={{
                 MenuProps: {
                   anchorOrigin: {
@@ -767,7 +767,16 @@ const CollapsibleSliders = ({
         alignItems: 'center', 
         width: '98%' }}>
         <Typography>Fine Tune Your Recommendations</Typography>
-        <Typography color='#f6f8fc' variant='caption' textAlign='end'>* activate additional parameters and set the min, target, and max values to refine your recommendations</Typography>
+        <Typography 
+          color='#f6f8fc' 
+          variant='caption' 
+          textAlign='end'
+        >
+          {
+            isXsScreen || isSmScreen ? 
+            "* activate parameters and set the min, target, and max values" : 
+            "* activate additional parameters and set the min, target, and max values to refine your recommendations"}
+        </Typography>
       </Box>
     </AccordionSummary>
       <AccordionDetails 
@@ -798,9 +807,9 @@ const CollapsibleSliders = ({
                 flexDirection='row' 
                 justifyContent='space-between'
               >
-                <Typography>Minimum Value</Typography>
-                <Typography>Target Value</Typography>
-                <Typography>Maximum Value</Typography>
+                <Typography textAlign='start'>Minimum Value</Typography>
+                <Typography textAlign='center'>Target Value</Typography>
+                <Typography textAlign='end'>Maximum Value</Typography>
               </Box>
             </Grid>
           </Grid>
@@ -1231,8 +1240,13 @@ export const SongDiscovery = ({
             color='white' 
             textAlign='center'
             paddingBottom='5px'
+            variant={isXsScreen || isSmScreen ?
+            "body2" :
+            "body1"}
           >
-            Begin your journey by selecting the songs, artists, and genres you'd like to shape your recommendations
+            {isXsScreen || isSmScreen ? 
+            "Select the songs, artists, and genres you'd like to shape your recommendations." :
+            "Begin your journey by selecting the songs, artists, and genres you'd like to shape your recommendations"}
           </Typography>
           <>
             <SpotifyAuth>
@@ -1291,7 +1305,12 @@ export const SongDiscovery = ({
                                   style={{ marginBottom: '1%' }}
                                 >
                                   <FormControl className={classes.primaryField}>
-                                    <InputLabel className={classes.inputLabel} variant='standard'>Set Recommendation Sources (Songs, Artists, or Genres)</InputLabel>
+                                    <InputLabel 
+                                      className={classes.inputLabel} 
+                                      variant='standard'
+                                    >
+                                      Set Recommendation Sources (Songs, Artists, or Genres)
+                                    </InputLabel>
                                     <Select
                                       multiple
                                       open={selectOpen}
@@ -1351,6 +1370,11 @@ export const SongDiscovery = ({
                                 <Typography
                                   textAlign='center'
                                   color='whitesmoke'
+                                  variant={
+                                    isXsScreen || isSmScreen ?
+                                    "body2" :
+                                    "body1"
+                                  }
                                 >
                                   {Object.values(targetParamValues).every(arr => arr.length === 0)
                                     ? `Choose Up to 5 Recommendation Sources`
