@@ -184,13 +184,19 @@ const copy = {
         {
             emoji: "🎉",
             header: "Your Journey Starts Here",
-            description: "Ready to embark on a musical journey like no other? Enter up to five recommendation sources, including songs, artists, and genres, above. Expand the fine tuning parameters menu to dial up just the right sound you are looking for and let your musical journey begin.",
-            mobileDescription: 'Click below to start discovering your new favorite songs.',
+            description: "Ready to embark on a musical journey like no other? Enter up to five recommendation sources, including songs, artists, and genres, above and activate the fine tuning parameters to dial up just the right sound you are looking for and let your musical journey begin.",
+            mobileDescription: 'Enter up to five recommendation sources above and activate the fine tuning parameters to discover new music.',
         },
     ]
 };
 
-export const Body = ({ isSmScreen, isXsScreen }) => {
+export const Body = ({ 
+    isSmScreen, 
+    isXsScreen, 
+    isMdScreen,
+    isLgScreen, 
+    isXlScreen 
+}) => {
     const classes = useStyles();
 
     return (
@@ -231,24 +237,38 @@ export const Body = ({ isSmScreen, isXsScreen }) => {
                         </Card>
                     </Grid>
                 ))}
-
-                <Grid item xs={12} sm={12}>
-                    <Card className={`${classes.card} ${classes.fourthCard}`} style={{ display: 'flex' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', padding: '5%' }}>
-                            <Typography variant="h1">{copy.section[3].emoji}</Typography>
-                            <div>
+                {isXsScreen ? (
+                    <Grid item xs={12} sm={4}>
+                        <Card className={classes.card}>
+                            <Typography variant="h2">{copy.section[3].emoji}</Typography>
                             <CardHeader 
-                                title={copy.section[3].header}
-                                subheader={!isSmScreen && !isXsScreen ? 
-                                    copy.section[3].description : 
-                                    copy.section[3].mobileDescription 
-                                }
-                                style={{ textAlign: 'left', paddingLeft: '10%' }}
+                            title={copy.section[3].header}
+                            subheader={!isSmScreen && !isXsScreen ? 
+                                copy.section[3].description : 
+                                copy.section[3].mobileDescription 
+                            }
                             />
+                        </Card>
+                    </Grid>
+                ) : (
+                    <Grid item xs={12} sm={12}>
+                        <Card className={`${classes.card} ${classes.fourthCard}`} style={{ display: 'flex' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', padding: '5%' }}>
+                                <Typography variant="h1">{copy.section[3].emoji}</Typography>
+                                <div>
+                                <CardHeader 
+                                    title={copy.section[3].header}
+                                    subheader={!isSmScreen && !isXsScreen ? 
+                                        copy.section[3].description : 
+                                        copy.section[3].mobileDescription 
+                                    }
+                                    style={{ textAlign: 'left', paddingLeft: '10%' }}
+                                />
+                                </div>
                             </div>
-                        </div>
-                    </Card>
-                </Grid>
+                        </Card>
+                    </Grid>
+                )}
             </Grid>
         </Box>
     );

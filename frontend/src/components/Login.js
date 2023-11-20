@@ -37,7 +37,7 @@ const useStyles = makeStyles(() => (
   textField: {
     width: '300px',
     [theme.breakpoints.down('sm')]: {
-      width: '100%',
+      width: '80%',
     },
 
     backgroundColor: 'white',
@@ -608,7 +608,13 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                         </Box>
                     </>     
                 )}
-            <Body isSmScreen={isSmScreen} isXsScreen={isXsScreen} />
+            <Body 
+                isSmScreen={isSmScreen} 
+                isXsScreen={isXsScreen}
+                isMdScreen={isMdScreen}
+                isLgScreen={isLgScreen} 
+                isXlScreen={isXlScreen} 
+            />
         </>
     )
 };
