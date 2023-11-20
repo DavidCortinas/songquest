@@ -608,7 +608,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                         </Box>
                     </>     
                 )}
-            <Body />
+            <Body isSmScreen={isSmScreen} isXsScreen={isXsScreen} />
         </>
     )
 };
