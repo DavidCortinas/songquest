@@ -63,6 +63,7 @@ const useStyles = makeStyles(() => (
 export const SpotifyConnect = ({
     isSmScreen,
     isXsScreen,
+    isMdScreen,
     isXlScreen,
     isLgScreen,
     setConnectToSpotify,
@@ -142,7 +143,13 @@ export const SpotifyConnect = ({
                 </Card>
             </Box>
           </Box>
-        <Body isSmScreen={isSmScreen} isXsScreen={isXsScreen} />
+          <Body 
+            isSmScreen={isSmScreen} 
+            isXsScreen={isXsScreen}
+            isMdScreen={isMdScreen}
+            isLgScreen={isLgScreen} 
+            isXlScreen={isXlScreen} 
+          />
         </>
       )
   }
