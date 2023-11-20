@@ -2,6 +2,5 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "react-swipeable-views": "^0.14.0"
-  },
-  "proxy": "http://localhost:8000"
+  }
 }

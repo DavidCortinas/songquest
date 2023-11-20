@@ -419,8 +419,10 @@ def handle_spotify_callback(request):
         }
         json_data = json.dumps(user_data)
 
+        api_url = os.environ.get('REACT_APP_API_URL')
+
         registration_response = requests.post(
-            'https:/localhost:8000/api/auth/register/',
+            f'{api_url}/auth/register/',
             data=json_data,
             headers={'Content-Type': 'application/json'}
         )
