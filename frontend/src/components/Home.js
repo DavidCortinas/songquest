@@ -204,8 +204,16 @@ export const Body = ({ isSmScreen, isXsScreen }) => {
                 <Typography variant="h4" textAlign='center'>
                     Advanced Features
                 </Typography>
-                <Typography textAlign='center' variant="h6" width='80%'>
-                    Explore recommendations by song, artist, genre, or a combination of sources, and leverage Spotify's audio analysis tools and features to zero in on the sound that you are looking for.
+                <Typography 
+                    textAlign='center' 
+                    variant={isXsScreen || isSmScreen ? "body1" : "h6"} 
+                    width='80%'
+                >
+                    {
+                        isXsScreen || isSmScreen ?
+                        "Discover music effortlessly. Explore recommendations based on song, artist, genre, or a blend of sources. Use Spotify's audio analysis tools to pinpoint the desired sound." : 
+                        "Discover music effortlessly by exploring recommendations based on song, artist, genre, or a blend of sources. Utilize Spotify's audio analysis tools to pinpoint the desired sound."
+                    }
                 </Typography>
             </Box>
             <Grid container spacing={2} className={classes.cardGrid}>
@@ -375,7 +383,9 @@ export const Home = ({ currentUser, onSearchPressed, onDataLoaded }) => {
                     🎵 Discover The Perfect Music For Any Occassion! 🎶
                 </Typography>
                 <Typography className={classes.subIntro} variant={isXsScreen || isSmScreen ? "body1" : "h6"}>
-                    Welcome to the future of music discovery! At SongQuest, we're revolutionizing the way you explore and connect with the music you love.
+                    {isXsScreen || isSmScreen ?
+                        "Welcome to the future of music discovery!" : 
+                        "Welcome to the future of music discovery! At SongQuest, we're revolutionizing the way you explore and connect with the music you love."}
                 </Typography>
                 {/* <Carousel isSmScreen={isSmScreen} isXsScreen={isXsScreen}/> */}
                 <SongDiscovery 
