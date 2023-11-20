@@ -45,6 +45,7 @@ import { LoadingState } from './LoadingState';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { SpotifyConnect } from './SpotifyConnect';
 import { Body } from './Home';
+import { user } from '../reducers';
 
 const useStyles = makeStyles(() => (
   {
@@ -193,6 +194,14 @@ const useStyles = makeStyles(() => (
     flexDirection: 'column',
     alignItems: 'center',
   },
+  sliderBox: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingRight: '2%',
+    [theme.breakpoints.down('md')]: {
+      flexDirection: 'column',
+    },
+  }
 }));
 
 const toCapitalCase= (str) => {
@@ -423,9 +432,31 @@ const SearchParameter = ({
       </>
     ); 
 
-const SliderParameter = ({ parameter, query, onSetQueryParameter, setParameters }) => {
+const SliderParameter = ({ 
+  parameter, 
+  query, 
+  onSetQueryParameter, 
+  setParameters,
+  isXsScreen, 
+  isSmScreen, 
+  isMdScreen, 
+  isLgScreen, 
+  isXlScreen
+}) => {
+  const classes = useStyles();
 
   const [itemSelected, setItemSelected] = useState(false);
+
+  useEffect(() => {
+    console.log('effect: ', query[parameter])
+    if (
+      query[parameter]['min'] === null || 
+      query[parameter]['target'] === null || 
+      query[parameter]['target'] === null
+    ) {
+      setItemSelected(false);
+    };
+  }, [query])
 
   const handleContainerClick = () => {
     setItemSelected((prev) => !prev);
@@ -640,10 +671,12 @@ const SliderParameter = ({ parameter, query, onSetQueryParameter, setParameters 
   };
   
   return (
-    <Box display='flex' justifyContent='space-between' paddingRight='2%'>
+    <Box className={classes.sliderBox}>
       <FormControlLabel 
-        control={<Switch onChange={handleContainerClick}/>} 
-        label={toCapitalCase(query[parameter].label)} 
+        control={<Switch onChange={handleContainerClick} checked={itemSelected}/>} 
+        label={toCapitalCase(query[parameter].label)}
+        labelPlacement='end' 
+        sx={{ paddingLeft: '0' }}
       />
       <Slider
         disabled={!itemSelected}
@@ -696,13 +729,31 @@ const SliderParameter = ({ parameter, query, onSetQueryParameter, setParameters 
           ? 1
           :0.01
         }
-        sx={{ width: '75%' }}
+        sx={ isLgScreen || isXlScreen || isMdScreen ? { 
+          width: '75%',
+        } : {
+          width: '90%',
+          alignSelf: 'flex-end'
+        }}
       />
     </Box>
   )
 };
 
-const CollapsibleSliders = ({ parameters, setParameters, query, onSetQueryParameter, expanded, setExpanded, handleExpand }) => {
+const CollapsibleSliders = ({ 
+  parameters, 
+  setParameters, 
+  query, 
+  onSetQueryParameter, 
+  expanded, 
+  setExpanded, 
+  handleExpand,
+  isXsScreen,
+  isSmScreen,
+  isMdScreen,
+  isLgScreen,
+  isXlScreen,
+}) => {
 
   return (
     <Accordion expanded={expanded}>
@@ -717,7 +768,7 @@ const CollapsibleSliders = ({ parameters, setParameters, query, onSetQueryParame
         alignItems: 'center', 
         width: '98%' }}>
         <Typography>Fine Tune Your Recommendations</Typography>
-        <Typography color='#f6f8fc' variant='body2'>* activate additional parameters and set the min, target, and max values to refine your recommendations</Typography>
+        <Typography color='#f6f8fc' variant='caption' textAlign='end'>* activate additional parameters and set the min, target, and max values to refine your recommendations</Typography>
       </Box>
     </AccordionSummary>
       <AccordionDetails 
@@ -728,12 +779,26 @@ const CollapsibleSliders = ({ parameters, setParameters, query, onSetQueryParame
         }}
       >
         <>
-          <Grid container columns={18}>
-            <Grid item xs={4}>
-              <Typography>Fine Tuning Parameters</Typography>
-            </Grid>
-            <Grid item xs={14}> 
-              <Box display='flex' flexDirection='row' justifyContent='space-between'>
+          <Grid container columns={20}>
+            {isMdScreen || isLgScreen || isXlScreen ?
+              (
+                <Grid item xs={4}>
+                  <Typography>Fine Tuning Parameters</Typography>
+                </Grid>
+              ) : (
+                <Grid item xs={1}></Grid>
+              )
+            }
+            <Grid item xs={
+              isMdScreen || isLgScreen || isXlScreen ?
+              16 :
+              19
+            }> 
+              <Box 
+                display='flex' 
+                flexDirection='row' 
+                justifyContent='space-between'
+              >
                 <Typography>Minimum Value</Typography>
                 <Typography>Target Value</Typography>
                 <Typography>Maximum Value</Typography>
@@ -748,6 +813,11 @@ const CollapsibleSliders = ({ parameters, setParameters, query, onSetQueryParame
               setParameters={setParameters}
               query={query}
               onSetQueryParameter={onSetQueryParameter}
+              isXsScreen={isXsScreen}
+              isSmScreen={isSmScreen}
+              isMdScreen={isMdScreen}
+              isLgScreen={isLgScreen}
+              isXlScreen={isXlScreen}
             />
           )})}
         </>
@@ -777,7 +847,7 @@ const Recommendation = ({
       data && setIsSavedTrack(data[0]); // Set the response data in the state
     };
 
-    fetchData();
+    user && fetchData();
   }, [recommendation, user, handleCheckUsersTracks]);
 
   const handleLikeClick = () => {
@@ -828,7 +898,7 @@ export const SongDiscovery = ({
     error, 
     query, 
     onSearchPressed, 
-    onDataLoaded, 
+    onResetQueryParameter, 
     onResetDataLoaded,
     onSetQueryParameter,
     onAddToSpotify, 
@@ -842,6 +912,7 @@ export const SongDiscovery = ({
     user,
  }) => {
   const theme = useTheme();
+  console.log(theme)
 
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -1015,8 +1086,7 @@ export const SongDiscovery = ({
           user?.spotify_expires_at,
         )
       } else {
-        await onSearchPressed(parameters);
-        // onDataLoaded();  
+        await onSearchPressed(parameters); 
       //   dispatch(resetQueryParameter());
         setIsLoading(false);
       }
@@ -1058,6 +1128,7 @@ export const SongDiscovery = ({
       }
     );
     onResetDataLoaded();
+    onResetQueryParameter(); 
   };
 
   const handleFormSubmit = (e) => {
@@ -1322,7 +1393,13 @@ export const SongDiscovery = ({
                         onSetQueryParameter={onSetQueryParameter}
                         expanded={expanded}
                         setExpanded={setExpanded}
-                        handleExpand={handleExpand} />
+                        handleExpand={handleExpand}
+                        isXsScreen={isXsScreen}
+                        isSmScreen={isSmScreen}
+                        isMdScreen={isMdScreen}
+                        isLgScreen={isLgScreen}
+                        isXlScreen={isXlScreen}
+                      />
                     </Box>
                   </>
                 )
@@ -1420,7 +1497,7 @@ export const SongDiscovery = ({
           </ul>
         </Box>
       ) : !isLoading && (
-        <Body />
+        <Body isSmScreen={isSmScreen} isXsScreen={isXsScreen} />
       )}
     </>
   );
@@ -1442,7 +1519,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
   onSearchPressed: (query) => dispatch(discoverSongRequest(query)),
-  onDataLoaded: () =>
+  onResetQueryParameter: () =>
     dispatch(resetQueryParameter()),
   onResetDataLoaded: () =>
     dispatch(resetDataLoaded()),

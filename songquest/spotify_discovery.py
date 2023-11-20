@@ -13,6 +13,7 @@ start_time = time()
 
 
 def get_access_token():
+    print('get_access_token')
     # Encode the client ID and client secret as base64
     encoded_credentials = base64.b64encode(
         f"{client_id}:{client_secret}".encode()).decode()
@@ -28,15 +29,21 @@ def get_access_token():
         "client_secret": client_secret
     }
 
+    print('headers: ', headers)
+    print('payload: ', payload)
+
     # Make the token request
     response = requests.post(
         "https://accounts.spotify.com/api/token", headers=headers, data=payload)
+    print('response: ', response)
 
     if response.status_code == 200:
         # Parse the response to retrieve the access token and expiration time
         token_data = response.json()
         access_token = token_data["access_token"]
         expires_in = token_data["expires_in"]
+        print('access_token: ', access_token)
+        print('expires_in: ', expires_in)
 
         return access_token, expires_in
     else:

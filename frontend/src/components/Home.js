@@ -32,16 +32,32 @@ const useStyles = makeStyles((theme) => (
         root: {
             flexGrow: 1,
         },
+        cardGrid: {
+            padding: '3% 0 3% 5%',
+            // [theme.breakpoints.down('sm')]: {
+            //     padding: '3% 3% 5% 2%',
+            //     width: '95%',
+            // }
+        },
         card: {
             padding: theme.spacing(2),
             textAlign: 'center',
             width: '75%',
             height: '95%',
+            [theme.breakpoints.down('sm')]: {
+                width: '90%',
+                height: '250px',
+                padding: 10
+            }
         },
         fourthCard: {
             marginTop: '2%',
             width: '92%',
-            height: '200px', // Adjust the height as needed
+            height: '200px',
+            [theme.breakpoints.down('sm')]: {
+                width: '90%',
+                height: '250px'
+            }
         },
         introBox: {
             display: 'flex',
@@ -174,7 +190,7 @@ const copy = {
     ]
 };
 
-export const Body = () => {
+export const Body = ({ isSmScreen, isXsScreen }) => {
     const classes = useStyles();
 
     return (
@@ -192,16 +208,19 @@ export const Body = () => {
                     Explore recommendations by song, artist, genre, or a combination of sources, and leverage Spotify's audio analysis tools and features to zero in on the sound that you are looking for.
                 </Typography>
             </Box>
-            <Grid container spacing={2} style={{ padding: '3% 0 3% 5%' }}>
+            <Grid container spacing={2} className={classes.cardGrid}>
                 {copy.section.slice(0, 3).map((item, index) => (
                     <Grid item xs={12} sm={4} key={index}>
-                    <Card className={classes.card}>
-                        <Typography variant="h2">{item.emoji}</Typography>
-                        <CardHeader 
-                        title={item.header}
-                        subheader={item.description}
-                        />
-                    </Card>
+                        <Card className={classes.card}>
+                            <Typography variant="h2">{item.emoji}</Typography>
+                            <CardHeader 
+                            title={item.header}
+                            subheader={!isSmScreen && !isXsScreen ? 
+                                item.description : 
+                                item.mobileDescription
+                        }
+                            />
+                        </Card>
                     </Grid>
                 ))}
 
@@ -212,7 +231,10 @@ export const Body = () => {
                             <div>
                             <CardHeader 
                                 title={copy.section[3].header}
-                                subheader={copy.section[3].description}
+                                subheader={!isSmScreen && !isXsScreen ? 
+                                    copy.section[3].description : 
+                                    copy.section[3].mobileDescription 
+                                }
                                 style={{ textAlign: 'left', paddingLeft: '10%' }}
                             />
                             </div>

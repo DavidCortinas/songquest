@@ -142,7 +142,7 @@ export const SpotifyConnect = ({
                 </Card>
             </Box>
           </Box>
-        <Body />
+        <Body isSmScreen={isSmScreen} isXsScreen={isXsScreen} />
         </>
       )
   }

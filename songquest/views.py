@@ -277,7 +277,6 @@ def get_spotify_user_data(access_token):
 def get_spotify_user_email(access_token):
     user_data = get_spotify_user_data(access_token)
     email = user_data.get('email')
-    print('Get Email: ', email)
 
     # Check if the email field exists
     if email:
@@ -421,7 +420,7 @@ def handle_spotify_callback(request):
         json_data = json.dumps(user_data)
 
         registration_response = requests.post(
-            'https://www.songquest.io/api/auth/register/',
+            'https:/localhost:8000/api/auth/register/',
             data=json_data,
             headers={'Content-Type': 'application/json'}
         )

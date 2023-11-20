@@ -35,14 +35,14 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
 # Application definition
 
 CORS_ALLOW_HEADERS = ['x-csrftoken', "X-CSRFToken", 'Content-Type']
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:3000',
-#     'http://localhost:8000',
-# ]
-# CSRF_TRUSTED_ORIGINS = [
-#     'http://localhost:3000',
-#     'http://localhost:8000',
-# ]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+]
 CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOW_ALL_ORIGINS = True
 
