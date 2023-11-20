@@ -1520,7 +1520,13 @@ export const SongDiscovery = ({
           </ul>
         </Box>
       ) : !isLoading && (
-        <Body isSmScreen={isSmScreen} isXsScreen={isXsScreen} />
+        <Body 
+          isSmScreen={isSmScreen} 
+          isXsScreen={isXsScreen}
+          isMdScreen={isMdScreen}
+          isLgScreen={isLgScreen} 
+          isXlScreen={isXlScreen} 
+        />
       )}
     </>
   );
