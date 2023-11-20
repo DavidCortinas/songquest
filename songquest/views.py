@@ -277,6 +277,7 @@ def get_spotify_user_data(access_token):
 def get_spotify_user_email(access_token):
     user_data = get_spotify_user_data(access_token)
     email = user_data.get('email')
+    print('Get Email: ', email)
 
     # Check if the email field exists
     if email:
@@ -310,6 +311,7 @@ def spotify_redirect(request):
 
 
 def get_spotify_token_info(request):
+    logging.info('Get Spotify Token: {request}')
     code = request.GET.get('code', None)
     state = request.GET.get('state', None)
 
@@ -320,8 +322,11 @@ def get_spotify_token_info(request):
     else:
         # Define your Spotify API credentials
         client_id = os.environ.get('SPOTIFY_CLIENT_ID')
+        logging.info(f'Client ID: {client_id}')
         client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
+        logging.info(f'Client Secret: {client_secret}')
         redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
+        logging.info(f'Redirect URI: {redirect_uri}')
 
         # Prepare the data to send to the Spotify API to obtain an access token
         token_data = {
@@ -355,6 +360,11 @@ def get_spotify_token_info(request):
 
 def handle_spotify_callback(request):
     token_info = get_spotify_token_info(request)
+    if token_info is not None:
+        access_token = token_info.get('access_token')
+        # Rest of your code...
+    else:
+        logging.warning('Token info is None in handle_spotify_callback')
     access_token = token_info.get('access_token')
     refresh_token = token_info.get('refresh_token')
     expires_at = time() + token_info.get('expires_in', 0)
@@ -411,7 +421,7 @@ def handle_spotify_callback(request):
         json_data = json.dumps(user_data)
 
         registration_response = requests.post(
-            '/api/auth/register/',
+            'https://www.songquest.io/api/auth/register/',
             data=json_data,
             headers={'Content-Type': 'application/json'}
         )

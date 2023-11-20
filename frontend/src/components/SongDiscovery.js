@@ -26,6 +26,7 @@ import {
   Input,
   FormControlLabel,
   Switch,
+  ToggleButton,
 } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -258,7 +259,7 @@ const AutocompleteParameter = ({
             }
           }
         }
-        const selectedOptions = [...targetParamValues[parameter], selectedOption.label];
+        const selectedOptions = [...targetParamValues[parameter], selectedOption?.label];
         onSelectedOptions(parameter, selectedOptions)
     };
 
@@ -423,6 +424,12 @@ const SearchParameter = ({
     ); 
 
 const SliderParameter = ({ parameter, query, onSetQueryParameter, setParameters }) => {
+
+  const [itemSelected, setItemSelected] = useState(false);
+
+  const handleContainerClick = () => {
+    setItemSelected((prev) => !prev);
+  };
 
   const min = query && query[parameter]['min'];
   const max = query && query[parameter]['max'];
@@ -634,60 +641,63 @@ const SliderParameter = ({ parameter, query, onSetQueryParameter, setParameters 
   
   return (
     <Box display='flex' justifyContent='space-between' paddingRight='2%'>
-      <Typography id="track-false-range-slider" gutterBottom>
-        {toCapitalCase(query[parameter].label)}
-      </Typography>
+      <FormControlLabel 
+        control={<Switch onChange={handleContainerClick}/>} 
+        label={toCapitalCase(query[parameter].label)} 
+      />
       <Slider
-          track={false}
-          aria-labelledby="track-false-range-slider"
-          onChange={(e, newValues) => handleSliderChange(newValues)}
-          // getAriaValueText={valuetext}
-          value={[parameterValue.min, parameterValue.max, parameterValue.target]}
-          marks={marks}
-          valueLabelDisplay="auto"
-          valueLabelFormat={(value, index) => {
-            if (index === 0) return `Min: ${value}`;
-            if (index === 1) return `Target: ${value}`;
-            if (index === 2) return `Max: ${value}`;
-            return '';
-          }}
-          max={
-            parameter === 'duration_ms'
-            ? 3600000
-            : parameter === 'tempo'
-            ? 300
-            : parameter === 'mode' || parameter === 'popularity'
-            ? 100
-            : parameter === 'time_signature' 
-            ? 7
-            : parameter === 'key'
-            ? 11
-            : parameter === 'loudness'
-            ? 0
-            : 1
-          }
-          min={
-            parameter === 'duration_ms'
-            ? 30000
-            : parameter === 'time_signature'
-            ? 3
-            : parameter === 'loudness'
-            ? -60
-            : 0
-          }
-          step={
-            parameter === 'duration_ms' 
-            ? 10
-            : parameter === 'mode' 
-              || parameter === 'popularity' 
-              || parameter === 'key'
-              || parameter === 'time_signature'
-              || parameter === 'tempo'
-            ? 1
-            :0.01
-          }
-          sx={{ width: '75%' }}
-        />
+        disabled={!itemSelected}
+        disableSwap
+        track={false}
+        aria-labelledby="track-false-range-slider"
+        onChange={(e, newValues) => handleSliderChange(newValues)}
+        // getAriaValueText={valuetext}
+        value={[parameterValue.min, parameterValue.max, parameterValue.target]}
+        marks={marks}
+        valueLabelDisplay="auto"
+        valueLabelFormat={(value, index) => {
+          if (index === 0) return `Min: ${value}`;
+          if (index === 1) return `Target: ${value}`;
+          if (index === 2) return `Max: ${value}`;
+          return '';
+        }}
+        max={
+          parameter === 'duration_ms'
+          ? 3600000
+          : parameter === 'tempo'
+          ? 300
+          : parameter === 'mode' || parameter === 'popularity'
+          ? 100
+          : parameter === 'time_signature' 
+          ? 7
+          : parameter === 'key'
+          ? 11
+          : parameter === 'loudness'
+          ? 0
+          : 1
+        }
+        min={
+          parameter === 'duration_ms'
+          ? 30000
+          : parameter === 'time_signature'
+          ? 3
+          : parameter === 'loudness'
+          ? -60
+          : 0
+        }
+        step={
+          parameter === 'duration_ms' 
+          ? 10
+          : parameter === 'mode' 
+            || parameter === 'popularity' 
+            || parameter === 'key'
+            || parameter === 'time_signature'
+            || parameter === 'tempo'
+          ? 1
+          :0.01
+        }
+        sx={{ width: '75%' }}
+      />
     </Box>
   )
 };
@@ -696,15 +706,40 @@ const CollapsibleSliders = ({ parameters, setParameters, query, onSetQueryParame
 
   return (
     <Accordion expanded={expanded}>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon sx={{ color: 'whitesmoke' }}/>}
-        onClick={handleExpand}
-        sx={{ backgroundColor: '#013a57', color: 'white', borderRadius: '3px' }}
-      >
+    <AccordionSummary
+      expandIcon={<ExpandMoreIcon sx={{ color: 'whitesmoke' }} />}
+      onClick={handleExpand}
+      sx={{ backgroundColor: '#013a57', color: 'white', borderRadius: '3px' }}
+    >
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between',
+        alignItems: 'center', 
+        width: '98%' }}>
         <Typography>Fine Tune Your Recommendations</Typography>
-      </AccordionSummary>
-      <AccordionDetails sx={{ maxHeight: '300px', overflowY: 'auto' }}>
+        <Typography color='#f6f8fc' variant='body2'>* activate additional parameters and set the min, target, and max values to refine your recommendations</Typography>
+      </Box>
+    </AccordionSummary>
+      <AccordionDetails 
+        sx={{ 
+          maxHeight: '300px', 
+          overflowY: 'auto',
+          // paddingTop: '3%' 
+        }}
+      >
         <>
+          <Grid container columns={18}>
+            <Grid item xs={4}>
+              <Typography>Fine Tuning Parameters</Typography>
+            </Grid>
+            <Grid item xs={14}> 
+              <Box display='flex' flexDirection='row' justifyContent='space-between'>
+                <Typography>Minimum Value</Typography>
+                <Typography>Target Value</Typography>
+                <Typography>Maximum Value</Typography>
+              </Box>
+            </Grid>
+          </Grid>
           {Object.keys(parameters).map((parameter, index) => { 
             return parameter !== 'limit' && !autocompleteParam.includes(parameter) && (
             <SliderParameter
@@ -981,7 +1016,7 @@ export const SongDiscovery = ({
         )
       } else {
         await onSearchPressed(parameters);
-        onDataLoaded();  
+        // onDataLoaded();  
       //   dispatch(resetQueryParameter());
         setIsLoading(false);
       }
