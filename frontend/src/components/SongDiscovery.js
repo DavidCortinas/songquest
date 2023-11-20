@@ -448,7 +448,6 @@ const SliderParameter = ({
   const [itemSelected, setItemSelected] = useState(false);
 
   useEffect(() => {
-    console.log('effect: ', query[parameter])
     if (
       query[parameter]['min'] === null || 
       query[parameter]['target'] === null || 
@@ -871,6 +870,7 @@ const Recommendation = ({
 
   return (
     <li className={classes.recommendations}>
+      
       <iframe
         key={index}
         src={`https://open.spotify.com/embed/track/${recommendation.id}?utm_source=generator`}
@@ -912,7 +912,6 @@ export const SongDiscovery = ({
     user,
  }) => {
   const theme = useTheme();
-  console.log(theme)
 
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
