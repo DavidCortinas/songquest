@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => (
     backgroundColor: "transparent",
   },
   box: {
-    width: '30%',
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
     color: "#007fbf",
