@@ -869,8 +869,10 @@ const Recommendation = ({
       };
 
       setIsSavedTrack(!isSavedTrack);
-    } else {
+    } if (user) {
       navigate('/spotify-connect');
+    } else {
+      navigate('/login');
     };
 
   };
@@ -892,7 +894,11 @@ const Recommendation = ({
       />
       <Tooltip 
         arrow
-        title={user?.user.spotify_email && user?.spotify_access ? "Save to your Spotify library" : "Connect to Spotify to save to libary"}
+        title={user?.user.spotify_email && user?.spotify_access ? 
+          "Save to your Spotify library" : user ? 
+          "Connect to Spotify to save to libary" : 
+          "Login and connect to Spotify to save to libary"
+        }
       >
         <Button onClick={handleLikeClick}>
           <FavoriteIcon color={isSavedTrack ? 'success' : 'action'} />
