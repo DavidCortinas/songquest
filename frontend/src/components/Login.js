@@ -27,7 +27,7 @@ const useStyles = makeStyles(() => (
     backgroundColor: "transparent",
   },
   box: {
-    width: '30%',
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
     color: "#007fbf",
@@ -353,7 +353,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                             />
                                         </Box>
                                         <br />
-                                        <Typography marginBottom='1em' textAlign='center' color='whitesmoke'>Or Connect Through:</Typography>
+                                        {/* <Typography marginBottom='1em' textAlign='center' color='whitesmoke'>Or Connect Through:</Typography>
                                         <Button
                                             sx={{
                                                 display: 'flex',
@@ -373,7 +373,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                                 }}
                                                 src={'/static/images/spotifyLogo.png'}
                                             />
-                                            </Button>
+                                            </Button> */}
                                         <br />
                                         <Grid className={classes.buttonsContainer}>
                                             <Button
