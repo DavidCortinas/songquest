@@ -176,7 +176,7 @@ const useStyles = makeStyles(() => (
   },
   accordion: {
     width: '100%',
-    borderRadius: '5px',
+    borderRadius: '8px',
     overflow: 'hidden',
     paddingTop: '1%'
   },
@@ -435,6 +435,7 @@ const SearchParameter = ({
 const SliderParameter = ({ 
   parameter, 
   query, 
+  discoverOption,
   onSetQueryParameter, 
   setParameters,
   isXsScreen, 
@@ -677,70 +678,132 @@ const SliderParameter = ({
         labelPlacement='end' 
         sx={{ paddingLeft: '0' }}
       />
-      <Slider
-        disabled={!itemSelected}
-        disableSwap
-        track={false}
-        aria-labelledby="track-false-range-slider"
-        onChange={(e, newValues) => handleSliderChange(newValues)}
-        // getAriaValueText={valuetext}
-        value={[parameterValue.min, parameterValue.max, parameterValue.target]}
-        marks={marks}
-        valueLabelDisplay="auto"
-        valueLabelFormat={(value, index) => {
-          if (index === 0) return `Min: ${value}`;
-          if (index === 1) return `Target: ${value}`;
-          if (index === 2) return `Max: ${value}`;
-          return '';
-        }}
-        max={
-          parameter === 'duration_ms'
-          ? 3600000
-          : parameter === 'tempo'
-          ? 300
-          : parameter === 'mode' || parameter === 'popularity'
-          ? 100
-          : parameter === 'time_signature' 
-          ? 7
-          : parameter === 'key'
-          ? 11
-          : parameter === 'loudness'
-          ? 0
-          : 1
-        }
-        min={
-          parameter === 'duration_ms'
-          ? 30000
-          : parameter === 'time_signature'
-          ? 3
-          : parameter === 'loudness'
-          ? -60
-          : 0
-        }
-        step={
-          parameter === 'duration_ms' 
-          ? 10
-          : parameter === 'mode' 
-            || parameter === 'popularity' 
-            || parameter === 'key'
-            || parameter === 'time_signature'
-            || parameter === 'tempo'
-          ? 1
-          :0.01
-        }
-        sx={ isLgScreen || isXlScreen || isMdScreen ? { 
-          width: '75%',
-        } : {
-          width: '90%',
-          alignSelf: 'flex-end'
-        }}
-      />
+      {discoverOption === 'spotify' ? (
+        <Slider
+          disabled={!itemSelected}
+          disableSwap
+          track={false}
+          aria-labelledby="track-false-range-slider"
+          onChange={(e, newValues) => handleSliderChange(newValues)}
+          // getAriaValueText={valuetext}
+          value={[parameterValue.min, parameterValue.max, parameterValue.target]}
+          marks={marks}
+          valueLabelDisplay="auto"
+          valueLabelFormat={(value, index) => {
+            if (index === 0) return `Min: ${value}`;
+            if (index === 1) return `Target: ${value}`;
+            if (index === 2) return `Max: ${value}`;
+            return '';
+          }}
+          max={
+            parameter === 'duration_ms'
+            ? 3600000
+            : parameter === 'tempo'
+            ? 300
+            : parameter === 'mode' || parameter === 'popularity'
+            ? 100
+            : parameter === 'time_signature' 
+            ? 7
+            : parameter === 'key'
+            ? 11
+            : parameter === 'loudness'
+            ? 0
+            : 1
+          }
+          min={
+            parameter === 'duration_ms'
+            ? 30000
+            : parameter === 'time_signature'
+            ? 3
+            : parameter === 'loudness'
+            ? -60
+            : 0
+          }
+          step={
+            parameter === 'duration_ms' 
+            ? 10
+            : parameter === 'mode' 
+              || parameter === 'popularity' 
+              || parameter === 'key'
+              || parameter === 'time_signature'
+              || parameter === 'tempo'
+            ? 1
+            :0.01
+          }
+          sx={ isLgScreen || isXlScreen || isMdScreen ? { 
+            width: '75%',
+          } : {
+            width: '90%',
+            alignSelf: 'flex-end'
+          }}
+        />
+      ) : (
+        <Slider
+          disabled={!itemSelected}
+          disableSwap
+          track={false}
+          aria-labelledby="track-false-range-slider"
+          onChange={(e, newValues) => handleSliderChange(newValues)}
+          // getAriaValueText={valuetext}
+          value={[parameterValue.min, parameterValue.max, parameterValue.target]}
+          marks={marks}
+          valueLabelDisplay="auto"
+          valueLabelFormat={(value, index) => {
+            if (index === 0) return `Min: ${value}`;
+            if (index === 1) return `Target: ${value}`;
+            if (index === 2) return `Max: ${value}`;
+            return '';
+          }}
+          max={
+            parameter === 'duration_ms'
+            ? 3600000
+            : parameter === 'tempo'
+            ? 300
+            : parameter === 'mode' || parameter === 'popularity'
+            ? 100
+            : parameter === 'time_signature' 
+            ? 7
+            : parameter === 'key'
+            ? 11
+            : parameter === 'loudness'
+            ? 0
+            : 1
+          }
+          min={
+            parameter === 'duration_ms'
+            ? 30000
+            : parameter === 'time_signature'
+            ? 3
+            : parameter === 'loudness'
+            ? -60
+            : 0
+          }
+          step={
+            parameter === 'duration_ms' 
+            ? 10
+            : parameter === 'mode' 
+              || parameter === 'popularity' 
+              || parameter === 'key'
+              || parameter === 'time_signature'
+              || parameter === 'tempo'
+            ? 1
+            :0.01
+          }
+          sx={ isLgScreen || isXlScreen || isMdScreen ? { 
+            width: '75%',
+          } : {
+            width: '90%',
+            alignSelf: 'flex-end'
+          }}
+        />
+      )}
     </Box>
   )
 };
 
 const CollapsibleSliders = ({ 
   parameters, 
+  discoverOption,
   setParameters, 
   query, 
   onSetQueryParameter, 
@@ -754,18 +817,32 @@ const CollapsibleSliders = ({
   isXlScreen,
 }) => {
 
+  const [aiParameters, setAiParamaters] = useState({
+    results: 10,
+    theme: false,
+    mood: false,
+    sonic: false,
+    style: false,
+    lyrics: false,
+    obscurity: 0.5,
+    modernity: 0.5,
+  })
+
   return (
-    <Accordion expanded={expanded}>
+    <Accordion expanded={expanded} square='false' sx={{ borderRadius: '8px' }}>
     <AccordionSummary
       expandIcon={<ExpandMoreIcon sx={{ color: 'whitesmoke' }} />}
       onClick={handleExpand}
-      sx={{ backgroundColor: '#013a57', color: 'white', borderRadius: '3px' }}
+      sx={{ backgroundColor: '#013a57', color: 'white', borderRadius: '8px 8px 0 0', height: '50px' }}
     >
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between',
-        alignItems: 'center', 
-        width: '98%' }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center', 
+          width: '98%' 
+        }}
+      >
         <Typography>Fine Tune Your Recommendations</Typography>
         <Typography 
           color='#f6f8fc' 
@@ -797,29 +874,32 @@ const CollapsibleSliders = ({
                 <Grid item xs={1}></Grid>
               )
             }
-            <Grid item xs={
-              isMdScreen || isLgScreen || isXlScreen ?
-              16 :
-              19
-            }> 
-              <Box 
-                display='flex' 
-                flexDirection='row' 
-                justifyContent='space-between'
-              >
-                <Typography textAlign='start'>Minimum Value</Typography>
-                <Typography textAlign='center'>Target Value</Typography>
-                <Typography textAlign='end'>Maximum Value</Typography>
-              </Box>
-            </Grid>
+            {discoverOption === 'spotify' && (
+              <Grid item xs={
+                isMdScreen || isLgScreen || isXlScreen ?
+                16 :
+                19
+              }> 
+                <Box 
+                  display='flex' 
+                  flexDirection='row' 
+                  justifyContent='space-between'
+                >
+                  <Typography textAlign='start'>Minimum Value</Typography>
+                  <Typography textAlign='center'>Target Value</Typography>
+                  <Typography textAlign='end'>Maximum Value</Typography>
+                </Box>
+              </Grid>
+            )}
           </Grid>
-          {Object.keys(parameters).map((parameter, index) => { 
+          {discoverOption == 'spotify' && Object.keys(parameters).map((parameter, index) => { 
             return parameter !== 'limit' && !autocompleteParam.includes(parameter) && (
             <SliderParameter
               key={index}
               parameter={parameter}
               setParameters={setParameters}
               query={query}
+              discoverOption={discoverOption}
               onSetQueryParameter={onSetQueryParameter}
               isXsScreen={isXsScreen}
               isSmScreen={isSmScreen}
@@ -909,7 +989,8 @@ const Recommendation = ({
 };
 
 export const SongDiscovery = ({ 
-    recommendations, 
+    recommendations,
+    discoverOption, 
     error, 
     query, 
     onSearchPressed, 
@@ -1428,6 +1509,7 @@ export const SongDiscovery = ({
                         isMdScreen={isMdScreen}
                         isLgScreen={isLgScreen}
                         isXlScreen={isXlScreen}
+                        discoverOption={discoverOption}
                       />
                     </Box>
                   </>

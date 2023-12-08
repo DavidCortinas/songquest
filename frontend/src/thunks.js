@@ -25,7 +25,7 @@ export const searchSongRequest = (query) => async (dispatch) => {
       song: query.song,
       performer: query.performer,
     });
-    const response = await fetch('/search/', {
+    const response = await fetch('http://localhost:8000/search/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -66,7 +66,7 @@ export const checkRegistration = (user) => async (dispatch) => {
     const body = JSON.stringify({
       email: user.email,
     });
-    const response = await fetch('/user/', {
+    const response = await fetch('http://localhost:8000/user/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -101,7 +101,7 @@ export const registerUser = (email, password, username) => async (dispatch) => {
       password: password,
       username: username,
     });
-    const response = await fetch(`/api/auth/register/`, {
+    const response = await fetch(`http://localhost:8000/api/auth/register/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
@@ -138,7 +138,7 @@ export const login = (
       spotify_refresh_token: spotify_refresh_token,
       spotify_expires_at: spotify_expires_at,
     });
-    const response = await fetch(`/api/auth/login/`, {
+    const response = await fetch(`http://localhost:8000/api/auth/login/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -170,7 +170,7 @@ export const login = (
 }
 
 export const handleUpload = (filelist) => async (filelist) => {
-  const UPLOAD_URL = "/api/upload";
+  const UPLOAD_URL = "http://localhost:8000/api/upload";
   const data =new FormData();
   for (let file of filelist) {
     data.append(file.name, file);
@@ -183,7 +183,7 @@ export const discoverSongRequest = (parameters) => async (dispatch) => {
     const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
     const body = JSON.stringify(parameters);
 
-    const response = await fetch('/api/discover/', {
+    const response = await fetch('http://localhost:8000/api/discover/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
@@ -227,7 +227,7 @@ export const SpotifyAuth = ({ children }) => {
   useEffect(() => {
     async function fetchAccessToken() {
       try {
-        const response = await fetch('/api/get-access-token/');
+        const response = await fetch('http://localhost:8000/api/get-access-token/');
         const data = await response.json();
         const { access_token } = data;
         console.log('access_token: ', access_token)
@@ -247,7 +247,7 @@ export const getSpotifyUserAuth = () => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
     // Your asynchronous logic here, e.g., making a network request
-    const response = await fetch('/request-authorization/', {
+    const response = await fetch('http://localhost:8000/request-authorization/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -365,7 +365,7 @@ export const addToSpotify = (
 
     const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
 
-    const response = await fetch('/add-to-spotify/', {
+    const response = await fetch('http://localhost:8000/add-to-spotify/', {
       method: 'POST',
       body: JSON.stringify({ 
         'recommendation': recommendation,
@@ -400,7 +400,7 @@ export const checkTokenExpiration = async(
     const currentTime = Math.floor(Date.now() / 1000);
     if (currentTime >= spotify_expires_at) {
       // Token has expired, refresh it
-      const response = await fetch('/refresh-token/', {
+      const response = await fetch('http://localhost:8000/refresh-token/', {
         method: 'POST',
         body: JSON.stringify({ refresh_token: spotify_refresh }),
         headers: headers,
@@ -447,7 +447,7 @@ export const checkUsersTracks = (
     const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
 
     // Continue with your API requests using the current or refreshed access token
-    const apiResponse = await fetch('/check-users-tracks/', {
+    const apiResponse = await fetch('http://localhost:8000/check-users-tracks/', {
       method: 'POST', // Adjust the method and endpoint as needed
       body: JSON.stringify({
         'recommendation': recommendation,
@@ -498,7 +498,7 @@ export const removeUsersTracks = (
 
     const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
 
-    const response = await fetch('/remove-users-tracks/', {
+    const response = await fetch('http://localhost:8000/remove-users-tracks/', {
       method: 'POST',
       body: JSON.stringify({ 
         'recommendation': recommendation,
@@ -532,7 +532,7 @@ export const handleUpdateUsername = (userId, newUsername) => async (dispatch) =>
     const data = { userId, newUsername }; // Include the user ID and new username in an object
     const body = JSON.stringify(data);
 
-    const response = await fetch(`/update-username/${userId}/`, {
+    const response = await fetch(`http://localhost:8000/update-username/${userId}/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -582,7 +582,7 @@ export const createPlaylistRequest = async (
     };
     const body = JSON.stringify(data);
 
-    const response = await fetch(`/create-playlist/${userId}/`, {
+    const response = await fetch(`http://localhost:8000/create-playlist/${userId}/`, {
       headers: headers,
       method: 'POST', 
       body,
@@ -608,7 +608,7 @@ export const sendLyricsToServer = async (lyrics) => {
       'X-CSRFToken': csrfToken,
     };
 
-    const response = await fetch('/search-lyrics/', {
+    const response = await fetch('http://localhost:8000/search-lyrics/', {
       method: 'POST',
       headers: headers,
       body: lyrics,

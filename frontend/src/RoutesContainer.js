@@ -14,6 +14,7 @@ import TopBar from './components/TopBar';
 import { Box, makeStyles } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
 import { SpotifyConnect } from './components/SpotifyConnect';
+import { SongDiscoveryAI } from './components/SongDiscoveryAI';
 
 
 const RoutesContainer = ({
@@ -89,6 +90,12 @@ const RoutesContainer = ({
               />
             }
           /> */}
+          <Route 
+            path={'/discover-ai'}
+            element={
+              <SongDiscoveryAI />
+            }
+          />
           <Route 
             path={'/login'}
             element={

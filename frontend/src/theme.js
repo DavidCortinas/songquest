@@ -11,6 +11,9 @@ const theme = createTheme({
     tertiary: {
       main: '#eff3f5',
     },
+    secondaryText: {
+      main: '#ffffff',
+    }
   },
   breakpoints: {
     values: {

@@ -8,8 +8,10 @@ import {
     Typography, 
     useMediaQuery, 
     Grid,
-    CardHeader} from "@mui/material"
-import { makeStyles } from '@mui/styles';
+    CardHeader,
+    ToggleButtonGroup,
+    ToggleButton} from "@mui/material"
+import { makeStyles, withStyles } from '@mui/styles';
 import SavedSearchIcon from '@mui/icons-material/SavedSearch';
 import SpatialAudioIcon from '@mui/icons-material/SpatialAudio'
 import SearchIcon from '@mui/icons-material/Search';
@@ -25,7 +27,36 @@ import { useTheme } from "@emotion/react";
 import { useEffect, useState } from "react";
 import SongDiscovery from "./SongDiscovery";
 
-const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+const StyledToggleButton = withStyles({
+  root: {
+    fontSize: '18px',
+    lineHeight: '20px',
+    backgroundColor: 'white',
+    color: '#013a57',
+    border: '1px solid #013a57',
+    borderRadius: '8px',
+    textTransform: 'none',
+    width: '100%',
+    '&:hover': {
+        backgroundColor: '#dcdcdc',
+      },
+    '&$selected': {
+      backgroundColor: '#013a57',
+      color: 'white',
+      '&:hover': {
+        backgroundColor: '#013a57',
+      },
+    },
+  },
+  selected: {},
+})(ToggleButton);
+
+const StyledGroupButton = withStyles({
+  root: {
+    width: '50%',
+    borderRadius: '8px'
+  },
+})(ToggleButtonGroup);
 
 const useStyles = makeStyles((theme) => (
     {
@@ -157,7 +188,12 @@ const useStyles = makeStyles((theme) => (
         },      
         optionsIcon: {
             color: '#000000',
-        },      
+        },
+        toggleButtonSelected: {
+            "&.MuiToggleButton-root": {
+            "background-color": "primary"
+            }
+        }      
     }
 ))
 
@@ -394,7 +430,11 @@ export const Home = ({ currentUser, onSearchPressed, onDataLoaded }) => {
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
-    const isSubscribed = false;
+    const [discoverOption, setDiscoverOption] = useState('spotify');
+
+    const handleChange = (e, newOption) => {
+        setDiscoverOption(newOption);
+    };
 
     return (
         <Box display='flex' flexDirection='column'>
@@ -407,10 +447,29 @@ export const Home = ({ currentUser, onSearchPressed, onDataLoaded }) => {
                         "Welcome to the future of music discovery!" : 
                         "Welcome to the future of music discovery! At SongQuest, we're revolutionizing the way you explore and connect with the music you love."}
                 </Typography>
-                {/* <Carousel isSmScreen={isSmScreen} isXsScreen={isXsScreen}/> */}
+                <Typography color='#eff3f5' padding='10px 0 5px' variant={isXsScreen || isSmScreen ? "body2" : "body1"}>
+                    Choose you're recommendation engine:
+                </Typography>
+                <StyledGroupButton
+                    value={discoverOption}
+                    exclusive
+                    onChange={handleChange}
+                >
+                    <StyledToggleButton 
+                        value='spotify'
+                    >
+                        Spotify
+                    </StyledToggleButton>
+                    <StyledToggleButton 
+                        value='openai'
+                    >
+                        OpenAI
+                    </StyledToggleButton>
+                </StyledGroupButton>
                 <SongDiscovery 
                     onSearchPressed={onSearchPressed}
                     onDataLoaded={onDataLoaded}
+                    discoverOption={discoverOption}
                 />
             </Box>
         </Box>
