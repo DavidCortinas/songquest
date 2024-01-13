@@ -128,7 +128,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'songquest',
-        'USER': 'cortinas',
+        'USER': 'david',
         'PASSWORD': 'mQ!%jqV9e~$4=due',
         'HOST': 'localhost',
         'PORT': '',
