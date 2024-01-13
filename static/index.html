@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    {% load static %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Discover your next favorite song. Take control of your algorithm. Get music recommendations based off of preferences you set." />
     <title>SongQuest: Music Discovery</title>
-    <link rel="icon" href="{% static ""./images/favicon.ico" %}" />
+    <link rel="icon" href="{% static "./images/favicon.ico" %}" />
     <script>
       window.SPOTIFY_CLIENT_ID = "{{ SPOTIFY_CLIENT_ID }}";
     </script>
-    <!-- {% load static %} -->
   </head>
   <body>
     <div id="root"></div>
