@@ -22,6 +22,7 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
+        print(request.data)
 
         # Check if a Spotify access token is provided in the request data
         spotify_access_token = request.data.get('spotify_access_token')
@@ -56,6 +57,7 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
 
         # If no Spotify access token is provided, proceed with regular login
         serializer = self.get_serializer(data=request.data)
+        print(serializer)
 
         try:
             serializer.is_valid(raise_exception=True)

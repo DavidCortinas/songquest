@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
+  ADD_TO_CURRENT_PLAYLIST,
   CLEAR_SEARCH_SONG_ERROR,
+  CONFIRM_SPOTIFY_ACCESS,
   CONFIRM_USER,
+  CREATE_PLAYLIST,
+  DELETE_PLAYLIST,
   DISCOVER_SONG,
   DISCOVER_SONG_SUCCESS,
   RECEIVE_LYRIC_RESULTS,
@@ -11,6 +15,7 @@ import {
   RECEIVE_SPOTIFY_SONG_RESULTS,
   RECEIVE_SPOTIFY_TRACK,
   REFRESH_SPOTIFY_ACCESS,
+  REMOVE_FROM_CURRENT_PLAYLIST,
   RESET_DATA_LOADED,
   RESET_QUERY_PARAMETER,
   SEARCH_SONG,
@@ -219,6 +224,14 @@ export const user = (state = { currentUser: null }, action) => {
           spotify_expires_at: payload.expiresAt,
         },
       };
+    case CONFIRM_SPOTIFY_ACCESS:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          spotifyConnection: payload.spotifyConnection
+        }
+      };
     case UPDATE_USERNAME:
       return {
         ...state,
@@ -268,6 +281,48 @@ export const authSlice = createSlice({
     },
   },
 });
+
+const generateUniqueId = () => {
+  return `id_${Math.random().toString(36).substr(2, 9)}`;
+};
+
+export const playlist = (state = {playlists: [], currentPlaylist: []}, action) => {
+  const { type, payload } = action;
+  switch (type) {
+    case ADD_TO_CURRENT_PLAYLIST:
+      return {
+        ...state,
+        currentPlaylist: [...state.currentPlaylist, ...payload.songs]
+      };
+    case REMOVE_FROM_CURRENT_PLAYLIST:
+      return {
+        ...state,
+        currentPlaylist: state.currentPlaylist.filter(song => 
+          !payload.songs.some(payloadSong => payloadSong.id === song.id
+        ))
+      };
+    case CREATE_PLAYLIST:
+      if (state.playlists.some(pl => pl.name === payload.playlist.name)) {
+        console.log('Error: ' + 'You already have a playlist with this name.')
+        console.log('Rename your new playlist to save.')
+        return state;
+      };
+      return {
+        ...state,
+        playlists: [...state.playlists, {
+          ...payload.playlist, id: generateUniqueId(), spotifyId: null 
+        }]
+      };
+    case DELETE_PLAYLIST:
+      return {
+        ...state,
+        playlists: state.playlists.filter(playlist => 
+          !payload.playlists.includes(playlist.id))
+      };
+    default:
+      return state;
+  };
+};
 
 export const discovery = (state = initialDiscoveryState, action) => {
     const { type, payload } = action;

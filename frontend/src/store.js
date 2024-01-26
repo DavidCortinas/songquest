@@ -5,7 +5,7 @@ import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/es/stateReconciler/autoMergeLevel2';
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { song, user, discovery } from './reducers';
+import { song, user, discovery, playlist } from './reducers';
 import { authSlice } from './reducers';
 
 
@@ -21,6 +21,10 @@ const discoveryReducer = {
   discovery,
 };
 
+const playlistReducer = {
+  playlist,
+}
+
 const persistConfig = {
   key: 'root',
   storage,
@@ -31,6 +35,7 @@ const rootReducer = combineReducers({
   ...songReducer,
   ...userReducer,
   ...discoveryReducer,
+  ...playlistReducer,
   auth: authSlice.reducer,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);

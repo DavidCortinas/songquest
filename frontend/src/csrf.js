@@ -3,9 +3,9 @@ async function getCSRFToken() {
     console.log('Fetching CSRF token...');
     
     // Attempt to fetch the CSRF token
-    const response = await fetch('/get-csrf-token/', {
+    const response = await fetch('http://localhost:8000/get-csrf-token/', {
       method: 'GET',
-      credentials: 'include', // Add this line
+      // credentials: 'include', // Add this line
     });
 
     if (!response.ok) {
@@ -14,6 +14,7 @@ async function getCSRFToken() {
     }
 
     const data = await response.json();
+    console.log('csrfData: ', data.csrfToken)
     
     if (data.csrfToken) {
       // If the CSRF token is present in the response, return it
@@ -21,7 +22,7 @@ async function getCSRFToken() {
     }
   } catch (error) {
     // Handle any errors that occurred during the fetch
-    console.error('Error fetching CSRF token:', error);
+    console.log('Error fetching CSRF token:', error);
   }
 
   // Fallback to parsing document.cookie

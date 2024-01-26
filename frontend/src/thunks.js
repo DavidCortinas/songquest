@@ -66,7 +66,7 @@ export const checkRegistration = (user) => async (dispatch) => {
     const body = JSON.stringify({
       email: user.email,
     });
-    const response = await fetch('/user/', {
+    const response = await fetch('http://localhost:8000/user/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -82,11 +82,8 @@ export const checkRegistration = (user) => async (dispatch) => {
 
     const currentUser = await response.json();
 
-    // Update the front end with the received data
-    // Dispatch both searchSong and searchSongSuccess actions
     dispatch(confirmUser(currentUser));
-    // Dispatch searchSong action
-    // dispatch(searchSongSuccess(songData, query)); // Dispatch searchSongSuccess action with the query
+
     return currentUser;
   } catch (error) {
     console.log('Error: ' + error.message);
@@ -101,7 +98,7 @@ export const registerUser = (email, password, username) => async (dispatch) => {
       password: password,
       username: username,
     });
-    const response = await fetch(`/api/auth/register/`, {
+    const response = await fetch(`http://localhost:8000/api/auth/register/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
@@ -123,7 +120,8 @@ export const registerUser = (email, password, username) => async (dispatch) => {
 }
 
 export const login = (
-  email, 
+  email,
+  username, 
   password, 
   spotify_access_token, 
   spotify_refresh_token, 
@@ -133,12 +131,13 @@ export const login = (
     const csrfToken = await getCSRFToken();
     const body = JSON.stringify({
       email: email,
+      username: username,
       password: password,
       spotify_access_token: spotify_access_token,
       spotify_refresh_token: spotify_refresh_token,
       spotify_expires_at: spotify_expires_at,
     });
-    const response = await fetch(`/api/auth/login/`, {
+    const response = await fetch(`http://localhost:8000/api/auth/login/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -183,7 +182,7 @@ export const discoverSongRequest = (parameters) => async (dispatch) => {
     const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
     const body = JSON.stringify(parameters);
 
-    const response = await fetch('/api/discover/', {
+    const response = await fetch('http://localhost:8000/api/discover/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
@@ -223,15 +222,20 @@ export const discoverSongRequest = (parameters) => async (dispatch) => {
 
 export const SpotifyAuth = ({ children }) => {
   const [accessToken, setAccessToken] = useState('');
+  const [expiresAt, setExpiresAt] = useState('');
+
+  // if (expiresAt <= Date.now()) {
+  //   setExpired(true);
+  // };
 
   useEffect(() => {
     async function fetchAccessToken() {
       try {
-        const response = await fetch('/api/get-access-token/');
+        const response = await fetch('http://localhost:8000/api/get-access-token/');
         const data = await response.json();
-        const { access_token } = data;
-        console.log('access_token: ', access_token)
+        const { access_token, expires_at } = data;
         setAccessToken(access_token);
+        setExpiresAt(expires_at);
       } catch (error) {
         console.error('Error fetching access token: ', error);
       }
@@ -240,14 +244,14 @@ export const SpotifyAuth = ({ children }) => {
     fetchAccessToken();
   }, []);
 
-  return <>{children(accessToken)}</>
+  return <>{children(accessToken, expiresAt)}</>
 };
 
 export const getSpotifyUserAuth = () => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
     // Your asynchronous logic here, e.g., making a network request
-    const response = await fetch('/request-authorization/', {
+    const response = await fetch('http://localhost:8000/request-authorization/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -271,7 +275,12 @@ export const getSpotifyUserAuth = () => async (dispatch) => {
 };
 
 
-export const getSpotifySearchResult = (value, parameter, accessToken) => async (dispatch) => {
+export const getSpotifySearchResult = (
+  value, 
+  parameter, 
+  accessToken, 
+  expiresAt
+) => async (dispatch) => {
 
   const type = (parameter === 'songs' || parameter === 'lyrics') 
     ? 'track' 
@@ -310,7 +319,10 @@ export const getSpotifySearchResult = (value, parameter, accessToken) => async (
   };
 };
 
-export const getSpotifyGenres = (accessToken) => async (dispatch) => {
+export const getSpotifyGenres = (
+  accessToken, 
+  expiresAt
+) => async (dispatch) => {
   try {
     const API_URL = 'https://api.spotify.com/v1/recommendations/available-genre-seeds';
     const response = await fetch(API_URL, {
@@ -325,7 +337,10 @@ export const getSpotifyGenres = (accessToken) => async (dispatch) => {
   };
 }
 
-export const getSpotifyMarkets = (accessToken) => async (dispatch) => {
+export const getSpotifyMarkets = (
+  accessToken,
+  expiresAt,
+) => async (dispatch) => {
   try {
     const API_URL = 'https://api.spotify.com/v1/markets';
     const response = await fetch(API_URL, {
@@ -342,18 +357,12 @@ export const getSpotifyMarkets = (accessToken) => async (dispatch) => {
 
 export const addToSpotify = (
   recommendation, 
-  spotify_access, 
-  spotify_refresh, 
-  spotify_expires_at
+  email,
 ) => async (dispatch) => {
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
-  };
-
-  if (!spotify_access) {
-    const newTokenInfo = ''
   };
 
   try {
@@ -363,15 +372,11 @@ export const addToSpotify = (
       'X-CSRFToken': csrfToken,
     };
 
-    const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
-
-    const response = await fetch('/add-to-spotify/', {
+    const response = await fetch('http://localhost:8000/add-to-spotify/', {
       method: 'POST',
       body: JSON.stringify({ 
         'recommendation': recommendation,
-        'spotify_access': new_spotify_access ? new_spotify_access : spotify_access,
-        'spotify_refresh': spotify_refresh,
-        'spotify_expires_at': spotify_expires_at,
+        'email': email,
       }),
       headers: headers,
       credentials: 'include',
@@ -379,10 +384,10 @@ export const addToSpotify = (
 
     if (response.status === 200) {
       // Authorization request was successful, you can handle the response here
-      console.log('Authorization request successful');
+      console.log('Add to Spotify request successful');
     } else {
       // Handle other response statuses here (e.g., error handling)
-      console.error('Authorization request failed');
+      console.error('Add to Spotify request failed');
     }
   } catch (error) {
     // Handle any network errors or exceptions here
@@ -400,7 +405,7 @@ export const checkTokenExpiration = async(
     const currentTime = Math.floor(Date.now() / 1000);
     if (currentTime >= spotify_expires_at) {
       // Token has expired, refresh it
-      const response = await fetch('/refresh-token/', {
+      const response = await fetch('http://localhost:8000/refresh-token/', {
         method: 'POST',
         body: JSON.stringify({ refresh_token: spotify_refresh }),
         headers: headers,
@@ -426,9 +431,7 @@ export const checkTokenExpiration = async(
 
 export const checkUsersTracks = (
   recommendation,
-  spotify_access,
-  spotify_refresh,
-  spotify_expires_at
+  email,
 ) => async (dispatch) => {
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
@@ -443,17 +446,12 @@ export const checkUsersTracks = (
       'X-CSRFToken': csrfToken,
     };
 
-    // Check if the token has expired
-    const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
-
     // Continue with your API requests using the current or refreshed access token
-    const apiResponse = await fetch('/check-users-tracks/', {
+    const apiResponse = await fetch('http://localhost:8000/check-users-tracks/', {
       method: 'POST', // Adjust the method and endpoint as needed
       body: JSON.stringify({
         'recommendation': recommendation,
-        'spotify_access': new_spotify_access ? new_spotify_access : spotify_access,
-        'spotify_refresh': spotify_refresh,
-        'spotify_expires_at': spotify_expires_at,
+        'email': email,
       }),
       headers: headers,
       credentials: 'include',
@@ -478,9 +476,7 @@ export const checkUsersTracks = (
 
 export const removeUsersTracks = (
   recommendation, 
-  spotify_access, 
-  spotify_refresh,
-  spotify_expires_at
+  email,
 ) => async (dispatch) => {
 
   const getCookie = (name) => {
@@ -496,15 +492,11 @@ export const removeUsersTracks = (
       'X-CSRFToken': csrfToken,
     };
 
-    const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
-
-    const response = await fetch('/remove-users-tracks/', {
+    const response = await fetch('http://localhost:8000/remove-users-tracks/', {
       method: 'POST',
       body: JSON.stringify({ 
         'recommendation': recommendation,
-        'spotify_access': new_spotify_access ? new_spotify_access : spotify_access,
-        'spotify_refresh': spotify_refresh,
-        'spotify_expires_at': spotify_expires_at,
+        'email': email,
       }),
       headers: headers,
       credentials: 'include',
@@ -532,7 +524,7 @@ export const handleUpdateUsername = (userId, newUsername) => async (dispatch) =>
     const data = { userId, newUsername }; // Include the user ID and new username in an object
     const body = JSON.stringify(data);
 
-    const response = await fetch(`/update-username/${userId}/`, {
+    const response = await fetch(`http://localhost:8000/update-username/${userId}/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
@@ -582,7 +574,7 @@ export const createPlaylistRequest = async (
     };
     const body = JSON.stringify(data);
 
-    const response = await fetch(`/create-playlist/${userId}/`, {
+    const response = await fetch(`http://localhost:8000/create-playlist/${userId}/`, {
       headers: headers,
       method: 'POST', 
       body,

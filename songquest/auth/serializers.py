@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -10,41 +11,29 @@ from songquest.user.models import User
 
 
 class LoginSerializer(TokenObtainPairSerializer):
+    username = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    password = serializers.CharField(write_only=True)
+
     def validate(self, attrs):
-        # Check if 'spotify_access_token' is present in the request data
-        spotify_access_token = self.context['request'].data.get(
-            'spotify_access_token')
-        spotify_refresh_token = self.context['request'].data.get(
-            'spotify_refresh_token')
+        username = attrs.get('username')
+        email = attrs.get('email')
+        password = attrs.get('password')
 
-        if spotify_access_token:
-            # Handle Spotify authentication without requiring a password
-            user = User.objects.get(email=attrs['email'])
-            refresh = self.get_token(user)
-            refresh_token = str(refresh)
+        if (email or username) and password:
+            print(email)
+            print(username)
+            print(password)
+            user = authenticate(request=self.context.get('request'), 
+                                username=username, email=email, password=password)
 
-            if api_settings.UPDATE_LAST_LOGIN:
-                update_last_login(None, user)
+            if not user:
+                raise serializers.ValidationError('No active account found with the given credentials')
 
-            # Customize the data you want to return in the response
-            data = {
-                'user': UserSerializer(user).data,
-                'refresh': refresh_token,
-                'access': str(refresh.access_token),
-                'spotify_access': spotify_access_token,
-                'spotify_refresh': spotify_refresh_token,
-            }
-        else:
-            # Perform regular login validation
             data = super().validate(attrs)
-            user = User.objects.get(email=attrs['email'])
-            refresh = self.get_token(user)
-            refresh_token = str(refresh)
-            data['user'] = UserSerializer(user).data
-            data['refresh'] = refresh_token
-            data['access'] = str(refresh.access_token)
+            data.update({'user': UserSerializer(user).data})  # assuming UserSerializer is your user model serializer
 
-        return data
+            return data
 
 
 class RegisterSerializer(UserSerializer):
@@ -55,7 +44,7 @@ class RegisterSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'username', 'spotify_email', 'spotify_auth']
+        fields = ['email', 'password', 'username', 'spotify_auth']
 
     def create(self, validated_data):
         spotify_auth = validated_data.get('spotify_auth', False)
