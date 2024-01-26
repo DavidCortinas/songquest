@@ -48,6 +48,12 @@ export const refreshSpotifyAccess = (newAccessToken, expiresAt) => ({
   payload: { newAccessToken, expiresAt },
 });
 
+export const CONFIRM_SPOTIFY_ACCESS = 'CONFIRM_SPOTIFY_ACCESS';
+export const confirmSpotifyAccess = (spotifyConnection) => ({
+  type: CONFIRM_SPOTIFY_ACCESS,
+  payload: { spotifyConnection },
+});
+
 export const UPDATE_USERNAME = 'UPDATE_USERNAME';
 export const updateUsername = (newUsername) => ({
   type: UPDATE_USERNAME,
@@ -91,42 +97,68 @@ export const SET_QUERY_PARAMETER = 'SET_QUERY_PARAMETER';
 export const setQueryParameter = (query, parameter, newValues) => ({
   type: SET_QUERY_PARAMETER,
   payload: { query, parameter, newValues },
-})
+});
 
 export const RECEIVE_LYRIC_RESULTS = 'RECEIVE_LYRIC_RESULTS';
 export const receiveLyricResults = (tracks) => {
   return ({
   type: RECEIVE_LYRIC_RESULTS,
   payload: { tracks },
-})}
+})};
 
 export const RECEIVE_SPOTIFY_SONG_RESULTS = 'RECEIVE_SPOTIFY_SONG_RESULTS';
 export const receiveSongResults = (tracks) => ({
   type: RECEIVE_SPOTIFY_SONG_RESULTS,
   payload: { tracks },
-})
+});
 
 export const RECEIVE_SPOTIFY_PERFORMER_RESULTS = 'RECEIVE_SPOTIFY_PERFORMER_RESULTS';
 export const receivePerformerResults = (artists) => ({
   type: RECEIVE_SPOTIFY_PERFORMER_RESULTS,
   payload: { artists },
-})
+});
 
 export const RECEIVE_SPOTIFY_SEED_GENRES = 'RECEIVE_SPOTIFY_SEED_GENRES';
 export const receiveSpotifySeedGenres = (genres) => ({
   type: RECEIVE_SPOTIFY_SEED_GENRES,
   payload: { genres },
-}) 
+}) ;
 
 export const RECEIVE_SPOTIFY_MARKETS = 'RECEIVE_SPOTIFY_MARKETS';
 export const receiveSpotifyMarkets = (markets) => ({
   type: RECEIVE_SPOTIFY_MARKETS,
   payload: { markets },
-})
+});
 
 export const REQUEST_SPOTIFY_USER_AUTH = 'REQUEST_SPOTIFY_USER_AUTH';
 export const requestSpotifyUserAuth = () => ({
   type: REQUEST_SPOTIFY_USER_AUTH
-})
+});
+
+export const ADD_TO_CURRENT_PLAYLIST = 'ADD_TO_CURRENT_PLAYLIST';
+export const addToCurrentPlaylist = (...songs) => ({
+  type: ADD_TO_CURRENT_PLAYLIST,
+  payload: { songs },
+});
+
+export const REMOVE_FROM_CURRENT_PLAYLIST = 'REMOVE_FROM_CURRENT_PLAYLIST';
+export const removeFromCurrentPlaylist = (...songs) => ({
+  type: REMOVE_FROM_CURRENT_PLAYLIST,
+  payload: { songs },
+});
+
+export const CREATE_PLAYLIST = 'CREATE_PLAYLIST';
+export const createPlaylist = (playlist) => ({
+  type: CREATE_PLAYLIST,
+  payload: { playlist },
+});
+
+export const DELETE_PLAYLIST = 'DELETE_PLAYLIST';
+export const deletePlaylist = (...playlistIds) => ({
+  type: DELETE_PLAYLIST,
+  payload: { playlists: playlistIds },
+});
+
+
 
 

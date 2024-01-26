@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from songquest import views
+from songquest.payments import views as paymentViews
 from .songs.views import SongUploadView
 from django.views.generic import TemplateView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -19,6 +20,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/upload/', SongUploadView.as_view(), name='song-upload'),
     path('api/', include(('songquest.routers', 'songquest'), namespace='songquest-api')),
+    path('payments/', include('songquest.payments.urls')),
     path('api/get-access-token/', views.get_access_token_view,
          name='get-access-token'),
     path('request-authorization/', views.request_authorization,
@@ -35,8 +37,12 @@ urlpatterns = [
     path('create-playlist/<int:user_id>/',
          views.create_playlist, name='create-playlist'),
     path('search-lyrics/', views.search_lyrics, name='search-lyrics'),
+     path('create-payment-intent/', 
+          paymentViews.create_payment, name='create-payment'),
     path('<path>', TemplateView.as_view(
         template_name='index.html'), name='catch-all'),
+     path('get-openai-initial-response/', views.get_openai_initial_response),
+     path('get-openai-subsequent-response/', views.get_openai_subsequent_response),
 ]
 
 # urlpatterns += staticfiles_urlpatterns()

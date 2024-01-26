@@ -24,7 +24,7 @@ module.exports = (env, argv) => {
           use: ["style-loader", "css-loader"],
         },
         {
-          test: /\.(png|jpe?g|gif)$/i, // Add this rule for image files
+          test: /\.(png|jpe?g|svg|gif)$/i, // Add this rule for image files
           use: [
             {
               loader: 'file-loader',

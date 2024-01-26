@@ -14,6 +14,7 @@ import TopBar from './components/TopBar';
 import { Box, makeStyles } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
 import { SpotifyConnect } from './components/SpotifyConnect';
+import StripeCheckout from './components/StripeCheckout';
 
 
 const RoutesContainer = ({
@@ -55,7 +56,7 @@ const RoutesContainer = ({
       <Box className='main'>
         <TopBar collapse={true}/>
         <Routes>
-          <Route
+          {/* <Route
             exact
             path={'/'}
             element={
@@ -64,16 +65,16 @@ const RoutesContainer = ({
                 onDataLoaded={onDataLoaded}
               />
             }
-          />
-          {/* <Route
-            path={'/discover'}
+          /> */}
+          <Route
+            path={'/'}
             element={
               <SongDiscovery
                 onSearchPressed={onSearchPressed}
                 onDataLoaded={onDataLoaded}
               />
             }
-          /> */}
+          />
           {/* <Route
             path={'/lyric-search'}
             element={
@@ -99,6 +100,12 @@ const RoutesContainer = ({
             path={'/spotify-connect'}
             element={
               <SpotifyConnect />
+            }
+          />
+          <Route 
+            path={'/checkout'}
+            element={
+              <StripeCheckout />
             }
           />
           {/* <Route

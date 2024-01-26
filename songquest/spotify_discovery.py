@@ -215,6 +215,7 @@ def get_recommendations(parameters):
         #     print('Spotipy Album ID Error: ', e)
 
         try:
+            print('parameters: ', parameters)
 
             # Get the initial access token
             access_token, expires_in = get_access_token()
@@ -244,6 +245,7 @@ def get_recommendations(parameters):
             url = format_spotify_url(parameters)
 
             response = requests.get(url, headers=headers)
+            print('get recc response: ', response)
 
             if response.status_code == 200:
                 data = response.json()
