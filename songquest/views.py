@@ -12,6 +12,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.http import JsonResponse
 import urllib.parse
 from time import time
+
+from songquest.playlists.models import Playlist
 from .openai.playlistGenerator import initial_request, subsequent_requests
 from .chatgpt import ChatGPT
 from rest_framework import status
@@ -595,6 +597,15 @@ def get_users_playlists(request):
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
+def generate_unique_playlist_id():
+    # Implement your logic to generate a unique playlist ID
+    last_playlist = Playlist.objects.all().order_by('id').last()
+    if last_playlist:
+        return last_playlist.id + 1
+    else:
+        return 1
+
+
 @csrf_exempt
 def create_playlist(request, user_id):
     if request.method != 'POST':
@@ -638,8 +649,17 @@ def create_playlist(request, user_id):
         response = requests.post(spotify_url, headers=headers, data=body)
 
         if response.status_code == 201:
-            data = response.json()
-            return JsonResponse({ 'name': data['name'], 'spotify_id': data['id'] }, status=200)
+            spotify_data = response.json()
+            playlist_id = generate_unique_playlist_id()
+
+            playlist = Playlist.objects.create(
+                id=playlist_id,
+                name=spotify_data['name'],
+                spotify_id=spotify_data['id'],
+                user=user
+            )
+
+            return JsonResponse(playlist, status=200)
         else:
             return JsonResponse({'error': 'Failed to create playlist'}, status=response.status_code)
 
