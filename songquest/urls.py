@@ -29,20 +29,20 @@ urlpatterns = [
          name='spotify-auth-callback'),
     path('redirect/', views.spotify_redirect, name='spotify-redirect'),
     path('refresh-token/', views.refresh_access_token, name='refresh-token'),
-    path('add-to-spotify/', views.add_to_spotify, name='add-to-spotify'),
-    path('check-users-tracks/', views.check_users_tracks,
-         name='check-users-tracks'),
-    path('remove-users-tracks/', views.remove_users_tracks,
-         name='remove-users-tracks'),
     path('create-playlist/<int:user_id>/',
          views.create_playlist, name='create-playlist'),
-    path('search-lyrics/', views.search_lyrics, name='search-lyrics'),
      path('create-payment-intent/', 
           paymentViews.create_payment, name='create-payment'),
     path('<path>', TemplateView.as_view(
         template_name='index.html'), name='catch-all'),
-     path('get-openai-initial-response/', views.get_openai_initial_response),
-     path('get-openai-subsequent-response/', views.get_openai_subsequent_response),
+#     path('add-to-spotify/', views.add_to_spotify, name='add-to-spotify'),
+#     path('check-users-tracks/', views.check_users_tracks,
+#          name='check-users-tracks'),
+#     path('remove-users-tracks/', views.remove_users_tracks,
+#          name='remove-users-tracks'),
+#     path('search-lyrics/', views.search_lyrics, name='search-lyrics'),
+     # path('get-openai-initial-response/', views.get_openai_initial_response),
+     # path('get-openai-subsequent-response/', views.get_openai_subsequent_response),
 ]
 
 # urlpatterns += staticfiles_urlpatterns()

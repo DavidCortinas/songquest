@@ -1,5 +1,4 @@
 import { Box, Typography } from "@mui/material";
-// import openAiBadge from ''
 
 export const BottomContainer = () => {
     return (
@@ -15,14 +14,6 @@ export const BottomContainer = () => {
                 >
                     SongQuest
                 </Typography>
-                <img
-                    width='150px'
-                    // style={{
-                    // margin: '0 auto',
-                    // display: 'block', 
-                    // }}
-                    src={'/static/images/powered-by-openai-badge-outlined-on-dark.svg'}
-                />
                 <Typography 
                     variant='subtitle1' 
                     color='white'
@@ -35,10 +26,6 @@ export const BottomContainer = () => {
                 </Typography>
                 <img
                     width='100px'
-                    // style={{
-                    // margin: '0 auto',
-                    // display: 'block', 
-                    // }}
                     src={'/static/images/spotifyLogo.png'}
                 />
             </Box>

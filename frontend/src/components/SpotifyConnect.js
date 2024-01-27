@@ -1,9 +1,8 @@
 import { Box, Button, Card, CardHeader, Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Link } from 'react-router-dom';
 import theme from '../theme';
-import { Body } from './Home';
+import { Body } from './Body';
 
 const useStyles = makeStyles(() => (
   {
