@@ -1,21 +1,16 @@
-import React, { useEffect } from 'react';
-import SongForm from './components/SongForm';
-import SongDataTable from './components/SongDataTable';
+import React, { lazy, useEffect } from 'react';
 import Login from './components/Login';
 import { searchSongRequest } from './thunks';
 import { connect } from 'react-redux';
 import { searchSongSuccess } from './actions';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import Home from './components/Home';
-import { SongDetector } from './components/SongDetector';
-import SongDiscovery from './components/SongDiscovery';
-import { LyricSearch } from './components/LyricSearch';
 import TopBar from './components/TopBar';
-import { Box, makeStyles } from '@mui/material';
+import { Box } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
 import { SpotifyConnect } from './components/SpotifyConnect';
 import StripeCheckout from './components/StripeCheckout';
 
+const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 
 const RoutesContainer = ({
   query,
@@ -56,16 +51,6 @@ const RoutesContainer = ({
       <Box className='main'>
         <TopBar collapse={true}/>
         <Routes>
-          {/* <Route
-            exact
-            path={'/'}
-            element={
-              <Home 
-                onSearchPressed={onSearchPressed}
-                onDataLoaded={onDataLoaded}
-              />
-            }
-          /> */}
           <Route
             path={'/'}
             element={
@@ -75,21 +60,6 @@ const RoutesContainer = ({
               />
             }
           />
-          {/* <Route
-            path={'/lyric-search'}
-            element={
-              <LyricSearch />
-            }
-          /> */}
-          {/* <Route
-            path={'/search'}
-            element={
-              <SongForm
-                onSearchPressed={onSearchPressed}
-                onDataLoaded={onDataLoaded}
-              />
-            }
-          /> */}
           <Route 
             path={'/login'}
             element={
@@ -108,23 +78,6 @@ const RoutesContainer = ({
               <StripeCheckout />
             }
           />
-          {/* <Route
-            path={'/songdata'}
-            element={
-              <SongDataTable
-                query={query}
-                onSearchPressed={onSearchPressed}
-                onDataLoaded={onDataLoaded}
-                dataLoaded={dataLoaded}
-              />
-            }
-          /> */}
-          {/* <Route
-            path={'/song-detector'}
-            element={
-              <SongDetector />
-            }
-          /> */}
         </Routes>
         <BottomContainer />
       </Box>

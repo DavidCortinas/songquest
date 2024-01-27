@@ -10,9 +10,10 @@ import {
   receivePerformerResults, 
   receiveSpotifySeedGenres, 
   receiveSpotifyMarkets, 
-  refreshSpotifyAccess, 
+  // refreshSpotifyAccess, 
   updateUsername, 
-  receiveLyricResults
+  receiveLyricResults,
+  createPlaylist
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
@@ -200,25 +201,11 @@ export const discoverSongRequest = (parameters) => async (dispatch) => {
 
     dispatch(discoverSong(discovery, false, parameters))
     dispatch(discoverSongSuccess(discovery, true))
-
-    // Update the front end with the received data
-    // Dispatch both searchSong and searchSongSuccess actions
-    // dispatch(searchSong(songData, query, false));
-    // Dispatch searchSong action
-    // dispatch(searchSongSuccess(songData, query)); // Dispatch searchSongSuccess action with the query
     return discovery;
   } catch (error) {
     console.log('Error: ' + error.message);
-    dispatch(searchSongFailure(error.message));
-    // alert('We had trouble finding that song. Please make sure you are spelling the song correctly and enter the performer for the quickest and most accurate search result')
-    dispatch(
-      searchSongSuccess(
-        { ascap_results: {}, bmi_results: {} },
-        { song: '', performer: '' }
-      )
-    );
-  }
-}
+  };
+};
 
 export const SpotifyAuth = ({ children }) => {
   const [accessToken, setAccessToken] = useState('');
@@ -355,45 +342,45 @@ export const getSpotifyMarkets = (
   };
 }
 
-export const addToSpotify = (
-  recommendation, 
-  email,
-) => async (dispatch) => {
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  };
+// export const addToSpotify = (
+//   recommendation, 
+//   email,
+// ) => async (dispatch) => {
+//   const getCookie = (name) => {
+//     const value = `; ${document.cookie}`;
+//     const parts = value.split(`; ${name}=`);
+//     if (parts.length === 2) return parts.pop().split(';').shift();
+//   };
 
-  try {
-    const csrfToken = getCookie('csrftoken');
-    const headers = {
-      // 'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-    };
+//   try {
+//     const csrfToken = getCookie('csrftoken');
+//     const headers = {
+//       // 'Content-Type': 'application/json',
+//       'X-CSRFToken': csrfToken,
+//     };
 
-    const response = await fetch('http://localhost:8000/add-to-spotify/', {
-      method: 'POST',
-      body: JSON.stringify({ 
-        'recommendation': recommendation,
-        'email': email,
-      }),
-      headers: headers,
-      credentials: 'include',
-    });
+//     const response = await fetch('http://localhost:8000/add-to-spotify/', {
+//       method: 'POST',
+//       body: JSON.stringify({ 
+//         'recommendation': recommendation,
+//         'email': email,
+//       }),
+//       headers: headers,
+//       credentials: 'include',
+//     });
 
-    if (response.status === 200) {
-      // Authorization request was successful, you can handle the response here
-      console.log('Add to Spotify request successful');
-    } else {
-      // Handle other response statuses here (e.g., error handling)
-      console.error('Add to Spotify request failed');
-    }
-  } catch (error) {
-    // Handle any network errors or exceptions here
-    console.error('Error:', error);
-  }
-}
+//     if (response.status === 200) {
+//       // Authorization request was successful, you can handle the response here
+//       console.log('Add to Spotify request successful');
+//     } else {
+//       // Handle other response statuses here (e.g., error handling)
+//       console.error('Add to Spotify request failed');
+//     }
+//   } catch (error) {
+//     // Handle any network errors or exceptions here
+//     console.error('Error:', error);
+//   }
+// }
 
 export const checkTokenExpiration = async(
   headers, 
@@ -429,94 +416,94 @@ export const checkTokenExpiration = async(
     }
 }
 
-export const checkUsersTracks = (
-  recommendation,
-  email,
-) => async (dispatch) => {
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  };
+// export const checkUsersTracks = (
+//   recommendation,
+//   email,
+// ) => async (dispatch) => {
+//   const getCookie = (name) => {
+//     const value = `; ${document.cookie}`;
+//     const parts = value.split(`; ${name}=`);
+//     if (parts.length === 2) return parts.pop().split(';').shift();
+//   };
 
-  try {
-    const csrfToken = getCookie('csrftoken');
-    const headers = {
-      // 'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-    };
+//   try {
+//     const csrfToken = getCookie('csrftoken');
+//     const headers = {
+//       // 'Content-Type': 'application/json',
+//       'X-CSRFToken': csrfToken,
+//     };
 
-    // Continue with your API requests using the current or refreshed access token
-    const apiResponse = await fetch('http://localhost:8000/check-users-tracks/', {
-      method: 'POST', // Adjust the method and endpoint as needed
-      body: JSON.stringify({
-        'recommendation': recommendation,
-        'email': email,
-      }),
-      headers: headers,
-      credentials: 'include',
-    });
+//     // Continue with your API requests using the current or refreshed access token
+//     const apiResponse = await fetch('http://localhost:8000/check-users-tracks/', {
+//       method: 'POST', // Adjust the method and endpoint as needed
+//       body: JSON.stringify({
+//         'recommendation': recommendation,
+//         'email': email,
+//       }),
+//       headers: headers,
+//       credentials: 'include',
+//     });
 
-    if (apiResponse.status === 200) {
-      // Request was successful, you can handle the response here
-      console.log('API request successful');
-      const responseData = await apiResponse.json();
+//     if (apiResponse.status === 200) {
+//       // Request was successful, you can handle the response here
+//       console.log('API request successful');
+//       const responseData = await apiResponse.json();
 
-      return responseData;
-    } else {
-      // Handle other response statuses here (e.g., error handling)
-      console.error('API request failed');
-    }
-  } catch (error) {
-    // Handle any network errors or exceptions here
-    console.error('Error:', error);
-  }
-};
+//       return responseData;
+//     } else {
+//       // Handle other response statuses here (e.g., error handling)
+//       console.error('API request failed');
+//     }
+//   } catch (error) {
+//     // Handle any network errors or exceptions here
+//     console.error('Error:', error);
+//   }
+// };
 
 
-export const removeUsersTracks = (
-  recommendation, 
-  email,
-) => async (dispatch) => {
+// export const removeUsersTracks = (
+//   recommendation, 
+//   email,
+// ) => async (dispatch) => {
 
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  };
+//   const getCookie = (name) => {
+//     const value = `; ${document.cookie}`;
+//     const parts = value.split(`; ${name}=`);
+//     if (parts.length === 2) return parts.pop().split(';').shift();
+//   };
 
-  try {
-    const csrfToken = getCookie('csrftoken');
-    const headers = {
-      // 'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-    };
+//   try {
+//     const csrfToken = getCookie('csrftoken');
+//     const headers = {
+//       // 'Content-Type': 'application/json',
+//       'X-CSRFToken': csrfToken,
+//     };
 
-    const response = await fetch('http://localhost:8000/remove-users-tracks/', {
-      method: 'POST',
-      body: JSON.stringify({ 
-        'recommendation': recommendation,
-        'email': email,
-      }),
-      headers: headers,
-      credentials: 'include',
-    });
+//     const response = await fetch('http://localhost:8000/remove-users-tracks/', {
+//       method: 'POST',
+//       body: JSON.stringify({ 
+//         'recommendation': recommendation,
+//         'email': email,
+//       }),
+//       headers: headers,
+//       credentials: 'include',
+//     });
 
-    if (response.status === 200) {
-      // request was successful, you can handle the response here
-      console.log('Remove users tracks request successful');
-      const responseData = await response.json();
+//     if (response.status === 200) {
+//       // request was successful, you can handle the response here
+//       console.log('Remove users tracks request successful');
+//       const responseData = await response.json();
 
-      return responseData
-    } else {
-      // Handle other response statuses here (e.g., error handling)
-      console.error('Remove users tracks request failed');
-    }
-  } catch (error) {
-    // Handle any network errors or exceptions here
-    console.error('Error:', error);
-  };
-};
+//       return responseData
+//     } else {
+//       // Handle other response statuses here (e.g., error handling)
+//       console.error('Remove users tracks request failed');
+//     }
+//   } catch (error) {
+//     // Handle any network errors or exceptions here
+//     console.error('Error:', error);
+//   };
+// };
 
 export const handleUpdateUsername = (userId, newUsername) => async (dispatch) => {
   try {
@@ -549,30 +536,21 @@ export const handleUpdateUsername = (userId, newUsername) => async (dispatch) =>
 
 };
 
-export const createPlaylistRequest = async (
+export const createPlaylistRequest = (
   userId, 
-  playlistName, 
-  playlistDescription, 
-  isPublic, 
-  spotify_access,
-  spotify_refresh,
-  spotify_expires_at,
-) => {
+  playlist, 
+) => async (dispatch) => {
+  console.log(userId)
+  console.log(playlist)
+
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, 
     }
-    const new_spotify_access = await checkTokenExpiration(headers, spotify_access, spotify_refresh, spotify_expires_at)
-    const data = { 
-      user_id: userId, 
-      name: playlistName, 
-      description: playlistDescription, 
-      public: isPublic,
-      spotify_access: new_spotify_access ? new_spotify_access : spotify_access,
-    };
-    const body = JSON.stringify(data);
+
+    const body = JSON.stringify(playlist);
 
     const response = await fetch(`http://localhost:8000/create-playlist/${userId}/`, {
       headers: headers,
@@ -584,40 +562,42 @@ export const createPlaylistRequest = async (
       throw new Error('Request failed with status ' + response.status);
     }
 
-    const res = await response.json();    
+    const res = await response.json(); 
+    console.log('playlist create result: ', res)
+    dispatch(createPlaylist);
   } catch (error) {
     console.log('Error: ' + error.message);
   };
 
 };
 
-export const sendLyricsToServer = async (lyrics) => {
-  try {
-    const csrfToken = await getCSRFToken();
+// export const sendLyricsToServer = async (lyrics) => {
+//   try {
+//     const csrfToken = await getCSRFToken();
 
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-    };
+//     const headers = {
+//       'Content-Type': 'application/json',
+//       'X-CSRFToken': csrfToken,
+//     };
 
-    const response = await fetch('/search-lyrics/', {
-      method: 'POST',
-      headers: headers,
-      body: lyrics,
-    });
+//     const response = await fetch('/search-lyrics/', {
+//       method: 'POST',
+//       headers: headers,
+//       body: lyrics,
+//     });
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
+//     if (!response.ok) {
+//       throw new Error('Request failed with status ' + response.status);
+//     }
 
-    const result = await response.json();
-    const tracks = result['combined_tracks_info']
+//     const result = await response.json();
+//     const tracks = result['combined_tracks_info']
     
-    return tracks
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
+//     return tracks
+//   } catch (error) {
+//     console.error('Error:', error);
+//   }
+// };
 
 
 

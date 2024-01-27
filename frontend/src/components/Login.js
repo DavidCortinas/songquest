@@ -1,16 +1,19 @@
-import { Box, Button, Card, CardHeader, Grid, TextField, Typography, useMediaQuery } from "@mui/material";
+import { 
+    Box, 
+    Button, 
+    CardHeader, 
+    Grid, 
+    TextField, 
+    useMediaQuery } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { connect, useDispatch } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import theme from '../theme'
 import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { LoadingState } from './LoadingState';
 import { checkRegistration, getSpotifyUserAuth, handleUpdateUsername, login, registerUser } from "../thunks";
-import { requestSpotifyUserAuth, setCurrentUser, updateUsername } from "../actions";
-import { autoBatchEnhancer } from "@reduxjs/toolkit";
-import { Body } from "./Home";
+import { setCurrentUser } from "../actions";
 
 const useStyles = makeStyles(() => (
   {
@@ -381,27 +384,6 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                             />
                                         </Box>
                                         <br />
-                                        {/* <Typography marginBottom='1em' textAlign='center' color='whitesmoke'>Or Connect Through:</Typography>
-                                        <Button
-                                            sx={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                '&:hover': {
-                                                backgroundColor: 'transparent !important', // Add !important to override other styles
-                                                },
-                                            }}
-                                            onClick={handleConnectThroughSpotify} // Call the handleConnectThroughSpotify function
-                                            >
-                                            <img
-                                                width='150em'
-                                                style={{
-                                                margin: '0 auto',
-                                                display: 'block', 
-                                                }}
-                                                src={'/static/images/spotifyLogo.png'}
-                                            />
-                                            </Button> */}
                                         <br />
                                         <Grid className={classes.buttonsContainer}>
                                             <Button
@@ -655,13 +637,6 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                         </Box>
                     </>     
                 )}
-            {/* <Body 
-                isSmScreen={isSmScreen} 
-                isXsScreen={isXsScreen}
-                isMdScreen={isMdScreen}
-                isLgScreen={isLgScreen} 
-                isXlScreen={isXlScreen} 
-            /> */}
         </>
     )
 };

@@ -302,16 +302,14 @@ export const playlist = (state = {playlists: [], currentPlaylist: []}, action) =
         ))
       };
     case CREATE_PLAYLIST:
-      if (state.playlists.some(pl => pl.name === payload.playlist.name)) {
-        console.log('Error: ' + 'You already have a playlist with this name.')
-        console.log('Rename your new playlist to save.')
+      if (state.playlists.some(pl => pl.id === payload.playlist.id)) {
+        console.log('Error: ' + 'A playlist with this ID already exists.');
+        console.log('Please use a different ID for your new playlist.');
         return state;
-      };
+      }
       return {
         ...state,
-        playlists: [...state.playlists, {
-          ...payload.playlist, id: generateUniqueId(), spotifyId: null 
-        }]
+        playlists: [...state.playlists, payload.playlist]
       };
     case DELETE_PLAYLIST:
       return {

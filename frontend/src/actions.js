@@ -82,12 +82,6 @@ export const discoverSongSuccess = (recommendations, dataLoaded) => {
   };
 };
 
-export const DISCOVER_SONG_FAILURE = 'DISCOVER_SONG_FAILURE';
-export const discoverSongFailure = (error) => ({
-  type: DISCOVER_SONG_FAILURE,
-  payload: error,
-}); 
-
 export const RESET_QUERY_PARAMETER = 'RESET_QUERY_PARAMETER';
 export const resetQueryParameter = () => ({
   type: RESET_QUERY_PARAMETER,
