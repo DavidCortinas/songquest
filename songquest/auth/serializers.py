@@ -11,56 +11,56 @@ from songquest.user.models import User
 
 
 class LoginSerializer(TokenObtainPairSerializer):
-    username = serializers.CharField(required=False)
-    email = serializers.EmailField(required=False)
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        username = attrs.get('username')
         email = attrs.get('email')
         password = attrs.get('password')
 
-        if (email or username) and password:
-            print(email)
-            print(username)
-            print(password)
-            user = authenticate(request=self.context.get('request'), 
-                                username=username, email=email, password=password)
+        # Authenticate primarily using email
+        user = authenticate(request=self.context.get('request'), 
+                            username=email, password=password)
 
-            if not user:
-                raise serializers.ValidationError('No active account found with the given credentials')
+        if not user:
+            raise serializers.ValidationError('No active account found with the given credentials')
 
-            data = super().validate(attrs)
-            data.update({'user': UserSerializer(user).data})  # assuming UserSerializer is your user model serializer
+        # Assuming UserSerializer is your user model serializer
+        data = super().validate(attrs)
+        data.update({'user': UserSerializer(user).data})
 
-            return data
+        return data
 
 
-class RegisterSerializer(UserSerializer):
-    password = serializers.CharField(
-        max_length=128, min_length=8, write_only=True, required=False)
+from django.contrib.auth import get_user_model
+from rest_framework import serializers
+
+User = get_user_model()
+
+class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True, write_only=True, max_length=128)
+    password = serializers.CharField(
+        max_length=128, min_length=8, write_only=True)
+    username = serializers.CharField(
+        required=True, max_length=150)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'username', 'spotify_auth']
+        fields = ['email', 'password', 'username']
 
     def create(self, validated_data):
-        spotify_auth = validated_data.get('spotify_auth', False)
+        # Check if a user with this email already exists
+        if User.objects.filter(email=validated_data['email']).exists():
+            raise serializers.ValidationError(
+                {"email": "A user with that email already exists."})
 
-        if not spotify_auth:
-            # If not using Spotify Auth, require the password
-            password = validated_data.get('password')
-            if not password:
-                raise serializers.ValidationError(
-                    "Password is required for non-Spotify authentication.")
-
-        try:
-            user = User.objects.get(email=validated_data['email'])
-        except ObjectDoesNotExist:
-            # Exclude the password field when creating the user
-            validated_data.pop('password', None)
-            user = User.objects.create_user(**validated_data)
+        # Create the user
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            password=validated_data['password']
+        )
 
         return user
+

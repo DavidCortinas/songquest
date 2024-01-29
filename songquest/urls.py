@@ -27,10 +27,12 @@ urlpatterns = [
          name='request-authorization'),
     path('auth/spotify/callback/', views.handle_spotify_callback,
          name='spotify-auth-callback'),
-    path('redirect/', views.spotify_redirect, name='spotify-redirect'),
+#     path('redirect/', views.spotify_redirect, name='spotify-redirect'),
     path('refresh-token/', views.refresh_access_token, name='refresh-token'),
     path('create-playlist/<int:user_id>/',
          views.create_playlist, name='create-playlist'),
+    path('add-to-playlist/<str:playlist_id>/',
+         views.add_to_playlist, name='create-playlist'),
      path('create-payment-intent/', 
           paymentViews.create_payment, name='create-payment'),
     path('<path>', TemplateView.as_view(

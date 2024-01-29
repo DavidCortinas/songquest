@@ -233,6 +233,7 @@ redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
 
 @csrf_exempt
 def request_authorization(request):
+    current_user = request.user
     # Generate a state and store it in the session for later verification
     state = generate_random_string(16)
     request.session['spotify_state'] = state
@@ -329,163 +330,82 @@ def get_spotify_user_display_name(access_token):
         return None  # Email not available
 
 
-def spotify_redirect(request):
-    # Extract any necessary data from the original request
-    email = request.GET.get('email')
-    user = User.objects.get(email=email)
+def get_spotify_token_info(code):
+    # Define your Spotify API credentials
+    client_id = os.environ.get('SPOTIFY_CLIENT_ID')
+    client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
+    redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
 
-    spotify_access = request.GET.get('spotify_access_token')
-    spotify_refresh = request.GET.get('spotify_refresh_token')
-    spotify_expires_at = request.GET.get('spotify_expires_at')
+    # Prepare the data to send to the Spotify API to obtain an access token
+    token_data = {
+        'code': code,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code'
+    }
 
-    user.spotify_access = spotify_access
-    user.spotify_refresh = spotify_refresh
-    user.spotify_expires_at = spotify_expires_at
-    user.save()
+    # Encode the client_id and client_secret in base64
+    credentials = f'{client_id}:{client_secret}'.encode('utf-8')
+    encoded_credentials = base64.b64encode(credentials).decode('utf-8')
+    headers = {
+        'Authorization': f'Basic {encoded_credentials}',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
 
-    spotify_connection = bool(user.spotify_refresh)
+    # Make a POST request to Spotify API to obtain the access token
+    token_response = requests.post(
+        'https://accounts.spotify.com/api/token', data=token_data, headers=headers)
 
-    # Define the target URL where you want to redirect
-    target_url = f'http://localhost:3000/?spotify_connection={spotify_connection}'
-
-    # Redirect the user's browser to the target URL
-    return HttpResponseRedirect(target_url)
-
-
-def get_spotify_token_info(request):
-    logging.info('Get Spotify Token: {request}')
-    code = request.GET.get('code', None)
-    state = request.GET.get('state', None)
-
-    if state is None:
-        # Redirect with an error message
-        error_params = {'error': 'state_mismatch'}
-        return HttpResponseRedirect(reverse('your_redirect_view_name') + '?' + urlencode(error_params))
+    if token_response.status_code == 200:
+        # Successfully obtained access token
+        token_info = token_response.json()
+        return token_info
     else:
-        # Define your Spotify API credentials
-        client_id = os.environ.get('SPOTIFY_CLIENT_ID')
-        logging.info(f'Client ID: {client_id}')
-        client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
-        logging.info(f'Client Secret: {client_secret}')
-        redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
-        logging.info(f'Redirect URI: {redirect_uri}')
-
-        # Prepare the data to send to the Spotify API to obtain an access token
-        token_data = {
-            'code': code,
-            'redirect_uri': redirect_uri,
-            'grant_type': 'authorization_code'
-        }
-
-        # Encode the client_id and client_secret in base64
-        credentials = f'{client_id}:{client_secret}'.encode('utf-8')
-        encoded_credentials = base64.b64encode(credentials).decode('utf-8')
-        headers = {
-            'Authorization': f'Basic {encoded_credentials}',
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-
-        # Make a POST request to Spotify API to obtain the access token
-        token_response = requests.post(
-            'https://accounts.spotify.com/api/token', data=token_data, headers=headers)
-
-        if token_response.status_code == 200:
-            # Successfully obtained access token
-            token_info = token_response.json()
-            return token_info
-
-        else:
-            # Handle the error, possibly by redirecting to an error page
-            error_message = 'Failed to obtain access token from Spotify API.'
-            return render(request, 'error.html', {'error_message': error_message})
+        # Log or handle the error appropriately
+        logging.error('Failed to obtain access token from Spotify API')
+        return None
 
 
+@csrf_exempt
 def handle_spotify_callback(request):
-    token_info = get_spotify_token_info(request)
-    if token_info is not None:
-        access_token = token_info.get('access_token')
-        # Rest of your code...
-    else:
-        logging.warning('Token info is None in handle_spotify_callback')
-    access_token = token_info.get('access_token')
-    refresh_token = token_info.get('refresh_token')
-    expires_at = time() + token_info.get('expires_in', 0)
+    # Extract the body of the POST request
+    body_unicode = request.body.decode('utf-8')
+    body_data = json.loads(body_unicode)
+    code = body_data.get('code')
+    user_id = body_data.get('userId')
+    User = get_user_model()
+    user = User.objects.get(id=user_id)
 
-    spotify_email = get_spotify_user_email(access_token)
-    spotify_display_name = get_spotify_user_display_name(access_token)
-    existing_user = check_user_exists(spotify_email)
+    if code:
+        token_info = get_spotify_token_info(code)
 
-    if existing_user:
-        token_request_data = {
-            'spotify_access_token': access_token,
-            'spotify_refresh_token': refresh_token,
-            'spotify_expires_at': expires_at,
-        }
+        if token_info and 'access_token' in token_info:
+            access_token = token_info['access_token']
+            refresh_token = token_info.get('refresh_token')
+            expires_at = time() + token_info.get('expires_in', 0)
 
-        # Check if the user is logged in
-        if request.user.is_authenticated:
-            print('isAuth')
-            print(request.user)
-            user_data = {
-                'email': request.user.email,
-                'username': request.user.username,
-                'spotify_access_token': access_token,
-                'spotify_refresh_token': refresh_token,
-                'spotify_expires_at': expires_at,
-            }
+            # Associate token info with the current user
+            user.spotify_access = access_token
+            user.save()
+            user.spotify_refresh = refresh_token
+            user.save()
+            user.spotify_expires_at = expires_at
+            user.save()
 
-            query_string = urllib.parse.urlencode(user_data)
+            spotify_connection = bool(user.spotify_refresh)
 
-            redirect_url = f'/redirect/?{query_string}'
+            # Define the target URL where you want to redirect
+            target_url = f'http://localhost:3000/?spotify_connection={spotify_connection}'
 
-            return redirect(redirect_url)
-
+            # Redirect the user's browser to the target URL
+            return HttpResponseRedirect(target_url)
         else:
-            # User is not logged in
-            print('User is not logged in')
-
-        # Build a query string with user data
-        user_data_query = '&'.join(
-            [f"{key}={value}" for key, value in token_request_data.items()])
-
-        # Redirect to your frontend with user data as query parameters
-        redirect_url = f'http://localhost:3000/?{user_data_query}'
-
-        return redirect(redirect_url)
-
+            # Handle error: token not in response or token_info is None
+            logging.error("Error retrieving access token from Spotify or token_info is None")
+            return redirect('/error/')
     else:
-        # password = secrets.token_hex(16)
-        user_data = {
-            'email': spotify_email,
-            'spotify_email': spotify_email,
-            'spotify_auth': True,
-        }
-        json_data = json.dumps(user_data)
-
-        api_url = os.environ.get('REACT_APP_API_URL')
-
-        registration_response = requests.post(
-            f'{api_url}/auth/register/',
-            data=json_data,
-            headers={'Content-Type': 'application/json'}
-        )
-
-        if registration_response.status_code == 201:
-            user_data = {
-                'email': spotify_email,
-                'username': spotify_display_name,
-                'spotify_access_token': access_token,
-                'spotify_refresh_token': refresh_token,
-                'spotify_expires_at': expires_at,
-            }
-
-    # Build a query string with user data
-    user_data_query = '&'.join(
-        [f"{key}={value}" for key, value in user_data.items()])
-
-    # Redirect to your frontend with user data as query parameters
-    redirect_url = f'/?{user_data_query}'
-    return redirect(redirect_url)
+        # No code in request, handle accordingly
+        logging.error("No authorization code provided")
+        return redirect('/error/')
 
 
 def token_expired(expiration_time):
@@ -608,6 +528,8 @@ def generate_unique_playlist_id():
 
 @csrf_exempt
 def create_playlist(request, user_id):
+    user = request.user
+    print(user)
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -615,12 +537,14 @@ def create_playlist(request, user_id):
         data = json.loads(request.body.decode('utf-8'))
         print('create data: ', data)
         user = User.objects.get(id=user_id)
-
         spotify_access = user.spotify_access
         spotify_refresh = user.spotify_refresh
         expires_at = user.spotify_expires_at
+        print('before')
+        print(expires_at)
 
         if token_expired(expires_at):
+            print('if')
             token_info = refresh_spotify_access(spotify_refresh)
             print('token_info: ', token_info)
             if token_info:
@@ -630,8 +554,9 @@ def create_playlist(request, user_id):
                 print('refreshed spotify_expires_at: ', spotify_expires_at)
             else:
                 return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
-                
+        print('then')      
         spotify_user = get_spotify_user_data(spotify_access)
+        print(spotify_user)
 
         spotify_user_id = spotify_user['id']
         spotify_url = f"https://api.spotify.com/v1/users/{spotify_user_id}/playlists"  # Ensure the URL is correct
@@ -659,7 +584,14 @@ def create_playlist(request, user_id):
                 user=user
             )
 
-            return JsonResponse(playlist, status=200)
+            playlist_data = {
+                'id': playlist.id,
+                'name': playlist.name,
+                'spotify_id': playlist.spotify_id,
+                # Add any other fields you want to include
+            }
+
+            return JsonResponse(playlist_data, status=200)
         else:
             return JsonResponse({'error': 'Failed to create playlist'}, status=response.status_code)
 
@@ -669,12 +601,13 @@ def create_playlist(request, user_id):
 
 
 @csrf_exempt
-def add_to_playlist(request, user_id):
+def add_to_playlist(request, playlist_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
     try:
         data = json.loads(request.body.decode('utf-8'))
+        user_id = data['user']
         print('add data: ', data)
         user = User.objects.get(id=user_id)
 
@@ -692,12 +625,8 @@ def add_to_playlist(request, user_id):
                 print('refreshed spotify_expires_at: ', spotify_expires_at)
             else:
                 return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
-                
-        spotify_user = get_spotify_user_data(spotify_access)
-        print('user: ', spotify_user)
 
-        spotify_user_id = spotify_user['id']
-        spotify_url = f"https://api.spotify.com/v1/playlists/{spotify_user_id}/tracks"  # Ensure the URL is correct
+        spotify_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"  # Ensure the URL is correct
 
         headers = {
             'Authorization': f'Bearer {spotify_access}',
@@ -705,8 +634,7 @@ def add_to_playlist(request, user_id):
         }
         
         body = json.dumps({
-            'name': data['name'],
-            'description': 'Created with SongQuest',
+            'uris': data['tracks'],
         })
 
         response = requests.post(spotify_url, headers=headers, data=body)

@@ -33,7 +33,12 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
 
 # Application definition
 
-CORS_ALLOW_HEADERS = ['x-csrftoken', "X-CSRFToken", 'Content-Type']
+CORS_ALLOW_HEADERS = [
+    'x-csrftoken', 
+    "X-CSRFToken", 
+    'Content-Type', 
+    'Authorization',
+]
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8000',
@@ -129,12 +134,22 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'songquest',
-        'USER': 'cortinas',
-        'PASSWORD': 'mQ!%jqV9e~$4=due',
+        'USER': 'david',
+        'PASSWORD': 'tootall33',
         'HOST': 'localhost',
         'PORT': '',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'songquest',
+#         'USER': 'cortinas',
+#         'PASSWORD': 'mQ!%jqV9e~$4=due',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 
 # Password validation
@@ -158,7 +173,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'songquest.auth.backends.EmailOrUsernameBackend',
-    'songquest.authentication.SpotifyBackend',
+    # 'songquest.authentication.SpotifyBackend',
 ]
 
 LOGGING = {

@@ -147,6 +147,15 @@ export const createPlaylist = (playlist) => ({
   payload: { playlist },
 });
 
+export const ADD_TO_SAVED_PLAYLIST = 'ADD_TO_SAVED_PLAYLIST';
+export const addToSavedPlaylist = (playlistId, items) => ({
+  type: ADD_TO_SAVED_PLAYLIST,
+  payload: { 
+    playlistId, 
+    items: Array.isArray(items) ? items : [items] 
+  },
+});
+
 export const DELETE_PLAYLIST = 'DELETE_PLAYLIST';
 export const deletePlaylist = (...playlistIds) => ({
   type: DELETE_PLAYLIST,

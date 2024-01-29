@@ -1,4 +1,4 @@
-import React, { lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import {
   Box,
@@ -13,6 +13,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { useForm } from 'react-hook-form';
 import { makeStyles, useTheme } from '@mui/styles';
 import { 
+  addToSavedPlaylistRequest,
   createPlaylistRequest,
   // addToSpotify, 
   // checkUsersTracks, 
@@ -35,6 +36,7 @@ import { useLocation } from 'react-router-dom';
 import { Body } from './Body';
 import { LeftPanel } from './SidePanels/LeftPanel';
 import { RightPanel } from './SidePanels/RightPanel';
+import { startTransition } from 'react';
 
 const Recommendations = lazy(() => import('./Recommendations'))
 const SpotifyForm = lazy(() => import('./SpotifyForm/SpotifyForm'))
@@ -110,7 +112,7 @@ const useStyles = makeStyles(() => (
     backgroundColor: '#30313d',
     borderRadius: '8px',
     boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-    marginRight: '10px',
+    margin: '0 10px 0 0',
     [theme.breakpoints.down('md')]: {
       width: '100%',
       paddingRight: '0',
@@ -159,9 +161,7 @@ const useStyles = makeStyles(() => (
     listStyle: 'none',
   },
   currentPlaylistUl: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    margin: '0 5% 0 0',
     listStyle: 'none',
   },
   recommendationsUl: {
@@ -262,6 +262,7 @@ export const SongDiscovery = ({
     onAddToCurrentPlaylist,
     onRemoveFromCurrentPlaylist,
     onCreatePlaylist,
+    onAddToSavedPlaylist,
     onDeletePlaylist,
  }) => {
   const theme = useTheme();
@@ -372,18 +373,20 @@ export const SongDiscovery = ({
 
   const dispatch = useDispatch();
 
-  const onSubmit = async () => {
-
+  const onSubmit = () => {
     setIsLoading(true);
     setOpenModal(false);
 
-    try {
-        await onSearchPressed(parameters); 
+    startTransition(() => {
+      onSearchPressed(parameters)
+      .then(() => {
         setIsLoading(false);
-    } catch (error) {
-      console.log('Error: ', error);
-      setIsLoading(false);
-    }
+      })
+      .catch((error) => {
+        console.log('Error: ', error);
+        setIsLoading(false);
+      })
+    })
   };
 
   useEffect(() => {
@@ -446,8 +449,22 @@ export const SongDiscovery = ({
       tracks: currentPlaylist
     }
 
-    // userId, playlist, spotify_access, spotify_refresh, spotify_expires_at
-    onCreatePlaylist(user.user.id, newPlaylist);
+    onCreatePlaylist(user.user.id, newPlaylist)
+      .then(createdPlaylist => {
+        console.log('created: ', createdPlaylist)
+        const spotifyId = createdPlaylist.spotify_id;
+        const trackUris = newPlaylist.tracks.map(track => track.uri);
+        console.log('onCreate: ', spotifyId)
+        console.log('onCreate: ', trackUris)
+
+        return onAddToSavedPlaylist(spotifyId, user.user.id, trackUris);
+      })
+      .then(response => {
+        console.log("Playlist created and tracks added", response);
+      })
+      .catch(error => {
+        console.log("Error in creating playlist and adding tracks: ", error);
+      });
   };
 
   const handleDeletePlaylist = (playlistId) => {
@@ -517,7 +534,7 @@ export const SongDiscovery = ({
 
   const getPlaylistItems = (playlist) => {
     return (
-      playlist.tracks.map((track, index) => (
+      playlist.tracks?.map((track, index) => (
         <Typography>
           {`${track.name} - ${track.artists.map((a) => ` ${a.name}`)}`}
         </Typography>
@@ -546,6 +563,7 @@ export const SongDiscovery = ({
                 : 'h5',
               textAlign: 'center',
               color: 'white',
+              letterSpacing: '1px',
             }}
             // subheader={!isXsScreen &&
             //   "Begin your journey by selecting the AI model you would like to copilot your quest"}
@@ -665,16 +683,18 @@ export const SongDiscovery = ({
                     </Button>
                   </Tooltip>
                 </Box>
-                <Recommendations 
-                  classes={classes} 
-                  recommendations={discoveryRecommendations}
-                  user={user}
-                  currentPlaylist={currentPlaylist}
-                  onAddToCurrentPlaylist={onAddToCurrentPlaylist}
-                  onRemoveFromCurrentPlaylist={onRemoveFromCurrentPlaylist}
-                  songsToAdd={songsToAdd}
-                  setSongsToAdd={setSongsToAdd}
-                />
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Recommendations 
+                    classes={classes} 
+                    recommendations={discoveryRecommendations}
+                    user={user}
+                    currentPlaylist={currentPlaylist}
+                    onAddToCurrentPlaylist={onAddToCurrentPlaylist}
+                    onRemoveFromCurrentPlaylist={onRemoveFromCurrentPlaylist}
+                    songsToAdd={songsToAdd}
+                    setSongsToAdd={setSongsToAdd}
+                  />
+                </Suspense>
               </Box>    
             ) : !isLoading && (
                 <Body 
@@ -732,6 +752,7 @@ const mapDispatchToProps = (dispatch) => ({
   onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
   onRemoveFromCurrentPlaylist: (...songs) => dispatch(removeFromCurrentPlaylist(...songs)),
   onCreatePlaylist: (userId, playlist) => dispatch(createPlaylistRequest(userId, playlist)),
+  onAddToSavedPlaylist: (playlistId, userId, ...songs) => dispatch(addToSavedPlaylistRequest(playlistId, userId, ...songs)),
   onDeletePlaylist: (plalistId) => {dispatch(deletePlaylist(plalistId))},
 });
 

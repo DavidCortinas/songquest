@@ -72,7 +72,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
               paddingRight: '15px'
            }}
           />
-          <Typography variant="h5" component="div" color='white'>
+          <Typography variant="h5" component="div" color='white' letterSpacing='2px'>
             SongQuest
           </Typography>
         </Link>
@@ -110,7 +110,11 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
               color: 'white',
             }}
           >
-            {!isXsScreen && !isSmScreen && <Typography variant='h6'>Login/SignUp</Typography>}
+            {!isXsScreen && !isSmScreen && (
+              <Typography variant='h6' letterSpacing='1px'>
+                Login/SignUp
+              </Typography>
+            )}
             <LoginIcon />
           </IconButton>
         : 

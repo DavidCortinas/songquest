@@ -8,7 +8,76 @@ import {
     Typography
 } from "@mui/material";
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import CircleIcon from '@mui/icons-material/Circle';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
+
+const PlaylistItemCard = ({ item, key }) => {
+  const songName = item?.name
+  const artists = item?.artists.map(artist => artist.name).join(', ');
+  const imgUrl = item?.album.images[2].url
+
+  return (
+    <Card 
+      key={key} 
+      sx={{ 
+        display: 'flex', 
+        width: '18vw',
+        height: '10vh', 
+        // alignItems: 'center' ,
+        overflow: 'hidden',
+        borderRadius: '8px',
+        backgroundColor: '#282828',
+        boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+        opacity: '0.9',
+        paddingLeft: '2%',
+      }}>
+      <img 
+        src={imgUrl} 
+        style={{
+          maxWidth: '100%',       
+          height: 'auto',
+          padding: '2% 2% 2% 2vw',         
+        }} 
+      />
+      <Box>
+        <Typography  
+          variant='subtitle2' 
+          color='white'
+          sx={{
+            maxHeight: '30%',
+            maxWidth: '100%',
+            overflowY: 'auto',
+          }}
+        >
+          {songName}
+        </Typography>
+        <Typography 
+          variant='subtitle2' 
+          color='white' 
+          sx={{ 
+            fontWeight: 'bold', 
+            display: 'flex', 
+            maxWidth: '100%',
+            overflowY: 'auto', 
+          }}
+        >
+          {artists}
+        </Typography>
+      </Box>
+      <img 
+        src='/static/images/Spotify_Icon_RGB_White.png' 
+        style={{ 
+          maxWidth: '8%', 
+          height: 'auto',
+          position: 'absolute',
+          right: 20,
+          bottom:15,
+        }}
+      />
+    </Card>
+  );
+};
 
 export const RightPanel = ({
     classes,
@@ -52,13 +121,15 @@ export const RightPanel = ({
                 InputLabelProps={{
                   sx: {
                     color: 'white',
-                    marginLeft: '5px'
+                    marginLeft: '5px',
+                    fontSize: '80%',
                   }
                 }}
                 InputProps={{
                   sx: {
                     color: 'white',
-                    marginLeft: '5px'
+                    marginLeft: '5px',
+                    fontSize: '90%'
                   }
                 }}
               />
@@ -70,15 +141,21 @@ export const RightPanel = ({
                 </Button>
               </Tooltip>
             </Box>
+          <Box>
             <Tooltip
-              title={songsToRemove.length === 0 ? 'Select all tracks in current playlist' : 'Deselect All From Playlist'}
+              title={
+                songsToRemove.length === 0 ? 
+                'Select all tracks in current playlist' : 
+                'Deselect all tracks in current playlist'
+              }
             >
               <Button onClick={handlePlaylistSelectAll}>
                 <Typography variant='subtitle2'>
-                  {songsToRemove.length === 0 ? 'Select All From Playlist' : 'Deselect All From Playlist'}
+                  {songsToRemove.length === 0 ? 'Select All' : 'Deselect All'}
                 </Typography>
               </Button>
             </Tooltip>
+          </Box>
           </Box>
           {currentPlaylist.length > 0 ? (
             <ul 
@@ -100,47 +177,46 @@ export const RightPanel = ({
                     <Tooltip
                       title='Select song from playlist'
                     >
-                      <Checkbox 
+                      <Checkbox
+                        icon={<CircleIcon sx={{ color: '#d2dce1', opacity: '0.5' }} />}
+                        checkedIcon={<CheckCircleIcon color='info' />}                       
                         onClick={() => handlePlaylistSelectClick(item)}
                         checked={isPlaylistItemChecked(item)}
                         sx={{
                           color: 'white',
                           position: 'absolute',
-                          top: '0',
-                          left: '3px',
+                          top: '20%',
+                          left: '6%',
                           zIndex: '2',
-                          padding: '0px',
+                          paddingLeft: '0px',
                         }}
                       />
                     </Tooltip>
-                    <iframe
-                      key={index}
-                      src={`https://open.spotify.com/embed/track/${item.id}?utm_source=generator&theme=0`}
-                      width={'90%'}
-                      height="160"
-                      frameBorder="0"
-                      allowFullScreen=""
-                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                      loading="lazy" 
-                    />
+                    <PlaylistItemCard item={item} key={item.id} />
                   </li>
                 </Box>
               ))}
             </ul>
           ) : (
             <>
-              <Typography variant='subtitle2' textAlign='center' padding='20px'>
+              <Typography 
+                variant='subtitle2' 
+                textAlign='center' 
+                padding='20px'
+                letterSpacing='1px'
+              >
                 Use tokens to create playlists and share your finds.
               </Typography>
               <Typography 
                 textAlign='center' 
                 padding='20px'
                 variant='subtitle2'
+                letterSpacing='1px'
               >
                 Explore new music and start creating new playlists now.
               </Typography>
             </>
           )}
         </Card>
-    )
-}
+    );
+};
