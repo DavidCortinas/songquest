@@ -82,6 +82,7 @@ const SpotifyForm = ({
                             variant='subtitle2'
                             textAlign='center' 
                             color='white'
+                            letterSpacing='1px'
                           >
                             Choose the songs, artists, and genres you'd like to shape your recommendations.
                           </Typography>
@@ -152,6 +153,7 @@ const SpotifyForm = ({
                           <Typography
                             textAlign='center'
                             color='whitesmoke'
+                            letterSpacing='1px'
                             variant={
                               isXsScreen || isSmScreen ?
                               "body2" :
@@ -202,38 +204,42 @@ const SpotifyForm = ({
                 title='Adjust your discovery settings'
             >
                 <Button 
-                sx={{ 
-                    color: 'white', 
-                    borderRadius: '18px',
-                    height: '55px',
-                    border: '2px solid rgba(89, 149, 192, 0.5)',
-                    boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-                    textTransform: 'none',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    '&:hover, &:active, &.Mui-focusVisible': {
-                    border: '2px solid rgba(89, 149, 192, 0.5)',
-                    background: 'rgba(48, 130, 164, 0.1)',
-                    boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                    backdropFilter: 'blur(5.1px)',
-                    WebkitBackdropFilter: 'blur(5.1px)',
+                  sx={{ 
+                      color: 'white', 
+                      borderRadius: '18px',
+                      height: '55px',
+                      border: '2px solid rgba(89, 149, 192, 0.5)',
+                      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+                      textTransform: 'none',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      '&:hover, &:active, &.MuiFocusVisible': {
+                      border: '2px solid rgba(89, 149, 192, 0.5)',
+                      background: 'rgba(48, 130, 164, 0.1)',
+                      boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+                      backdropFilter: 'blur(5.1px)',
+                      WebkitBackdropFilter: 'blur(5.1px)',
                     },
-                }} 
-                fullWidth
-                variant='outlined'
-                onClick={() => setOpenModal(true)}
-                disableRipple
+                  }} 
+                  fullWidth
+                  variant='outlined'
+                  onClick={() => setOpenModal(true)}
+                  disableRipple
                 >
-                <Typography>Fine Tune Your Recommendations</Typography>
+                <Typography letterSpacing='1px'>
+                  Fine Tune Your Recommendations
+                </Typography>
                 <Typography 
-                    color='#f6f8fc' 
-                    variant='caption' 
-                    textAlign='end'
+                  color='#f6f8fc' 
+                  variant='caption' 
+                  textAlign='end'
+                  letterSpacing='1px'
                 >
-                    {
+                  {
                     isXsScreen || isSmScreen ? 
                     "* activate parameters and set the min, target, and max values" : 
-                    "* activate additional parameters and set the min, target, and max values to refine your recommendations"}
+                    "* activate additional parameters and set the min, target, and max values to refine your recommendations"
+                  }
                 </Typography>
                 <SettingsIcon />
                 </Button>
@@ -274,7 +280,7 @@ const SpotifyForm = ({
             border: '2px solid rgba(89, 149, 192, 0.5)',
             borderRadius: '8px' ,
             boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-            '&:hover, &:active, &.Mui-focusVisible': {
+            '&:hover, &:active, &.MuiFocusVisible': {
               border: '2px solid rgba(89, 149, 192, 0.5)',
               background: 'rgba(48, 130, 164, 0.1)',
               boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',

@@ -32,7 +32,12 @@ export const LeftPanel = ({
             >
               <Checkbox sx={{ padding: '0px', color: 'white' }}/>
             </Tooltip>
-            <Typography variant='body1' textAlign='center' paddingLeft='20px'>
+            <Typography 
+              variant='body1' 
+              textAlign='center' 
+              paddingLeft='20px'
+              letterSpacing='2px'
+            >
               Your Playlists
             </Typography>
             <Tooltip
@@ -48,10 +53,20 @@ export const LeftPanel = ({
           </Box>
           {playlists.length === 0 ? (
             <>
-              <Typography variant='subtitle2' textAlign='center' padding='20px'>
+              <Typography 
+                variant='subtitle2' 
+                textAlign='center' 
+                padding='20px'
+                letterSpacing='1px'
+              >
                 You have not created any playlists. 
               </Typography>
-              <Typography variant='subtitle2' textAlign='center' padding='20px'>
+              <Typography 
+                variant='subtitle2' 
+                textAlign='center' 
+                padding='20px'
+                letterSpacing='1px'
+              >
                 Use tokens to create playlists and share your finds. 
               </Typography>
             </>

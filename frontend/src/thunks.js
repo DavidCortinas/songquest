@@ -13,7 +13,8 @@ import {
   // refreshSpotifyAccess, 
   updateUsername, 
   receiveLyricResults,
-  createPlaylist
+  createPlaylist,
+  addToSavedPlaylist
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
@@ -122,21 +123,18 @@ export const registerUser = (email, password, username) => async (dispatch) => {
 
 export const login = (
   email,
-  username, 
   password, 
-  spotify_access_token, 
-  spotify_refresh_token, 
-  spotify_expires_at
+  username, 
 ) => async (dispatch) => {
+  console.log('login email: ', email)
+  console.log('login password: ', password)
+  console.log('login username: ', username)
   try {
     const csrfToken = await getCSRFToken();
     const body = JSON.stringify({
       email: email,
-      username: username,
       password: password,
-      spotify_access_token: spotify_access_token,
-      spotify_refresh_token: spotify_refresh_token,
-      spotify_expires_at: spotify_expires_at,
+      username: username,
     });
     const response = await fetch(`http://localhost:8000/api/auth/login/`, {
       headers: {
@@ -564,11 +562,45 @@ export const createPlaylistRequest = (
 
     const res = await response.json(); 
     console.log('playlist create result: ', res)
-    dispatch(createPlaylist);
+    dispatch(createPlaylist(res));
+    return res
   } catch (error) {
     console.log('Error: ' + error.message);
   };
+};
 
+export const addToSavedPlaylistRequest = (
+  playlistId,
+  userId,
+  trackUris,
+) => async (dispatch) => {
+  console.log(playlistId)
+  console.log(trackUris)
+  try {
+    const csrfToken = await getCSRFToken();
+    const headers = {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken, 
+    }
+
+    const body = JSON.stringify({ id: playlistId, user: userId, tracks: trackUris });
+
+    const response = await fetch(`http://localhost:8000/add-to-playlist/${playlistId}/`, {
+      headers: headers,
+      method: 'POST', 
+      body,
+    });
+
+    if (!response.ok) {
+      throw new Error('Request failed with status ' + response.status);
+    }
+
+    const res = await response.json(); 
+    console.log('add to playlist result: ', res)
+    dispatch(addToSavedPlaylist(res));
+  } catch (error) {
+    console.log('Error: ' + error.message);
+  };
 };
 
 // export const sendLyricsToServer = async (lyrics) => {

@@ -3,6 +3,9 @@ import { makeStyles } from '@mui/styles';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import theme from '../theme';
 import { Body } from './Body';
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import getCSRFToken from '../csrf';
 
 const useStyles = makeStyles(() => (
   {
@@ -59,24 +62,57 @@ const useStyles = makeStyles(() => (
   }
 }));
 
-export const SpotifyConnect = ({
+const SpotifyConnect = ({
     isSmScreen,
     isXsScreen,
     isMdScreen,
     isXlScreen,
     isLgScreen,
     setConnectToSpotify,
+    userId,
 }) => {
     const classes = useStyles();
 
-        const handleConnectThroughSpotify = async (e) => {
-        e.preventDefault();
+    const handleConnectThroughSpotify = async (e) => {
+      e.preventDefault();
 
-        const authorizationUrl = `http://localhost:8000/request-authorization/`;
+      const authorizationUrl = `http://localhost:8000/request-authorization/`;
 
-        // Redirect the user to Spotify for authorization
-        window.location.href = authorizationUrl;
+      // Redirect the user to Spotify for authorization
+      window.location.href = authorizationUrl;
     };
+
+    useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const authorizationCode = queryParams.get('code');
+
+        const fetchAuthorization = async () => {
+            if (authorizationCode) {
+                try {
+                    const csrftoken = await getCSRFToken();
+
+                    const response = await fetch('http://localhost:8000/auth/spotify/callback/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
+                            // 'Authorization': `Bearer ${user.access}`
+                        },
+                        body: JSON.stringify({ code: authorizationCode, userId: userId }),
+                    });
+
+                    const data = await response.json();
+                    console.log(data);
+                    // Handle the response data
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Handle any errors
+                }
+            }
+        };
+
+        fetchAuthorization();
+    }, []);
     
     return (
         <>
@@ -87,6 +123,7 @@ export const SpotifyConnect = ({
                         <CardHeader
                             title='Connect to Spotify'
                             titleTypographyProps={{
+                                letterSpacing: '2px',
                                 width: '100%',
                                 variant: isSmScreen || isXsScreen
                                 ? 'h6'
@@ -151,4 +188,12 @@ export const SpotifyConnect = ({
           />
         </>
       )
-  }
+  };
+
+  const mapStateToProps = (state) => {
+  return {
+    userId: state.user.currentUser.user.id,
+  };
+};
+
+export default connect(mapStateToProps)(SpotifyConnect);

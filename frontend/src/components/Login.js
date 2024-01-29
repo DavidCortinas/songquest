@@ -118,18 +118,27 @@ const UsernameInput = ({
                             <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
                                 <TextField 
                                     autoFocus
-                                    variant="outlined"
+                                    variant="standard"
                                     InputLabelProps={{ 
                                         style: { 
                                             margin: '2px 5px',
+                                            color: 'white', 
+                                        },
+                                        sx: {
                                             color: 'white',
-                                        }}}
+                                            backgroundColor: '#30313d',
+                                        },
+                                    }}
                                     InputProps={{ 
-                                        disableunderline: 'true', 
+                                        disableUnderline: 'true', 
                                         style: { 
                                             margin: '5px', 
                                             padding: '5px 0', 
-                                        }
+                                            fill: 'white',
+                                        },
+                                        sx: {
+                                            color: 'white'
+                                        },
                                     }}
                                     error={errors.username}
                                     required
@@ -241,7 +250,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
         }
 
         try {
-            const currentUser = await dispatch(login(emailValue, usernameValue, passwordValue, null, null));
+            const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
 
             dispatch(setCurrentUser(currentUser));
             currentUser && navigate('/')
@@ -262,7 +271,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
         
         try {
             await dispatch(registerUser(emailValue, passwordValue, usernameValue));
-            const currentUser = await dispatch(login(emailValue, passwordValue, null, null));
+            const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
             dispatch(setCurrentUser(currentUser))
         } catch (error) {
             console.log('Error: ', error);
@@ -309,7 +318,6 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
 
         const authorizationUrl = `http://localhost:8000/request-authorization/`;
 
-        // Redirect the user to Spotify for authorization
         window.location.href = authorizationUrl;
     };
 
@@ -509,6 +517,7 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                         title='Connect to Spotify'
                                         titleTypographyProps={{
                                             width: '100%',
+                                            letterSpacing: '1px',
                                             variant: isSmScreen || isXsScreen
                                             ? 'h6'
                                             : 'h5',
@@ -518,7 +527,8 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                         }}
                                         subheader='Link to your Spotify library to add tracks, create playlists and more!'
                                         subheaderTypographyProps={{ 
-                                            width: '100%', 
+                                            width: '100%',
+                                            letterSpacing: '1px', 
                                             variant: isXlScreen || isLgScreen 
                                             ? 'body1'
                                             : 'body2',
@@ -533,10 +543,10 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                             flexDirection: 'column',
                                             alignItems: 'center',
                                             '&:hover': {
-                                            backgroundColor: 'transparent !important', // Add !important to override other styles
+                                            backgroundColor: 'transparent !important',
                                             },
                                         }}
-                                        onClick={handleConnectThroughSpotify} // Call the handleConnectThroughSpotify function
+                                        onClick={handleConnectThroughSpotify}
                                         >
                                         <img
                                             width='150em'
@@ -581,9 +591,28 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                         <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
                                             <TextField 
                                                 autoFocus
-                                                variant="outlined"
-                                                InputLabelProps={{ style: { margin: '2px 5px' }}}
-                                                InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
+                                                variant="standard"
+                                                InputLabelProps={{ 
+                                                    style: { 
+                                                        margin: '2px 5px',
+                                                        color: 'white', 
+                                                    },
+                                                    sx: {
+                                                        color: 'white',
+                                                        backgroundColor: '#30313d',
+                                                    },
+                                                }}
+                                                InputProps={{ 
+                                                    disableUnderline: 'true', 
+                                                    style: { 
+                                                        margin: '5px', 
+                                                        padding: '5px 0', 
+                                                        fill: 'white',
+                                                    },
+                                                    sx: {
+                                                        color: 'white'
+                                                    },
+                                                }}
                                                 error={errors.password}
                                                 required
                                                 className={classes.textField}
@@ -601,9 +630,28 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                                         </Box>
                                         <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
                                             <TextField 
-                                                variant="outlined"
-                                                InputLabelProps={{ style: { margin: '2px 5px' }}}
-                                                InputProps={{ disableunderline: 'true', style: { margin: '5px', padding: '5px 0', fill: 'white' }}}
+                                                variant="standard"
+                                                InputLabelProps={{ 
+                                                    style: { 
+                                                        margin: '2px 5px',
+                                                        color: 'white', 
+                                                    },
+                                                    sx: {
+                                                        color: 'white',
+                                                        backgroundColor: '#30313d',
+                                                    },
+                                                }}
+                                                InputProps={{ 
+                                                    disableUnderline: 'true', 
+                                                    style: { 
+                                                        margin: '5px', 
+                                                        padding: '5px 0', 
+                                                        fill: 'white',
+                                                    },
+                                                    sx: {
+                                                        color: 'white'
+                                                    },
+                                                }}
                                                 error={errors.reenterPassword}
                                                 required
                                                 className={classes.textField}

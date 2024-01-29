@@ -7,7 +7,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import TopBar from './components/TopBar';
 import { Box } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
-import { SpotifyConnect } from './components/SpotifyConnect';
+import SpotifyConnect from './components/SpotifyConnect';
 import StripeCheckout from './components/StripeCheckout';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))

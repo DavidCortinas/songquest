@@ -50,7 +50,12 @@ export const Body = ({
                 alignItems="center"
                 paddingTop='5%'
             >
-                <Typography variant="h4" textAlign='center' color='whitesmoke'>
+                <Typography 
+                    variant="h4" 
+                    textAlign='center' 
+                    color='whitesmoke'
+                    letterSpacing='1px'
+                >
                     Explore Your Sound with SongQuest
                 </Typography>
                 <Typography 
@@ -58,6 +63,7 @@ export const Body = ({
                     variant={isXsScreen || isSmScreen ? "body1" : "h6"} 
                     width='95%'
                     color='#e0e6ea'
+                    letterSpacing='1px'
                 >
                     {
                         isXsScreen || isSmScreen ?
@@ -74,13 +80,13 @@ export const Body = ({
                             <div>
                                 <CardHeader 
                                     title={item.header}
-                                    titleTypographyProps={{ color: 'whitesmoke' }}
+                                    titleTypographyProps={{ color: 'whitesmoke', letterSpacing: '1px' }}
                                     subheader={!isSmScreen && !isXsScreen ? 
                                         item.description : 
                                         item.mobileDescription
                                     }
                                     subheaderTypographyProps={{ color: '#e0e6ea' }}
-                                    style={{ textAlign: 'left', paddingLeft: '10%' }}
+                                    style={{ textAlign: 'left', paddingLeft: '10%', letterSpacing: '1px' }}
                                 />
                             </div>
                         </div>

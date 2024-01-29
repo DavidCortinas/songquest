@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
   ADD_TO_CURRENT_PLAYLIST,
+  ADD_TO_SAVED_PLAYLIST,
   CLEAR_SEARCH_SONG_ERROR,
   CONFIRM_SPOTIFY_ACCESS,
   CONFIRM_USER,
@@ -317,6 +318,19 @@ export const playlist = (state = {playlists: [], currentPlaylist: []}, action) =
         playlists: state.playlists.filter(playlist => 
           !payload.playlists.includes(playlist.id))
       };
+    case ADD_TO_SAVED_PLAYLIST:
+      return {
+        ...state,
+        playlists: state.playlists.map(playlist => {
+          if (playlist.id === payload.playlistId) {
+            return {
+              ...playlist,
+              items: [...playlist.items, ...payload.items]
+            };
+          }
+          return playlist;
+        })
+      }
     default:
       return state;
   };
