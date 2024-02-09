@@ -49,9 +49,9 @@ export const refreshSpotifyAccess = (newAccessToken, expiresAt) => ({
 });
 
 export const CONFIRM_SPOTIFY_ACCESS = 'CONFIRM_SPOTIFY_ACCESS';
-export const confirmSpotifyAccess = (spotifyConnection) => ({
+export const confirmSpotifyAccess = (spotifyConnected) => ({
   type: CONFIRM_SPOTIFY_ACCESS,
-  payload: { spotifyConnection },
+  payload: { spotifyConnected },
 });
 
 export const UPDATE_USERNAME = 'UPDATE_USERNAME';
@@ -91,6 +91,16 @@ export const SET_QUERY_PARAMETER = 'SET_QUERY_PARAMETER';
 export const setQueryParameter = (query, parameter, newValues) => ({
   type: SET_QUERY_PARAMETER,
   payload: { query, parameter, newValues },
+});
+
+export const CLEAR_SEEDS_ARRAY = 'CLEAR_SEEDS_ARRAY';
+export const clearSeedsArray = () => ({
+  type: CLEAR_SEEDS_ARRAY,
+});
+
+export const CLEAR_RECOMMENDATIONS = 'CLEAR_RECOMMENDATIONS';
+export const clearRecommendations = () => ({
+  type: CLEAR_RECOMMENDATIONS,
 });
 
 export const RECEIVE_LYRIC_RESULTS = 'RECEIVE_LYRIC_RESULTS';
@@ -148,12 +158,29 @@ export const createPlaylist = (playlist) => ({
 });
 
 export const ADD_TO_SAVED_PLAYLIST = 'ADD_TO_SAVED_PLAYLIST';
-export const addToSavedPlaylist = (playlistId, items) => ({
+export const addToSavedPlaylist = (playlistId, songs) => ({
   type: ADD_TO_SAVED_PLAYLIST,
   payload: { 
     playlistId, 
-    items: Array.isArray(items) ? items : [items] 
+    songs: Array.isArray(songs) ? songs : [songs] 
   },
+});
+
+export const GET_USER_PLAYLISTS_REQUEST = 'GET_USER_PLAYLISTS_REQUEST';
+export const getUserPlaylistsRequest = () => ({
+ type: GET_USER_PLAYLISTS_REQUEST,
+}); 
+
+export const GET_USER_PLAYLISTS_SUCCESS = 'GET_USER_PLAYLISTS_SUCCESS';
+export const getUserPlaylistsSuccess = (playlists) => ({
+ type: GET_USER_PLAYLISTS_SUCCESS,
+ payload: { playlists },
+});
+
+export const GET_USER_PLAYLISTS_FAILURE = 'GET_USER_PLAYLISTS_FAILURE';
+export const getUserPlaylistsFailure = (error) => ({
+ type: GET_USER_PLAYLISTS_FAILURE,
+ payload: { error },
 });
 
 export const DELETE_PLAYLIST = 'DELETE_PLAYLIST';

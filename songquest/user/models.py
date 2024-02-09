@@ -42,6 +42,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def spotify_connected(self):
+        return all([self.spotify_access, self.spotify_refresh, self.spotify_expires_at])
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 

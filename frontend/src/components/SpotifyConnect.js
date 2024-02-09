@@ -1,6 +1,7 @@
 import { Box, Button, Card, CardHeader, Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { useNavigate } from 'react-router-dom';
 import theme from '../theme';
 import { Body } from './Body';
 import { useEffect } from 'react';
@@ -68,9 +69,9 @@ const SpotifyConnect = ({
     isMdScreen,
     isXlScreen,
     isLgScreen,
-    setConnectToSpotify,
     userId,
-}) => {
+  }) => {
+    const navigate = useNavigate();
     const classes = useStyles();
 
     const handleConnectThroughSpotify = async (e) => {
@@ -81,118 +82,76 @@ const SpotifyConnect = ({
       // Redirect the user to Spotify for authorization
       window.location.href = authorizationUrl;
     };
-
-    useEffect(() => {
-        const queryParams = new URLSearchParams(window.location.search);
-        const authorizationCode = queryParams.get('code');
-
-        const fetchAuthorization = async () => {
-            if (authorizationCode) {
-                try {
-                    const csrftoken = await getCSRFToken();
-
-                    const response = await fetch('http://localhost:8000/auth/spotify/callback/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': csrftoken,
-                            // 'Authorization': `Bearer ${user.access}`
-                        },
-                        body: JSON.stringify({ code: authorizationCode, userId: userId }),
-                    });
-
-                    const data = await response.json();
-                    console.log(data);
-                    // Handle the response data
-                } catch (error) {
-                    console.error('Error:', error);
-                    // Handle any errors
-                }
-            }
-        };
-
-        fetchAuthorization();
-    }, []);
     
     return (
-        <>
-          <Box display='flex' justifyContent='center' paddingTop='1rem'>
-            <Box width='100%'>
-                <Card className={classes.card}>
-                    <Box className={classes.box}>
-                        <CardHeader
-                            title='Connect to Spotify'
-                            titleTypographyProps={{
-                                letterSpacing: '2px',
-                                width: '100%',
-                                variant: isSmScreen || isXsScreen
-                                ? 'h6'
-                                : 'h5',
-                                textAlign: 'center',
-                                color: 'white',
-                                paddingTop: '1rem'
-                            }}
-                            subheader='Link to your Spotify library to add tracks, create playlists and more!'
-                            subheaderTypographyProps={{ 
-                                width: '100%', 
-                                variant: isXlScreen || isLgScreen 
-                                ? 'body1'
-                                : 'body2',
-                                textAlign: 'center',
-                                alignItems: 'center',
-                                color: 'whitesmoke',
-                            }}
-                        />
-                        <Button
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                '&:hover': {
-                                backgroundColor: 'transparent !important', // Add !important to override other styles
-                                },
-                            }}
-                            onClick={handleConnectThroughSpotify} // Call the handleConnectThroughSpotify function
-                            >
-                            <img
-                                width='150em'
-                                style={{
-                                margin: '0 auto',
-                                display: 'block', 
-                                }}
-                                src={'/static/images/spotifyLogo.png'}
-                            />
-                            </Button>
-                        <br />
-                        <Grid className={classes.buttonsContainer}>
-                            <Button
-                                type="submit"
-                                className={classes.button}
-                                onClick={() => setConnectToSpotify(false)}
-                            >
-                                Back to recommendations
-                                <NavigateNextIcon />
-                            </Button>
-                        </Grid>
-                        <br />
-                    </Box>
-                </Card>
-            </Box>
+        <Box display='flex' justifyContent='center' paddingTop='1rem'>
+          <Box width='100%'>
+                  <Box className={classes.box}>
+                      <CardHeader
+                          title='Connect to Spotify'
+                          titleTypographyProps={{
+                              width: '100%',
+                              letterSpacing: '1px',
+                              variant: isSmScreen || isXsScreen
+                              ? 'h6'
+                              : 'h5',
+                              textAlign: 'center',
+                              color: 'white',
+                              paddingTop: '1rem'
+                          }}
+                          subheader='Link to your Spotify library to add tracks, create playlists and more!'
+                          subheaderTypographyProps={{ 
+                              width: '100%',
+                              letterSpacing: '1px', 
+                              variant: isXlScreen || isLgScreen 
+                              ? 'body1'
+                              : 'body2',
+                              textAlign: 'center',
+                              alignItems: 'center',
+                              color: 'whitesmoke',
+                          }}
+                      />
+                      <Button
+                          sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              '&:hover': {
+                              backgroundColor: 'transparent !important',
+                              },
+                          }}
+                          onClick={handleConnectThroughSpotify}
+                          >
+                          <img
+                              width='150em'
+                              style={{
+                              margin: '0 auto',
+                              display: 'block', 
+                              }}
+                              src={'/static/images/spotifyLogo.png'}
+                          />
+                          </Button>
+                      <br />
+                      <Grid className={classes.buttonsContainer}>
+                          <Button
+                              type="submit"
+                              className={classes.button}
+                              onClick={() => navigate('/')}
+                          >
+                              Skip
+                              <NavigateNextIcon />
+                          </Button>
+                      </Grid>
+                      <br />
+                  </Box>
           </Box>
-          <Body 
-            isSmScreen={isSmScreen} 
-            isXsScreen={isXsScreen}
-            isMdScreen={isMdScreen}
-            isLgScreen={isLgScreen} 
-            isXlScreen={isXlScreen} 
-          />
-        </>
+      </Box>
       )
   };
 
   const mapStateToProps = (state) => {
   return {
-    userId: state.user.currentUser.user.id,
+    userId: state.user.currentUser?.user.id,
   };
 };
 

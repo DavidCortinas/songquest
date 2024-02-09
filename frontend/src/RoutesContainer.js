@@ -1,5 +1,5 @@
 import React, { lazy, useEffect } from 'react';
-import Login from './components/Login';
+import Login from './components/auth/Login';
 import { searchSongRequest } from './thunks';
 import { connect } from 'react-redux';
 import { searchSongSuccess } from './actions';
@@ -9,6 +9,8 @@ import { Box } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
 import SpotifyConnect from './components/SpotifyConnect';
 import StripeCheckout from './components/StripeCheckout';
+import ProtectedRoute from './ProtectedRoute';
+import Playlist from './components/Playlist';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 
@@ -66,12 +68,16 @@ const RoutesContainer = ({
               <Login />
             }
           />
-          <Route 
-            path={'/spotify-connect'}
-            element={
-              <SpotifyConnect />
-            }
-          />
+          <Route element={<ProtectedRoute />}>
+            <Route 
+              path={'/spotify-connect'} 
+              element={<SpotifyConnect />} 
+            />
+            <Route 
+              path={'/playlist/:id'} 
+              element={<Playlist />} 
+            />
+          </Route>
           <Route 
             path={'/checkout'}
             element={

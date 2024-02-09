@@ -22,6 +22,7 @@ import {
 } from '../thunks';
 import { 
   addToCurrentPlaylist, 
+  clearSeedsArray, 
   confirmSpotifyAccess,  
   deletePlaylist, 
   removeFromCurrentPlaylist, 
@@ -32,19 +33,25 @@ import {
 import '../App.css';
 import theme from '../theme'
 import { LoadingState } from './LoadingState';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Body } from './Body';
-import { LeftPanel } from './SidePanels/LeftPanel';
-import { RightPanel } from './SidePanels/RightPanel';
+import LeftPanel from './sidePanels/LeftPanel';
+import RightPanel from './sidePanels/RightPanel';
 import { startTransition } from 'react';
+import getCSRFToken from '../csrf';
 
 const Recommendations = lazy(() => import('./Recommendations'))
-const SpotifyForm = lazy(() => import('./SpotifyForm/SpotifyForm'))
+const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'))
 
 const useStyles = makeStyles(() => (
   {
     root: {
       padding: '15px 0 5px',
+    },
+    expanded: {
+      '&.Mui-expanded': {
+        margin: 0,
+      },
     },
     card: {
     backgroundColor: "white",
@@ -82,15 +89,6 @@ const useStyles = makeStyles(() => (
   textField: {
     marginLeft: '8px',
     width: '66%',
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
-    },
-    backgroundColor: '#30313d',
-    borderRadius: '8px',
-    boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-  },
-  playlistField: {
-    width: '100%',
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
@@ -159,13 +157,6 @@ const useStyles = makeStyles(() => (
     display: 'flex',
     alignItems: 'start',
     listStyle: 'none',
-  },
-  currentPlaylistUl: {
-    margin: '0 5% 0 0',
-    listStyle: 'none',
-  },
-  recommendationsUl: {
-    width: '100%'
   },
   recommendationsUl: {
     width: '100%'
@@ -244,7 +235,8 @@ const useStyles = makeStyles(() => (
 export const SongDiscovery = ({ 
     recommendations, 
     query, 
-    onSearchPressed, 
+    onSearchPressed,
+    onClearSeedsArray, 
     onResetQueryParameter, 
     onResetDataLoaded,
     onSetQueryParameter,
@@ -258,12 +250,8 @@ export const SongDiscovery = ({
     markets,
     user,
     currentPlaylist,
-    playlists,
     onAddToCurrentPlaylist,
     onRemoveFromCurrentPlaylist,
-    onCreatePlaylist,
-    onAddToSavedPlaylist,
-    onDeletePlaylist,
  }) => {
   const theme = useTheme();
 
@@ -276,11 +264,8 @@ export const SongDiscovery = ({
   const [parameters, setParameters] = useState(query);
   const [isLoading, setIsLoading] = useState(false);
   const [invalidSearch, setInvalidSearch] = useState(false);
-  const [createPlaylist, setCreatePlaylist] = useState(false);
-  const [playlistName, setPlaylistName] = useState('');
 
   const [songsToAdd, setSongsToAdd] = useState([]);
-  const [songsToRemove, setSongsToRemove] = useState([]);
   
   const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
 
@@ -290,92 +275,63 @@ export const SongDiscovery = ({
       genres: [],
   });
 
-  const [targetParamLabels, setTargetParamLabels] = useState({
-  songs: [],
-  performers: [],
-  genres: [],
-  });
-
-  const [usernameCreated, setUsernameCreated] = useState(Boolean(user?.user));
-  const [spotifyAuthorized, setSpotifyAuthorized] =  useState(false);
-
-
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const email = searchParams.get('email');
 
   useEffect(() => {
-          // Define an async function inside the useEffect
-          async function fetchData() {
-              const spotify_connection = searchParams.get('spotify_connection');
+      const newSearchParams = new URLSearchParams(searchParams);
 
-              // Check if access_token and refresh_token exist, and then remove them from the URL
-              if (spotify_connection) {
-                dispatch(confirmSpotifyAccess(spotify_connection))
-                // Create a new URLSearchParams without the tokens
-                const newSearchParams = new URLSearchParams(searchParams);
-                newSearchParams.delete('spotify_connection');
+      async function fetchData() {
+        const authorizationCode = newSearchParams.get('code');
+        const authorizationState = newSearchParams.get('state')
+        
+          if (authorizationCode) {
+            newSearchParams.delete('code');
+            newSearchParams.delete('state');
+            const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
+            window.history.replaceState({}, document.title, newURL);
+            try {
+                const csrftoken = await getCSRFToken();
 
-                // Replace the URL without the tokens
+                const response = await fetch('http://localhost:8000/auth/spotify/callback/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                        // 'Authorization': `Bearer ${user.access}`
+                    },
+                    body: JSON.stringify({ code: authorizationCode, userId: user.user.id }),
+                });
+
+                const data = await response.json();
+
+                const spotifyConnected = data['spotify_connected']
+
+                if (spotifyConnected) {
+                  dispatch(confirmSpotifyAccess(spotifyConnected))
+                }
+
                 const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
                 window.history.replaceState({}, document.title, newURL);
-              };
-          };
+            } catch (error) {
+                console.error('Error:', error);
+                // Handle any errors
+            }
+        };
+      };
 
-          // Call the async function
-          fetchData();
-      }, [email, spotifyAuthorized, usernameCreated]);
+      // Call the async function
+      fetchData();
+  }, []);
 
   const { handleSubmit } = useForm();
 
-  const handleChange = (param, value) => {
-
-    const sliderParam = value?.hasOwnProperty('min') 
-    || value?.hasOwnProperty('max') 
-    ||value?.hasOwnProperty('target')
-    
-    setInvalidSearch(false);
-
-    if (!sliderParam) {
-      setParameters(prevParameters => {
-        if (param === 'market' || param === 'limit') {
-            return {
-                ...prevParameters,
-                [param]: value
-            };
-        } else {
-            if (!prevParameters[param].includes(value) 
-              && Object.values(targetParamValues).reduce((total, array) => 
-              total + array.length, 0) < 5) {
-              return {
-                ...prevParameters,
-                [param]: [...prevParameters[param], value]
-              };
-            } else {
-                return prevParameters;
-            }
-          }
-      })} 
-  };
-
   const [selectOpen, setSelectOpen] = useState(false);
-
-  const handleTargetParamChange = (e) => {
-    setSelectOpen(!selectOpen);
-    setTargetParams(e.target.value);
-  }
-
-  const handleTargetParamDelete = (value) => {
-    setTargetParams((prevTargetParam) =>
-      prevTargetParam.filter((param) => param !== value)
-    )
-  }
 
   const dispatch = useDispatch();
 
   const onSubmit = () => {
     setIsLoading(true);
-    setOpenModal(false);
 
     startTransition(() => {
       onSearchPressed(parameters)
@@ -384,7 +340,10 @@ export const SongDiscovery = ({
       })
       .catch((error) => {
         console.log('Error: ', error);
+      })
+      .finally(() => {
         setIsLoading(false);
+        onClearSeedsArray();
       })
     })
   };
@@ -400,29 +359,6 @@ export const SongDiscovery = ({
     };
   }, [isLoading])
 
-  const handleReset = () => {
-    setInvalidSearch(false);
-    setOpenModal(false);
-    setParameters(query);
-    setTargetParams([]);
-    setTargetParamLabels(
-      {
-        songs: [],
-        performers: [],
-        genres: [],
-      }
-    );
-    setTargetParamValues(
-      {
-        songs: [],
-        performers: [],
-        genres: [],
-      }
-    );
-    onResetDataLoaded();
-    onResetQueryParameter(); 
-  };
-
   const handleFormSubmit = (e) => {
     e.preventDefault(); // Prevent form submission
     onSubmit(); // Call the onSubmit function manually
@@ -430,46 +366,11 @@ export const SongDiscovery = ({
 
   const [openModal, setOpenModal] = useState(false);
 
-  const handleSelectedOptions = (parameter, selectedOptions) => {
-    setTargetParamLabels(prevLabels => ({
-      ...prevLabels,
-      [parameter]: selectedOptions,
-    }))
-  };
-
   const handleExploreMoreClick = () => {
     // Smoothly scroll to the top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // setCreatePlaylist(false);
   };
-
-  const handleCreatePlaylist = () => {
-    const newPlaylist = {
-      name: playlistName, 
-      tracks: currentPlaylist
-    }
-
-    onCreatePlaylist(user.user.id, newPlaylist)
-      .then(createdPlaylist => {
-        console.log('created: ', createdPlaylist)
-        const spotifyId = createdPlaylist.spotify_id;
-        const trackUris = newPlaylist.tracks.map(track => track.uri);
-        console.log('onCreate: ', spotifyId)
-        console.log('onCreate: ', trackUris)
-
-        return onAddToSavedPlaylist(spotifyId, user.user.id, trackUris);
-      })
-      .then(response => {
-        console.log("Playlist created and tracks added", response);
-      })
-      .catch(error => {
-        console.log("Error in creating playlist and adding tracks: ", error);
-      });
-  };
-
-  const handleDeletePlaylist = (playlistId) => {
-    onDeletePlaylist(playlistId)
-  }
 
   const classes = useStyles();
   const discoveryRecommendations = recommendations?.tracks
@@ -485,10 +386,6 @@ export const SongDiscovery = ({
   const handleBulkAdd = () => {
    onAddToCurrentPlaylist(...songsToAdd);
   };
-
-  const handleBulkRemove = () => {
-    onRemoveFromCurrentPlaylist(...songsToRemove);
-  }
 
   window.addEventListener('scroll', () => {
     const scrollPosition = window.scrollY;
@@ -507,40 +404,6 @@ export const SongDiscovery = ({
       buttonsContainer.style.display = 'block';
     }
   });
-
-  const playlistItemInSongsToRemove = (id) => {
-    return songsToRemove.some(obj => obj.id === id)
-  };
-
-  const handlePlaylistSelectClick = (item) => {
-    if (playlistItemInSongsToRemove(item.id)) {
-      setSongsToRemove(songsToRemove.filter(song => song.id !== item.id));
-    } else {
-      setSongsToRemove([...songsToRemove, item])
-    };
-  };
-
-  const handlePlaylistSelectAll = () => {
-      if (songsToRemove.length === 0) {
-          setSongsToRemove(currentPlaylist);
-      } else {
-          setSongsToRemove([]);
-      }
-  };
-
-  const isPlaylistItemChecked = (item) => {
-    return songsToRemove.some(song => song.id === item.id);
-  };
-
-  const getPlaylistItems = (playlist) => {
-    return (
-      playlist.tracks?.map((track, index) => (
-        <Typography>
-          {`${track.name} - ${track.artists.map((a) => ` ${a.name}`)}`}
-        </Typography>
-      )
-    ))
-  };
 
   return (
     <>
@@ -581,36 +444,11 @@ export const SongDiscovery = ({
           />
           <SpotifyForm
             classes={classes}
-            isSmScreen={isSmScreen}
-            isXsScreen={isXsScreen}
-            isLgScreen={isLgScreen}
-            isXlScreen={isXlScreen}
-            playlistName={playlistName}
-            setPlaylistName={setPlaylistName}
             parameters={parameters}
-            selectOpen={selectOpen}
-            setSelectOpen={setSelectOpen}
-            targetParams={targetParams}
-            handleTargetParamChange={handleTargetParamChange}
-            handleTargetParamDelete={handleTargetParamDelete}
-            handleChange={handleChange}
-            invalidSearch={invalidSearch}
-            targetParamValues={targetParamValues}
-            tracks={tracks}
-            artists={artists}
-            genres={genres}
-            markets={markets}
-            setTargetParamValues={setTargetParamValues}
-            handleSelectedOptions={handleSelectedOptions}
             setParameters={setParameters}
-            query={query}
             onSetQueryParameter={onSetQueryParameter}
-            openModal={openModal}
-            setOpenModal={setOpenModal}
-            isMdScreen={isMdScreen}
-            handleSubmit={handleSubmit}
             onSubmit={onSubmit}
-            handleReset={handleReset}
+            handleSubmit={handleSubmit}
           />
         </form>
       </Box>
@@ -620,103 +458,90 @@ export const SongDiscovery = ({
         justifyContent='center'
         width='100%'
       >
-        <LeftPanel 
-          classes={classes} 
-          handleDeletePlaylist={handleDeletePlaylist}
-          playlists={playlists}
-          getPlaylistItems={getPlaylistItems}
-        />
-          <Box backgroundColor='transparent' width='53%'>
-            {isLoading && (
-              <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  id='loadingState'
-                >
-                  <CardHeader
-                    title="Loading Results"
-                    titleTypographyProps={{ color: 'black' }}
-                    subheaderTypographyProps={{ color: '#3d3d3d' }}
-                  />
-                </Box>
-                <LoadingState />
-              </Box>
-            )}
-            {showTracks ? (
-              <Box backgroundColor='transparent' width='95%'>
-                <Box className='buttons-container'>
-                  {!isXsScreen && !isSmScreen && !isMdScreen ? (
-                    <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-                      Explore More
-                    </Button>
-                    ) : (
-                    <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-                      <ArrowUpwardIcon />
-                    </Button>
-                  )}
-                </Box>
-                <Box 
-                  display='flex' 
-                  justifyContent='space-between' 
-                  marginLeft='20px' 
-                  width='100%'
-                >
-                  <Tooltip
-                    title={songsToAdd.length === 0 ? 'Select all discovery results' : 'Deselect all discovery results'}
-                  >
-                    <Button onClick={handleSelectAll}>
-                      <Typography 
-                        color='white' 
-                        variant='subtitle1'
-                      >
-                        {songsToAdd.length === 0 ? 'Select All' : 'Deselect All'}
-                      </Typography>
-                    </Button>
-                  </Tooltip>
-                  <Tooltip
-                    title='Add selected to playlist'
-                  >
-                    <Button marginRight='-10px' onClick={handleBulkAdd}>
-                      <PlaylistAddIcon fontSize='large' color='primary'/>
-                    </Button>
-                  </Tooltip>
-                </Box>
-                <Suspense fallback={<div>Loading...</div>}>
-                  <Recommendations 
-                    classes={classes} 
-                    recommendations={discoveryRecommendations}
-                    user={user}
-                    currentPlaylist={currentPlaylist}
-                    onAddToCurrentPlaylist={onAddToCurrentPlaylist}
-                    onRemoveFromCurrentPlaylist={onRemoveFromCurrentPlaylist}
-                    songsToAdd={songsToAdd}
-                    setSongsToAdd={setSongsToAdd}
-                  />
-                </Suspense>
-              </Box>    
-            ) : !isLoading && (
-                <Body 
-                  isSmScreen={isSmScreen} 
-                  isXsScreen={isXsScreen}
-                  isMdScreen={isMdScreen}
-                  isLgScreen={isLgScreen} 
-                  isXlScreen={isXlScreen} 
+        <LeftPanel />
+        <Box backgroundColor='transparent' width='53%'>
+          {isLoading && (
+            <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                id='loadingState'
+              >
+                <CardHeader
+                  title="Loading Results"
+                  titleTypographyProps={{ color: 'black' }}
+                  subheaderTypographyProps={{ color: '#3d3d3d' }}
                 />
-            )}
-          </Box>
+              </Box>
+              <LoadingState />
+            </Box>
+          )}
+          {showTracks ? (
+            <Box backgroundColor='transparent' width='95%'>
+              <Box className='buttons-container'>
+                {!isXsScreen && !isSmScreen && !isMdScreen ? (
+                  <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
+                    Explore More
+                  </Button>
+                  ) : (
+                  <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
+                    <ArrowUpwardIcon />
+                  </Button>
+                )}
+              </Box>
+              <Box 
+                display='flex' 
+                justifyContent='space-between' 
+                marginLeft='20px' 
+                width='100%'
+              >
+                <Tooltip
+                  title={songsToAdd.length === 0 ? 'Select all discovery results' : 'Deselect all discovery results'}
+                >
+                  <Button onClick={handleSelectAll}>
+                    <Typography 
+                      color='white' 
+                      variant='subtitle1'
+                    >
+                      {songsToAdd.length === 0 ? 'Select All' : 'Deselect All'}
+                    </Typography>
+                  </Button>
+                </Tooltip>
+                <Tooltip
+                  title='Add selected to playlist'
+                >
+                  <Button marginRight='-10px' onClick={handleBulkAdd}>
+                    <PlaylistAddIcon fontSize='large' color='primary'/>
+                  </Button>
+                </Tooltip>
+              </Box>
+              <Suspense fallback={<div>Loading...</div>}>
+                <Recommendations 
+                  classes={classes} 
+                  recommendations={discoveryRecommendations}
+                  user={user}
+                  currentPlaylist={currentPlaylist}
+                  onAddToCurrentPlaylist={onAddToCurrentPlaylist}
+                  onRemoveFromCurrentPlaylist={onRemoveFromCurrentPlaylist}
+                  songsToAdd={songsToAdd}
+                  setSongsToAdd={setSongsToAdd}
+                />
+              </Suspense>
+            </Box>    
+          ) : !isLoading && (
+              <Body 
+                isSmScreen={isSmScreen} 
+                isXsScreen={isXsScreen}
+                isMdScreen={isMdScreen}
+                isLgScreen={isLgScreen} 
+                isXlScreen={isXlScreen} 
+              />
+          )}
+        </Box>
         <RightPanel 
-          classes={classes}
-          handleCreatePlaylist={handleCreatePlaylist}
-          setPlaylistName={setPlaylistName}
-          playlistName={playlistName}
-          handleBulkRemove={handleBulkRemove}
-          handlePlaylistSelectAll={handlePlaylistSelectAll}
           currentPlaylist={currentPlaylist}
-          songsToRemove={songsToRemove}
-          isPlaylistItemChecked={isPlaylistItemChecked}
-          handlePlaylistSelectClick={handlePlaylistSelectClick}
+          onRemoveFromCurrentPlaylist={onRemoveFromCurrentPlaylist}
         />
       </Box>
     </>
@@ -735,12 +560,12 @@ const mapStateToProps = (state) => {
     markets: state.discovery.markets,
     user: state.user.currentUser,
     currentPlaylist: state.playlist.currentPlaylist,
-    playlists: state.playlist.playlists,
   };
 };
 
 const mapDispatchToProps = (dispatch) => ({
   onSearchPressed: (query) => dispatch(discoverSongRequest(query)),
+  onClearSeedsArray: () => dispatch(clearSeedsArray()),
   onResetQueryParameter: () =>
     dispatch(resetQueryParameter()),
   onResetDataLoaded: () =>
@@ -751,9 +576,6 @@ const mapDispatchToProps = (dispatch) => ({
   // handleRemoveUsersTracks: (recommendation, spotify_access, spotify_refresh, spotify_expires_at) => dispatch(removeUsersTracks(recommendation, spotify_access, spotify_refresh, spotify_expires_at)),
   onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
   onRemoveFromCurrentPlaylist: (...songs) => dispatch(removeFromCurrentPlaylist(...songs)),
-  onCreatePlaylist: (userId, playlist) => dispatch(createPlaylistRequest(userId, playlist)),
-  onAddToSavedPlaylist: (playlistId, userId, ...songs) => dispatch(addToSavedPlaylistRequest(playlistId, userId, ...songs)),
-  onDeletePlaylist: (plalistId) => {dispatch(deletePlaylist(plalistId))},
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SongDiscovery);

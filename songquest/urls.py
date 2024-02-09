@@ -29,6 +29,8 @@ urlpatterns = [
          name='spotify-auth-callback'),
 #     path('redirect/', views.spotify_redirect, name='spotify-redirect'),
     path('refresh-token/', views.refresh_access_token, name='refresh-token'),
+    path('get-user-playlists/',
+         views.get_user_playlists, name='get-user-playlists'),
     path('create-playlist/<int:user_id>/',
          views.create_playlist, name='create-playlist'),
     path('add-to-playlist/<str:playlist_id>/',

@@ -124,7 +124,11 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
             onClick={handleLogout}
             style={{ textDecoration: 'none', color: 'white' }}
           >
-            {!isXsScreen && !isSmScreen && <Typography>Logout</Typography>}
+            {!isXsScreen && !isSmScreen && (
+              <Typography variant='h6' letterSpacing='1px'>
+                Logout
+              </Typography>
+            )}
             <LogoutIcon />
           </IconButton>
         }

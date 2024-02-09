@@ -8,14 +8,18 @@ import {
   MenuItem,  
   Select,  
   Tooltip, 
-  Typography 
+  Typography, 
+  useMediaQuery
 } from "@mui/material";
 import CancelIcon from '@mui/icons-material/Cancel';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { SpotifyAuth } from "../../thunks";
 import { AutocompleteParameter } from "./AutocompleteParameter";
+import theme from "theme";
 import { SearchParameter } from "./SearchParameter";
-import { lazy } from "react";
+import { lazy, useState } from "react";
+import { connect } from "react-redux";
+import { resetDataLoaded, resetQueryParameter, setQueryParameter } from "actions";
 
 const SliderModal = lazy(() => import('./SliderModal'));
 
@@ -34,37 +38,112 @@ const autocompleteParam = ['songs', 'performers', 'genres', 'market']
 
 const SpotifyForm = ({
   classes,
-  isSmScreen,
-  isXsScreen,
-  isLgScreen,
-  isXlScreen,
-  playlistName,
-  setPlaylistName,
   parameters,
-  selectOpen,
-  setSelectOpen,
-  targetParams,
-  handleTargetParamChange,
-  handleTargetParamDelete,
-  handleChange,
-  invalidSearch,
-  targetParamValues,
   tracks,
   artists,
   genres,
   markets,
-  setTargetParamValues,
-  handleSelectedOptions,
   setParameters,
   query,
   onSetQueryParameter,
+  onResetDataLoaded,
+  onResetQueryParameter,
   openModal,
   setOpenModal,
-  isMdScreen,
   handleSubmit,
   onSubmit,
-  handleReset,
 }) => {
+  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+
+  const [selectOpen, setSelectOpen] = useState(false);
+  const [invalidSearch, setInvalidSearch] = useState(false);
+  const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
+  const [targetParamValues, setTargetParamValues] = useState({
+    songs: [],
+    performers: [],
+    genres: [],
+  });
+  const [targetParamLabels, setTargetParamLabels] = useState({
+    songs: [],
+    performers: [],
+    genres: [],
+  });
+
+
+  const handleTargetParamChange = (e) => {
+    setSelectOpen(!selectOpen);
+    setTargetParams(e.target.value);
+  };
+
+  const handleTargetParamDelete = (value) => {
+    setTargetParams((prevTargetParam) =>
+      prevTargetParam.filter((param) => param !== value)
+    )
+  };
+
+  const handleSelectedOptions = (parameter, selectedOptions) => {
+    setTargetParamLabels(prevLabels => ({
+      ...prevLabels,
+      [parameter]: selectedOptions,
+    }))
+  };
+
+  const handleChange = (param, value) => {
+
+    const sliderParam = value?.hasOwnProperty('min') 
+    || value?.hasOwnProperty('max') 
+    ||value?.hasOwnProperty('target')
+    
+    setInvalidSearch(false);
+
+    if (!sliderParam) {
+      setParameters(prevParameters => {
+        if (param === 'market' || param === 'limit') {
+            return {
+                ...prevParameters,
+                [param]: value
+            };
+        } else {
+            if (!prevParameters[param].includes(value) 
+              && Object.values(targetParamValues).reduce((total, array) => 
+              total + array.length, 0) < 5) {
+              return {
+                ...prevParameters,
+                [param]: [...prevParameters[param], value]
+              };
+            } else {
+                return prevParameters;
+            }
+          }
+      })} 
+  };
+
+  const handleReset = () => {
+    setInvalidSearch(false);
+    setParameters(query);
+    setTargetParams([]);
+    setTargetParamLabels(
+      {
+        songs: [],
+        performers: [],
+        genres: [],
+      }
+    );
+    setTargetParamValues(
+      {
+        songs: [],
+        performers: [],
+        genres: [],
+      }
+    );
+    onResetDataLoaded();
+    onResetQueryParameter(); 
+  };
+  
   return (
     <>
       <SpotifyAuth>
@@ -214,12 +293,12 @@ const SpotifyForm = ({
                       display: 'flex',
                       justifyContent: 'space-between',
                       '&:hover, &:active, &.MuiFocusVisible': {
-                      border: '2px solid rgba(89, 149, 192, 0.5)',
-                      background: 'rgba(48, 130, 164, 0.1)',
-                      boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                      backdropFilter: 'blur(5.1px)',
-                      WebkitBackdropFilter: 'blur(5.1px)',
-                    },
+                        border: '2px solid rgba(89, 149, 192, 0.5)',
+                        background: 'rgba(48, 130, 164, 0.1)',
+                        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+                        backdropFilter: 'blur(5.1px)',
+                        WebkitBackdropFilter: 'blur(5.1px)',
+                      },
                   }} 
                   fullWidth
                   variant='outlined'
@@ -309,4 +388,22 @@ const SpotifyForm = ({
   )
 };
 
-export default SpotifyForm;
+const mapStateToProps = (state) => {
+  return {
+    tracks: state.discovery.tracks,
+    artists: state.discovery.artists,
+    markets: state.discovery.markets,
+    genres: state.discovery.genres,
+    query: state.discovery.query,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  onResetQueryParameter: () =>
+    dispatch(resetQueryParameter()),
+  onResetDataLoaded: () =>
+    dispatch(resetDataLoaded()),
+  onSetQueryParameter: (query, parameter, newValues) => dispatch(setQueryParameter(query, parameter, newValues)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SpotifyForm);

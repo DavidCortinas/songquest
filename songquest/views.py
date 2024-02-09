@@ -1,5 +1,6 @@
 import base64
 from urllib.parse import urlencode
+from django.forms import model_to_dict
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 import json
@@ -13,7 +14,7 @@ from django.http import JsonResponse
 import urllib.parse
 from time import time
 
-from songquest.playlists.models import Playlist
+from songquest.playlists.models import Playlist, Song
 from .openai.playlistGenerator import initial_request, subsequent_requests
 from .chatgpt import ChatGPT
 from rest_framework import status
@@ -184,10 +185,7 @@ def update_username(request, user_id):
 @csrf_exempt
 def discover_song(request):
     data = json.loads(request.body)
-    print('discover data: ', data)
-
     response = get_recommendations(data)
-    print('discover response: ', response)
 
     return JsonResponse(
         response,
@@ -206,21 +204,7 @@ def get_access_token_view(request):
     if access_token:
         if token_expired(expires_at):
             access_token, expires_in = get_access_token()
-        # # Use the access token in your API requests
-        # headers = {
-        #     "Authorization": f"Bearer {access_token}",
-        # }
-        # # Make your API request with the headers
 
-        # # Check if the access token has expired
-        # if expires_at <= time():
-        #     # Access token has expired, get a new one
-        #     access_token, expires_in = get_access_token()
-
-        #     if access_token:
-        #         # Update the headers with the new access token
-        #         headers["Authorization"] = f"Bearer {access_token}"
-        #         # Make your API request with the updated headers
         return JsonResponse({'access_token': access_token, 'expires_at': expires_at})
     else:
         return JsonResponse({'error': 'Failed to obtain access token'}, status=500)
@@ -361,7 +345,9 @@ def get_spotify_token_info(code):
         return token_info
     else:
         # Log or handle the error appropriately
-        logging.error('Failed to obtain access token from Spotify API')
+        logging.error(
+            f'Failed to obtain access token from Spotify API. Status code: {token_response.status_code}, Response: {token_response.text}'
+        )
         return None
 
 
@@ -385,19 +371,17 @@ def handle_spotify_callback(request):
 
             # Associate token info with the current user
             user.spotify_access = access_token
-            user.save()
             user.spotify_refresh = refresh_token
-            user.save()
             user.spotify_expires_at = expires_at
             user.save()
 
-            spotify_connection = bool(user.spotify_refresh)
+            spotify_connected = user.spotify_refresh is not None
 
             # Define the target URL where you want to redirect
-            target_url = f'http://localhost:3000/?spotify_connection={spotify_connection}'
+            target_url = f'http://localhost:3000/?spotify-connected={spotify_connected}'
 
             # Redirect the user's browser to the target URL
-            return HttpResponseRedirect(target_url)
+            return JsonResponse({'spotify_connected': spotify_connected})
         else:
             # Handle error: token not in response or token_info is None
             logging.error("Error retrieving access token from Spotify or token_info is None")
@@ -418,7 +402,6 @@ def token_expired(expiration_time):
 
 
 def refresh_spotify_access(refresh_token):
-    print('refresh')
     client_id = os.environ.get('SPOTIFY_CLIENT_ID')
     client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
 
@@ -427,7 +410,6 @@ def refresh_spotify_access(refresh_token):
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token
     }
-    print('token_data: ', token_data)
 
     # Encode the client_id and client_secret in base64
     credentials = f'{client_id}:{client_secret}'.encode('utf-8')
@@ -447,7 +429,6 @@ def refresh_spotify_access(refresh_token):
         # Successfully obtained refreshed access token
         token_info = token_response.json()
         access_token = token_info.get('access_token')
-        print('access_token: ', access_token)
 
         # You can now use the refreshed access_token for Spotify API requests
 
@@ -455,16 +436,12 @@ def refresh_spotify_access(refresh_token):
         return token_info
 
     # Handle errors or return an appropriate response if the refresh token is missing or invalid
-    print(token_response.status_code)
-    print(token_response.text)
     return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
 
 
 def refresh_access_token(request):
-    print('refresh')
     # # Retrieve the refresh token from the request
     data = json.loads(request.body.decode('utf-8'))
-    print(data)
     refresh_token = data['refresh_token']
 
     if refresh_token:
@@ -476,7 +453,6 @@ def refresh_access_token(request):
             'grant_type': 'refresh_token',
             'refresh_token': refresh_token
         }
-        print('token_data: ', token_data)
 
         # Encode the client_id and client_secret in base64
         credentials = f'{client_id}:{client_secret}'.encode('utf-8')
@@ -502,61 +478,39 @@ def refresh_access_token(request):
             # Return the refreshed access token in the response
             return JsonResponse(token_info, status=200)
 
-        # Handle errors or return an appropriate response if the refresh token is missing or invalid
-        print(token_response.status_code)
-        print(token_response.text)
+    # Handle errors or return an appropriate response if the refresh token is missing or invalid
     return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
 
 
-@csrf_exempt
-def get_users_playlists(request):
-    if request.method == 'GET':
-        data = json.loads(request.body.decode('utf-8'))
-
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-
 def generate_unique_playlist_id():
-    # Implement your logic to generate a unique playlist ID
-    last_playlist = Playlist.objects.all().order_by('id').last()
-    if last_playlist:
-        return last_playlist.id + 1
-    else:
-        return 1
+    last_playlist = Playlist.objects.order_by('-id').first()
+    return last_playlist.id + 1 if last_playlist else 1
 
 
 @csrf_exempt
 def create_playlist(request, user_id):
-    user = request.user
-    print(user)
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
     try:
         data = json.loads(request.body.decode('utf-8'))
-        print('create data: ', data)
         user = User.objects.get(id=user_id)
         spotify_access = user.spotify_access
         spotify_refresh = user.spotify_refresh
         expires_at = user.spotify_expires_at
-        print('before')
-        print(expires_at)
 
         if token_expired(expires_at):
-            print('if')
             token_info = refresh_spotify_access(spotify_refresh)
-            print('token_info: ', token_info)
             if token_info:
                 spotify_access = token_info['access_token']
-                spotify_expires_at = time() + token_info['expires_in']
-                print('refreshed spotify_access: ', spotify_access)
-                print('refreshed spotify_expires_at: ', spotify_expires_at)
+                user.spotify_access = spotify_access
+                expires_at = time() + token_info['expires_in']
+                user.spotify_expires_at = expires_at
+                user.save()
             else:
                 return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
-        print('then')      
+    
         spotify_user = get_spotify_user_data(spotify_access)
-        print(spotify_user)
 
         spotify_user_id = spotify_user['id']
         spotify_url = f"https://api.spotify.com/v1/users/{spotify_user_id}/playlists"  # Ensure the URL is correct
@@ -587,8 +541,7 @@ def create_playlist(request, user_id):
             playlist_data = {
                 'id': playlist.id,
                 'name': playlist.name,
-                'spotify_id': playlist.spotify_id,
-                # Add any other fields you want to include
+                'songs': [],
             }
 
             return JsonResponse(playlist_data, status=200)
@@ -608,7 +561,6 @@ def add_to_playlist(request, playlist_id):
     try:
         data = json.loads(request.body.decode('utf-8'))
         user_id = data['user']
-        print('add data: ', data)
         user = User.objects.get(id=user_id)
 
         spotify_access = user.spotify_access
@@ -617,241 +569,88 @@ def add_to_playlist(request, playlist_id):
 
         if token_expired(expires_at):
             token_info = refresh_spotify_access(spotify_refresh)
-            print('token_info: ', token_info)
             if token_info:
                 spotify_access = token_info['access_token']
-                spotify_expires_at = time() + token_info['expires_in']
-                print('refreshed spotify_access: ', spotify_access)
-                print('refreshed spotify_expires_at: ', spotify_expires_at)
+                user.spotify_access = spotify_access
+                expires_at = time() + token_info['expires_in']
+                user.spotify_expires_at = expires_at
+                user.save()
             else:
                 return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
 
-        spotify_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"  # Ensure the URL is correct
+        playlist = Playlist.objects.get(id=playlist_id)
+        spotify_id = playlist.spotify_id
+        spotify_url = f"https://api.spotify.com/v1/playlists/{spotify_id}/tracks"  # Ensure the URL is correct
 
         headers = {
             'Authorization': f'Bearer {spotify_access}',
             'Content-Type': 'application/json'
         }
-        
+
+        tracks = data['tracks']
+
         body = json.dumps({
-            'uris': data['tracks'],
+            'uris': [f'spotify:track:{track["spotifyId"]}' for track in tracks],
         })
 
+        # ADD TRACKS TO PLAYLIST INSTANCE IN DB
+        for track in tracks:
+            print('spotify_id:', track['spotifyId'])
+            print('TRACK: ', track)
+            name = track['name']
+            artists = [artist['name'] for artist in track['artists']]
+            spotify_id = track['spotifyId']
+            isrc = track['isrc']
+
+            song, created = Song.objects.get_or_create(
+                spotify_id=spotify_id,
+                defaults={'name': name, 'artists': ', '.join(artists), 'isrc': isrc}
+            )
+
+            playlist.songs.add(song)
+        
         response = requests.post(spotify_url, headers=headers, data=body)
-        print(response.text)
 
         if response.status_code == 201:
-            return JsonResponse({'message': 'Playlist created successfully'}, status=200)
+            playlist_data = {
+                'id': playlist.id,
+                'name': playlist.name,
+                'songs': list(playlist.songs.values('id', 'name', 'artists', 'spotify_id')),
+            }
+            return JsonResponse({'playlist': playlist_data, 'message': 'Playlist created successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Failed to create playlist'}, status=response.status_code)
 
     except Exception as e:
         print('Error: ', str(e))
         return JsonResponse({'error': 'Server error'}, status=500)
+    
 
+@csrf_exempt
+def get_user_playlists(request):
+    user_id = request.headers.get('User-Id')
+    if not user_id:
+        return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
 
-# @csrf_exempt
-# def add_to_spotify(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body.decode('utf-8'))
-#         recommendation = data.get('recommendation')
-#         email = data.get('email')
-#         user = User.objects.get(email=email)
-#         spotify_access = user.spotify_access
-#         spotify_refresh = user.spotify_refresh
-#         expires_at = user.spotify_expires_at
+    try:
+        user = get_user_model().objects.get(id=user_id)
+    except get_user_model().DoesNotExist:
+        return JsonResponse({'error': 'Invalid User-Id'}, status=400)
 
-#         try:
-#              # Check if the access token is expired -- MOVED TO FRONTEND
-#             if token_expired(expires_at):
-#                 token_info = refresh_spotify_access(spotify_refresh)
-#                 print('token_info: ', token_info)
-#                 if token_info:
-#                     spotify_access_token = token_info['access_token']
-#                     spotify_expires_at = time() + token_info['expires_in']
-#                     user.spotify_access = spotify_access_token
-#                     user.spotify_expires_at = spotify_expires_at
-#                     user.save()
-#                     print('refreshed spotify_access: ', spotify_access)
-#                     print('refreshed spotify_expires_at: ', spotify_expires_at)
+    playlists = Playlist.objects.filter(user=user)
 
-#                 else:
-#                     return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
+    serialized_playlists = []
+    for playlist in playlists:
+        serialized_playlist = {
+            'id': playlist.id,
+            'name': playlist.name,
+            'spotifyId': playlist.spotify_id,
+            'songs': list(playlist.songs.values('id', 'name', 'artists', 'spotify_id')),
+        }
+        serialized_playlists.append(serialized_playlist)
 
-#             spotify_url = 'https://api.spotify.com/v1/me/tracks'
-
-#             # Set up the headers with the access token
-#             headers = {
-#                 'Authorization': f'Bearer {spotify_access}',
-#                 'Content-Type': 'application/json'
-#             }
-
-#             # Define the track IDs to be added (modify this as needed)
-#             track_id = recommendation['id']
-
-#             # Create a JSON payload with the track IDs
-#             payload = {
-#                 "ids": [track_id]
-#             }
-
-#             # Make a PUT request to the Spotify API to add the tracks
-#             response = requests.put(
-#                 spotify_url, headers=headers, data=json.dumps(payload))
-
-#             # Check if the response status code is 200 (OK), indicating success
-#             if response.status_code == 200:
-#                 # Tracks were added to the user's library successfully
-#                 return JsonResponse({'message': 'Added to Spotify library successfully'}, status=200)
-#             else:
-#                 # Handle other response statuses here (e.g., error handling)
-#                 error_message = 'Failed to add tracks to Spotify library'
-
-#                 # Print the response content for more information
-#                 print('Response content:', response.text)
-
-#                 return JsonResponse({'error': error_message}, status=400)
-
-#         except requests.exceptions.SSLError as ssl_error:
-#             # Handle SSL-related errors
-#             print('SSL Error:', str(ssl_error))
-#             return JsonResponse({'error': 'SSL error occurred'}, status=400)
-#         except Exception as e:
-#             print('Error:', str(e))
-#             return JsonResponse({'error': 'Failed to add track to Spotify'}, status=400)
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-
-# @csrf_exempt
-# def check_users_tracks(request):
-#     if request.method == 'POST':
-#         print('check: ', request)
-#         data = json.loads(request.body.decode('utf-8'))
-#         print(data)
-#         recommendation = data.get('recommendation')
-#         email = data.get('email')
-#         user = User.objects.get(email=email)
-#         spotify_access = user.spotify_access
-#         spotify_refresh = user.spotify_refresh
-#         expires_at = user.spotify_expires_at
-#         print('expires: ', expires_at)
-#         print('expired: ', token_expired(expires_at))
-
-#         try:
-#             # Check if the access token is expired -- MOVED TO FRONTEND
-#             if token_expired(expires_at):
-#                 print('EXPIRED')
-#                 print(spotify_refresh)
-#                 token_info = refresh_spotify_access(spotify_refresh)
-#                 print('token_info: ', token_info)
-#                 if token_info:
-#                     spotify_access_token = token_info['access_token']
-#                     spotify_expires_at = time() + token_info['expires_in']
-#                     user.spotify_access = spotify_access_token
-#                     user.spotify_expires_at = spotify_expires_at
-#                     user.save()
-#                     print('refreshed spotify_access: ', spotify_access)
-#                     print('refreshed spotify_expires_at: ', spotify_expires_at)
-
-#                 else:
-#                     return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
-
-#             spotify_url = "https://api.spotify.com/v1/me/tracks/contains"
-
-#             headers = {
-#                 'Authorization': f'Bearer {spotify_access}',
-#                 'Content-Type': 'application/json'
-#             }
-
-#             track_id = recommendation['id']
-
-#             params = {
-#                 "ids": [track_id]
-#             }
-
-#             response = requests.get(
-#                 spotify_url, headers=headers, params=params
-#             )
-
-#             if response.status_code == 200:
-#                 print('200')
-#                 track_is_saved = response.json()
-#                 return JsonResponse(track_is_saved, safe=False, status=200)
-#             else:
-#                 error_message = 'Failed to check saved tracks'
-#                 return JsonResponse({'error': error_message}, status=400)
-
-#         except requests.exceptions.SSLError as ssl_error:
-#             # Handle SSL-related errors
-#             print('SSL Error:', str(ssl_error))
-#             return JsonResponse({'error': 'SSL error occurred'}, status=400)
-#         except Exception as e:
-#             print('Error:', str(e))
-#             return JsonResponse({'error': 'Failed to check users tracks'}, status=400)
-
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-
-# @csrf_exempt
-# def remove_users_tracks(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body.decode('utf-8'))
-#         recommendation = data.get('recommendation')
-#         email = data.get('email')
-#         user = User.objects.get(email=email)
-#         spotify_access = user.spotify_access
-#         spotify_refresh = user.spotify_refresh
-#         expires_at = user.spotify_expires_at
-
-#         try:
-#             # Check if the access token is expired -- MOVED TO FRONTEND
-#             if token_expired(expires_at):
-#                 token_info = refresh_spotify_access(spotify_refresh)
-#                 print('token_info: ', token_info)
-#                 if token_info:
-#                     spotify_access = token_info['access_token']
-#                     spotify_expires_at = time() + token_info['expires_in']
-#                     print('refreshed spotify_access: ', spotify_access)
-#                     print('refreshed spotify_expires_at: ', spotify_expires_at)
-
-#                 else:
-#                     return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
-
-#             spotify_url = "https://api.spotify.com/v1/me/tracks"
-
-#             headers = {
-#                 'Authorization': f'Bearer {spotify_access}',
-#                 'Content-Type': 'application/json'
-#             }
-
-#             track_id = recommendation['id']
-
-#             params = {
-#                 "ids": [track_id]
-#             }
-
-#             response = requests.delete(
-#                 spotify_url, headers=headers, params=params
-#             )
-
-#             if response.status_code == 200:
-#                 # Tracks were removed from the user's library successfully
-#                 return JsonResponse({'message': 'Removed Spotify library successfully'}, status=200)
-#             else:
-#                 error_message = 'Failed to remove saved tracks'
-#                 return JsonResponse({'error': error_message}, status=400)
-
-#         except requests.exceptions.SSLError as ssl_error:
-#             # Handle SSL-related errors
-#             print('SSL Error:', str(ssl_error))
-#             return JsonResponse({'error': 'SSL error occurred'}, status=400)
-#         except Exception as e:
-#             print('Error:', str(e))
-#             return JsonResponse({'error': 'Failed to remove users tracks'}, status=400)
-
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=400)
+    print('get playlist return: ', serialized_playlists)
+    return JsonResponse({'playlists': serialized_playlists})
 
 
 # @csrf_exempt

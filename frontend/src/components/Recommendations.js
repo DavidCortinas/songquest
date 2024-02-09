@@ -3,6 +3,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { useNavigate } from "react-router-dom";
 
 const Recommendation = ({
   classes,
@@ -15,9 +16,12 @@ const Recommendation = ({
   onRemoveFromCurrentPlaylist,
   user,
 }) => {
+    const navigate = useNavigate();
     const recommendationInPlaylist = currentPlaylist.some(track => track.id === recommendation.id);
 
     const handleAddToPlaylistClick = () => {
+      !user.user.spotify_connected ?
+      navigate('/spotify-connect') :
       recommendationInPlaylist ? 
       onRemoveFromCurrentPlaylist(recommendation) : 
       onAddToCurrentPlaylist(recommendation);
@@ -55,22 +59,19 @@ const Recommendation = ({
         <Box>
           <Tooltip
             arrow
-            title={user && !recommendationInPlaylist ? 
+            title={user?.user.spotify_connected && !recommendationInPlaylist ? 
               "Add to current playlist" :
               recommendationInPlaylist ?
               "Remove from current playlist" :
               "Login to create playlists and more"
             }
           >
-            {recommendationInPlaylist ? (
-              <Button onClick={handleAddToPlaylistClick}>
-                <RemoveIcon />
-              </Button>
-              ) : (
-              <Button onClick={handleAddToPlaylistClick}>
+            <Button onClick={handleAddToPlaylistClick}>
+              {recommendationInPlaylist ? 
+                <RemoveIcon /> :
                 <AddIcon />
-              </Button>
-            )}
+              }
+            </Button>
           </Tooltip>
         </Box>
       </li>

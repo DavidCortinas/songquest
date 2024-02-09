@@ -13,7 +13,6 @@ start_time = time()
 
 
 def get_access_token():
-    print('get_access_token')
     # Encode the client ID and client secret as base64
     encoded_credentials = base64.b64encode(
         f"{client_id}:{client_secret}".encode()).decode()
@@ -29,21 +28,15 @@ def get_access_token():
         "client_secret": client_secret
     }
 
-    print('headers: ', headers)
-    print('payload: ', payload)
-
     # Make the token request
     response = requests.post(
         "https://accounts.spotify.com/api/token", headers=headers, data=payload)
-    print('response: ', response)
 
     if response.status_code == 200:
         # Parse the response to retrieve the access token and expiration time
         token_data = response.json()
         access_token = token_data["access_token"]
         expires_in = token_data["expires_in"]
-        print('access_token: ', access_token)
-        print('expires_in: ', expires_in)
 
         return access_token, expires_in
     else:
@@ -200,69 +193,49 @@ def get_recommendations(parameters):
     start_time = time()
 
     try:
-        # try:
-        #     if performer:
-        #         query = f'track:{song} artist:{performer}'
-        #     else:
-        #         query = song
+        # Get the initial access token
+        access_token, expires_in = get_access_token()
 
-        #     results = sp.search(q=query, type='track', limit=1)
+        if access_token:
+            # Use the access token in your API requests
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+            }
+            # Make your API request with the headers
 
-        #     if len(results['tracks']['items']) > 0:
-        #         album_id = results['tracks']['items'][0]['album']['id']
+            # Check if the access token has expired
+            if expires_in <= 0:
+                # Access token has expired, get a new one
+                access_token, expires_in = get_access_token()
 
-        # except Exception as e:
-        #     print('Spotipy Album ID Error: ', e)
+                if access_token:
+                    # Update the headers with the new access token
+                    headers["Authorization"] = f"Bearer {access_token}"
+                    # Make your API request with the updated headers
+        else:
+            # Handle the error case
+            print("Failed to obtain access token.")
 
-        try:
-            print('parameters: ', parameters)
+        separator = "%2C+"
 
-            # Get the initial access token
-            access_token, expires_in = get_access_token()
+        url = format_spotify_url(parameters)
 
-            if access_token:
-                # Use the access token in your API requests
-                headers = {
-                    "Authorization": f"Bearer {access_token}",
-                }
-                # Make your API request with the headers
+        response = requests.get(url, headers=headers)
+        print('get recc response: ', response)
 
-                # Check if the access token has expired
-                if expires_in <= 0:
-                    # Access token has expired, get a new one
-                    access_token, expires_in = get_access_token()
+        if response.status_code == 200:
+            data = response.json()
 
-                    if access_token:
-                        # Update the headers with the new access token
-                        headers["Authorization"] = f"Bearer {access_token}"
-                        # Make your API request with the updated headers
-            else:
-                # Handle the error case
-                print("Failed to obtain access token.")
+            return data
 
-            separator = "%2C+"
-
-            url = format_spotify_url(parameters)
-
-            response = requests.get(url, headers=headers)
-            print('get recc response: ', response)
-
-            if response.status_code == 200:
-                data = response.json()
-
-                return data
-
-            else:
-                print(
-                    f'Request failed with status code: {response.status_code}')
-        except Exception as e:
-            print('Spotify Discovery Error: ', e)
-
+        else:
+            print(
+                f'Request failed with status code: {response.status_code}')
     except Exception as e:
-        print('Spotify Get Discovery Error: ', e)
+        print('Spotify Discovery Error: ', e)
 
-    end_time = time()
+    # end_time = time()
 
-    elapsed_time = end_time - start_time
+    # elapsed_time = end_time - start_time
 
     print(f"Spotify elapsed run time: {elapsed_time} seconds")
