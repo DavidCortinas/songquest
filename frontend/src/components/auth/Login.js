@@ -9,11 +9,12 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { connect, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import theme from '../theme'
+import theme from '../../theme'
 import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { checkRegistration, getSpotifyUserAuth, handleUpdateUsername, login, registerUser } from "../thunks";
-import { setCurrentUser } from "../actions";
+import { checkRegistration, getSpotifyUserAuth, getUserPlaylists, handleUpdateUsername, login, registerUser } from "../../thunks";
+import { setCurrentUser } from "../../actions";
+import SpotifyConnect from "../SpotifyConnect";
 
 const useStyles = makeStyles(() => (
   {
@@ -175,7 +176,12 @@ const UsernameInput = ({
     );
 };
 
-export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
+export const Login = ({ 
+    onConnectThroughSpotify, 
+    onUpdateUsername, 
+    onGetUserPlaylists,
+    user 
+}) => {
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
     const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -207,7 +213,9 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
         if (user?.user.username) {
             setUsernameCreated(true);
         };
-    }, [user])
+
+        onGetUserPlaylists(user?.user.id);
+    }, [user]);
 
     const onEmailSubmit = async () => {
         if (!emailValue) {
@@ -253,7 +261,11 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
             const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
 
             dispatch(setCurrentUser(currentUser));
-            currentUser && navigate('/')
+            if (currentUser && !currentUser.user.spotify_connected) {
+                navigate('/spotify-connect');
+            } else if (currentUser) {
+                navigate('/')
+            }
         } catch (error) {
             console.log('Error: ', error);
         }
@@ -272,7 +284,8 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
         try {
             await dispatch(registerUser(emailValue, passwordValue, usernameValue));
             const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
-            dispatch(setCurrentUser(currentUser))
+            dispatch(setCurrentUser(currentUser));
+            navigate('/spotify-connect');
         } catch (error) {
             console.log('Error: ', error);
         }
@@ -508,70 +521,6 @@ export const Login = ({ onConnectThroughSpotify, onUpdateUsername, user }) => {
                         handleSubmit={handleSubmit}
                         onCreateUsername={onCreateUsername}
                     />
-                ) : user
-                ? (
-                    <Box display='flex' justifyContent='center' paddingTop='1rem'>
-                        <Box width='100%'>
-                                <Box className={classes.box}>
-                                    <CardHeader
-                                        title='Connect to Spotify'
-                                        titleTypographyProps={{
-                                            width: '100%',
-                                            letterSpacing: '1px',
-                                            variant: isSmScreen || isXsScreen
-                                            ? 'h6'
-                                            : 'h5',
-                                            textAlign: 'center',
-                                            color: 'white',
-                                            paddingTop: '1rem'
-                                        }}
-                                        subheader='Link to your Spotify library to add tracks, create playlists and more!'
-                                        subheaderTypographyProps={{ 
-                                            width: '100%',
-                                            letterSpacing: '1px', 
-                                            variant: isXlScreen || isLgScreen 
-                                            ? 'body1'
-                                            : 'body2',
-                                            textAlign: 'center',
-                                            alignItems: 'center',
-                                            color: 'whitesmoke',
-                                        }}
-                                    />
-                                    <Button
-                                        sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            '&:hover': {
-                                            backgroundColor: 'transparent !important',
-                                            },
-                                        }}
-                                        onClick={handleConnectThroughSpotify}
-                                        >
-                                        <img
-                                            width='150em'
-                                            style={{
-                                            margin: '0 auto',
-                                            display: 'block', 
-                                            }}
-                                            src={'/static/images/spotifyLogo.png'}
-                                        />
-                                        </Button>
-                                    <br />
-                                    <Grid className={classes.buttonsContainer}>
-                                        <Button
-                                            type="submit"
-                                            className={classes.button}
-                                            onClick={handleSubmit(onPasswordSubmit)}
-                                        >
-                                            Skip
-                                            <NavigateNextIcon />
-                                        </Button>
-                                    </Grid>
-                                    <br />
-                                </Box>
-                        </Box>
-                    </Box>
                 ) : (
                     <>
                         <Box display='flex' justifyContent='center' paddingTop='1rem'>
@@ -696,6 +645,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps= (dispatch) => ({
     onConnectThroughSpotify: () => dispatch(getSpotifyUserAuth()),
     onUpdateUsername: (userId, username) => dispatch(handleUpdateUsername(userId, username)),
+    onGetUserPlaylists: (userId) => dispatch(getUserPlaylists(userId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

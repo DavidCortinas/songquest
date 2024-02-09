@@ -2,13 +2,18 @@ import { createSlice } from '@reduxjs/toolkit';
 import {
   ADD_TO_CURRENT_PLAYLIST,
   ADD_TO_SAVED_PLAYLIST,
+  CLEAR_RECOMMENDATIONS,
   CLEAR_SEARCH_SONG_ERROR,
+  CLEAR_SEEDS_ARRAY,
   CONFIRM_SPOTIFY_ACCESS,
   CONFIRM_USER,
   CREATE_PLAYLIST,
   DELETE_PLAYLIST,
   DISCOVER_SONG,
   DISCOVER_SONG_SUCCESS,
+  GET_USER_PLAYLISTS_FAILURE,
+  GET_USER_PLAYLISTS_REQUEST,
+  GET_USER_PLAYLISTS_SUCCESS,
   RECEIVE_LYRIC_RESULTS,
   RECEIVE_SPOTIFY_MARKETS,
   RECEIVE_SPOTIFY_PERFORMER_RESULTS,
@@ -230,7 +235,10 @@ export const user = (state = { currentUser: null }, action) => {
         ...state,
         currentUser: {
           ...state.currentUser,
-          spotifyConnection: payload.spotifyConnection
+          user: {
+            ...state.currentUser.user,
+            spotify_connected: payload.spotifyConnected
+          }
         }
       };
     case UPDATE_USERNAME:
@@ -290,6 +298,24 @@ const generateUniqueId = () => {
 export const playlist = (state = {playlists: [], currentPlaylist: []}, action) => {
   const { type, payload } = action;
   switch (type) {
+    case GET_USER_PLAYLISTS_REQUEST:
+      return { 
+        ...state, 
+        loading: true, 
+        error: null 
+      };
+    case GET_USER_PLAYLISTS_SUCCESS:
+      return { 
+        ...state, 
+        loading: false, 
+        playlists: payload.playlists,
+      };
+    case GET_USER_PLAYLISTS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: payload.error,
+      };
     case ADD_TO_CURRENT_PLAYLIST:
       return {
         ...state,
@@ -325,12 +351,12 @@ export const playlist = (state = {playlists: [], currentPlaylist: []}, action) =
           if (playlist.id === payload.playlistId) {
             return {
               ...playlist,
-              items: [...playlist.items, ...payload.items]
+              songs: [...playlist.songs, ...payload.songs]
             };
           }
           return playlist;
         })
-      }
+      };
     default:
       return state;
   };
@@ -375,6 +401,19 @@ export const discovery = (state = initialDiscoveryState, action) => {
               target: newValues[2],
             }
             }
+        };
+      case CLEAR_SEEDS_ARRAY:
+        return {
+          ...state,
+          recommendations: {
+            ...state.recommendations,
+            seeds: [],
+          },
+        };
+      case CLEAR_RECOMMENDATIONS:
+        return {
+          ...state,
+          recommendations: {},
         };
       case RECEIVE_LYRIC_RESULTS:
         return {

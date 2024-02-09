@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { 
   searchSongSuccess, 
   searchSong, 
@@ -14,7 +15,10 @@ import {
   updateUsername, 
   receiveLyricResults,
   createPlaylist,
-  addToSavedPlaylist
+  addToSavedPlaylist,
+  getUserPlaylistsRequest,
+  getUserPlaylistsSuccess,
+  getUserPlaylistsFailure
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
@@ -126,9 +130,6 @@ export const login = (
   password, 
   username, 
 ) => async (dispatch) => {
-  console.log('login email: ', email)
-  console.log('login password: ', password)
-  console.log('login username: ', username)
   try {
     const csrfToken = await getCSRFToken();
     const body = JSON.stringify({
@@ -160,12 +161,13 @@ export const login = (
     );
 
     dispatch(authSlice.actions.setAccount(res.user));
+    
 
     return res
   } catch (error) {
     console.log('Error: ' + error.message);
   }
-}
+};
 
 export const handleUpload = (filelist) => async (filelist) => {
   const UPLOAD_URL = "/api/upload";
@@ -340,45 +342,6 @@ export const getSpotifyMarkets = (
   };
 }
 
-// export const addToSpotify = (
-//   recommendation, 
-//   email,
-// ) => async (dispatch) => {
-//   const getCookie = (name) => {
-//     const value = `; ${document.cookie}`;
-//     const parts = value.split(`; ${name}=`);
-//     if (parts.length === 2) return parts.pop().split(';').shift();
-//   };
-
-//   try {
-//     const csrfToken = getCookie('csrftoken');
-//     const headers = {
-//       // 'Content-Type': 'application/json',
-//       'X-CSRFToken': csrfToken,
-//     };
-
-//     const response = await fetch('http://localhost:8000/add-to-spotify/', {
-//       method: 'POST',
-//       body: JSON.stringify({ 
-//         'recommendation': recommendation,
-//         'email': email,
-//       }),
-//       headers: headers,
-//       credentials: 'include',
-//     });
-
-//     if (response.status === 200) {
-//       // Authorization request was successful, you can handle the response here
-//       console.log('Add to Spotify request successful');
-//     } else {
-//       // Handle other response statuses here (e.g., error handling)
-//       console.error('Add to Spotify request failed');
-//     }
-//   } catch (error) {
-//     // Handle any network errors or exceptions here
-//     console.error('Error:', error);
-//   }
-// }
 
 export const checkTokenExpiration = async(
   headers, 
@@ -413,95 +376,6 @@ export const checkTokenExpiration = async(
       }
     }
 }
-
-// export const checkUsersTracks = (
-//   recommendation,
-//   email,
-// ) => async (dispatch) => {
-//   const getCookie = (name) => {
-//     const value = `; ${document.cookie}`;
-//     const parts = value.split(`; ${name}=`);
-//     if (parts.length === 2) return parts.pop().split(';').shift();
-//   };
-
-//   try {
-//     const csrfToken = getCookie('csrftoken');
-//     const headers = {
-//       // 'Content-Type': 'application/json',
-//       'X-CSRFToken': csrfToken,
-//     };
-
-//     // Continue with your API requests using the current or refreshed access token
-//     const apiResponse = await fetch('http://localhost:8000/check-users-tracks/', {
-//       method: 'POST', // Adjust the method and endpoint as needed
-//       body: JSON.stringify({
-//         'recommendation': recommendation,
-//         'email': email,
-//       }),
-//       headers: headers,
-//       credentials: 'include',
-//     });
-
-//     if (apiResponse.status === 200) {
-//       // Request was successful, you can handle the response here
-//       console.log('API request successful');
-//       const responseData = await apiResponse.json();
-
-//       return responseData;
-//     } else {
-//       // Handle other response statuses here (e.g., error handling)
-//       console.error('API request failed');
-//     }
-//   } catch (error) {
-//     // Handle any network errors or exceptions here
-//     console.error('Error:', error);
-//   }
-// };
-
-
-// export const removeUsersTracks = (
-//   recommendation, 
-//   email,
-// ) => async (dispatch) => {
-
-//   const getCookie = (name) => {
-//     const value = `; ${document.cookie}`;
-//     const parts = value.split(`; ${name}=`);
-//     if (parts.length === 2) return parts.pop().split(';').shift();
-//   };
-
-//   try {
-//     const csrfToken = getCookie('csrftoken');
-//     const headers = {
-//       // 'Content-Type': 'application/json',
-//       'X-CSRFToken': csrfToken,
-//     };
-
-//     const response = await fetch('http://localhost:8000/remove-users-tracks/', {
-//       method: 'POST',
-//       body: JSON.stringify({ 
-//         'recommendation': recommendation,
-//         'email': email,
-//       }),
-//       headers: headers,
-//       credentials: 'include',
-//     });
-
-//     if (response.status === 200) {
-//       // request was successful, you can handle the response here
-//       console.log('Remove users tracks request successful');
-//       const responseData = await response.json();
-
-//       return responseData
-//     } else {
-//       // Handle other response statuses here (e.g., error handling)
-//       console.error('Remove users tracks request failed');
-//     }
-//   } catch (error) {
-//     // Handle any network errors or exceptions here
-//     console.error('Error:', error);
-//   };
-// };
 
 export const handleUpdateUsername = (userId, newUsername) => async (dispatch) => {
   try {
@@ -538,9 +412,6 @@ export const createPlaylistRequest = (
   userId, 
   playlist, 
 ) => async (dispatch) => {
-  console.log(userId)
-  console.log(playlist)
-
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
@@ -561,7 +432,6 @@ export const createPlaylistRequest = (
     }
 
     const res = await response.json(); 
-    console.log('playlist create result: ', res)
     dispatch(createPlaylist(res));
     return res
   } catch (error) {
@@ -574,8 +444,6 @@ export const addToSavedPlaylistRequest = (
   userId,
   trackUris,
 ) => async (dispatch) => {
-  console.log(playlistId)
-  console.log(trackUris)
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
@@ -583,7 +451,11 @@ export const addToSavedPlaylistRequest = (
         'X-CSRFToken': csrfToken, 
     }
 
-    const body = JSON.stringify({ id: playlistId, user: userId, tracks: trackUris });
+    const body = JSON.stringify({ 
+      id: playlistId,  
+      user: userId, 
+      tracks: trackUris 
+    });
 
     const response = await fetch(`http://localhost:8000/add-to-playlist/${playlistId}/`, {
       headers: headers,
@@ -595,41 +467,39 @@ export const addToSavedPlaylistRequest = (
       throw new Error('Request failed with status ' + response.status);
     }
 
-    const res = await response.json(); 
-    console.log('add to playlist result: ', res)
-    dispatch(addToSavedPlaylist(res));
+    const res = await response.json();
+    const playlist = res['playlist'] 
+    console.log('updated playlist: ', playlist)
+    dispatch(addToSavedPlaylist(playlist.id, playlist.songs));
   } catch (error) {
     console.log('Error: ' + error.message);
   };
 };
 
-// export const sendLyricsToServer = async (lyrics) => {
-//   try {
-//     const csrfToken = await getCSRFToken();
+export const getUserPlaylists = (userId) => async (dispatch) => {
+  dispatch(getUserPlaylistsRequest());
 
-//     const headers = {
-//       'Content-Type': 'application/json',
-//       'X-CSRFToken': csrfToken,
-//     };
+  try {
+    const csrfToken = await getCSRFToken(); // Ensure you have a function like getCSRFToken
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'User-Id': userId,
+    };
 
-//     const response = await fetch('/search-lyrics/', {
-//       method: 'POST',
-//       headers: headers,
-//       body: lyrics,
-//     });
+    const response = await axios.get(`http://localhost:8000/get-user-playlists/`, {
+      headers,
+    });
 
-//     if (!response.ok) {
-//       throw new Error('Request failed with status ' + response.status);
-//     }
+    const userPlaylists = response.data['playlists']
+    console.log(userPlaylists)
 
-//     const result = await response.json();
-//     const tracks = result['combined_tracks_info']
-    
-//     return tracks
-//   } catch (error) {
-//     console.error('Error:', error);
-//   }
-// };
+    dispatch(getUserPlaylistsSuccess(userPlaylists));
+  } catch (error) {
+    console.error('Error fetching user playlists:', error);
+    dispatch(getUserPlaylistsFailure(error.message));
+  }
+};
 
 
 
