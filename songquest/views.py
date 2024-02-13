@@ -488,13 +488,21 @@ def generate_unique_playlist_id():
 
 
 @csrf_exempt
-def create_playlist(request, user_id):
+def create_playlist(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
     try:
         data = json.loads(request.body.decode('utf-8'))
-        user = User.objects.get(id=user_id)
+        user_id = request.headers.get('User-Id')
+        if not user_id:
+            return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
+
+        try:
+            user = get_user_model().objects.get(id=user_id)
+        except get_user_model().DoesNotExist:
+            return JsonResponse({'error': 'Invalid User-Id'}, status=400)
+
         spotify_access = user.spotify_access
         spotify_refresh = user.spotify_refresh
         expires_at = user.spotify_expires_at
@@ -601,6 +609,7 @@ def add_to_playlist(request, playlist_id):
             artists = [artist['name'] for artist in track['artists']]
             spotify_id = track['spotifyId']
             isrc = track['isrc']
+            
 
             song, created = Song.objects.get_or_create(
                 spotify_id=spotify_id,
@@ -612,12 +621,21 @@ def add_to_playlist(request, playlist_id):
         response = requests.post(spotify_url, headers=headers, data=body)
 
         if response.status_code == 201:
-            playlist_data = {
+            serialized_playlist = {
                 'id': playlist.id,
                 'name': playlist.name,
-                'songs': list(playlist.songs.values('id', 'name', 'artists', 'spotify_id')),
+                'songs': [
+                    {
+                        'id': song.id,
+                        'name': song.name,
+                        'artists': song.artists.split(', '),
+                        'spotify_id': song.spotify_id,
+                        'image': song.image,
+                    }
+                    for song in playlist.songs.all()
+                ],
             }
-            return JsonResponse({'playlist': playlist_data, 'message': 'Playlist created successfully'}, status=200)
+            return JsonResponse({'playlist': serialized_playlist, 'message': 'Playlist created successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Failed to create playlist'}, status=response.status_code)
 
@@ -641,16 +659,28 @@ def get_user_playlists(request):
 
     serialized_playlists = []
     for playlist in playlists:
+        songs = playlist.songs.all()
+        serialized_songs = [
+            {
+                'id': song.id,
+                'name': song.name,
+                'artists': song.artists.split(', '),
+                'spotify_id': song.spotify_id,
+                'image': song.image,
+            } for song in songs
+        ]
+
         serialized_playlist = {
             'id': playlist.id,
             'name': playlist.name,
             'spotifyId': playlist.spotify_id,
-            'songs': list(playlist.songs.values('id', 'name', 'artists', 'spotify_id')),
+            'songs': serialized_songs,
         }
         serialized_playlists.append(serialized_playlist)
 
     print('get playlist return: ', serialized_playlists)
     return JsonResponse({'playlists': serialized_playlists})
+
 
 
 # @csrf_exempt

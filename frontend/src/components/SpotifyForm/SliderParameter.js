@@ -229,24 +229,24 @@ export const SliderParameter = ({
   const handleSliderChange = (newValues) => {
     const [newMin, newTarget, newMax] = newValues;
 
-    setParameterValue({
-      min: newMin,
-      target: newTarget,
-      max: newMax,
-    });
+      setParameterValue({
+        min: newMin,
+        target: newTarget,
+        max: newMax,
+      });
 
-    setParameters(prevParameters => ({
-    ...prevParameters,
-    [parameter]: {
-      min: newMin,
-      target: newTarget,
-      max: newMax,
-      label: query[parameter]['label']
-    },
+      setParameters(prevParameters => ({
+      ...prevParameters,
+      [parameter]: {
+        min: newMin,
+        target: newTarget,
+        max: newMax,
+        label: query[parameter]['label']
+      },
 
-    }));
+      }));
 
-    onSetQueryParameter(query, parameter, newValues);
+      onSetQueryParameter(query, parameter, newValues);
   };
   
   return (

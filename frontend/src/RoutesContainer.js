@@ -73,10 +73,10 @@ const RoutesContainer = ({
               path={'/spotify-connect'} 
               element={<SpotifyConnect />} 
             />
-            <Route 
+            {/* <Route 
               path={'/playlist/:id'} 
               element={<Playlist />} 
-            />
+            /> */}
           </Route>
           <Route 
             path={'/checkout'}

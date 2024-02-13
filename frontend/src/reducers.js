@@ -21,7 +21,8 @@ import {
   RECEIVE_SPOTIFY_SONG_RESULTS,
   RECEIVE_SPOTIFY_TRACK,
   REFRESH_SPOTIFY_ACCESS,
-  REMOVE_FROM_CURRENT_PLAYLIST,
+  REMOVE_FROM_CURRENT_PLAYLIST_BY_ID,
+  RESET_CURRENT_PLAYLIST,
   RESET_DATA_LOADED,
   RESET_QUERY_PARAMETER,
   SEARCH_SONG,
@@ -50,7 +51,7 @@ const initialAuthState = {
     account: null,
 };
 
-const initialDiscoveryState = {
+export const initialDiscoveryState = {
         query: {
           limit: null,
           songs: [], 
@@ -199,12 +200,6 @@ export const song = (state = initialSongState, action) => {
         ...state,
         dataLoaded: false,
       };
-    case CONFIRM_USER:
-      return {
-        ...state,
-        user: payload.user,
-        isRegistered: payload.isRegistered
-      };
     default:
       return {
         ...state,
@@ -216,6 +211,14 @@ export const song = (state = initialSongState, action) => {
 export const user = (state = { currentUser: null }, action) => {
     const { type, payload } = action;
     switch (type) {
+    case CONFIRM_USER:
+      return {
+        ...state,
+        currentUser: {
+          user: payload.user,
+        },
+        isRegistered: payload.isRegistered
+      };
     case SET_CURRENT_USER:
       return {
         ...state,
@@ -291,10 +294,6 @@ export const authSlice = createSlice({
   },
 });
 
-const generateUniqueId = () => {
-  return `id_${Math.random().toString(36).substr(2, 9)}`;
-};
-
 export const playlist = (state = {playlists: [], currentPlaylist: []}, action) => {
   const { type, payload } = action;
   switch (type) {
@@ -321,12 +320,13 @@ export const playlist = (state = {playlists: [], currentPlaylist: []}, action) =
         ...state,
         currentPlaylist: [...state.currentPlaylist, ...payload.songs]
       };
-    case REMOVE_FROM_CURRENT_PLAYLIST:
+    case REMOVE_FROM_CURRENT_PLAYLIST_BY_ID:
+      const payloadSongIds = payload.songIds.map(songId => songId);
       return {
         ...state,
-        currentPlaylist: state.currentPlaylist.filter(song => 
-          !payload.songs.some(payloadSong => payloadSong.id === song.id
-        ))
+        currentPlaylist: state.currentPlaylist.filter(song =>
+          payloadSongIds.includes(song)
+        )
       };
     case CREATE_PLAYLIST:
       if (state.playlists.some(pl => pl.id === payload.playlist.id)) {
@@ -357,6 +357,11 @@ export const playlist = (state = {playlists: [], currentPlaylist: []}, action) =
           return playlist;
         })
       };
+    case RESET_CURRENT_PLAYLIST:
+      return {
+        ...state,
+        currentPlaylist: [],
+      }
     default:
       return state;
   };

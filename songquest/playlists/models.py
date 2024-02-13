@@ -7,6 +7,7 @@ class Song(models.Model):
     artists = models.CharField()
     spotify_id = models.CharField()
     isrc = models.CharField()
+    image = models.CharField()
 
     def __str__(self):
         return f'{self.name} - {self.artists}'

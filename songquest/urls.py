@@ -31,10 +31,10 @@ urlpatterns = [
     path('refresh-token/', views.refresh_access_token, name='refresh-token'),
     path('get-user-playlists/',
          views.get_user_playlists, name='get-user-playlists'),
-    path('create-playlist/<int:user_id>/',
+    path('create-playlist/',
          views.create_playlist, name='create-playlist'),
     path('add-to-playlist/<str:playlist_id>/',
-         views.add_to_playlist, name='create-playlist'),
+         views.add_to_playlist, name='add-to-playlist'),
      path('create-payment-intent/', 
           paymentViews.create_payment, name='create-payment'),
     path('<path>', TemplateView.as_view(

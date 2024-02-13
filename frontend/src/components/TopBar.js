@@ -3,20 +3,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Box,
   IconButton,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
-import SearchIcon from '@mui/icons-material/Search';
-import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
-import { resetDataLoaded, setCurrentUser } from '../actions';
+import { deletePlaylist, removeFromCurrentPlaylistById, resetDataLoaded, setCurrentUser } from '../actions';
 import { connect, useDispatch } from 'react-redux';
 import '../App.css';
 import { useTheme } from '@mui/styles';
 import { authSlice } from '../reducers';
 
-export const TopBar = ({ resetDataLoaded, collapse, user }) => {
+export const TopBar = ({ 
+  onResetDataLoaded,
+  onDeletePlaylist,
+  onRemoveFromCurrentPlaylistById,
+  onSetCurrentUser,
+  onLogout,  
+  user,
+  currentUser,
+  userPlaylists,
+  currentPlaylist, 
+}) => {
   const theme = useTheme();
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -26,14 +35,18 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
   const navigate = useNavigate();
 
   const handleNavigate = () => {
-    resetDataLoaded();
+    onResetDataLoaded();
     navigate('/', { replace: true });
   };
 
+  console.log(currentPlaylist.map(song => song.id))
+
   const handleLogout = () => {
-    dispatch(authSlice.actions.logout());
-    dispatch(setCurrentUser(null))
-    navigate('/')
+    onLogout();
+    onSetCurrentUser(null);
+    onDeletePlaylist(...userPlaylists.map(playlist => playlist.id));
+    onRemoveFromCurrentPlaylistById(...currentPlaylist.map(song => song));
+    navigate('/');
   }
 
   return (
@@ -41,13 +54,7 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
       display="flex" 
       justifyContent="space-between" 
       p={2}
-      // backgroundColor='#013a57'
       className='topbar-nosidebar'
-      // className={isXsScreen || isSmScreen
-      //   ? 'topbar-nosidebar'
-      //   : collapse || isSmScreen
-      //   ? 'topbar-collapsed'
-      //   : 'topbar'}
     >
       <Box
         display="flex"
@@ -78,68 +85,57 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
         </Link>
       </Box>
       <Box display='flex'>
-        {/* <IconButton
-          color="inherit"
-          component={Link}
-          to="/discover"
-          style={{ 
-            textDecoration: 'none', 
-            color: 'white',
-            marginRight: '50px',  
-          }}
-        > */}
-          {/* <YoutubeSearchedForIcon /> */}
-          {/* <Typography variant='body1'>Discover New Music</Typography> */}
-        {/* </IconButton> */}
-        {/* <IconButton
-          color="inherit"
-          component={Link}
-          to="/discover"
-          style={{ textDecoration: 'none', color: 'white' }}
-        >
-          {/* <YoutubeSearchedForIcon /> */}
-          {/* <Typography>Discover New Music</Typography> */}
-        {/* </IconButton> */}
-        {!user ?
+        <Tooltip
+            arrow
+            title={
+              <div
+                style={{
+                  maxHeight: '25vh',
+                  overflowY: 'auto',
+                  padding: '8px',
+                  borderRadius: '8px',
+                }}
+              > 
+                <Typography variant='body2' letterSpacing='1px'>
+                  {user ? `Sign out as ${currentUser.user?.username}` : 'Create account or login'}
+                </Typography>
+              </div>
+            }
+        >  
+          {!user ? (
           <IconButton
-            color="inherit"
-            component={Link}
-            to="/login"
-            style={{ 
-              textDecoration: 'none', 
-              color: 'white',
-            }}
-          >
-            {!isXsScreen && !isSmScreen && (
-              <Typography variant='h6' letterSpacing='1px'>
-                Login/SignUp
-              </Typography>
-            )}
-            <LoginIcon />
-          </IconButton>
-        : 
-          <IconButton
-            color="inherit"
-            component={Link}
-            onClick={handleLogout}
-            style={{ textDecoration: 'none', color: 'white' }}
-          >
-            {!isXsScreen && !isSmScreen && (
-              <Typography variant='h6' letterSpacing='1px'>
-                Logout
-              </Typography>
-            )}
-            <LogoutIcon />
-          </IconButton>
-        }
-        {/* <IconButton
-          color="inherit"
-          component={Link}
-          to='/song-detector'
-          style={{ textDecoration: 'none' }}
-        >
-          <SpatialAudioIcon />
-        </IconButton> */}
+              color="inherit"
+              component={Link}
+              to="/login"
+              style={{ 
+                textDecoration: 'none', 
+                color: 'white',
+              }}
+            >
+              {!isXsScreen && !isSmScreen && (
+                <Typography variant='h6' letterSpacing='1px'>
+                  Login/SignUp
+                </Typography>
+              )}
+              <LoginIcon />
+            </IconButton>
+            ) : (
+              <IconButton
+                color="inherit"
+                component={Link}
+                onClick={handleLogout}
+                style={{ textDecoration: 'none', color: 'white' }}
+              >
+                {!isXsScreen && !isSmScreen && (
+                  <Typography variant='h6' letterSpacing='1px'>
+                    Logout
+                  </Typography>
+                )}
+                <LogoutIcon />
+              </IconButton>
+            )
+          }
+        </Tooltip>
       </Box>
     </Box>
   );
@@ -148,16 +144,20 @@ export const TopBar = ({ resetDataLoaded, collapse, user }) => {
 const mapStateToProps = (state) => {
   return {
     user: state.auth.account,
+    currentUser: state.user.currentUser,
+    currentPlaylist: state.playlist.currentPlaylist,
+    userPlaylists: state.playlist.playlists,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    resetDataLoaded: () => {
-      dispatch(resetDataLoaded());
-    },
+    onResetDataLoaded: () => dispatch(resetDataLoaded()),
+    onSetCurrentUser: (user) => dispatch(setCurrentUser(user)),
+    onDeletePlaylist: (...playlistIds) => dispatch(deletePlaylist(...playlistIds)),
+    onRemoveFromCurrentPlaylistById: (...songs) => dispatch(removeFromCurrentPlaylistById(...songs)),
+    onLogout: () => dispatch(authSlice.actions.logout()),
   };
 };
 
-// export default connect(null, mapDispatchToProps)(TopBar);
 export default connect(mapStateToProps, mapDispatchToProps)(TopBar);
