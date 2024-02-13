@@ -1,6 +1,7 @@
 import { 
   Box, 
   Button, 
+  CardHeader, 
   Chip, 
   FormControl, 
   Grid, 
@@ -12,16 +13,19 @@ import {
   useMediaQuery
 } from "@mui/material";
 import CancelIcon from '@mui/icons-material/Cancel';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { SpotifyAuth } from "../../thunks";
-import { AutocompleteParameter } from "./AutocompleteParameter";
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import { SpotifyAuth, discoverSongRequest } from "../../thunks";
 import theme from "theme";
 import { SearchParameter } from "./SearchParameter";
 import { lazy, useState } from "react";
 import { connect } from "react-redux";
-import { resetDataLoaded, resetQueryParameter, setQueryParameter } from "actions";
+import { clearSeedsArray, resetDataLoaded, resetQueryParameter, setQueryParameter } from "actions";
+import { startTransition } from "react";
+import { useForm } from "react-hook-form";
+import { initialDiscoveryState } from "reducers";
 
 const SliderModal = lazy(() => import('./SliderModal'));
+const AutocompleteParameter = lazy(() => import('./AutocompleteParameter'));
 
 const toCapitalCase= (str) => {
     if (str) {
@@ -39,19 +43,19 @@ const autocompleteParam = ['songs', 'performers', 'genres', 'market']
 const SpotifyForm = ({
   classes,
   parameters,
+  setIsLoading,
   tracks,
   artists,
   genres,
   markets,
   setParameters,
   query,
+  user,
+  onSearchPressed,
+  onClearSeedsArray,
   onSetQueryParameter,
   onResetDataLoaded,
   onResetQueryParameter,
-  openModal,
-  setOpenModal,
-  handleSubmit,
-  onSubmit,
 }) => {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -59,6 +63,7 @@ const SpotifyForm = ({
   const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
+  const [openModal, setOpenModal] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const [invalidSearch, setInvalidSearch] = useState(false);
   const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
@@ -101,6 +106,7 @@ const SpotifyForm = ({
     setInvalidSearch(false);
 
     if (!sliderParam) {
+      console.log(parameters);
       setParameters(prevParameters => {
         if (param === 'market' || param === 'limit') {
             return {
@@ -122,9 +128,11 @@ const SpotifyForm = ({
       })} 
   };
 
+  console.log(query)
+
   const handleReset = () => {
     setInvalidSearch(false);
-    setParameters(query);
+    setParameters(initialDiscoveryState.query);
     setTargetParams([]);
     setTargetParamLabels(
       {
@@ -143,9 +151,73 @@ const SpotifyForm = ({
     onResetDataLoaded();
     onResetQueryParameter(); 
   };
+
+  const { handleSubmit } = useForm();
+  console.log(parameters)
+
+  const onSubmit = () => {
+    setIsLoading(true);
+    console.log(parameters)
+    startTransition(() => {
+      onSearchPressed(parameters)
+      .then(() => {
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log('Error: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setParameters(initialDiscoveryState.query);
+        onResetQueryParameter();
+        onClearSeedsArray();
+      })
+    })
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault(); 
+    onSubmit();
+  };
+  console.log(user)
   
   return (
     <>
+      <Box
+        sx={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <form className={classes.form} onSubmit={handleFormSubmit}>
+          <CardHeader
+            title={"🎵 Discover New Music, Customize Playlists, and Share Unique Finds 🎶"}
+            titleTypographyProps={{
+              width: '100%',
+              variant: isSmScreen || isXsScreen
+                ? 'h6'
+                : 'h5',
+              textAlign: 'center',
+              color: 'white',
+              letterSpacing: '1px',
+            }}
+            // subheader={!isXsScreen &&
+            //   "Begin your journey by selecting the AI model you would like to copilot your quest"}
+            subheaderTypographyProps={{
+              width: '100%',
+              variant: isXlScreen || isLgScreen
+                ? 'body1'
+                : 'body2',
+              textAlign: 'center',
+              color: 'whitesmoke',
+            }} 
+            classes={{
+              root: classes.root
+            }}
+          />
       <SpotifyAuth>
         {(accessToken, expiresAt) => {
           return (
@@ -280,7 +352,20 @@ const SpotifyForm = ({
               })}
             <Tooltip
                 arrow
-                title='Adjust your discovery settings'
+                title={
+                  <div
+                    style={{
+                      maxHeight: '25vh',
+                      overflowY: 'auto',
+                      padding: '8px',
+                      borderRadius: '8px',
+                    }}
+                  > 
+                    <Typography variant='body2' letterSpacing='1px'>
+                      {'Adjust your discovery settings'}
+                    </Typography>
+                  </div>
+                }
             >
                 <Button 
                   sx={{ 
@@ -320,10 +405,10 @@ const SpotifyForm = ({
                     "* activate additional parameters and set the min, target, and max values to refine your recommendations"
                   }
                 </Typography>
-                <SettingsIcon />
+                <SettingsSuggestIcon />
                 </Button>
             </Tooltip>
-              <Box className={classes.accordion}>
+              <Box className={classes.modal}>
                 <SliderModal
                   autocompleteParam={autocompleteParam}
                   parameters={parameters}
@@ -346,7 +431,20 @@ const SpotifyForm = ({
       </SpotifyAuth>
     <Grid className={classes.buttonsContainer}>
       <Tooltip
-        title='Discover New Music'
+        title={
+          <div
+            style={{
+              maxHeight: '25vh',
+              overflowY: 'auto',
+              padding: '8px',
+              borderRadius: '8px',
+            }}
+          > 
+            <Typography variant='body2' letterSpacing='1px'>
+              {'Discover New Music'}
+            </Typography>
+          </div>
+        }
         arrow
         >
         <Button
@@ -368,11 +466,24 @@ const SpotifyForm = ({
             },
           }}
           >
-          Try For Free
+          {user?.user ? 'Discover' : 'Try For Free'}
         </Button>         
       </Tooltip>
       <Tooltip
-        title='Reset discovery parameters'
+        title={
+          <div
+            style={{
+              maxHeight: '25vh',
+              overflowY: 'auto',
+              padding: '8px',
+              borderRadius: '8px',
+            }}
+          > 
+            <Typography variant='body2' letterSpacing='1px'>
+              {'Reset discovery parameters'}
+            </Typography>
+          </div>
+        }
         arrow
         >
         <Button
@@ -384,6 +495,8 @@ const SpotifyForm = ({
       </Tooltip>
     </Grid>
     <br />
+    </form>
+    </Box>
   </>
   )
 };
@@ -399,6 +512,8 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
+  onSearchPressed: (query) => dispatch(discoverSongRequest(query)),
+  onClearSeedsArray: () => dispatch(clearSeedsArray()),
   onResetQueryParameter: () =>
     dispatch(resetQueryParameter()),
   onResetDataLoaded: () =>

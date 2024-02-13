@@ -416,12 +416,13 @@ export const createPlaylistRequest = (
     const csrfToken = await getCSRFToken();
     const headers = {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, 
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId, 
     }
 
     const body = JSON.stringify(playlist);
 
-    const response = await fetch(`http://localhost:8000/create-playlist/${userId}/`, {
+    const response = await fetch(`http://localhost:8000/create-playlist/`, {
       headers: headers,
       method: 'POST', 
       body,
@@ -442,7 +443,7 @@ export const createPlaylistRequest = (
 export const addToSavedPlaylistRequest = (
   playlistId,
   userId,
-  trackUris,
+  tracks,
 ) => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
@@ -454,7 +455,7 @@ export const addToSavedPlaylistRequest = (
     const body = JSON.stringify({ 
       id: playlistId,  
       user: userId, 
-      tracks: trackUris 
+      tracks: tracks 
     });
 
     const response = await fetch(`http://localhost:8000/add-to-playlist/${playlistId}/`, {
@@ -471,6 +472,7 @@ export const addToSavedPlaylistRequest = (
     const playlist = res['playlist'] 
     console.log('updated playlist: ', playlist)
     dispatch(addToSavedPlaylist(playlist.id, playlist.songs));
+    return playlist.songs
   } catch (error) {
     console.log('Error: ' + error.message);
   };
@@ -486,6 +488,8 @@ export const getUserPlaylists = (userId) => async (dispatch) => {
       'X-CSRFToken': csrfToken,
       'User-Id': userId,
     };
+
+    console.log('get user playlists headers: ', headers)
 
     const response = await axios.get(`http://localhost:8000/get-user-playlists/`, {
       headers,

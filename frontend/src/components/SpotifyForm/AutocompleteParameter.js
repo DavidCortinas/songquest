@@ -19,7 +19,7 @@ const root = {
   },
 };
 
-export const AutocompleteParameter = ({
+const AutocompleteParameter = ({
     parameter, 
     handleChange, 
     classes, 
@@ -220,3 +220,5 @@ export const AutocompleteParameter = ({
       </>
     );
 };
+
+export default AutocompleteParameter

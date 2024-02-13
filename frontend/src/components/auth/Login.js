@@ -4,6 +4,8 @@ import {
     CardHeader, 
     Grid, 
     TextField, 
+    Tooltip, 
+    Typography, 
     useMediaQuery } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -159,14 +161,32 @@ const UsernameInput = ({
                             <br />
                             <br />
                             <Grid className={classes.buttonsContainer}>
-                                <Button
-                                    type="submit"
-                                    className={classes.button}
-                                    onClick={handleSubmit(onCreateUsername)}
+                                <Tooltip
+                                    arrow
+                                    title={
+                                    <div
+                                        style={{
+                                        maxHeight: '25vh',
+                                        overflowY: 'auto',
+                                        padding: '8px',
+                                        borderRadius: '8px',
+                                        }}
+                                    > 
+                                        <Typography variant='body2' letterSpacing='1px'>
+                                        {'Create username and continue'}
+                                        </Typography>
+                                    </div>
+                                    }
                                 >
-                                    Next
-                                    <NavigateNextIcon />
-                                </Button>
+                                    <Button
+                                        type="submit"
+                                        className={classes.button}
+                                        onClick={handleSubmit(onCreateUsername)}
+                                    >
+                                        Next
+                                        <NavigateNextIcon />
+                                    </Button>
+                                </Tooltip>
                             </Grid>
                             <br />
                         </form>
@@ -198,19 +218,18 @@ export const Login = ({
     const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
     const [checkedRegistration, setCheckedRegistration] = useState(false);
     const [userRegistered, setUserRegistered] = useState(false);
-    // const [isLoading, setIsLoading] = useState(false);
     const [invalidEmail, setInvalidEmail] = useState(false);
     const [invalidUsername, setInvalidUsername] = useState(false);
     const [usernameCreated, setUsernameCreated] = useState(Boolean(user?.user));
     const [invalidPassword, setInvalidPassword] = useState(false);
     const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
-    // const [spotifyAuthorized, setSpotifyAuthorized] =  useState(false);
+
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user?.user.username) {
+        if (user?.user?.username) {
             setUsernameCreated(true);
         };
 
@@ -407,14 +426,32 @@ export const Login = ({
                                         <br />
                                         <br />
                                         <Grid className={classes.buttonsContainer}>
-                                            <Button
-                                                type="submit"
-                                                className={classes.button}
-                                                onClick={handleSubmit(onEmailSubmit)}
+                                            <Tooltip
+                                                arrow
+                                                title={
+                                                <div
+                                                    style={{
+                                                    maxHeight: '25vh',
+                                                    overflowY: 'auto',
+                                                    padding: '8px',
+                                                    borderRadius: '8px',
+                                                    }}
+                                                > 
+                                                    <Typography variant='body2' letterSpacing='1px'>
+                                                    {'Continue to next step'}
+                                                    </Typography>
+                                                </div>
+                                                }
                                             >
-                                                Next
-                                                <NavigateNextIcon />
-                                            </Button>
+                                                <Button
+                                                    type="submit"
+                                                    className={classes.button}
+                                                    onClick={handleSubmit(onEmailSubmit)}
+                                                >
+                                                    Next
+                                                    <NavigateNextIcon />
+                                                </Button>
+                                            </Tooltip>
                                         </Grid>
                                         <br />
                                     </form>
@@ -437,7 +474,7 @@ export const Login = ({
                                                 textAlign: 'center',
                                                 color: 'white',
                                             }}
-                                            subheader={"Enter password to continue to workspace"}
+                                            subheader={"Enter password to sign in and continue"}
                                             subheaderTypographyProps={{ 
                                                 width: '100%', 
                                                 variant: isXlScreen || isLgScreen 
@@ -490,14 +527,32 @@ export const Login = ({
                                         <br />
                                         <br />
                                         <Grid className={classes.buttonsContainer}>
-                                            <Button
-                                                type="submit"
-                                                className={classes.button}
-                                                onClick={handleSubmit(onPasswordSubmit)}
+                                            <Tooltip
+                                                arrow
+                                                title={
+                                                <div
+                                                    style={{
+                                                    maxHeight: '25vh',
+                                                    overflowY: 'auto',
+                                                    padding: '8px',
+                                                    borderRadius: '8px',
+                                                    }}
+                                                > 
+                                                    <Typography variant='body2' letterSpacing='1px'>
+                                                    {`Sign in as ${user?.user.username}`}
+                                                    </Typography>
+                                                </div>
+                                                }
                                             >
-                                                Login
-                                                <NavigateNextIcon />
-                                            </Button>
+                                                <Button
+                                                    type="submit"
+                                                    className={classes.button}
+                                                    onClick={handleSubmit(onPasswordSubmit)}
+                                                >
+                                                    Login
+                                                    <NavigateNextIcon />
+                                                </Button>
+                                            </Tooltip>
                                         </Grid>
                                         <br />
                                     </form>
@@ -619,14 +674,32 @@ export const Login = ({
                                         <br />
                                         <br />
                                         <Grid className={classes.buttonsContainer}>
-                                            <Button
-                                                type="submit"
-                                                className={classes.button}
-                                                onClick={handleSubmit(onCreatePassword)}
+                                            <Tooltip
+                                                arrow
+                                                title={
+                                                <div
+                                                    style={{
+                                                    maxHeight: '25vh',
+                                                    overflowY: 'auto',
+                                                    padding: '8px',
+                                                    borderRadius: '8px',
+                                                    }}
+                                                > 
+                                                    <Typography variant='body2' letterSpacing='1px'>
+                                                    {'Create your account'}
+                                                    </Typography>
+                                                </div>
+                                                }
                                             >
-                                                Next
-                                                <NavigateNextIcon />
-                                            </Button>
+                                                <Button
+                                                    type="submit"
+                                                    className={classes.button}
+                                                    onClick={handleSubmit(onCreatePassword)}
+                                                >
+                                                    Next
+                                                    <NavigateNextIcon />
+                                                </Button>
+                                            </Tooltip>
                                         </Grid>
                                         <br />
                                     </form>

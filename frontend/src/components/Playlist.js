@@ -68,24 +68,6 @@ export const Playlist = ({ playlists }) => {
                                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                                     loading="lazy" 
                                 />
-                                <Box>
-                                    {/* <Tooltip
-                                        arrow
-                                        title={user?.user.spotify_connected && !recommendationInPlaylist ? 
-                                        "Add to current playlist" :
-                                        recommendationInPlaylist ?
-                                        "Remove from current playlist" :
-                                        "Login to create playlists and more"
-                                        }
-                                    >
-                                        <Button onClick={handleAddToPlaylistClick}>
-                                        {recommendationInPlaylist ? 
-                                            <RemoveIcon /> :
-                                            <AddIcon />
-                                        }
-                                        </Button>
-                                    </Tooltip> */}
-                                </Box>
                             </li>
                         )}
                     </ul>

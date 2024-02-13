@@ -6,19 +6,26 @@ import {
     Tooltip, 
     Typography 
 } from "@mui/material";
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import CircleIcon from '@mui/icons-material/Circle';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
-import { useNavigate } from "react-router-dom";
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import getPlaylistItems from "utils/playlist";
 import useStyles from "classes/playlist";
 import { connect } from "react-redux";
-import { deletePlaylist } from "actions";
+import { addToCurrentPlaylist, deletePlaylist, resetCurrentPlaylist } from "actions";
 
-const PlaylistCard = ({ classes, item, index, playlist }) => {
-  const playlistName = item?.name
-  const navigate = useNavigate();
+const PlaylistCard = ({ 
+  classes, 
+  index, 
+  userPlaylist, 
+  onAddToCurrentPlaylist 
+}) => {
+  const playlistName = userPlaylist?.name
 
   const handlePlaylistClick = () => {
-    navigate(`/playlist/${playlist.id}`);
+    onAddToCurrentPlaylist(...userPlaylist.songs);
   };
 
   return (
@@ -30,10 +37,15 @@ const PlaylistCard = ({ classes, item, index, playlist }) => {
             overflowY: 'auto', // Allow scrolling for overflow
             padding: '8px',
             borderRadius: '8px',
-            boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
           }}
         >
-          {getPlaylistItems(playlist).map((item, index) => (
+          <Box display='flex' alignItems='center'>
+            <EditNoteIcon />
+            <Typography variant='body2' letterSpacing='1px' paddingLeft='2%'>
+              {`${playlistName.toUpperCase()}`}
+            </Typography>
+          </Box>
+          {getPlaylistItems(userPlaylist)?.map((item, index) => (
             <Typography key={index} variant='body2' letterSpacing='1px'>
               {item}
             </Typography>
@@ -47,22 +59,22 @@ const PlaylistCard = ({ classes, item, index, playlist }) => {
         key={index} 
         className={classes.panelCard}
       >
-          <Box>
-              <Typography  
-                variant='subtitle1' 
+              <Typography
+                noWrap  
+                variant='subtitle2' 
                 color='white'
                 letterSpacing='1px'
+                textAlign='start'
                 sx={{
                   fontWeight: 'bold',
                   maxHeight: '30%',
-                  maxWidth: '100%',
-                  overflowY: 'auto',
+                  maxWidth: '65%',
+                  overflowY: 'hidden',
                   cursor: 'pointer',
                 }}
               >
                 {playlistName}
               </Typography>
-          </Box>
           <img 
             src='/static/images/Spotify_Icon_RGB_White.png' 
             style={{ 
@@ -79,76 +91,160 @@ const PlaylistCard = ({ classes, item, index, playlist }) => {
 };
 
 export const LeftPanel = ({
-    onDeletePlaylist,
-    playlists,
+  userPlaylists,
+  onAddToCurrentPlaylist,
+  onDeletePlaylist,
+  onResetCurrentPlaylist,
+  selectedPlaylistOption,
+  setSelectedPlaylistOption,
+  handleSelectUseTokens,
 }) => {
-    const classes = useStyles();
-    const handleDeletePlaylist = (playlistId) => {
-      onDeletePlaylist(playlistId)
-    };
-    console.log(playlists)
+  const classes = useStyles();
+  const handleDeletePlaylist = (playlistId) => {
+    onDeletePlaylist(playlistId)
+  };
 
-    return (
-        <Card className={classes.sidePanel}>
-          <Box 
-            display='flex' 
-            alignItems='center' 
-            justifyContent='space-between'
-            padding='20px 0 20px 20px'
-          >
-            <Tooltip
-              title='Select all playlists'
-            >
-              <Checkbox sx={{ padding: '0px', color: 'white' }}/>
-            </Tooltip>
+  const handleSelectNewPlaylist = () => {
+    onResetCurrentPlaylist();
+  };
+
+  const handleSelectAddPlaylist = () => {
+    setSelectedPlaylistOption('add');
+  };
+  
+  return (
+    <Card className={classes.sidePanel}>
+      <ul
+        style={{ 
+          padding: '0px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+        }}
+      > 
+        <Box 
+          display='flex' 
+          flexDirection='column'
+          alignItems='center'
+          paddingBottom='5%'
+          position='relative'
+        >
+          {userPlaylists.length === 0 && (
             <Typography 
-              variant='caption1' 
-              textAlign='center'
-              width='100%' 
+              variant='subtitle1' 
+              textAlign='center' 
+              padding='10%'
               letterSpacing='2px'
-              sx={{ flex: 1, marginLeft: 4 }}
             >
-              Manage Your Playlists
-            </Typography>
+              You have not created any playlists 
+            </Typography> 
+          )}           
+          <li style={{ listStyle: 'none' }}>
             <Tooltip
-              title='Delete selected playlists'
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {'Build new playlist'}
+                  </Typography>
+                </div>
+              }
             >
-              <Button
-                // sx={{ padding: '0 0 0 20px'}}
-                onClick={() => handleDeletePlaylist()}
+              <Card
+                onClick={handleSelectNewPlaylist}
+                className={classes.panelCard}
+                sx={
+                  selectedPlaylistOption === 'create' && 
+                  { 
+                    border: '2px solid rgba(89, 149, 192, 0.5)' 
+                  }
+                }
               >
-                <PlaylistRemoveIcon />
-              </Button>
+                  <Box padding='0 5% 0'>
+                      <Typography  
+                        variant='subtitle1' 
+                        color='white'
+                        letterSpacing='1px'
+                        sx={{
+                          fontWeight: 'bold',
+                          maxHeight: '30%',
+                          maxWidth: '100%',
+                          overflowY: 'auto',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        New Playlist
+                      </Typography>
+                  </Box>
+                  <AutoAwesomeIcon color='primary'/>
+              </Card>
             </Tooltip>
-          </Box>
-          {playlists?.length === 0 ? (
+          </li>
+          {userPlaylists.length > 0 && (
             <>
-              <Typography 
-                variant='subtitle2' 
-                textAlign='center' 
-                padding='20px'
-                letterSpacing='1px'
+              <Box 
+                display='flex' 
+                alignItems='center' 
+                justifyContent='space-between'
+                padding='5% 0 5% 6%'
               >
-                You have not created any playlists. 
-              </Typography>
-              <Typography 
-                variant='subtitle2' 
-                textAlign='center' 
-                padding='20px'
-                letterSpacing='1px'
-              >
-                Use tokens to create playlists and share your finds. 
-              </Typography>
-            </>
-          ) : (
-            <ul
-              style={{ 
-                padding: '0px', 
-                display: 'flex', 
-                flexDirection: 'column', 
-              }}
-            >                
-              {playlists?.map((playlist, index) => {
+                <Tooltip
+                  title={
+                    <div
+                      style={{
+                        maxHeight: '25vh',
+                        overflowY: 'auto',
+                        padding: '8px',
+                        borderRadius: '8px',
+                      }}
+                    > 
+                      <Typography variant='body2' letterSpacing='1px'>
+                        {'Select all playlists'}
+                      </Typography>
+                    </div>
+                  }
+                >
+                  <Checkbox sx={{ padding: '0px', color: 'white' }}/>
+                </Tooltip>
+                <Typography 
+                  variant='caption1' 
+                  textAlign='center'
+                  width='100%' 
+                  letterSpacing='2px'
+                  sx={{ flex: 1, marginLeft: 5 }}
+                >
+                  Edit Playlist
+                </Typography>
+                <Tooltip
+                  title={
+                    <div
+                      style={{
+                        maxHeight: '25vh',
+                        overflowY: 'auto',
+                        padding: '8px',
+                        borderRadius: '8px',
+                      }}
+                    > 
+                      <Typography variant='body2' letterSpacing='1px'>
+                        {'Delete selected playlists'}
+                      </Typography>
+                    </div>
+                  }
+                >
+                  <Button
+                    // sx={{ padding: '0 0 0 20px'}}
+                    onClick={() => handleDeletePlaylist()}
+                  >
+                    <PlaylistRemoveIcon />
+                  </Button>
+                </Tooltip>
+              </Box>            
+              {userPlaylists?.map((userPlaylist, index) => {
                 return (
                   <Box 
                     display='flex' 
@@ -158,9 +254,23 @@ export const LeftPanel = ({
                     position='relative'
                   >
                     <li key={index} style={{ listStyle: 'none' }}>
+                      <Checkbox
+                        icon={<CircleIcon sx={{ color: '#d2dce1', opacity: '0.5' }} />}
+                        checkedIcon={<CheckCircleIcon color='info' />}                       
+                        // onClick={() => handlePlaylistSelectClick(item)}
+                        // checked={isPlaylistItemChecked(item)}
+                        sx={{
+                          color: 'white',
+                          position: 'absolute',
+                          top: '20%',
+                          left: '4%',
+                          zIndex: '2',
+                          paddingLeft: '0px',
+                        }}
+                      />
                       <PlaylistCard 
-                        item={playlist} 
-                        playlist={playlist}
+                        userPlaylist={userPlaylist}
+                        onAddToCurrentPlaylist={onAddToCurrentPlaylist}
                         index={index}
                         classes={classes}
                       />
@@ -168,20 +278,24 @@ export const LeftPanel = ({
                   </Box>
                 )}
               )}
-            </ul>
+            </>
           )}
-        </Card>
-    )
+        </Box>
+      </ul>
+    </Card>
+  )
 };
 
 const mapStateToProps = (state) => {
-  return {
-    playlists: state.playlist.playlists,
-  };
+return {
+  userPlaylists: state.playlist.playlists,
+};
 };
 
 const mapDispatchToProps = (dispatch) => ({
+  onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
   onDeletePlaylist: (playlistId) => dispatch(deletePlaylist(playlistId)),
+  onResetCurrentPlaylist: () => dispatch(resetCurrentPlaylist()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LeftPanel);

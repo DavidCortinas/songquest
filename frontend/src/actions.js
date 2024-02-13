@@ -145,10 +145,16 @@ export const addToCurrentPlaylist = (...songs) => ({
   payload: { songs },
 });
 
-export const REMOVE_FROM_CURRENT_PLAYLIST = 'REMOVE_FROM_CURRENT_PLAYLIST';
-export const removeFromCurrentPlaylist = (...songs) => ({
-  type: REMOVE_FROM_CURRENT_PLAYLIST,
-  payload: { songs },
+export const REMOVE_FROM_CURRENT_PLAYLIST_BY_ID = 'REMOVE_FROM_CURRENT_PLAYLIST_BY_ID';
+export const removeFromCurrentPlaylistById = (...songIds) => ({
+  type: REMOVE_FROM_CURRENT_PLAYLIST_BY_ID,
+  payload: { songIds },
+});
+
+export const REMOVE_FROM_CURRENT_PLAYLIST_BY_SPOTIFY_ID = 'REMOVE_FROM_CURRENT_PLAYLIST_BY_SPOTIFY_ID';
+export const removeFromCurrentPlaylistBySpotifyId = (...songSpotifyIds) => ({
+  type: REMOVE_FROM_CURRENT_PLAYLIST_BY_SPOTIFY_ID,
+  payload: { songSpotifyIds },
 });
 
 export const CREATE_PLAYLIST = 'CREATE_PLAYLIST';
@@ -188,6 +194,11 @@ export const deletePlaylist = (...playlistIds) => ({
   type: DELETE_PLAYLIST,
   payload: { playlists: playlistIds },
 });
+
+export const RESET_CURRENT_PLAYLIST = 'RESET_CURRENT_PLAYLIST';
+export const resetCurrentPlaylist = () => ({
+  type: RESET_CURRENT_PLAYLIST,
+})
 
 
 
