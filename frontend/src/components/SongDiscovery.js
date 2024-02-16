@@ -14,7 +14,8 @@ import { makeStyles, useTheme } from '@mui/styles';
 import { 
   addToCurrentPlaylist, 
   confirmSpotifyAccess,  
-  removeFromCurrentPlaylistById, 
+  removeFromCurrentPlaylistById,
+  saveQuery, 
 } from '../actions';
 import '../App.css';
 import theme from '../theme'
@@ -28,6 +29,7 @@ import { initialDiscoveryState } from 'reducers';
 
 const Recommendations = lazy(() => import('./Recommendations'))
 const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'))
+const SaveQueryModal = lazy(() => import('./SaveQueryModal'))
 
 const useStyles = makeStyles(() => (
   {
@@ -187,19 +189,6 @@ const useStyles = makeStyles(() => (
       left: '0'
     },
   },
-  discoveryCard: {
-    padding: '2rem',
-    marginTop: '2rem',
-    position: 'fixed',
-    left: '7%',
-    color: 'white',
-    width: '15%',
-    maxHeight: '80%',
-    [theme.breakpoints.down('lg')]: {
-      left: '10%',
-      width: '10%',
-    },
-  },
   modal: {
     width: '100%',
     borderRadius: '18px',
@@ -235,13 +224,12 @@ const useStyles = makeStyles(() => (
 
 export const SongDiscovery = ({ 
     recommendations, 
-    query, 
-    onSearchPressed,
     dataLoaded,
     user,
     currentPlaylist,
     onAddToCurrentPlaylist,
     onRemoveFromCurrentPlaylistById,
+    onSaveQuery,
  }) => {
   const theme = useTheme();
 
@@ -254,10 +242,17 @@ export const SongDiscovery = ({
   const [parameters, setParameters] = useState(initialDiscoveryState.query);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlaylistOption, setSelectedPlaylistOption] =  useState('create');
-  const [playlist, setPlaylist] = useState(null);
-  console.log(playlist)
 
   const [songsToAdd, setSongsToAdd] = useState([]);
+  const [invalidSearch, setInvalidSearch] = useState(false);
+  const [targetParamValues, setTargetParamValues] = useState({
+    songs: [],
+    performers: [],
+    genres: [],
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [queryName, setQueryName] = useState(''); 
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -308,25 +303,23 @@ export const SongDiscovery = ({
       fetchData();
   }, []);
 
-  const [selectOpen, setSelectOpen] = useState(false);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (isLoading) {
-      const targetHeight = 650; // Replace 500 with the desired vertical position (height) in pixels.
+      const targetElement = document.getElementById('resultsBox'); // Replace with the actual ID of your target element.
 
-      window.scrollTo({
-        top: targetHeight,
-        behavior: 'smooth', // Use 'auto' for instant scrolling.
-      });
-    };
-  }, [isLoading])
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    }
+  }, [isLoading]);
 
   const handleExploreMoreClick = () => {
-    // Smoothly scroll to the top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // setCreatePlaylist(false);
   };
 
   const classes = useStyles();
@@ -340,11 +333,21 @@ export const SongDiscovery = ({
     setSongsToAdd([])
   };
 
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleQueryNameChange = (e) => {
+    setQueryName(e.target.value);
+  };
+
+  const handleSaveRequestParameters = () => {
+    openModal();
+  };
+
   const handleSelectUseTokens = () => {
 
   };
-
-  console.log(songsToAdd);
 
   const handleBulkAdd = () => {
     const songsToAddData = songsToAdd.map(song => ({
@@ -352,13 +355,14 @@ export const SongDiscovery = ({
       'name': song.name,
       'artists': song.artists.map(artist => artist.name),
       'spotify_id': song.spotify_id,
+      'isrc': song.external_ids.isrc,
       'image': song.album.images[2].url,
     }));
 
     onAddToCurrentPlaylist(...songsToAddData);
   };
 
-  window.addEventListener('scroll', () => {
+  const handleScroll = () => {
     const scrollPosition = window.scrollY;
     const windowHeight = window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
@@ -374,7 +378,15 @@ export const SongDiscovery = ({
     if (buttonsContainer && !(scrollPosition < distanceFromTop || pageHeight - (scrollPosition + windowHeight) < distanceFromBottom)) {
       buttonsContainer.style.display = 'block';
     }
-  });
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <>
@@ -382,6 +394,10 @@ export const SongDiscovery = ({
         classes={classes}
         parameters={parameters}
         setParameters={setParameters}
+        invalidSearch={invalidSearch}
+        setInvalidSearch={setInvalidSearch}
+        targetParamValues={targetParamValues}
+        setTargetParamValues={setTargetParamValues}
         setIsLoading={setIsLoading}
         user={user}
       />
@@ -390,6 +406,7 @@ export const SongDiscovery = ({
         flexDirection='row'
         justifyContent='center'
         width='100%'
+        id='resultsBox'
       >
         <LeftPanel 
           selectedPlaylistOption={selectedPlaylistOption}
@@ -458,6 +475,33 @@ export const SongDiscovery = ({
                     </Typography>
                   </Button>
                 </Tooltip>
+                {user && (
+                  <Tooltip
+                    title={
+                      <div
+                        style={{
+                          maxHeight: '25vh',
+                          overflowY: 'auto',
+                          padding: '8px',
+                          borderRadius: '8px',
+                        }}
+                      > 
+                        <Typography variant='body2' letterSpacing='1px'>
+                          {'Save the parameters from this request'}
+                        </Typography>
+                      </div>
+                    }
+                  >
+                    <Button onClick={handleSaveRequestParameters} sx={{ marginRight: '5%' }}>
+                      <Typography 
+                        color='white' 
+                        variant='subtitle1'
+                      >
+                        {'View Request Parameters'}
+                      </Typography>
+                    </Button>
+                  </Tooltip>)
+                }
                 <Tooltip
                   title={
                     <div
@@ -474,7 +518,7 @@ export const SongDiscovery = ({
                     </div>
                   }
                 >
-                  <Button marginRight='-10px' onClick={handleBulkAdd}>
+                  <Button onClick={handleBulkAdd}>
                     <PlaylistAddIcon fontSize='large' color='primary'/>
                   </Button>
                 </Tooltip>
@@ -510,13 +554,22 @@ export const SongDiscovery = ({
           handleSelectUseTokens={handleSelectUseTokens}
         />
       </Box>
+      <SaveQueryModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        onSaveQuery={onSaveQuery}
+        queryName={queryName}
+        handleQueryNameChange={handleQueryNameChange}
+        user={user}
+        classes={classes}
+        parameters={parameters}
+      />
     </>
   );
 };
 
 const mapStateToProps = (state) => {
   return {
-    query: state.discovery.query,
     error: state.discovery.error,
     recommendations: state.discovery.recommendations,
     dataLoaded: state.discovery.dataLoaded,
@@ -528,6 +581,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
   onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
   onRemoveFromCurrentPlaylistById: (...songs) => dispatch(removeFromCurrentPlaylistById(...songs)),
+  onSaveQuery: (query) => dispatch(saveQuery(query)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SongDiscovery);

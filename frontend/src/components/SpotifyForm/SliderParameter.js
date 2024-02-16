@@ -1,16 +1,6 @@
 import { Box, FormControlLabel, Slider, Switch, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-
-const toCapitalCase= (str) => {
-    if (str) {
-        return str
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
-    } else {
-      return str
-    };
-};
+import { toCapitalCase } from "utils";
 
 export const SliderParameter = ({ 
   parameter, 

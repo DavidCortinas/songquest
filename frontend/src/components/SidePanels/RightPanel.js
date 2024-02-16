@@ -19,15 +19,11 @@ import { addToSavedPlaylistRequest, createPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
 import { lazy } from "react";
 
-const Playlist = lazy(() => import('../Playlist'));
-
 const PlaylistItemCard = ({ item, key }) => {
-  const songName = item?.name
+  const songName = item?.name;
   const artists = item?.artists.join(', ');
-  console.log(item)
-  console.log(artists)
-  const imgUrl = item?.image  
-  console.log(imgUrl)
+  const imgUrl = item?.image;  
+
   return (
     <Card 
       key={key} 
@@ -103,8 +99,6 @@ const CreatePlaylist = ({
   onRemoveFromCurrentPlaylistById,
 }) => {
   const isPlaylistItemChecked = (item) => {
-    console.log(item)
-    console.log(songsToRemove)
     return songsToRemove.some(song => song === item.id);
   };
 
@@ -119,17 +113,14 @@ const CreatePlaylist = ({
   };
 
   const handlePlaylistSelectClick = (item) => {
-    console.log(item)
     if (playlistItemInSongsToRemove(item.id)) {
       setSongsToRemove(songsToRemove.filter(song => song.id !== item.id));
     } else {
       setSongsToRemove([...songsToRemove, item.id])
     };
   };
-  console.log(songsToRemove)
 
   const handlePlaylistSelectAll = () => {
-    console.log('handle')
     if (songsToRemove.length === 0) {
         setSongsToRemove(currentPlaylist.map(song => song.id));
     } else {
@@ -245,16 +236,6 @@ const CreatePlaylist = ({
               </Typography>
             </Button>
           </Tooltip>
-          {/* <Tooltip
-            title='Back to main panel'
-          >
-            <Button onClick={handleBackToMainPanel}>
-              <Typography variant='subtitle2'>
-                {'Back'}
-              </Typography>
-              <KeyboardDoubleArrowRightIcon />
-            </Button>
-          </Tooltip> */}
         </Box>
       </Box>
       <ul 
@@ -414,15 +395,14 @@ const CreatePlaylist = ({
               name: track.name,
               artists: track.artists,
               spotifyId: track.id,
-              isrc: track.external_ids.isrc,
-              image: track.album.images[2].url
+              isrc: track.isrc,
+              image: track.image
             }
           });
 
           return onAddToSavedPlaylist(playlistId, user?.user.id, playlistTracks);
         })
         .then(response => {
-          console.log("Playlist created and tracks added", response);
           onRemoveFromCurrentPlaylistById(...response.map(song => song));
           setPlaylistName('');
         })
@@ -430,7 +410,6 @@ const CreatePlaylist = ({
           console.log("Error in creating playlist and adding tracks: ", error);
         });
     };
-    console.log(currentPlaylist)
 
     return (
         <Card className={classes.sidePanel}>

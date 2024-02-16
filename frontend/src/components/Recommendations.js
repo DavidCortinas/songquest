@@ -5,6 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AutoModeIcon from '@mui/icons-material/AutoMode';
 import { useNavigate } from "react-router-dom";
+import { useCallback, useRef, useState } from "react";
 
 const Recommendation = ({
   classes,
@@ -19,38 +20,32 @@ const Recommendation = ({
 }) => {
     const navigate = useNavigate();
     const recommendationInPlaylist = currentPlaylist.some(track => track.spotify_id === recommendation.id);
-    console.log(recommendation)
 
-    const handleAddToPlaylistClick = () => {
-      !user.user.spotify_connected ?
-      navigate('/spotify-connect') :
-      recommendationInPlaylist ? 
-      onRemoveFromCurrentPlaylistById(recommendation.id) : 
-                    //       {
-                    //     'id': song.id,
-                    //     'name': song.name,
-                    //     'artists': song.artists.split(', '),
-                    //     'spotify_id': song.spotify_id,
-                    //     'image': song.image,
-                    // }
-      onAddToCurrentPlaylist({
-        // 'id': recommendation.id,
-        'name': recommendation.name,
-        'artists': recommendation.artists.map(artist => artist.name),
-        'spotify_id': recommendation.id,
-        'image': recommendation.album.images[2].url,
-      });
-    };
+    const handleAddToPlaylistClick = useCallback(() => {
+      if (!user?.user.spotify_connected) {
+        navigate('/spotify-connect');
+      } else {
+        recommendationInPlaylist
+          ? onRemoveFromCurrentPlaylistById(recommendation.id)
+          : onAddToCurrentPlaylist({
+              name: recommendation.name,
+              artists: recommendation.artists.map((artist) => artist.name),
+              spotify_id: recommendation.id,
+              image: recommendation.album.images[2].url,
+            });
+      }
+    }, [user?.user.spotify_connected, navigate, recommendation, recommendationInPlaylist, onRemoveFromCurrentPlaylistById, onAddToCurrentPlaylist]);
+
 
     const recommendationInSongsToAdd = songsToAdd.some(obj => obj.id === recommendation.id);
 
-    const handleSelectClick = () => {
+    const handleSelectClick = useCallback(() => {
       if (recommendationInSongsToAdd) {
         setSongsToAdd(songsToAdd.filter(song => song.id !== recommendation.id));
       } else {
         setSongsToAdd([...songsToAdd, recommendation]);
       }
-    };
+    }, [recommendation, recommendationInSongsToAdd, setSongsToAdd]);
 
     const isChecked = recommendationInSongsToAdd;
 
@@ -115,92 +110,45 @@ const Recommendations = ({
   songsToAdd,
   setSongsToAdd,
 }) => {
+  const [visibleRecommendations, setVisibleRecommendations] = useState(recommendations.length); 
+  const containerRef = useRef(null);
+
+  const handleScroll = useCallback(() => {
+    const container = containerRef.current;
+    if (container && recommendations.length > 0 && container.scrollTop + container.clientHeight >= container.scrollHeight) {
+      setVisibleRecommendations((preVisible) => preVisible + 5);
+    };
+  }, [recommendations]);
+
+  const handleAddSongToQuery = (song) => {
+
+  };
+
+  const handleAddArtistsToQuery = (artists) => {
+
+  };
+
+  const handleAddGenresToQuery = (genres) => {
+
+  };
+
   return (
     <ul>
-      {recommendations.map((recommendation, index) => (
-        <>
-          <Box
-            display='flex'
-            justifyContent='space-around'
-            paddingBottom='3%'
-          >
-            <Tooltip 
-              title={
-                <div
-                  style={{
-                    maxHeight: '25vh',
-                    overflowY: 'auto',
-                    padding: '8px',
-                    borderRadius: '8px',
-                  }}
-                >              
-                  <Typography variant='body2' letterSpacing='1px'>
-                    Get more tracks like this song
-                  </Typography>
-                </div>
-              }
-            >
-              <Button variant='outlined' className={classes.seedButtons}>
-                <AutoModeIcon fontSize='small' sx={{ padding: '0 10% 0 0' }} />
-                Song
-              </Button>
-            </Tooltip>
-            <Tooltip
-              title={
-                <div
-                  style={{
-                    maxHeight: '25vh',
-                    overflowY: 'auto',
-                    padding: '8px',
-                    borderRadius: '8px',
-                  }}
-                >              
-                  <Typography variant='body2' letterSpacing='1px'>
-                    Get more tracks from similar artists
-                  </Typography>
-                </div>
-              }
-            >
-              <Button variant='outlined' className={classes.seedButtons}>
-                <AutoModeIcon fontSize='small' sx={{ padding: '0 10% 0 0' }} />
-                Artist
-              </Button>
-            </Tooltip>
-            <Tooltip
-              title={
-                <div
-                  style={{
-                    maxHeight: '25vh',
-                    overflowY: 'auto',
-                    padding: '8px',
-                    borderRadius: '8px',
-                  }}
-                >              
-                  <Typography variant='body2' letterSpacing='1px'>
-                    Get more tracks from this genre
-                  </Typography>
-                </div>
-              }
-            >
-              <Button variant='outlined' className={classes.seedButtons}>
-                <AutoModeIcon fontSize='small' sx={{ padding: '0 10% 0 0' }} />
-                Genre
-              </Button>
-            </Tooltip>
-          </Box>
-          <Recommendation
-            classes={classes}
-            recommendation={recommendation}
-            index={index}
-            currentPlaylist={currentPlaylist}
-            songsToAdd={songsToAdd}
-            setSongsToAdd={setSongsToAdd}
-            onAddToCurrentPlaylist={onAddToCurrentPlaylist}
-            onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-            user={user}
-          />
-        </>
-      ))}
+      <div ref={containerRef} onScroll={handleScroll} style={{ overflowY: 'auto', height: '100vh' }}>
+        {recommendations.slice(0, visibleRecommendations).map((recommendation, index) => (
+            <Recommendation
+              classes={classes}
+              recommendation={recommendation}
+              index={index}
+              currentPlaylist={currentPlaylist}
+              songsToAdd={songsToAdd}
+              setSongsToAdd={setSongsToAdd}
+              onAddToCurrentPlaylist={onAddToCurrentPlaylist}
+              onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+              user={user}
+            />
+        ))}
+      </div>
     </ul>
   );
 };

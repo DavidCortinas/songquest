@@ -5,7 +5,7 @@ const useStyles = makeStyles(() => (
     {
         sidePanel: {
             marginTop: '10px',
-            maxHeight: '1800px', 
+            height: '105vh', 
             width: '20%',
             color: 'white',
             border: '2px solid rgba(89, 149, 192, 0.5)',
@@ -51,4 +51,4 @@ const useStyles = makeStyles(() => (
     }
 ));
 
-export default useStyles
+export default useStyles;

@@ -19,12 +19,13 @@ import {
   RECEIVE_SPOTIFY_PERFORMER_RESULTS,
   RECEIVE_SPOTIFY_SEED_GENRES,
   RECEIVE_SPOTIFY_SONG_RESULTS,
-  RECEIVE_SPOTIFY_TRACK,
   REFRESH_SPOTIFY_ACCESS,
   REMOVE_FROM_CURRENT_PLAYLIST_BY_ID,
   RESET_CURRENT_PLAYLIST,
   RESET_DATA_LOADED,
   RESET_QUERY_PARAMETER,
+  SAVE_PREVIOUS_QUERY,
+  SAVE_QUERY,
   SEARCH_SONG,
   SEARCH_SONG_FAILURE,
   SEARCH_SONG_SUCCESS,
@@ -52,118 +53,122 @@ const initialAuthState = {
 };
 
 export const initialDiscoveryState = {
-        query: {
-          limit: null,
-          songs: [], 
-          performers: [], 
-          genres: [],
-          market: '',
-          acousticness: {
-            min: null,
-            target: null,
-            max: null,
-            label: 'acousticness',  
-          },
-          danceability: {
-            min: null,
-            target: null, 
-            max: null,
-            label: 'danceability',  
-          },
-          duration_ms: {
-            min: null,
-            target: null, 
-            max: null, 
-            label: 'length', 
-          },
-          energy: {
-            min: null, 
-            target: null, 
-            max: null,
-            label: 'energy', 
-          },
-          instrumentalness: {
-            min: null, 
-            target: null, 
-            max: null,
-            label: 'instrumentalness', 
-          },
-          key: {
-            min: null, 
-            target: null,
-            max: null, 
-            label: 'key', 
-          },
-          liveness: {
-            min: null, 
-            target: null, 
-            max: null, 
-            label: 'liveness', 
-          },
-          loudness: {
-            min: null,
-            target: null,
-            max: null, 
-            label: 'loudness', 
-          }, 
-          mode: {
-            min: null, 
-            target: null, 
-            max: null,
-            label: 'modality', 
-          },
-          popularity: {
-            min: null, 
-            target: null, 
-            max: null,
-            label: 'popularity', 
-          },
-          speechiness: {
-            min: null, 
-            target: null,
-            max: null,
-            label: 'speechiness', 
-          }, 
-          tempo: {
-            min: null, 
-            target: null,
-            max: null,
-            label: 'tempo',  
-          },
-          time_signature: {
-            min: null, 
-            target: null, 
-            max: null,
-            label: 'time-signature', 
-          },
-          valence: {
-            min: null, 
-            target: null,
-            max: null,
-            label: 'positiveness', 
-          }
-        },
-        tracks: {
-            href: '',
-            items: [],
-            limit: 0,
-            next: '',
-            offset: 0,
-            previous: null,
-            total: 0,
-        },
-        artists: {
-            href: '',
-            items: [],
-            limit: 0,
-            next: '',
-            offset: 0,
-            previous: null,
-            total: 0,
-        },
-        genres: [],
-        markets: [],
+  query: {
+    limit: null,
+    songs: [], 
+    performers: [], 
+    genres: [],
+    market: '',
+    acousticness: {
+      min: null,
+      target: null,
+      max: null,
+      label: 'acousticness',  
+    },
+    danceability: {
+      min: null,
+      target: null, 
+      max: null,
+      label: 'danceability',  
+    },
+    duration_ms: {
+      min: null,
+      target: null, 
+      max: null, 
+      label: 'length', 
+    },
+    energy: {
+      min: null, 
+      target: null, 
+      max: null,
+      label: 'energy', 
+    },
+    instrumentalness: {
+      min: null, 
+      target: null, 
+      max: null,
+      label: 'instrumentalness', 
+    },
+    key: {
+      min: null, 
+      target: null,
+      max: null, 
+      label: 'key', 
+    },
+    liveness: {
+      min: null, 
+      target: null, 
+      max: null, 
+      label: 'liveness', 
+    },
+    loudness: {
+      min: null,
+      target: null,
+      max: null, 
+      label: 'loudness', 
+    }, 
+    mode: {
+      min: null, 
+      target: null, 
+      max: null,
+      label: 'modality', 
+    },
+    popularity: {
+      min: null, 
+      target: null, 
+      max: null,
+      label: 'popularity', 
+    },
+    speechiness: {
+      min: null, 
+      target: null,
+      max: null,
+      label: 'speechiness', 
+    }, 
+    tempo: {
+      min: null, 
+      target: null,
+      max: null,
+      label: 'tempo',  
+    },
+    time_signature: {
+      min: null, 
+      target: null, 
+      max: null,
+      label: 'time-signature', 
+    },
+    valence: {
+      min: null, 
+      target: null,
+      max: null,
+      label: 'positiveness', 
     }
+  },
+  savedQueries: {
+    previous: null,
+    saved: [],
+  },
+  tracks: {
+      href: '',
+      items: [],
+      limit: 0,
+      next: '',
+      offset: 0,
+      previous: null,
+      total: 0,
+  },
+  artists: {
+      href: '',
+      items: [],
+      limit: 0,
+      next: '',
+      offset: 0,
+      previous: null,
+      total: 0,
+  },
+  genres: [],
+  markets: [],
+};
 
 export const song = (state = initialSongState, action) => {
   const { type, payload } = action;
@@ -444,6 +449,22 @@ export const discovery = (state = initialDiscoveryState, action) => {
         return {
           ...state,
           markets: payload.markets,
+        };
+      case SAVE_PREVIOUS_QUERY:
+        return {
+          ...state,
+          savedQueries: {
+            ...state.savedQueries,
+            previous: action.payload.previousQuery,
+          },
+        };
+      case SAVE_QUERY:
+        return {
+          ...state,
+          savedQueries: {
+            ...state.savedQueries,
+            saved: [...state.savedQueries.saved, action.payload.savedQuery],
+          },
         };
     default:
       return state;

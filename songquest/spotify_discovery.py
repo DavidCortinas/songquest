@@ -217,6 +217,7 @@ def get_recommendations(parameters):
             print("Failed to obtain access token.")
 
         separator = "%2C+"
+        print('discovery parameters: ', parameters)
 
         url = format_spotify_url(parameters)
 
@@ -234,8 +235,8 @@ def get_recommendations(parameters):
     except Exception as e:
         print('Spotify Discovery Error: ', e)
 
-    # end_time = time()
+    end_time = time()
 
-    # elapsed_time = end_time - start_time
+    elapsed_time = end_time - start_time
 
     print(f"Spotify elapsed run time: {elapsed_time} seconds")

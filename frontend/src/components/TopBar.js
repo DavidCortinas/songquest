@@ -10,7 +10,7 @@ import {
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { deletePlaylist, removeFromCurrentPlaylistById, resetDataLoaded, setCurrentUser } from '../actions';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import '../App.css';
 import { useTheme } from '@mui/styles';
 import { authSlice } from '../reducers';
@@ -30,16 +30,12 @@ export const TopBar = ({
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
-  const dispatch = useDispatch()
-
   const navigate = useNavigate();
 
   const handleNavigate = () => {
     onResetDataLoaded();
     navigate('/', { replace: true });
   };
-
-  console.log(currentPlaylist.map(song => song.id))
 
   const handleLogout = () => {
     onLogout();
@@ -50,9 +46,9 @@ export const TopBar = ({
   }
 
   return (
-    <Box 
-      display="flex" 
-      justifyContent="space-between" 
+    <Box
+      display="flex"
+      justifyContent="space-between"
       p={2}
       className='topbar-nosidebar'
     >

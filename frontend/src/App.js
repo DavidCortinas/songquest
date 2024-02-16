@@ -44,9 +44,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
-        <div className='content-wrapper-nosidebar'>
-            <RoutesContainer />
-        </div>
+          <RoutesContainer />
       </div>
     </ThemeProvider>
   );

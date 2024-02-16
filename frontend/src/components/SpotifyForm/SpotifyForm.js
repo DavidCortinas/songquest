@@ -23,22 +23,12 @@ import { clearSeedsArray, resetDataLoaded, resetQueryParameter, setQueryParamete
 import { startTransition } from "react";
 import { useForm } from "react-hook-form";
 import { initialDiscoveryState } from "reducers";
+import { toCapitalCase } from "utils";
 
 const SliderModal = lazy(() => import('./SliderModal'));
 const AutocompleteParameter = lazy(() => import('./AutocompleteParameter'));
 
-const toCapitalCase= (str) => {
-    if (str) {
-        return str
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
-    } else {
-      return str
-    };
-};
-
-const autocompleteParam = ['songs', 'performers', 'genres', 'market']
+export const autocompleteParam = ['songs', 'performers', 'genres', 'market']
 
 const SpotifyForm = ({
   classes,
@@ -77,6 +67,13 @@ const SpotifyForm = ({
     performers: [],
     genres: [],
   });
+  const [selectedOptions, setSelectedOptions] = useState({
+    songs: [],
+    performers: [],
+    genres: [],
+    markets: [],
+  });
+  const [localSelectedOptions, setLocalSelectedOptions] = useState(selectedOptions);
 
 
   const handleTargetParamChange = (e) => {
@@ -91,10 +88,18 @@ const SpotifyForm = ({
   };
 
   const handleSelectedOptions = (parameter, selectedOptions) => {
+    console.log('handleSelection')
+    console.log(parameter)
+    console.log(selectedOptions)
     setTargetParamLabels(prevLabels => ({
       ...prevLabels,
       [parameter]: selectedOptions,
-    }))
+    }));
+
+    setSelectedOptions((prevSelectedOptions) => ({
+      ...prevSelectedOptions,
+      [parameter]: selectedOptions,
+    }));
   };
 
   const handleChange = (param, value) => {
@@ -106,7 +111,6 @@ const SpotifyForm = ({
     setInvalidSearch(false);
 
     if (!sliderParam) {
-      console.log(parameters);
       setParameters(prevParameters => {
         if (param === 'market' || param === 'limit') {
             return {
@@ -127,8 +131,6 @@ const SpotifyForm = ({
           }
       })} 
   };
-
-  console.log(query)
 
   const handleReset = () => {
     setInvalidSearch(false);
@@ -153,11 +155,16 @@ const SpotifyForm = ({
   };
 
   const { handleSubmit } = useForm();
-  console.log(parameters)
 
   const onSubmit = () => {
+    console.log('submit parameters: ', parameters)
     setIsLoading(true);
-    console.log(parameters)
+    setLocalSelectedOptions({
+      songs: [],
+      performers: [],
+      genres: [],
+      markets: [],
+    });
     startTransition(() => {
       onSearchPressed(parameters)
       .then(() => {
@@ -179,7 +186,6 @@ const SpotifyForm = ({
     e.preventDefault(); 
     onSubmit();
   };
-  console.log(user)
   
   return (
     <>
@@ -218,286 +224,294 @@ const SpotifyForm = ({
               root: classes.root
             }}
           />
-      <SpotifyAuth>
-        {(accessToken, expiresAt) => {
-          return (
-            <>
-              {Object.keys(parameters).map((parameter, index) => {
-                return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
-                  <Box key={index}>
-                    <Box>
-                      {parameter === 'limit' ? (
-                        <>
-                          <Typography
-                            paddingBottom='3px'
-                            variant='subtitle2'
-                            textAlign='center' 
-                            color='white'
-                            letterSpacing='1px'
-                          >
-                            Choose the songs, artists, and genres you'd like to shape your recommendations.
-                          </Typography>
-                          <Box
-                            display="flex"
-                            flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
-                            justifyContent='center'
-                            alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
-                            style={{ marginBottom: '1%' }}
-                          >
-                            <FormControl className={classes.primaryField}>
-                              <InputLabel 
-                                className={classes.inputLabel} 
-                                variant='standard'
+          <SpotifyAuth>
+            {(accessToken, expiresAt) => {
+              return (
+                <>
+                  {Object.keys(parameters).map((parameter, index) => {
+                    return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
+                      <Box key={index}>
+                        <Box>
+                          {parameter === 'limit' ? (
+                            <>
+                              <Typography
+                                paddingBottom='3px'
+                                variant='subtitle2'
+                                textAlign='center' 
+                                color='white'
+                                letterSpacing='1px'
                               >
-                                Set Recommendation Sources (Songs, Artists, or Genres)
-                              </InputLabel>
-                              <Select
-                                multiple
-                                open={selectOpen}
-                                onOpen={() => setSelectOpen(true)}
-                                onClose={() => setSelectOpen(false)}
-                                label="Set Recommendation Sources (Songs, Artists, or Genres)"
-                                value={targetParams}
-                                onChange={handleTargetParamChange}
-                                variant="standard"
-                                MenuProps={{
-                                  sx: {
-                                    '.MuiPaper-root': {
-                                      backgroundColor: '#30313d',
-                                      color: 'white',
-                                    },
-                                  },
-                                }}
-                                renderValue={(selected) => (
-                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {selected.map((value, index) => (
-                                      <Chip
-                                        key={value}
-                                        sx={{
-                                          backgroundColor: '#006f96',
+                                Choose the songs, artists, and genres you'd like to shape your recommendations.
+                              </Typography>
+                              <Box>
+                                <Button>
+                                  Saved Request Parameters
+                                </Button>
+                              </Box>
+                              <Box
+                                display="flex"
+                                flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
+                                justifyContent='center'
+                                alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
+                                style={{ marginBottom: '1%' }}
+                              >
+                                <FormControl className={classes.primaryField}>
+                                  <InputLabel 
+                                    className={classes.inputLabel} 
+                                    variant='standard'
+                                  >
+                                    Set Recommendation Sources (Songs, Artists, or Genres)
+                                  </InputLabel>
+                                  <Select
+                                    multiple
+                                    open={selectOpen}
+                                    onOpen={() => setSelectOpen(true)}
+                                    onClose={() => setSelectOpen(false)}
+                                    label="Set Recommendation Sources (Songs, Artists, or Genres)"
+                                    value={targetParams}
+                                    onChange={handleTargetParamChange}
+                                    variant="standard"
+                                    MenuProps={{
+                                      sx: {
+                                        '.MuiPaper-root': {
+                                          backgroundColor: '#30313d',
                                           color: 'white',
-                                          '& .MuiChip-deleteIcon': {
-                                            color: 'white',
-                                          },
-                                          marginLeft: index === 0 ? '8px' : '0px',
-                                        }}
-                                        label={toCapitalCase(value)}
-                                        deleteIcon={<CancelIcon
-                                          onMouseDown={(event) => event.stopPropagation()} />}
-                                        onDelete={() => handleTargetParamDelete(value)} />
-                                    ))}
-                                  </Box>
-                                )}
+                                        },
+                                      },
+                                    }}
+                                    renderValue={(selected) => (
+                                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value, index) => (
+                                          <Chip
+                                            key={value}
+                                            sx={{
+                                              backgroundColor: '#006f96',
+                                              color: 'white',
+                                              '& .MuiChip-deleteIcon': {
+                                                color: 'white',
+                                              },
+                                              marginLeft: index === 0 ? '8px' : '0px',
+                                            }}
+                                            label={toCapitalCase(value)}
+                                            deleteIcon={<CancelIcon
+                                              onMouseDown={(event) => event.stopPropagation()} />}
+                                            onDelete={() => handleTargetParamDelete(value)} />
+                                        ))}
+                                      </Box>
+                                    )}
+                                  >
+                                    <MenuItem value={'songs'}>Songs</MenuItem>
+                                    <MenuItem value={'performers'}>Performers</MenuItem>
+                                    <MenuItem value={'genres'}>Genres</MenuItem>
+                                  </Select>
+                                </FormControl>
+                                <SearchParameter
+                                  parameter={parameter}
+                                  handleChange={handleChange}
+                                  invalidSearch={invalidSearch}
+                                  classes={classes} 
+                                />
+                              </Box>
+                              <Typography
+                                textAlign='center'
+                                color='whitesmoke'
+                                letterSpacing='1px'
+                                variant={
+                                  isXsScreen || isSmScreen ?
+                                  "body2" :
+                                  "body1"
+                                }
                               >
-                                <MenuItem value={'songs'}>Songs</MenuItem>
-                                <MenuItem value={'performers'}>Performers</MenuItem>
-                                <MenuItem value={'genres'}>Genres</MenuItem>
-                              </Select>
-                            </FormControl>
-                            <SearchParameter
-                              parameter={parameter}
-                              handleChange={handleChange}
-                              invalidSearch={invalidSearch}
-                              classes={classes} 
-                            />
-                          </Box>
-                          <Typography
-                            textAlign='center'
-                            color='whitesmoke'
-                            letterSpacing='1px'
-                            variant={
-                              isXsScreen || isSmScreen ?
-                              "body2" :
-                              "body1"
-                            }
-                          >
-                            {Object.values(targetParamValues).every(arr => arr.length === 0)
-                              ? `Choose Up to 5 Recommendation Sources`
-                              : Object.values(targetParamValues).every(arr => arr.length < 5)
-                                ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
-                                  .length} More Recommendation Sources`
-                                : `You Have Run Out Of Target Parameters To Set`}
-                          </Typography>
-                        </>
-                      ) : autocompleteParam.includes(parameter) && 
-                        targetParams.includes(parameter) && (
-                          <Box 
-                            display="flex" 
-                            flexDirection='column' 
-                            justifyContent="center" 
-                            alignItems='center' 
-                            style={{ marginBottom: '1%' }}
-                          >
-                            <AutocompleteParameter
-                              parameter={parameter}
-                              handleChange={(parameter, value) => {
-                                handleChange(parameter, value);
-                              } }
-                              classes={classes}
-                              invalidSearch={invalidSearch}
-                              accessToken={accessToken}
-                              expiresAt={expiresAt}
-                              tracks={tracks}
-                              artists={artists}
-                              genres={genres}
-                              markets={markets}
-                              setTargetParamValues={setTargetParamValues}
-                              targetParamValues={targetParamValues}
-                              onSelectedOptions={handleSelectedOptions} />
-                          </Box>
-                        )}
-                    </Box>
-                  </Box>
-                ) : null;
-              })}
-            <Tooltip
-                arrow
-                title={
-                  <div
-                    style={{
-                      maxHeight: '25vh',
-                      overflowY: 'auto',
-                      padding: '8px',
-                      borderRadius: '8px',
-                    }}
-                  > 
-                    <Typography variant='body2' letterSpacing='1px'>
-                      {'Adjust your discovery settings'}
+                                {Object.values(targetParamValues).every(arr => arr.length === 0)
+                                  ? `Choose Up to 5 Recommendation Sources`
+                                  : Object.values(targetParamValues).every(arr => arr.length < 5)
+                                    ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
+                                      .length} More Recommendation Sources`
+                                    : `You Have Run Out Of Target Parameters To Set`}
+                              </Typography>
+                            </>
+                          ) : autocompleteParam.includes(parameter) && 
+                            targetParams.includes(parameter) && (
+                              <Box 
+                                display="flex" 
+                                flexDirection='column' 
+                                justifyContent="center" 
+                                alignItems='center' 
+                                style={{ marginBottom: '1%' }}
+                              >
+                                <AutocompleteParameter
+                                  parameter={parameter}
+                                  handleChange={(parameter, value) => {
+                                    handleChange(parameter, value);
+                                  } }
+                                  classes={classes}
+                                  invalidSearch={invalidSearch}
+                                  accessToken={accessToken}
+                                  expiresAt={expiresAt}
+                                  tracks={tracks}
+                                  artists={artists}
+                                  genres={genres}
+                                  markets={markets}
+                                  setTargetParamValues={setTargetParamValues}
+                                  targetParamValues={targetParamValues}
+                                  onSelectedOptions={handleSelectedOptions}
+                                  localSelectedOptions={localSelectedOptions}
+                                  setLocalSelectedOptions={setLocalSelectedOptions}
+                                />
+                              </Box>
+                            )}
+                        </Box>
+                      </Box>
+                    ) : null;
+                  })}
+                <Tooltip
+                    arrow
+                    title={
+                      <div
+                        style={{
+                          maxHeight: '25vh',
+                          overflowY: 'auto',
+                          padding: '8px',
+                          borderRadius: '8px',
+                        }}
+                      > 
+                        <Typography variant='body2' letterSpacing='1px'>
+                          {'Adjust your discovery settings'}
+                        </Typography>
+                      </div>
+                    }
+                >
+                    <Button 
+                      sx={{ 
+                          color: 'white', 
+                          borderRadius: '18px',
+                          height: '55px',
+                          border: '2px solid rgba(89, 149, 192, 0.5)',
+                          boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+                          textTransform: 'none',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          '&:hover, &:active, &.MuiFocusVisible': {
+                            border: '2px solid rgba(89, 149, 192, 0.5)',
+                            background: 'rgba(48, 130, 164, 0.1)',
+                            boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+                            backdropFilter: 'blur(5.1px)',
+                            WebkitBackdropFilter: 'blur(5.1px)',
+                          },
+                      }} 
+                      fullWidth
+                      variant='outlined'
+                      onClick={() => setOpenModal(true)}
+                      disableRipple
+                    >
+                    <Typography letterSpacing='1px'>
+                      Fine Tune Your Recommendations
                     </Typography>
-                  </div>
-                }
-            >
-                <Button 
-                  sx={{ 
-                      color: 'white', 
-                      borderRadius: '18px',
-                      height: '55px',
-                      border: '2px solid rgba(89, 149, 192, 0.5)',
-                      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-                      textTransform: 'none',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      '&:hover, &:active, &.MuiFocusVisible': {
-                        border: '2px solid rgba(89, 149, 192, 0.5)',
-                        background: 'rgba(48, 130, 164, 0.1)',
-                        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                        backdropFilter: 'blur(5.1px)',
-                        WebkitBackdropFilter: 'blur(5.1px)',
-                      },
-                  }} 
-                  fullWidth
-                  variant='outlined'
-                  onClick={() => setOpenModal(true)}
-                  disableRipple
+                    <Typography 
+                      color='#f6f8fc' 
+                      variant='caption' 
+                      textAlign='end'
+                      letterSpacing='1px'
+                    >
+                      {
+                        isXsScreen || isSmScreen ? 
+                        "* activate parameters and set the min, target, and max values" : 
+                        "* activate additional parameters and set the min, target, and max values to refine your recommendations"
+                      }
+                    </Typography>
+                    <SettingsSuggestIcon />
+                    </Button>
+                </Tooltip>
+                  <Box className={classes.modal}>
+                    <SliderModal
+                      autocompleteParam={autocompleteParam}
+                      parameters={parameters}
+                      setParameters={setParameters}
+                      query={query}
+                      onSetQueryParameter={onSetQueryParameter}
+                      openModal={openModal}
+                      setOpenModal={setOpenModal}
+                      isXsScreen={isXsScreen}
+                      isSmScreen={isSmScreen}
+                      isMdScreen={isMdScreen}
+                      isLgScreen={isLgScreen}
+                      isXlScreen={isXlScreen}
+                      classes={classes}
+                    />
+                  </Box>
+                </>
+              )
+            }}
+          </SpotifyAuth>
+          <Grid className={classes.buttonsContainer}>
+            <Tooltip
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {'Discover New Music'}
+                  </Typography>
+                </div>
+              }
+              arrow
+              >
+              <Button
+                type="submit"
+                variant='contained'
+                onClick={handleSubmit(onSubmit)}
+                style={{ 
+                  color: 'white', 
+                  backgroundColor: 'transparent', 
+                  border: '2px solid rgba(89, 149, 192, 0.5)',
+                  borderRadius: '8px' ,
+                  boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+                  '&:hover, &:active, &.MuiFocusVisible': {
+                    border: '2px solid rgba(89, 149, 192, 0.5)',
+                    background: 'rgba(48, 130, 164, 0.1)',
+                    boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+                    backdropFilter: 'blur(5.1px)',
+                    WebkitBackdropFilter: 'blur(5.1px)',
+                  },
+                }}
                 >
-                <Typography letterSpacing='1px'>
-                  Fine Tune Your Recommendations
-                </Typography>
-                <Typography 
-                  color='#f6f8fc' 
-                  variant='caption' 
-                  textAlign='end'
-                  letterSpacing='1px'
-                >
-                  {
-                    isXsScreen || isSmScreen ? 
-                    "* activate parameters and set the min, target, and max values" : 
-                    "* activate additional parameters and set the min, target, and max values to refine your recommendations"
-                  }
-                </Typography>
-                <SettingsSuggestIcon />
-                </Button>
+                {user?.user ? 'Discover' : 'Try For Free'}
+              </Button>         
             </Tooltip>
-              <Box className={classes.modal}>
-                <SliderModal
-                  autocompleteParam={autocompleteParam}
-                  parameters={parameters}
-                  setParameters={setParameters}
-                  query={query}
-                  onSetQueryParameter={onSetQueryParameter}
-                  openModal={openModal}
-                  setOpenModal={setOpenModal}
-                  isXsScreen={isXsScreen}
-                  isSmScreen={isSmScreen}
-                  isMdScreen={isMdScreen}
-                  isLgScreen={isLgScreen}
-                  isXlScreen={isXlScreen}
-                  classes={classes}
-                />
-              </Box>
-            </>
-          )
-        }}
-      </SpotifyAuth>
-    <Grid className={classes.buttonsContainer}>
-      <Tooltip
-        title={
-          <div
-            style={{
-              maxHeight: '25vh',
-              overflowY: 'auto',
-              padding: '8px',
-              borderRadius: '8px',
-            }}
-          > 
-            <Typography variant='body2' letterSpacing='1px'>
-              {'Discover New Music'}
-            </Typography>
-          </div>
-        }
-        arrow
-        >
-        <Button
-          type="submit"
-          variant='contained'
-          onClick={handleSubmit(onSubmit)}
-          style={{ 
-            color: 'white', 
-            backgroundColor: 'transparent', 
-            border: '2px solid rgba(89, 149, 192, 0.5)',
-            borderRadius: '8px' ,
-            boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-            '&:hover, &:active, &.MuiFocusVisible': {
-              border: '2px solid rgba(89, 149, 192, 0.5)',
-              background: 'rgba(48, 130, 164, 0.1)',
-              boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-              backdropFilter: 'blur(5.1px)',
-              WebkitBackdropFilter: 'blur(5.1px)',
-            },
-          }}
-          >
-          {user?.user ? 'Discover' : 'Try For Free'}
-        </Button>         
-      </Tooltip>
-      <Tooltip
-        title={
-          <div
-            style={{
-              maxHeight: '25vh',
-              overflowY: 'auto',
-              padding: '8px',
-              borderRadius: '8px',
-            }}
-          > 
-            <Typography variant='body2' letterSpacing='1px'>
-              {'Reset discovery parameters'}
-            </Typography>
-          </div>
-        }
-        arrow
-        >
-        <Button
-          onClick={handleReset}
-          style={{ color: 'white', backgroundColor: 'transparent' }}
-          >
-          Reset
-        </Button>
-      </Tooltip>
-    </Grid>
-    <br />
-    </form>
-    </Box>
-  </>
+            <Tooltip
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {'Reset discovery parameters'}
+                  </Typography>
+                </div>
+              }
+              arrow
+              >
+              <Button
+                onClick={handleReset}
+                style={{ color: 'white', backgroundColor: 'transparent' }}
+                >
+                Reset
+              </Button>
+            </Tooltip>
+          </Grid>
+          <br />
+        </form>
+      </Box>
+    </>
   )
 };
 

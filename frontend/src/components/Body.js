@@ -85,8 +85,8 @@ export const Body = ({
                                         item.description : 
                                         item.mobileDescription
                                     }
-                                    subheaderTypographyProps={{ color: '#e0e6ea' }}
-                                    style={{ textAlign: 'left', paddingLeft: '10%', letterSpacing: '1px' }}
+                                    subheaderTypographyProps={{ color: '#e0e6ea', letterSpacing: '1px' }}
+                                    style={{ textAlign: 'left', paddingLeft: '10%' }}
                                 />
                             </div>
                         </div>
