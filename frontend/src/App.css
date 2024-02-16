@@ -1,7 +1,3 @@
-html {
-  /* background: #0b0b0b */
-}
-
 .App {
   background-attachment: fixed;
   min-height: 100vh;
@@ -13,131 +9,13 @@ html {
       rgba(10, 17, 25,1) 56%,
       rgba(1, 1, 3,1) 84%   
     );
-    /* url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/9632/northernlights.jpg); */
-}
-
-
-/* .main {
-  background: linear-gradient(
-    135deg,
-    #338aad 0%,
-    #1c485f 18%,
-    #132b44 38%,
-    #131f2f 56%,
-    #0c0e1a 84%
-  );
-  background-attachment: fixed;
-} */
-
-.overlay {
-  display: flex;
-  background-attachment: fixed;
-}
-
-.overlay::after {
-  /* content is required when using :after */
-  content: "";
-  display: inline-block;
-  /* The grainy image */
-  background-image: url("../public/static/images/paper_1.png");
-  /* Specify a height and width above and beyond the page header for movement */
-  height: 300%;
-  width: 300%;
-  /* We're using opacity in place of a transparent image */
-  opacity: 0.05;
-  /* We'll need this when the animation kicks in to hold the position of the texture */
-  position: fixed;
-}
-
-
-.sidebar {
-  overflow: auto;
-  text-align: center;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-}
-
-.sidebar-container {
-  background: white;
-  /* url("./images/boombox.png") bottom center ; */
-  background-size: cover;
-  height: 100vh;
-}
-
-.bottombar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 9999;
-}
-
-.content-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-left: 200px;
-  transition: margin-left 0.3s ease;
-  overflow: auto;
-}
-
-.content-wrapper-collapsed {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-left: 64px;
-  transition: margin-left 0.3s ease;
-  overflow: auto;
-}
-
-.content-wrapper-nosidebar {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 201px;
-  right: 0;
-  z-index: 9999;
-  transition: left 0.3s ease;
-}
-
-.topbar-collapsed {
-  position: fixed;
-  top: 0;
-  left: 65px;
-  right: 0;
-  z-index: 9999;
-  transition: left 0.3s ease;
 }
 
 .topbar-nosidebar {
-  /* position: fixed; */
   top: 0;
   left: 0;
   right: 0;
   z-index: 9999;
-  transition: left 0.3s ease;
-}
-
-/* .main {
-  background-image: linear-gradient(to bottom right, #004b7f, #006f96, #0090c3);
-} */
-
-.main-content {
-  flex-grow: 1;
-  overflow: auto;
-  /* background-color: #012040; */
-  /* background: #0d0d0d; */
-  /* url("./images/sound-wall.jpg") center; */
-  -webkit-overflow-scrolling: touch;
-  min-height: 100vh;
-  padding-top: 60px;
 }
 
 .vinyl-loader {

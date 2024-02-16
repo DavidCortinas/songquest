@@ -16,7 +16,6 @@ import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { checkRegistration, getSpotifyUserAuth, getUserPlaylists, handleUpdateUsername, login, registerUser } from "../../thunks";
 import { setCurrentUser } from "../../actions";
-import SpotifyConnect from "../SpotifyConnect";
 
 const useStyles = makeStyles(() => (
   {

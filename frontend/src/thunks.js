@@ -18,10 +18,12 @@ import {
   addToSavedPlaylist,
   getUserPlaylistsRequest,
   getUserPlaylistsSuccess,
-  getUserPlaylistsFailure
+  getUserPlaylistsFailure,
+  savePreviousQuery
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
+
 // import { setAccount, setAuthTokens } from './actions/auth';
 
 export const searchSongRequest = (query) => async (dispatch) => {
@@ -178,7 +180,7 @@ export const handleUpload = (filelist) => async (filelist) => {
   fetch(UPLOAD_URL, data)
 }
 
-export const discoverSongRequest = (parameters) => async (dispatch) => {
+export const discoverSongRequest = (parameters) => async (dispatch, getState) => {
   try {
     const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
     const body = JSON.stringify(parameters);
@@ -199,8 +201,12 @@ export const discoverSongRequest = (parameters) => async (dispatch) => {
 
     const discovery = await response.json();
 
-    dispatch(discoverSong(discovery, false, parameters))
-    dispatch(discoverSongSuccess(discovery, true))
+    dispatch(discoverSong(discovery, false, parameters));
+
+    const prevQuery = getState().discovery.query;
+    dispatch(savePreviousQuery(prevQuery));
+    
+    dispatch(discoverSongSuccess(discovery, true));
     return discovery;
   } catch (error) {
     console.log('Error: ' + error.message);
@@ -268,42 +274,38 @@ export const getSpotifySearchResult = (
   accessToken, 
   expiresAt
 ) => async (dispatch) => {
+  const type = (parameter === 'songs' || parameter === 'lyrics') ? 'track' : 'artist';
+  const lyricsQuery = parameter === 'lyrics' ? `track:${value.track_name} artist:${value.artist_name}` : null;
 
-  const type = (parameter === 'songs' || parameter === 'lyrics') 
-    ? 'track' 
-    : 'artist'
-
-  const lyricsQuery = parameter === 'lyrics' ? `track:${value.track_name} artist:${value.artist_name}` : null
+  const token = await checkTokenExpiration(accessToken, expiresAt);
 
   try {
-    const API_URL =  `https://api.spotify.com/v1/search?q=${
+    const API_URL = `https://api.spotify.com/v1/search?q=${
       parameter === 'lyrics' ? 
       encodeURIComponent(lyricsQuery) : 
       encodeURIComponent(value)
     }&type=${type}&include_external=audio`;
 
-    const response = await fetch(API_URL, {
+    const response = await axios.get(API_URL, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
-    const result = await response.json();
+    const result = response.data;
+
     if (parameter === 'songs') {
-      dispatch(receiveSongResults(result.tracks))
+      dispatch(receiveSongResults(result.tracks));
     }
     if (parameter === 'performers') {
-      dispatch(receivePerformerResults(result.artists))
-    };
+      dispatch(receivePerformerResults(result.artists));
+    }
     if (parameter === 'lyrics') {
-      dispatch(receiveLyricResults(result.tracks))
+      dispatch(receiveLyricResults(result.tracks));
     }
   } catch (error) {
     console.log('Error: ', error);
-  };
+  }
 };
 
 export const getSpotifyGenres = (
@@ -312,17 +314,18 @@ export const getSpotifyGenres = (
 ) => async (dispatch) => {
   try {
     const API_URL = 'https://api.spotify.com/v1/recommendations/available-genre-seeds';
-    const response = await fetch(API_URL, {
+    const response = await axios.get(API_URL, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-    }
-  });
-  const result = await response.json();
-  dispatch(receiveSpotifySeedGenres(result.genres))
+      },
+    });
+
+    const result = response.data;
+    dispatch(receiveSpotifySeedGenres(result.genres));
   } catch (error) {
     console.log('Error: ', error);
-  };
-}
+  }
+};
 
 export const getSpotifyMarkets = (
   accessToken,
@@ -330,52 +333,120 @@ export const getSpotifyMarkets = (
 ) => async (dispatch) => {
   try {
     const API_URL = 'https://api.spotify.com/v1/markets';
-    const response = await fetch(API_URL, {
+    const response = await axios.get(API_URL, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-      }
+      },
     });
-    const result = await response.json();
-    dispatch(receiveSpotifyMarkets(result.markets))
+
+    const result = response.data;
+    dispatch(receiveSpotifyMarkets(result.markets));
   } catch (error) {
     console.log('Error: ', error);
-  };
-}
+  }
+};
 
 
-export const checkTokenExpiration = async(
-  headers, 
-  spotify_access, 
-  spotify_refresh, 
-  spotify_expires_at
+export const getSpotifyTracks = (userId, trackIds) => async (dispatch) => {
+  console.log('getTracks');
+  console.log(userId);
+
+  try {
+    const csrfToken = await getCSRFToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'User-Id': userId,
+    };
+
+    const data = {
+      spotifyIds: trackIds,
+    };
+
+    const response = await axios.post('http://localhost:8000/get-spotify-tracks/', data, { headers });
+
+    if (response.status === 200) {
+      console.log(response.data['tracks']);
+      return response.data['tracks'];
+    } else {
+      throw new Error('Request failed with status ' + response.status);
+    }
+  } catch (error) {
+    console.error('Error fetching Spotify tracks:', error.message);
+  }
+};
+
+export const getSpotifyArtists = (userId, artistIds) => async (dispatch) => {
+  console.log('getArtists');
+  console.log(userId);
+  console.log(artistIds)
+
+  try {
+    const csrfToken = await getCSRFToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'User-Id': userId,
+    };
+
+    const data = {
+      artistIds: artistIds,
+    };
+
+    const response = await axios.post('http://localhost:8000/get-spotify-artists/', data, { headers });
+
+    if (response.status === 200) {
+      console.log(response.data['artists']);
+      return response.data['artists'];
+    } else {
+      throw new Error('Request failed with status ' + response.status);
+    }
+  } catch (error) {
+    console.error('Error fetching Spotify tracks:', error.message);
+  }
+};
+
+
+
+export const checkTokenExpiration = async (
+  accessToken,
+  refreshToken,
+  expiresAt
 ) => {
-      // Check if the token has expired
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (currentTime >= spotify_expires_at) {
-      // Token has expired, refresh it
+  // Check if the token has expired
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (currentTime >= expiresAt) {
+    try {
       const response = await fetch('http://localhost:8000/refresh-token/', {
         method: 'POST',
-        body: JSON.stringify({ refresh_token: spotify_refresh }),
-        headers: headers,
+        body: JSON.stringify({ refresh_token: refreshToken }),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any other necessary headers here
+        },
         credentials: 'include',
       });
 
       if (response.status === 200) {
-        // Successfully refreshed the access token
         const tokenInfo = await response.json();
         const newAccessToken = tokenInfo.access_token;
 
-        // Continue your API requests using the new access token
-        spotify_access = newAccessToken;
-        
-        return spotify_access
+        return newAccessToken;
       } else {
-        // Handle token refresh error, e.g., log out the user or show an error message
         console.error('Error refreshing access token');
-        return; // Return or handle the error as needed
+        // Handle the error or throw an exception if needed
+        throw new Error('Error refreshing access token');
       }
+    } catch (error) {
+      console.error('Error during token refresh:', error);
+      // Handle the error or throw an exception if needed
+      throw error;
     }
-}
+  }
+
+  return accessToken;
+};
+
 
 export const handleUpdateUsername = (userId, newUsername) => async (dispatch) => {
   try {
@@ -470,7 +541,7 @@ export const addToSavedPlaylistRequest = (
 
     const res = await response.json();
     const playlist = res['playlist'] 
-    console.log('updated playlist: ', playlist)
+
     dispatch(addToSavedPlaylist(playlist.id, playlist.songs));
     return playlist.songs
   } catch (error) {
@@ -489,14 +560,11 @@ export const getUserPlaylists = (userId) => async (dispatch) => {
       'User-Id': userId,
     };
 
-    console.log('get user playlists headers: ', headers)
-
     const response = await axios.get(`http://localhost:8000/get-user-playlists/`, {
       headers,
     });
 
     const userPlaylists = response.data['playlists']
-    console.log(userPlaylists)
 
     dispatch(getUserPlaylistsSuccess(userPlaylists));
   } catch (error) {

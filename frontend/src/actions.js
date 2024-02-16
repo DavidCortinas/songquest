@@ -134,6 +134,18 @@ export const receiveSpotifyMarkets = (markets) => ({
   payload: { markets },
 });
 
+export const SAVE_PREVIOUS_QUERY = 'SAVE_PREVIOUS_QUERY';
+export const savePreviousQuery = (previousQuery) => ({
+  type: SAVE_PREVIOUS_QUERY,
+  payload: { previousQuery },
+});
+
+export const SAVE_QUERY = 'SAVE_QUERY';
+export const saveQuery = (query) => ({
+  type: SAVE_QUERY,
+  payload: { query },
+});
+
 export const REQUEST_SPOTIFY_USER_AUTH = 'REQUEST_SPOTIFY_USER_AUTH';
 export const requestSpotifyUserAuth = () => ({
   type: REQUEST_SPOTIFY_USER_AUTH

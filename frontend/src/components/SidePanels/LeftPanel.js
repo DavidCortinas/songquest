@@ -96,20 +96,16 @@ export const LeftPanel = ({
   onDeletePlaylist,
   onResetCurrentPlaylist,
   selectedPlaylistOption,
-  setSelectedPlaylistOption,
   handleSelectUseTokens,
 }) => {
   const classes = useStyles();
+  
   const handleDeletePlaylist = (playlistId) => {
     onDeletePlaylist(playlistId)
   };
 
   const handleSelectNewPlaylist = () => {
     onResetCurrentPlaylist();
-  };
-
-  const handleSelectAddPlaylist = () => {
-    setSelectedPlaylistOption('add');
   };
   
   return (
@@ -127,17 +123,7 @@ export const LeftPanel = ({
           alignItems='center'
           paddingBottom='5%'
           position='relative'
-        >
-          {userPlaylists.length === 0 && (
-            <Typography 
-              variant='subtitle1' 
-              textAlign='center' 
-              padding='10%'
-              letterSpacing='2px'
-            >
-              You have not created any playlists 
-            </Typography> 
-          )}           
+        >        
           <li style={{ listStyle: 'none' }}>
             <Tooltip
               title={
@@ -174,7 +160,6 @@ export const LeftPanel = ({
                           fontWeight: 'bold',
                           maxHeight: '30%',
                           maxWidth: '100%',
-                          overflowY: 'auto',
                           cursor: 'pointer',
                         }}
                       >
@@ -185,100 +170,107 @@ export const LeftPanel = ({
               </Card>
             </Tooltip>
           </li>
-          {userPlaylists.length > 0 && (
-            <>
-              <Box 
-                display='flex' 
-                alignItems='center' 
-                justifyContent='space-between'
-                padding='5% 0 5% 6%'
+          <Box 
+            display='flex' 
+            alignItems='center' 
+            justifyContent='space-between'
+            padding='5% 0 5% 6%'
+          >
+            <Tooltip
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {'Select all playlists'}
+                  </Typography>
+                </div>
+              }
+            >
+              <Checkbox sx={{ padding: '0px', color: 'white' }}/>
+            </Tooltip>
+            <Typography 
+              variant='caption1' 
+              textAlign='center'
+              width='100%' 
+              letterSpacing='2px'
+              sx={{ flex: 1, marginLeft: 5 }}
+            >
+              Edit Playlists
+            </Typography>
+            <Tooltip
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {'Delete selected playlists'}
+                  </Typography>
+                </div>
+              }
+            >
+              <Button
+                // sx={{ padding: '0 0 0 20px'}}
+                onClick={() => handleDeletePlaylist()}
               >
-                <Tooltip
-                  title={
-                    <div
-                      style={{
-                        maxHeight: '25vh',
-                        overflowY: 'auto',
-                        padding: '8px',
-                        borderRadius: '8px',
+                <PlaylistRemoveIcon />
+              </Button>
+            </Tooltip>
+          </Box>            
+          {
+            userPlaylists.length == 0 ? (
+              <Typography 
+                variant='subtitle1' 
+                textAlign='center' 
+                padding='10%'
+                letterSpacing='2px'
+              >
+                You have not created any playlists 
+              </Typography>
+            ) : userPlaylists?.map((userPlaylist, index) => {
+              return (
+                <Box 
+                  display='flex' 
+                  flexDirection='column'
+                  alignItems='center'
+                  paddingBottom='10px'
+                  position='relative'
+                >
+                  <li key={index} style={{ listStyle: 'none' }}>
+                    <Checkbox
+                      icon={<CircleIcon sx={{ color: '#d2dce1', opacity: '0.5' }} />}
+                      checkedIcon={<CheckCircleIcon color='info' />}                       
+                      // onClick={() => handlePlaylistSelectClick(item)}
+                      // checked={isPlaylistItemChecked(item)}
+                      sx={{
+                        color: 'white',
+                        position: 'absolute',
+                        top: '20%',
+                        left: '4%',
+                        zIndex: '2',
+                        paddingLeft: '0px',
                       }}
-                    > 
-                      <Typography variant='body2' letterSpacing='1px'>
-                        {'Select all playlists'}
-                      </Typography>
-                    </div>
-                  }
-                >
-                  <Checkbox sx={{ padding: '0px', color: 'white' }}/>
-                </Tooltip>
-                <Typography 
-                  variant='caption1' 
-                  textAlign='center'
-                  width='100%' 
-                  letterSpacing='2px'
-                  sx={{ flex: 1, marginLeft: 5 }}
-                >
-                  Edit Playlist
-                </Typography>
-                <Tooltip
-                  title={
-                    <div
-                      style={{
-                        maxHeight: '25vh',
-                        overflowY: 'auto',
-                        padding: '8px',
-                        borderRadius: '8px',
-                      }}
-                    > 
-                      <Typography variant='body2' letterSpacing='1px'>
-                        {'Delete selected playlists'}
-                      </Typography>
-                    </div>
-                  }
-                >
-                  <Button
-                    // sx={{ padding: '0 0 0 20px'}}
-                    onClick={() => handleDeletePlaylist()}
-                  >
-                    <PlaylistRemoveIcon />
-                  </Button>
-                </Tooltip>
-              </Box>            
-              {userPlaylists?.map((userPlaylist, index) => {
-                return (
-                  <Box 
-                    display='flex' 
-                    flexDirection='column'
-                    alignItems='center'
-                    paddingBottom='10px'
-                    position='relative'
-                  >
-                    <li key={index} style={{ listStyle: 'none' }}>
-                      <Checkbox
-                        icon={<CircleIcon sx={{ color: '#d2dce1', opacity: '0.5' }} />}
-                        checkedIcon={<CheckCircleIcon color='info' />}                       
-                        // onClick={() => handlePlaylistSelectClick(item)}
-                        // checked={isPlaylistItemChecked(item)}
-                        sx={{
-                          color: 'white',
-                          position: 'absolute',
-                          top: '20%',
-                          left: '4%',
-                          zIndex: '2',
-                          paddingLeft: '0px',
-                        }}
-                      />
-                      <PlaylistCard 
-                        userPlaylist={userPlaylist}
-                        onAddToCurrentPlaylist={onAddToCurrentPlaylist}
-                        index={index}
-                        classes={classes}
-                      />
-                    </li>
-                  </Box>
-                )}
-              )}
-            </>
+                    />
+                    <PlaylistCard 
+                      userPlaylist={userPlaylist}
+                      onAddToCurrentPlaylist={onAddToCurrentPlaylist}
+                      index={index}
+                      classes={classes}
+                    />
+                  </li>
+                </Box>
+              )
+            }
           )}
         </Box>
       </ul>

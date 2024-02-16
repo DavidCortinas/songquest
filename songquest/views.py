@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.http import require_GET
 from django.http import JsonResponse
 import urllib.parse
 from time import time
@@ -312,6 +313,144 @@ def get_spotify_user_display_name(access_token):
         return display_name
     else:
         return None  # Email not available
+    
+
+@csrf_exempt
+def get_spotify_tracks(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        user_id = request.headers.get('User-Id')
+        print('get_spotify_tracks_data: ', data)
+        print(user_id)
+        if not user_id:
+            return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
+
+        try:
+            user = get_user_model().objects.get(id=user_id)
+        except get_user_model().DoesNotExist:
+            return JsonResponse({'error': 'Invalid User-Id'}, status=400)
+
+        spotify_access = user.spotify_access
+        spotify_refresh = user.spotify_refresh
+        expires_at = user.spotify_expires_at
+
+        if token_expired(expires_at):
+            token_info = refresh_spotify_access(spotify_refresh)
+            if token_info:
+                spotify_access = token_info['access_token']
+                user.spotify_access = spotify_access
+                expires_at = time() + token_info['expires_in']
+                user.spotify_expires_at = expires_at
+                user.save()
+            else:
+                return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
+    
+        # Spotify API endpoint for getting several tracks
+        spotify_url = 'https://api.spotify.com/v1/tracks'
+
+        # Get the list of Spotify IDs from the request
+        ids = data.get('spotifyIds', [])
+
+        # Check if there are any Spotify IDs in the request
+        if not ids:
+            return JsonResponse({'error': 'No Spotify IDs provided'}, status=400)
+
+        # Create a comma-separated string of Spotify IDs
+        ids_param = ','.join(ids)
+
+        # Set up headers for the GET request
+        headers = {
+            'Authorization': f'Bearer {spotify_access}',
+        }
+
+        # Set up parameters for the GET request
+        params = {
+            'ids': ids_param,
+        }
+
+        # Make the GET request to the Spotify API
+        response = requests.get(spotify_url, headers=headers, params=params)
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            data = response.json()
+            return JsonResponse(data)
+        else:
+            # If the request was unsuccessful, return an error response
+            error_message = f'Error from Spotify API: {response.status_code}'
+            return JsonResponse({'error': error_message}, status=response.status_code)
+
+    except Exception as e:
+        print('Error: ', str(e))
+        return JsonResponse({'error': 'Server error'}, status=500)
+
+
+@csrf_exempt
+def get_spotify_artists(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        user_id = request.headers.get('User-Id')
+
+        print('get_spotify_artists_data: ', data)
+        print(user_id)
+
+        if not user_id:
+            return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
+
+        try:
+            user = get_user_model().objects.get(id=user_id)
+        except get_user_model().DoesNotExist:
+            return JsonResponse({'error': 'Invalid User-Id'}, status=400)
+
+        spotify_access = user.spotify_access
+        spotify_refresh = user.spotify_refresh
+        expires_at = user.spotify_expires_at
+
+        if token_expired(expires_at):
+            token_info = refresh_spotify_access(spotify_refresh)
+            if token_info:
+                spotify_access = token_info['access_token']
+                user.spotify_access = spotify_access
+                expires_at = time() + token_info['expires_in']
+                user.spotify_expires_at = expires_at
+                user.save()
+            else:
+                return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
+
+        artist_ids = data.get('artistIds', [])
+        print('artist_ids: ', artist_ids)
+
+        if not artist_ids:
+            return JsonResponse({'error': 'No artistIds provided'}, status=400)
+
+        # Spotify API endpoint for getting artist details for multiple artists
+        spotify_url = 'https://api.spotify.com/v1/artists'
+
+        # Set up headers for the GET request
+        headers = {
+            'Authorization': f'Bearer {spotify_access}',
+        }
+
+        # Set up parameters for the GET request
+        params = {
+            'ids': ','.join(artist_ids),
+        }
+
+        # Make the GET request to the Spotify API
+        response = requests.get(spotify_url, headers=headers, params=params)
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            data = response.json()
+            return JsonResponse({'artists': data['artists']})
+        else:
+            # If the request was unsuccessful, return an error response
+            error_message = f'Error from Spotify API: {response.status_code}'
+            return JsonResponse({'error': error_message}, status=response.status_code)
+
+    except Exception as e:
+        print('Error: ', str(e))
+        return JsonResponse({'error': 'Server error'}, status=500)
 
 
 def get_spotify_token_info(code):
@@ -606,14 +745,20 @@ def add_to_playlist(request, playlist_id):
             print('spotify_id:', track['spotifyId'])
             print('TRACK: ', track)
             name = track['name']
-            artists = [artist['name'] for artist in track['artists']]
+            artists = [artist for artist in track['artists']]
             spotify_id = track['spotifyId']
             isrc = track['isrc']
-            
+            image = track['image']
+
 
             song, created = Song.objects.get_or_create(
                 spotify_id=spotify_id,
-                defaults={'name': name, 'artists': ', '.join(artists), 'isrc': isrc}
+                defaults={
+                    'name': name, 
+                    'artists': ', '.join(artists), 
+                    'isrc': isrc,
+                    'image': image,
+                }
             )
 
             playlist.songs.add(song)
@@ -678,7 +823,6 @@ def get_user_playlists(request):
         }
         serialized_playlists.append(serialized_playlist)
 
-    print('get playlist return: ', serialized_playlists)
     return JsonResponse({'playlists': serialized_playlists})
 
 
