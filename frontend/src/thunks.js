@@ -19,10 +19,15 @@ import {
   getUserPlaylistsRequest,
   getUserPlaylistsSuccess,
   getUserPlaylistsFailure,
-  savePreviousQuery
+  savePreviousQuery,
+  saveQuery,
+  getRequestParametersRequest,
+  getRequestParametersSuccess,
+  getRequestParametersFailure
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
+import { transformResponseToQueryStructure } from 'utils';
 
 // import { setAccount, setAuthTokens } from './actions/auth';
 
@@ -348,8 +353,6 @@ export const getSpotifyMarkets = (
 
 
 export const getSpotifyTracks = (userId, trackIds) => async (dispatch) => {
-  console.log('getTracks');
-  console.log(userId);
 
   try {
     const csrfToken = await getCSRFToken();
@@ -366,7 +369,6 @@ export const getSpotifyTracks = (userId, trackIds) => async (dispatch) => {
     const response = await axios.post('http://localhost:8000/get-spotify-tracks/', data, { headers });
 
     if (response.status === 200) {
-      console.log(response.data['tracks']);
       return response.data['tracks'];
     } else {
       throw new Error('Request failed with status ' + response.status);
@@ -377,9 +379,6 @@ export const getSpotifyTracks = (userId, trackIds) => async (dispatch) => {
 };
 
 export const getSpotifyArtists = (userId, artistIds) => async (dispatch) => {
-  console.log('getArtists');
-  console.log(userId);
-  console.log(artistIds)
 
   try {
     const csrfToken = await getCSRFToken();
@@ -396,7 +395,6 @@ export const getSpotifyArtists = (userId, artistIds) => async (dispatch) => {
     const response = await axios.post('http://localhost:8000/get-spotify-artists/', data, { headers });
 
     if (response.status === 200) {
-      console.log(response.data['artists']);
       return response.data['artists'];
     } else {
       throw new Error('Request failed with status ' + response.status);
@@ -405,8 +403,6 @@ export const getSpotifyArtists = (userId, artistIds) => async (dispatch) => {
     console.error('Error fetching Spotify tracks:', error.message);
   }
 };
-
-
 
 export const checkTokenExpiration = async (
   accessToken,
@@ -573,5 +569,74 @@ export const getUserPlaylists = (userId) => async (dispatch) => {
   }
 };
 
+export const saveRequestParameters = (userId, query) => async (dispatch) => {
+  try {
+    console.log(query);
+    const csrfToken = await getCSRFToken();
+
+    const response = await axios.post('http://localhost:8000/save-request-parameters/', query, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    const res = response.data;
+
+    const transformedQuery = transformResponseToQueryStructure(res['recommendation_request']);
+
+    dispatch(saveQuery(transformedQuery));
+  } catch (error) {
+    console.log('Error: ' + error.message);
+  }
+};
+
+export const getRequestParameters = (userId) => async (dispatch) => {
+  dispatch(getRequestParametersRequest());
+
+  try {
+    const csrfToken = await getCSRFToken(); // Ensure you have a function like getCSRFToken
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'User-Id': userId,
+    };
+
+    const response = await axios.get(`http://localhost:8000/get-user-requests/`, {
+      headers,
+    });
+
+    const userRequestParameters = response.data['requests'];
+    const transformedUserRequestParameters = userRequestParameters.map((request) => {
+      return transformResponseToQueryStructure(request);
+    });
+    console.log(transformedUserRequestParameters)
+    dispatch(getRequestParametersSuccess(transformedUserRequestParameters));
+  } catch (error) {
+    console.error('Error fetching user request parameters:', error);
+    dispatch(getRequestParametersFailure(error.message));
+  }
+};
+
+export const getPricing = () => async (dispatch) => {
+  try {
+    const csrfToken = await getCSRFToken(); // Ensure you have a function like getCSRFToken
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    };
+
+    const response = await axios.get(`http://localhost:8000/get-pricing/`, {
+      headers,
+    });
+
+    console.log(response.data)
+    return response.data['pricing_packages']
+  } catch (error) {
+    console.error('Error getting pricing packages: ', error);
+    // dispatch(getRequestParametersFailure(error.message));
+  }
+}
 
 

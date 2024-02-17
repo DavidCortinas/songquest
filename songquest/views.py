@@ -16,6 +16,7 @@ import urllib.parse
 from time import time
 
 from songquest.playlists.models import Playlist, Song
+from songquest.recommendations.models import RecommendationRequest
 from .openai.playlistGenerator import initial_request, subsequent_requests
 from .chatgpt import ChatGPT
 from rest_framework import status
@@ -320,8 +321,6 @@ def get_spotify_tracks(request):
     try:
         data = json.loads(request.body.decode('utf-8'))
         user_id = request.headers.get('User-Id')
-        print('get_spotify_tracks_data: ', data)
-        print(user_id)
         if not user_id:
             return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
 
@@ -390,9 +389,6 @@ def get_spotify_artists(request):
     try:
         data = json.loads(request.body.decode('utf-8'))
         user_id = request.headers.get('User-Id')
-
-        print('get_spotify_artists_data: ', data)
-        print(user_id)
 
         if not user_id:
             return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
@@ -621,9 +617,8 @@ def refresh_access_token(request):
     return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
 
 
-def generate_unique_playlist_id():
-    last_playlist = Playlist.objects.order_by('-id').first()
-    return last_playlist.id + 1 if last_playlist else 1
+def generate_unique_id(obj):
+    return obj.id + 1 if obj else 1
 
 
 @csrf_exempt
@@ -676,7 +671,8 @@ def create_playlist(request):
 
         if response.status_code == 201:
             spotify_data = response.json()
-            playlist_id = generate_unique_playlist_id()
+            last_playlist = Playlist.objects.order_by('-id').first()
+            playlist_id = generate_unique_id(last_playlist)
 
             playlist = Playlist.objects.create(
                 id=playlist_id,
@@ -742,8 +738,6 @@ def add_to_playlist(request, playlist_id):
 
         # ADD TRACKS TO PLAYLIST INSTANCE IN DB
         for track in tracks:
-            print('spotify_id:', track['spotifyId'])
-            print('TRACK: ', track)
             name = track['name']
             artists = [artist for artist in track['artists']]
             spotify_id = track['spotifyId']
@@ -825,6 +819,114 @@ def get_user_playlists(request):
 
     return JsonResponse({'playlists': serialized_playlists})
 
+
+@csrf_exempt
+def save_request_parameters(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            user_id = request.headers.get('User-Id')
+            if not user_id:
+                return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
+
+            try:
+                user = get_user_model().objects.get(id=user_id)
+            except get_user_model().DoesNotExist:
+                return JsonResponse({'error': 'Invalid User-Id'}, status=400)
+
+            request_name = data.get('name', 'Default Name')
+            query_data = data.get('query', {})
+
+            # Generate unique ID using the provided function
+            unique_id = generate_unique_id(RecommendationRequest.objects.last())
+
+            recommendation_request = RecommendationRequest(
+                id=unique_id,
+                name=request_name,
+                user=user,
+                limit=query_data.get('limit', 20),
+                market=query_data.get('market', ''),
+                seed_artists=json.dumps(query_data.get('performers', [])),
+                seed_genres=json.dumps(query_data.get('genres', [])),
+                seed_tracks=json.dumps(query_data.get('songs', [])),
+                min_acousticness=query_data['acousticness']['min'],
+                target_acousticness=query_data['acousticness']['target'],
+                max_acousticness=query_data['acousticness']['max'],
+                min_danceability=query_data['danceability']['min'],
+                target_danceability=query_data['danceability']['target'],
+                max_danceability=query_data['danceability']['max'],
+                min_duration_ms=query_data['duration_ms']['min'],
+                target_duration_ms=query_data['duration_ms']['target'],
+                max_duration_ms=query_data['duration_ms']['max'],
+                min_energy=query_data['energy']['min'],
+                target_energy=query_data['energy']['target'],
+                max_energy=query_data['energy']['max'],
+                min_instrumentalness=query_data['instrumentalness']['min'],
+                target_instrumentalness=query_data['instrumentalness']['target'],
+                max_instrumentalness=query_data['instrumentalness']['max'],
+                min_key=query_data['key']['min'],
+                target_key=query_data['key']['target'],
+                max_key=query_data['key']['max'],
+                min_liveness=query_data['liveness']['min'],
+                target_liveness=query_data['liveness']['target'],
+                max_liveness=query_data['liveness']['max'],
+                min_loudness=query_data['loudness']['min'],
+                target_loudness=query_data['loudness']['target'],
+                max_loudness=query_data['loudness']['max'],
+                min_mode=query_data['mode']['min'],
+                target_mode=query_data['mode']['target'],
+                max_mode=query_data['mode']['max'],
+                min_popularity=query_data['popularity']['min'],
+                target_popularity=query_data['popularity']['target'],
+                max_popularity=query_data['popularity']['max'],
+                min_speechiness=query_data['speechiness']['min'],
+                target_speechiness=query_data['speechiness']['target'],
+                max_speechiness=query_data['speechiness']['max'],
+                min_tempo=query_data['tempo']['min'],
+                target_tempo=query_data['tempo']['target'],
+                max_tempo=query_data['tempo']['max'],
+                min_time_signature=query_data['time_signature']['min'],
+                target_time_signature=query_data['time_signature']['target'],
+                max_time_signature=query_data['time_signature']['max'],
+                min_valence=query_data['valence']['min'],
+                target_valence=query_data['valence']['target'],
+                max_valence=query_data['valence']['max'],
+            )
+
+            recommendation_request.save()
+
+            return JsonResponse(
+                {
+                    'success': 'Request parameters saved successfully', 
+                    'recommendation_request': recommendation_request.to_dict(),
+                }, 
+                status=200
+            )
+
+        except Exception as e:
+            return JsonResponse({'error': 'Server error: ' + str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
+@csrf_exempt
+def get_user_requests(request):
+    user_id = request.headers.get('User-Id')
+    if not user_id:
+        return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
+
+    try:
+        user = get_user_model().objects.get(id=user_id)
+    except get_user_model().DoesNotExist:
+        return JsonResponse({'error': 'Invalid User-Id'}, status=400)
+
+    requests = RecommendationRequest.objects.filter(user=user)
+
+    serialized_requests = []
+    for req in requests:
+        serialized_request = req.to_dict()
+        serialized_requests.append(serialized_request)
+    return JsonResponse({'requests': serialized_requests})
 
 
 # @csrf_exempt

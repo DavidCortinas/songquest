@@ -43,7 +43,6 @@ const AutocompleteParameter = ({
   const [genre, setGenre] = useState('');
   const [market, setMarket] = useState('');
   const [options, setOptions] = useState([]);
-  console.log(targetParamValues)
 
   const handleOptionSelect = useCallback((selectedValue) => {
     const selectedOption = options.find(option =>
@@ -77,11 +76,11 @@ const AutocompleteParameter = ({
     }
 
     setLocalSelectedOptions(prevValues => {
-      console.log('setLocal: ', prevValues)
       const updatedValues = {
         ...prevValues,
         [parameter]: [...(prevValues[parameter] || []), selectedOption?.label],
       };
+
       return updatedValues;
     });
       onSelectedOptions(parameter, prevValues => ([...prevValues, selectedOption?.label]));
@@ -147,22 +146,18 @@ const AutocompleteParameter = ({
             const existingOption = targetParamValues[parameter].find(
               o => o.label === newOption.label
             );
-            console.log(existingOption)
-            console.log(targetParamValues)
-            console.log(parameter)
 
             if (!existingOption) {
-              console.log("doesn't exist: ", newOption)
               handleOptionSelect(newOption);
             }
           });
           setLocalSelectedOptions(prev => ({
             ...prev,
-            [parameter]: newValue.map(option => typeof option === 'string' ? option : option.label),
+            [parameter]: newValue?.map(option => typeof option === 'string' ? option : option.label),
           }));
           setTargetParamValues(prevValues => ({
             ...prevValues,
-            [parameter]: newValue.map(option => typeof option === 'string' ? option : option.label),
+            [parameter]: newValue?.map(option => typeof option === 'string' ? option : option.label),
           }));
         }}
         selectOnFocus

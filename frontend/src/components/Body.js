@@ -76,7 +76,7 @@ export const Body = ({
                 {copy.section.map((item, index) => (
                     <Grid item xs={12} sm={12} key={index}>
                         <div style={{ display: 'flex', alignItems: 'center', padding: '5%' }}>
-                            <Typography variant="h1" >{item.emoji}</Typography>
+                            <Typography variant="h1">{item.emoji}</Typography>
                             <div>
                                 <CardHeader 
                                     title={item.header}

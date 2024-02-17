@@ -1,11 +1,13 @@
 import { 
   Box, 
   Button, 
+  Card, 
   CardHeader, 
   Chip, 
   FormControl, 
   Grid, 
   InputLabel, 
+  Menu, 
   MenuItem,  
   Select,  
   Tooltip, 
@@ -14,21 +16,41 @@ import {
 } from "@mui/material";
 import CancelIcon from '@mui/icons-material/Cancel';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
-import { SpotifyAuth, discoverSongRequest } from "../../thunks";
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import { SpotifyAuth, discoverSongRequest, getRequestParameters, getSpotifyArtists, getSpotifyTracks } from "../../thunks";
 import theme from "theme";
 import { SearchParameter } from "./SearchParameter";
 import { lazy, useState } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { clearSeedsArray, resetDataLoaded, resetQueryParameter, setQueryParameter } from "actions";
 import { startTransition } from "react";
 import { useForm } from "react-hook-form";
 import { initialDiscoveryState } from "reducers";
 import { toCapitalCase } from "utils";
+import { getCode } from "iso-3166-1-alpha-2";
 
 const SliderModal = lazy(() => import('./SliderModal'));
 const AutocompleteParameter = lazy(() => import('./AutocompleteParameter'));
 
 export const autocompleteParam = ['songs', 'performers', 'genres', 'market']
+
+const labelMapping = {
+  acousticness: 'acousticness',
+  danceability: 'danceability',
+  duration_ms: 'length',
+  energy: 'energy',
+  instrumentalness: 'instrumentalness',
+  key: 'key',
+  liveness: 'liveness',
+  loudness: 'loudness',
+  mode: 'modality',
+  popularity: 'popularity',
+  speechiness: 'speechiness',
+  tempo: 'tempo',
+  time_signature: 'time-signature',
+  valence: 'positiveness',
+  // Add more mappings as needed
+};
 
 const SpotifyForm = ({
   classes,
@@ -40,12 +62,14 @@ const SpotifyForm = ({
   markets,
   setParameters,
   query,
+  savedQueries,
   user,
   onSearchPressed,
   onClearSeedsArray,
   onSetQueryParameter,
   onResetDataLoaded,
   onResetQueryParameter,
+  onGetRequestParameters,
 }) => {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -54,6 +78,9 @@ const SpotifyForm = ({
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
   const [openModal, setOpenModal] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
   const [selectOpen, setSelectOpen] = useState(false);
   const [invalidSearch, setInvalidSearch] = useState(false);
   const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
@@ -88,9 +115,6 @@ const SpotifyForm = ({
   };
 
   const handleSelectedOptions = (parameter, selectedOptions) => {
-    console.log('handleSelection')
-    console.log(parameter)
-    console.log(selectedOptions)
     setTargetParamLabels(prevLabels => ({
       ...prevLabels,
       [parameter]: selectedOptions,
@@ -136,20 +160,16 @@ const SpotifyForm = ({
     setInvalidSearch(false);
     setParameters(initialDiscoveryState.query);
     setTargetParams([]);
-    setTargetParamLabels(
-      {
+    setTargetParamLabels({
         songs: [],
         performers: [],
         genres: [],
-      }
-    );
-    setTargetParamValues(
-      {
+    });
+    setTargetParamValues({
         songs: [],
         performers: [],
         genres: [],
-      }
-    );
+    });
     onResetDataLoaded();
     onResetQueryParameter(); 
   };
@@ -157,7 +177,6 @@ const SpotifyForm = ({
   const { handleSubmit } = useForm();
 
   const onSubmit = () => {
-    console.log('submit parameters: ', parameters)
     setIsLoading(true);
     setLocalSelectedOptions({
       songs: [],
@@ -186,6 +205,81 @@ const SpotifyForm = ({
     e.preventDefault(); 
     onSubmit();
   };
+
+  const handleViewSavedRequests = (e) => {
+    onGetRequestParameters(user?.user.id);
+    setAnchorEl(e.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const dispatch = useDispatch();
+
+  const handleSelectSavedQuery = async (savedQuery) => {
+    handleCloseMenu();
+    const fetchData = async (ids, actionCreator) => {
+      try {
+        const data = await dispatch(actionCreator(user?.user.id, ids));
+        return data || [];
+      } catch (error) {
+        console.error('Error fetching Spotify data:', error.message);
+        return [];
+      }
+    };
+
+    const fetchedTracks = await fetchData(savedQuery.query.songs, getSpotifyTracks);
+    const formattedTracks = fetchedTracks.map(track => `${track.name} - ${track.artists[0].name}`);
+
+    const fetchedArtists = await fetchData(savedQuery.query.performers, getSpotifyArtists);
+    const formattedArtists = fetchedArtists.map(artist => artist.name);
+
+    setLocalSelectedOptions({
+      songs: formattedTracks || [],
+      performers: formattedArtists || [],
+      genres: savedQuery.query.genres || [],
+      market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
+    });
+
+    setTargetParamValues({
+      songs: formattedTracks || [],
+      performers: formattedArtists || [],
+      genres: savedQuery.query.genres || [],
+      market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
+    });
+
+    setParameters((prevParameters) => ({
+      ...prevParameters,
+      songs: savedQuery.query.songs || [],
+      performers: savedQuery.query.performers || [],
+      genres: savedQuery.query.genres || [],
+      market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
+      limit: savedQuery.query.limit || 10,
+    }));
+
+    Object.keys(savedQuery.query).forEach((param) => {
+      const paramValue = savedQuery.query[param];
+
+      if (paramValue && typeof paramValue === 'object' && 'min' in paramValue) {
+        const { min, target, max, label } = paramValue;
+        const mappedLabel = labelMapping[param] || param;
+
+        setParameters((prevParameters) => ({
+          ...prevParameters,
+          [param]: {
+            min: min,
+            target: target,
+            max: max,
+            label: mappedLabel,
+          },
+        }));
+
+        onSetQueryParameter(savedQuery.query, param, [min, target, max]);
+      }
+    });
+
+  };
   
   return (
     <>
@@ -200,7 +294,8 @@ const SpotifyForm = ({
       >
         <form className={classes.form} onSubmit={handleFormSubmit}>
           <CardHeader
-            title={"🎵 Discover New Music, Customize Playlists, and Share Unique Finds 🎶"}
+            title={"Discover New Music, Customize Playlists, and Share Unique Finds"}
+            // title={"🎵 Discover New Music, Customize Playlists, and Share Unique Finds 🎶"}
             titleTypographyProps={{
               width: '100%',
               variant: isSmScreen || isXsScreen
@@ -243,10 +338,67 @@ const SpotifyForm = ({
                               >
                                 Choose the songs, artists, and genres you'd like to shape your recommendations.
                               </Typography>
-                              <Box>
-                                <Button>
-                                  Saved Request Parameters
-                                </Button>
+                              <Box display='flex' justifyContent='center'>
+                              {user?.user && (
+                                <Tooltip
+                                  arrow
+                                  placement="top"
+                                  title={
+                                    <div
+                                      style={{
+                                        maxHeight: '25vh',
+                                        overflowY: 'auto',
+                                        padding: '8px',
+                                        borderRadius: '8px',
+                                      }}
+                                    > 
+                                      <Typography variant='body2' letterSpacing='1px'>
+                                        {'View your saved requests'}
+                                      </Typography>
+                                    </div>
+                                  }
+                                >
+                                  <Card 
+                                    className={classes.panelCard}
+                                    onClick={handleViewSavedRequests}
+                                  >
+                                    <Box display='flex'>
+                                      <BookmarkIcon color='primary' fontSize='small' />
+                                      <Typography  
+                                        variant='subtitle2' 
+                                        color='white'
+                                        letterSpacing='1px'
+                                        sx={{
+                                          fontWeight: 'bold',
+                                          cursor: 'pointer',
+                                        }}
+                                      >
+                                        Saved Requests
+                                      </Typography>
+                                    </Box>
+                                  </Card>                               
+                                </Tooltip>
+                              )}
+                              <Menu
+                                open={open}
+                                anchorEl={anchorEl}
+                                onClose={handleCloseMenu}
+                                anchorOrigin={{
+                                  vertical: 'bottom',
+                                  horizontal: 'center',
+                                }}
+                                transformOrigin={{
+                                  vertical: 'top',
+                                  horizontal: 'center',
+                                }}
+                                classes={{ paper: classes.paper }}
+                              >
+                                {savedQueries.saved.map((savedQuery) => (
+                                  <MenuItem onClick={() => handleSelectSavedQuery(savedQuery)} sx={{ color: 'white' }}>
+                                    {savedQuery.name}
+                                  </MenuItem>
+                                ))}
+                              </Menu>
                               </Box>
                               <Box
                                 display="flex"
@@ -522,6 +674,7 @@ const mapStateToProps = (state) => {
     markets: state.discovery.markets,
     genres: state.discovery.genres,
     query: state.discovery.query,
+    savedQueries: state.discovery.savedQueries,
   };
 };
 
@@ -533,6 +686,7 @@ const mapDispatchToProps = (dispatch) => ({
   onResetDataLoaded: () =>
     dispatch(resetDataLoaded()),
   onSetQueryParameter: (query, parameter, newValues) => dispatch(setQueryParameter(query, parameter, newValues)),
+  onGetRequestParameters: (userId) => dispatch(getRequestParameters(userId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SpotifyForm);

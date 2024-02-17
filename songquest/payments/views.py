@@ -1,6 +1,6 @@
 import json
 import os
-from django.http import JsonResponse
+from django.http import HttpResponseNotAllowed, JsonResponse
 import stripe
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
@@ -51,3 +51,41 @@ def create_payment(request):
     except Exception as e:
         # Format the error response properly
         return JsonResponse({'error': f'Failed to Create Payment: {str(e)}'}, status=403)
+    
+
+@csrf_exempt
+def get_all_pricing_packages(request):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['GET'])
+    
+    pricing_packages = [
+        {
+            'name': 'Explorer',
+            'price': 300,
+            'details': [
+                'Unlimited searches',
+                'Gain experience to level up and earn tokens',
+                '3 tokens',
+            ],
+        },
+        {
+            'name': 'Excavator',
+            'price': 1000,
+            'details': [
+                'Everything included in Explorer',
+                '20 Tokens',
+                '50% Savings'
+            ],
+        },
+        {
+            'name': 'Digger',
+            'price': 700,
+            'details': [
+                'Everything included in Explorer',
+                '10 tokens',
+                '30% Savings'
+            ],
+        },
+    ]
+
+    return JsonResponse({'pricing_packages': pricing_packages})

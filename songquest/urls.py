@@ -39,8 +39,11 @@ urlpatterns = [
           paymentViews.create_payment, name='create-payment'),
      path('<path>', TemplateView.as_view(
           template_name='index.html'), name='catch-all'),
-     path('get-spotify-tracks/', views.get_spotify_tracks, name='get_spotify_tracks'),
-     path('get-spotify-artists/', views.get_spotify_artists, name='get_spotify_artists'),
+     path('get-spotify-tracks/', views.get_spotify_tracks, name='get-spotify-tracks'),
+     path('get-spotify-artists/', views.get_spotify_artists, name='get-spotify-artists'),
+     path('save-request-parameters/', views.save_request_parameters, name='save-request-parameters'),
+     path('get-user-requests/', views.get_user_requests, name='get-user-requests'),
+     path('get-pricing/', paymentViews.get_all_pricing_packages, name='get-pricing'),
      #     path('add-to-spotify/', views.add_to_spotify, name='add-to-spotify'),
      #     path('check-users-tracks/', views.check_users_tracks,
      #          name='check-users-tracks'),

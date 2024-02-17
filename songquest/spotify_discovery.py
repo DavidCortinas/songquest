@@ -217,12 +217,10 @@ def get_recommendations(parameters):
             print("Failed to obtain access token.")
 
         separator = "%2C+"
-        print('discovery parameters: ', parameters)
 
         url = format_spotify_url(parameters)
 
         response = requests.get(url, headers=headers)
-        print('get recc response: ', response)
 
         if response.status_code == 200:
             data = response.json()
