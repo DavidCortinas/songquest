@@ -1,4 +1,4 @@
-import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import { Box, Button, Divider, Modal, TextField, Tooltip, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { getSpotifyArtists, getSpotifyTracks } from "thunks";
@@ -20,8 +20,6 @@ const SaveQueryModal = ({
 }) => {
   const [songsToSave, setSongsToSave] = useState([]);
   const [artistsToSave, setArtistsToSave] = useState([]);
-  const [genresToSave, setGenrestToSave] = useState([]);
-  console.log('modal')
 
     const memoizedFetchSong = useCallback(async () => {
         if (savedQueries.previous) {
@@ -64,11 +62,9 @@ const SaveQueryModal = ({
     }, [isModalOpen, memoizedFetchArtists]);
 
     const handleSaveClick = () => {
-        onSaveQuery({
-        name: queryName,
-        queries: savedQueries.prevQuery,
-        // songs: songsToSave,
-        // artists: artistsToSave,
+        onSaveQuery(user?.user.id, {
+            name: queryName,
+            query: savedQueries.previous,
         });
         setIsModalOpen(false);
     };
@@ -84,9 +80,6 @@ const SaveQueryModal = ({
             image: albumImage
         };
     });
-
-    console.log('genres: ', savedQueries.previous.genres);
-    console.log(parameters)
 
   return (
     <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -111,7 +104,7 @@ const SaveQueryModal = ({
         alignItems='center'
       >
         <TextField
-            label="Request Parameters Name"
+            label="Request Name"
             value={queryName}
             autoFocus
             onChange={handleQueryNameChange}
@@ -140,114 +133,140 @@ const SaveQueryModal = ({
                 },
             }}
         />
-        <Button 
-            onClick={handleSaveClick} 
-            sx={{ marginTop: '1%' }}
-            style={{ 
-                color: 'white', 
-                backgroundColor: 'transparent', 
-                border: '2px solid rgba(89, 149, 192, 0.5)',
-                borderRadius: '8px' ,
-                boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-                '&:hover, &:active, &.MuiFocusVisible': {
-                    border: '2px solid rgba(89, 149, 192, 0.5)',
-                    background: 'rgba(48, 130, 164, 0.1)',
-                    boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                    backdropFilter: 'blur(5.1px)',
-                    WebkitBackdropFilter: 'blur(5.1px)',
-                },
-            }}
+        <Tooltip
+            arrow
+            title={
+                <div
+                style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                }}
+                > 
+                <Typography variant='body2' letterSpacing='1px'>
+                    Save request parameters
+                </Typography>
+                </div>
+            }
         >
-            Save Parameters
-        </Button>
+            <Button 
+                onClick={handleSaveClick} 
+                sx={{ marginTop: '1%' }}
+                style={{ 
+                    color: 'white', 
+                    backgroundColor: 'transparent', 
+                    border: '2px solid rgba(89, 149, 192, 0.5)',
+                    borderRadius: '8px' ,
+                    boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+                    '&:hover, &:active, &.MuiFocusVisible': {
+                        border: '2px solid rgba(89, 149, 192, 0.5)',
+                        background: 'rgba(48, 130, 164, 0.1)',
+                        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+                        backdropFilter: 'blur(5.1px)',
+                        WebkitBackdropFilter: 'blur(5.1px)',
+                    },
+                }}
+            >
+                Save Request
+            </Button>
+        </Tooltip>
         <Typography variant="h5" letterSpacing='1px' padding='2%'>
             Recommendation Sources
         </Typography>
-        <Box display='flex' flexDirection='column' width='70%'>
+        <Box display='flex' flexDirection='column' width='90%'>
             {formattedSongs && (
-                <Box
-                    display='flex'
-                    justifyContent='space-between'
-                    paddingTop='1%'
-                    color='white'
-                >
-                    <Typography variant="h6" letterSpacing='1px'>
-                        Songs
-                    </Typography>
-                    <Box width='40%'>
-                        {formattedSongs.map((formattedSong) => (
-                            <Box
-                                display='flex'
-                                alignItems='center'
-                                padding='2%'
-                            >
-                                {formattedSong.image && (
-                                    <img
-                                        loading="lazy"
-                                        width="40"
-                                        src={formattedSong.image}
-                                        alt=""
-                                    />
-                                )}
-                                <Typography>
-                                    {formattedSong.label}
-                                </Typography>
-                            </Box>
-                        ))}    
-                    </Box>    
-                </Box>
+                <>
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        padding='1% 5%'
+                        color='white'
+                    >
+                        <Typography variant="h6" letterSpacing='1px'>
+                            Songs
+                        </Typography>
+                        <Box width='50%'>
+                            {formattedSongs.map((formattedSong) => (
+                                <Box
+                                    display='flex'
+                                    alignItems='center'
+                                    padding='2%'
+                                >
+                                    {formattedSong.image && (
+                                        <img
+                                            loading="lazy"
+                                            width="40"
+                                            src={formattedSong.image}
+                                            alt=""
+                                        />
+                                    )}
+                                    <Typography noWrap paddingLeft='2%'>
+                                        {formattedSong.label}
+                                    </Typography>
+                                </Box>
+                            ))}    
+                        </Box>
+                    </Box>
+                </>    
             )}
             {artistsToSave && (
-                <Box
-                    display='flex'
-                    justifyContent='space-between'
-                    paddingTop='1%'
-                    color='white'
-                >
-                    <Typography variant="h6" letterSpacing='1px'>
-                        Artists
-                    </Typography>
-                    <Box width='40%'>
-                        {artistsToSave.map((artistToSave) => (
-                            <Box
-                                display='flex'
-                                alignItems='center'
-                                padding='2%'
-                            >
-                                {artistToSave.images && (
-                                    <img
-                                        loading="lazy"
-                                        width="40"
-                                        src={artistToSave.images[2].url}
-                                        alt=""
-                                    />
-                                )}
-                                <Typography>
-                                    {artistToSave.name}
-                                </Typography>
-                            </Box>
-                        ))}    
-                    </Box>    
-                </Box>
-            )}
-            {savedQueries.previous.genres.length > 0 && (
-                <Box
-                    display='flex'
-                    justifyContent='space-between'
-                    paddingTop='1%'
-                    color='white'
-                >
-                    <Typography variant="h6" letterSpacing='1px'>
-                        Genres
-                    </Typography>
-                    <Box display='flex' width='40%' alignItems='center'>
-                        <Typography>
-                            {savedQueries.previous.genres?.map(genre => toCapitalCase(genre)).join(', ')}
+                <>
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        padding='1% 5%'
+                        color='white'
+                    >
+                        <Typography variant="h6" letterSpacing='1px'>
+                            Artists
                         </Typography>
-                    </Box>  
-                </Box>
+                        <Box width='50%'>
+                            {artistsToSave.map((artistToSave) => (
+                                <Box
+                                    display='flex'
+                                    alignItems='center'
+                                    padding='2%'
+                                >
+                                    {artistToSave.images && (
+                                        <img
+                                            loading="lazy"
+                                            width="40"
+                                            src={artistToSave.images[2].url}
+                                            alt=""
+                                        />
+                                    )}
+                                    <Typography noWrap paddingLeft='2%'>
+                                        {artistToSave.name}
+                                    </Typography>
+                                </Box>
+                            ))}    
+                        </Box>    
+                    </Box>
+                </>
             )}
-            {Object.keys(parameters).some(
+            {savedQueries.previous?.genres.length > 0 && (
+                <>
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        padding='1% 5%'
+                        color='white'
+                    >
+                        <Typography variant="h6" letterSpacing='1px'>
+                            Genres
+                        </Typography>
+                        <Box display='flex' width='50%' alignItems='center'>
+                            <Typography noWrap>
+                                {savedQueries.previous.genres?.map(genre => toCapitalCase(genre)).join(', ')}
+                            </Typography>
+                        </Box>  
+                    </Box>
+                </>
+            )}
+        </Box>
+        <Box display='flex' flexDirection='column' width='95%'>
+            {savedQueries.previous && Object.keys(parameters).some(
                 parameter => savedQueries.previous[parameter] &&
                     !autocompleteParam.includes(parameter) &&
                     savedQueries.previous[parameter].min !== null &&

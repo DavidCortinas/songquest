@@ -7,15 +7,16 @@ import {
   Typography,
   useMediaQuery,
   Tooltip,
+  Card,
 } from '@mui/material';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { makeStyles, useTheme } from '@mui/styles';
 import { 
   addToCurrentPlaylist, 
   confirmSpotifyAccess,  
   removeFromCurrentPlaylistById,
-  saveQuery, 
 } from '../actions';
 import '../App.css';
 import theme from '../theme'
@@ -26,6 +27,7 @@ import LeftPanel from './sidePanels/LeftPanel';
 import RightPanel from './sidePanels/RightPanel';
 import getCSRFToken from '../csrf';
 import { initialDiscoveryState } from 'reducers';
+import { saveRequestParameters } from 'thunks';
 
 const Recommendations = lazy(() => import('./Recommendations'))
 const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'))
@@ -35,6 +37,11 @@ const useStyles = makeStyles(() => (
   {
     root: {
       padding: '15px 0 5px',
+    },
+    paper: {
+      marginTop: '1vh',
+      backgroundColor: '#30313d',
+      width: '18%'
     },
     expanded: {
       '&.Mui-expanded': {
@@ -60,6 +67,31 @@ const useStyles = makeStyles(() => (
     backdropFilter: 'blur(5.1px)',
     WebkitBackdropFilter: 'blur(5.1px)',
     padding: '0 2%',
+  },
+  panelCard: {
+      display: 'flex', 
+      width: '18vw',
+      height: '8vh', 
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      margin: '1%',
+      borderRadius: '8px',
+      backgroundColor: '#282828',
+      boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+      opacity: '0.8',
+      '&:hover, &:active, &.MuiFocusVisible': {
+          border: '2px solid rgba(89, 149, 192, 0.5)',
+          background: 'rgba(48, 130, 164, 0.1)',
+          boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+          backdropFilter: 'blur(5.1px)',
+          WebkitBackdropFilter: 'blur(5.1px)',
+      },
+  },
+  panelCardWithMargin: {
+    margin: '4%',
+    width: '22vw',
+    height: '10vh', 
   },
   sidePanel: {
     marginTop: '10px',
@@ -487,17 +519,25 @@ export const SongDiscovery = ({
                         }}
                       > 
                         <Typography variant='body2' letterSpacing='1px'>
-                          {'Save the parameters from this request'}
+                          {'See the parameters from this request'}
                         </Typography>
                       </div>
                     }
                   >
-                    <Button onClick={handleSaveRequestParameters} sx={{ marginRight: '5%' }}>
+                    <Button 
+                      onClick={handleSaveRequestParameters} 
+                      sx={{ 
+                        marginRight: '8%',
+                        width: '50%' 
+                      }}
+                    >
+                      <VisibilityIcon />
                       <Typography 
                         color='white' 
                         variant='subtitle1'
+                        paddingLeft='3%'
                       >
-                        {'View Request Parameters'}
+                        {'View Request'}
                       </Typography>
                     </Button>
                   </Tooltip>)
@@ -537,13 +577,74 @@ export const SongDiscovery = ({
               </Suspense>
             </Box>    
           ) : !isLoading && (
-              <Body 
-                isSmScreen={isSmScreen} 
-                isXsScreen={isXsScreen}
-                isMdScreen={isMdScreen}
-                isLgScreen={isLgScreen} 
-                isXlScreen={isXlScreen} 
-              />
+              user?.user ? (
+                <Box 
+                  display='flex'
+                  flexDirection='column'
+                  justifyContent='center'
+                  alignItems='center'
+                >
+                  <Typography 
+                    color='white' 
+                    textAlign='center' 
+                    variant='h4'
+                    letterSpacing='1px'
+                    padding='5% 0 0'
+                    width='80%'
+                  >
+                    What kind of music are you in the mood for today?
+                  </Typography>
+                  <Typography 
+                    color='white' 
+                    // textAlign='center' 
+                    variant='subtitle1'
+                    letterSpacing='1px'
+                    padding='5% 3% 0'
+                  >
+                    Start discovering new music now. Simply choose from the songs,
+                    artists, and genres that inspire you and start discovering related music.
+                  </Typography>
+                  <Typography 
+                    color='white' 
+                    // textAlign='center' 
+                    variant='subtitle1'
+                    letterSpacing='1px'
+                    padding='5% 3% 0'
+                  >
+                    Adjust your search by clicking on "Fine Tune Your Recommendations" 
+                    to enable and configure fine-tuning parameters. This allows you to 
+                    personalize your results and find music that precisely matches your 
+                    preferences.
+                  </Typography>
+                  <Card 
+                    className={`${classes.panelCard} ${classes.panelCardWithMargin}`} 
+                    onClick={() => handleExploreMoreClick()}
+                  >
+                    <Typography
+                      variant='subtitle1' 
+                      color='white'
+                      letterSpacing='1px'
+                      sx={{
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Get Started On Your Journey
+                    </Typography>
+                    <Typography variant='h5' paddingLeft='2%'>
+                      🚀
+                    </Typography>
+                  </Card>
+                </Box>
+              ) : (
+                <Body 
+                  isSmScreen={isSmScreen} 
+                  isXsScreen={isXsScreen}
+                  isMdScreen={isMdScreen}
+                  isLgScreen={isLgScreen} 
+                  isXlScreen={isXlScreen} 
+                />
+              )
           )}
         </Box>
         <RightPanel 
@@ -581,7 +682,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
   onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
   onRemoveFromCurrentPlaylistById: (...songs) => dispatch(removeFromCurrentPlaylistById(...songs)),
-  onSaveQuery: (query) => dispatch(saveQuery(query)),
+  onSaveQuery: (userId, query) => dispatch(saveRequestParameters(userId, query)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SongDiscovery);

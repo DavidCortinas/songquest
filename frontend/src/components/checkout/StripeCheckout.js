@@ -1,11 +1,11 @@
 import {PaymentElement, Elements, useElements, useStripe} from '@stripe/react-stripe-js';
 import {loadStripe} from "@stripe/stripe-js/pure";
 import { useEffect, useState } from 'react';
-import getCSRFToken from '../csrf';
+import getCSRFToken from '../../csrf';
 import { makeStyles } from '@mui/styles';
 import { Box, Button, InputLabel, TextField, Typography } from '@mui/material';
 import { connect } from 'react-redux';
-import '../App.css';
+import 'App.css';
 
 const useStyles = makeStyles(() => ({
     stripeForm: {

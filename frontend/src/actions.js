@@ -210,7 +210,24 @@ export const deletePlaylist = (...playlistIds) => ({
 export const RESET_CURRENT_PLAYLIST = 'RESET_CURRENT_PLAYLIST';
 export const resetCurrentPlaylist = () => ({
   type: RESET_CURRENT_PLAYLIST,
-})
+});
+
+export const GET_REQUEST_PARAMETERS_REQUEST = 'GET_REQUEST_PARAMETERS_REQUEST';
+export const getRequestParametersRequest = () => ({
+  type: GET_REQUEST_PARAMETERS_REQUEST,
+});
+
+export const GET_REQUEST_PARAMETERS_SUCCESS = 'GET_REQUEST_PARAMETERS_SUCCESS';
+export const getRequestParametersSuccess = (userRequestParameters) => ({
+  type: GET_REQUEST_PARAMETERS_SUCCESS,
+  payload: { userRequestParameters },
+});
+
+export const GET_REQUEST_PARAMETERS_FAILURE = 'GET_REQUEST_PARAMETERS_FAILURE';
+export const getRequestParametersFailure = (error) => ({
+  type: GET_REQUEST_PARAMETERS_FAILURE,
+  payload: { error },
+});
 
 
 

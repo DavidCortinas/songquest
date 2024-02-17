@@ -5,8 +5,9 @@ import TopBar from './components/TopBar';
 import { Box } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
 import SpotifyConnect from './components/SpotifyConnect';
-import StripeCheckout from './components/StripeCheckout';
+import StripeCheckout from './components/checkout/StripeCheckout';
 import ProtectedRoute from './ProtectedRoute';
+import Pricing from 'components/checkout/Pricing';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 
@@ -23,6 +24,12 @@ const RoutesContainer = () => {
               }
             />
             <Route 
+              path={'/pricing'}
+              element={
+                <Pricing />
+              }
+            />
+            <Route 
               path={'/login'}
               element={
                 <Login />
@@ -34,12 +41,12 @@ const RoutesContainer = () => {
                 element={<SpotifyConnect />} 
               />
             </Route>
-            <Route 
-              path={'/checkout'}
-              element={
-                <StripeCheckout />
-              }
-            />
+            <Route element={<ProtectedRoute />}>
+              <Route 
+                path={'/checkout'} 
+                element={<StripeCheckout />} 
+              />
+            </Route>
           </Routes>
         <BottomContainer />
       </Box>

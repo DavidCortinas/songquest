@@ -11,6 +11,10 @@
     );
 }
 
+li::marker {
+  color: white;
+}
+
 .topbar-nosidebar {
   top: 0;
   left: 0;

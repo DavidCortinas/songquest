@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'songquest.user.apps.UserConfig',
     'songquest.songs.apps.SongsConfig',
     'songquest.playlists.apps.PlaylistsConfig',
+    'songquest.recommendations.apps.RecommendationsConfig',
     # 'audiofield',
     'frontend',
 ]

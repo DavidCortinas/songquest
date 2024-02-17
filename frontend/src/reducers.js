@@ -11,6 +11,9 @@ import {
   DELETE_PLAYLIST,
   DISCOVER_SONG,
   DISCOVER_SONG_SUCCESS,
+  GET_REQUEST_PARAMETERS_FAILURE,
+  GET_REQUEST_PARAMETERS_REQUEST,
+  GET_REQUEST_PARAMETERS_SUCCESS,
   GET_USER_PLAYLISTS_FAILURE,
   GET_USER_PLAYLISTS_REQUEST,
   GET_USER_PLAYLISTS_SUCCESS,
@@ -168,6 +171,9 @@ export const initialDiscoveryState = {
   },
   genres: [],
   markets: [],
+  recommendations: null,
+  loading: false,
+  error: null,
 };
 
 export const song = (state = initialSongState, action) => {
@@ -412,6 +418,27 @@ export const discovery = (state = initialDiscoveryState, action) => {
             }
             }
         };
+      case GET_REQUEST_PARAMETERS_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case GET_REQUEST_PARAMETERS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          savedQueries: {
+            ...state.savedQueries,
+            saved: payload.userRequestParameters,
+          },
+        };
+      case GET_REQUEST_PARAMETERS_FAILURE:
+        return {
+          ...state,
+          loading: false,
+          error: payload.error,
+        };
       case CLEAR_SEEDS_ARRAY:
         return {
           ...state,
@@ -455,7 +482,7 @@ export const discovery = (state = initialDiscoveryState, action) => {
           ...state,
           savedQueries: {
             ...state.savedQueries,
-            previous: action.payload.previousQuery,
+            previous: payload.previousQuery,
           },
         };
       case SAVE_QUERY:
@@ -463,10 +490,10 @@ export const discovery = (state = initialDiscoveryState, action) => {
           ...state,
           savedQueries: {
             ...state.savedQueries,
-            saved: [...state.savedQueries.saved, action.payload.savedQuery],
+            saved: [...state.savedQueries.saved, payload.query],
           },
         };
     default:
       return state;
   }
-}
+};
