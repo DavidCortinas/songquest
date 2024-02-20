@@ -621,7 +621,7 @@ export const getRequestParameters = (userId) => async (dispatch) => {
 
 export const getPricing = () => async (dispatch) => {
   try {
-    const csrfToken = await getCSRFToken(); // Ensure you have a function like getCSRFToken
+    const csrfToken = await getCSRFToken();
     const headers = {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
@@ -631,12 +631,22 @@ export const getPricing = () => async (dispatch) => {
       headers,
     });
 
-    console.log(response.data)
     return response.data['pricing_packages']
   } catch (error) {
     console.error('Error getting pricing packages: ', error);
-    // dispatch(getRequestParametersFailure(error.message));
+  };
+};
+
+export const pushPrice = (price) => async (dispatch) => {
+  try {
+    const response = await axios.post('http://localhost:8000/set-price/', { price });
+    console.log(response.data)
+    // return response.data; // Return the server's response if needed
+  } catch (error) {
+    console.log('Error pushing price to server: ', error);
+    throw error; // Propagate the error to handle it elsewhere if needed
   }
-}
+};
+
 
 

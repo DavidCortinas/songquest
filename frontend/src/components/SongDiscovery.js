@@ -33,7 +33,7 @@ const Recommendations = lazy(() => import('./Recommendations'))
 const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'))
 const SaveQueryModal = lazy(() => import('./SaveQueryModal'))
 
-const useStyles = makeStyles(() => (
+const useStyles = makeStyles((theme) => (
   {
     root: {
       padding: '15px 0 5px',
@@ -49,26 +49,26 @@ const useStyles = makeStyles(() => (
       },
     },
     card: {
-    backgroundColor: "white",
-    justifyContent: 'center',
-    display: 'flex',
-    width: '100%',
-    marginTop: '2rem'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    color: "#007fbf",
-    width: '90%',
-    border: '2px solid rgba(89, 149, 192, 0.5)',
-    borderRadius: '18px',
-    background: 'rgba(48, 130, 164, 0.1)',
-    boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-    backdropFilter: 'blur(5.1px)',
-    WebkitBackdropFilter: 'blur(5.1px)',
-    padding: '0 2%',
-  },
-  panelCard: {
+      backgroundColor: "white",
+      justifyContent: 'center',
+      display: 'flex',
+      width: '100%',
+      marginTop: '2rem'
+    },
+    form: {
+      display: 'flex',
+      flexDirection: 'column',
+      color: "#007fbf",
+      width: '90%',
+      border: '2px solid rgba(89, 149, 192, 0.5)',
+      borderRadius: '18px',
+      background: 'rgba(48, 130, 164, 0.1)',
+      boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+      // backdropFilter: 'blur(5.1px)',
+      // WebkitBackdropFilter: 'blur(5.1px)',
+      padding: '0 2%',
+    },
+    panelCard: {
       display: 'flex', 
       width: '18vw',
       height: '8vh', 
@@ -84,175 +84,192 @@ const useStyles = makeStyles(() => (
           border: '2px solid rgba(89, 149, 192, 0.5)',
           background: 'rgba(48, 130, 164, 0.1)',
           boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-          backdropFilter: 'blur(5.1px)',
-          WebkitBackdropFilter: 'blur(5.1px)',
+          // backdropFilter: 'blur(5.1px)',
+          // WebkitBackdropFilter: 'blur(5.1px)',
       },
-  },
-  panelCardWithMargin: {
-    margin: '4%',
-    width: '22vw',
-    height: '10vh', 
-  },
-  sidePanel: {
-    marginTop: '10px',
-    maxHeight: '1800px', 
-    width: '20%',
-    color: 'white',
-    border: '2px solid rgba(89, 149, 192, 0.5)',
-    borderRadius: '18px',
-    background: 'rgba(48, 130, 164, 0.1)',
-    boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-    backdropFilter: 'blur(5.1px)',
-    WebkitBackdropFilter: 'blur(5.1px)',
-    overflowY: 'auto',
-  },
-  textField: {
-    marginLeft: '8px',
-    width: '66%',
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
     },
-    backgroundColor: '#30313d',
-    borderRadius: '8px',
-    boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-  },
-  resultsField: {
-    width: '15%',
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
+    panelCardWithMargin: {
+      margin: '4%',
+      width: '22vw',
+      height: '10vh', 
     },
-    backgroundColor: '#30313d',
-    borderRadius: '8px',
-    boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-  },
-  primaryField: {
-    width: '50%',
-    backgroundColor: '#30313d',
-    borderRadius: '8px',
-    boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-    margin: '0 10px 0 0',
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
-      paddingRight: '0',
-      margin: '0 0 1em'
-    },
-  },
-  secondaryField: {
-    width: '66%',
-    [theme.breakpoints.down('sm')]: {
-      width: '40%',
-    },
-    [theme.breakpoints.down('xs')]: {
-      width: '50%',
-    },
-    backgroundColor: '#30313d',
-    borderRadius: '8px',
-    boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-  },
-  menuList: {
-    '& li': {
-      color: 'black',
-    },
-  },
-  subHeader: {
-    width: '40%',
-    [theme.breakpoints.up('sm')]: {
-      width: '25rem',
-    },
-  },
-  description: {
-    maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
-    color: '#6f6f71',
-    paddingTop: '1rem',
-  },
-  buttonsContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    paddingTop: '2%',
-  },
-  noBottomLine: {
-    borderBottom: 'none',
-  },
-  recommendations: {
-    display: 'flex',
-    alignItems: 'start',
-    listStyle: 'none',
-  },
-  seedButtons: {
-    width: '25%',
-    color: 'white', 
-    backgroundColor: 'transparent', 
-    border: '2px solid rgba(89, 149, 192, 0.5)',
-    borderRadius: '8px' ,
-    boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-    '&:hover, &:active, &.MuiFocusVisible': {
+    button: {
+      color: 'white',
+      backgroundColor: 'rgb(44, 216, 207, 0.3)',
       border: '2px solid rgba(89, 149, 192, 0.5)',
+      borderRadius: '8px',
+      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+      transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+      '&:hover, &:active, &.MuiFocusVisible': {
+        border: '2px solid rgba(89, 149, 192, 0.5)',
+        backgroundColor: 'rgb(44, 216, 207, 0.5)',
+        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+        // backdropFilter: 'blur(5.1px)',
+        // WebkitBackdropFilter: 'blur(5.1px)',
+      },
+    },
+    sidePanel: {
+      marginTop: '10px',
+      maxHeight: '1800px', 
+      width: '20%',
+      color: 'white',
+      border: '2px solid rgba(89, 149, 192, 0.5)',
+      borderRadius: '18px',
       background: 'rgba(48, 130, 164, 0.1)',
       boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-      backdropFilter: 'blur(5.1px)',
-      WebkitBackdropFilter: 'blur(5.1px)',
+      // backdropFilter: 'blur(5.1px)',
+      // WebkitBackdropFilter: 'blur(5.1px)',
+      overflowY: 'auto',
     },
-  },
-  recommendationsUl: {
-    width: '100%'
-  },
-  resetBtn: {
-    position: 'fixed',
-    bottom: '2%',
-    right: '2%',
-    color: 'white',
-    fontSize: 14,
-    [theme.breakpoints.down('md')]: {
-      bottom: '12%',
-      right: '0',
-    }
-  },
-  createPlaylistBtn: {
-    position: 'fixed',
-    bottom: '2%',
-    left: '2%',
-    color: '#006f96',
-    fontSize: 14,
-    [theme.breakpoints.down('lg')]: {
-      left: '7%',
+    textField: {
+      marginLeft: '8px',
+      width: '66%',
+      [theme.breakpoints.down('md')]: {
+        width: '100%',
+      },
+      backgroundColor: '#30313d',
+      borderRadius: '8px',
+      boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
     },
-    [theme.breakpoints.down('md')]: {
-      bottom: '12%',
-      left: '0'
+    resultsField: {
+      width: '15%',
+      [theme.breakpoints.down('md')]: {
+        width: '100%',
+      },
+      backgroundColor: '#30313d',
+      borderRadius: '8px',
+      boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
     },
-  },
-  modal: {
-    width: '100%',
-    borderRadius: '18px',
-    overflow: 'hidden',
-    paddingTop: '1%'
-  },
-  inputLabel: {
-    overflow: 'hidden',   
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    margin: '0 1em', 
-    color: 'white',
-  },
-  detailsHeader: {
-    boxShadow: '0 4px 2px -2px #013a57',
-    width: '100%',
-    marginBottom: '1rem',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  sliderBox: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingBottom: '15px',
-    width: '100%',
-    marginLeft: '-25px',
-    [theme.breakpoints.down('md')]: {
+    primaryField: {
+      width: '50%',
+      backgroundColor: '#30313d',
+      borderRadius: '8px',
+      boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+      margin: '0 10px 0 0',
+      [theme.breakpoints.down('md')]: {
+        width: '100%',
+        paddingRight: '0',
+        margin: '0 0 1em'
+      },
+    },
+    secondaryField: {
+      width: '66%',
+      [theme.breakpoints.down('sm')]: {
+        width: '40%',
+      },
+      [theme.breakpoints.down('xs')]: {
+        width: '50%',
+      },
+      backgroundColor: '#30313d',
+      borderRadius: '8px',
+      boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+    },
+    menuList: {
+      '& li': {
+        color: 'black',
+      },
+    },
+    subHeader: {
+      width: '40%',
+      [theme.breakpoints.up('sm')]: {
+        width: '25rem',
+      },
+    },
+    description: {
+      maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
+      color: '#6f6f71',
+      paddingTop: '1rem',
+    },
+    buttonsContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      paddingTop: '2%',
+    },
+    noBottomLine: {
+      borderBottom: 'none',
+    },
+    recommendations: {
+      display: 'flex',
+      alignItems: 'start',
+      listStyle: 'none',
+    },
+    seedButtons: {
+      width: '25%',
+      color: 'white', 
+      backgroundColor: 'transparent', 
+      border: '2px solid rgba(89, 149, 192, 0.5)',
+      borderRadius: '8px' ,
+      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+      '&:hover, &:active, &.MuiFocusVisible': {
+        border: '2px solid rgba(89, 149, 192, 0.5)',
+        background: 'rgba(48, 130, 164, 0.1)',
+        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+        // backdropFilter: 'blur(5.1px)',
+        // WebkitBackdropFilter: 'blur(5.1px)',
+        // transition: 'backdropFilter 0.3s ease',
+      },
+    },
+    recommendationsUl: {
+      width: '100%'
+    },
+    resetBtn: {
+      position: 'fixed',
+      bottom: '2%',
+      right: '2%',
+      color: 'white',
+      fontSize: 14,
+      [theme.breakpoints.down('md')]: {
+        bottom: '12%',
+        right: '0',
+      }
+    },
+    createPlaylistBtn: {
+      position: 'fixed',
+      bottom: '2%',
+      left: '2%',
+      color: '#006f96',
+      fontSize: 14,
+      [theme.breakpoints.down('lg')]: {
+        left: '7%',
+      },
+      [theme.breakpoints.down('md')]: {
+        bottom: '12%',
+        left: '0'
+      },
+    },
+    modal: {
+      width: '100%',
+      borderRadius: '18px',
+      overflow: 'hidden',
+      paddingTop: '1%'
+    },
+    inputLabel: {
+      overflow: 'hidden',   
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+      margin: '0 1em', 
+      color: 'white',
+    },
+    detailsHeader: {
+      boxShadow: '0 4px 2px -2px #013a57',
+      width: '100%',
+      marginBottom: '1rem',
+      display: 'flex',
       flexDirection: 'column',
+      alignItems: 'center',
     },
+    sliderBox: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      paddingBottom: '15px',
+      width: '100%',
+      marginLeft: '-25px',
+      [theme.breakpoints.down('md')]: {
+        flexDirection: 'column',
+      },
+    }
   }
-}));
+));
 
 export const SongDiscovery = ({ 
     recommendations, 
@@ -263,8 +280,6 @@ export const SongDiscovery = ({
     onRemoveFromCurrentPlaylistById,
     onSaveQuery,
  }) => {
-  const theme = useTheme();
-
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -559,7 +574,10 @@ export const SongDiscovery = ({
                   }
                 >
                   <Button onClick={handleBulkAdd}>
-                    <PlaylistAddIcon fontSize='large' color='primary'/>
+                    <PlaylistAddIcon 
+                      fontSize='large' 
+                      style={{ color: theme.palette.primary.analogous1 }}
+                    />
                   </Button>
                 </Tooltip>
               </Box>

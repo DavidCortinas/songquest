@@ -32,11 +32,12 @@ def create_payment(request):
             return JsonResponse({'error': 'Invalid request method'}, status=405)
 
         # Load the request body into a Python dictionary
-        data = json.loads(request.body)  # Use request.body instead of request.data
+        data = json.loads(request.body)
+        print('create_payment data: ', data)
 
         # Create a PaymentIntent with Stripe
         intent = stripe.PaymentIntent.create(
-            amount=250,  # This should probably be dynamic based on `data`
+            amount=data['price'],
             currency='usd',
             automatic_payment_methods={
                 'enabled': True,
@@ -60,30 +61,33 @@ def get_all_pricing_packages(request):
     
     pricing_packages = [
         {
-            'name': 'Explorer',
+            'id': 1,
+            'name': 'Explore',
             'price': 300,
             'details': [
-                'Unlimited searches',
-                'Gain experience to level up and earn tokens',
                 '3 tokens',
+                'Unlimited searches',
+                'Gain experience to level up and earn extra tokens',
             ],
         },
         {
-            'name': 'Excavator',
+            'id': 2,
+            'name': 'Excavate',
             'price': 1000,
             'details': [
-                'Everything included in Explorer',
                 '20 Tokens',
-                '50% Savings'
+                '50% Savings',
+                'Everything included in Explore',
             ],
         },
         {
-            'name': 'Digger',
+            'id': 3,
+            'name': 'Dig',
             'price': 700,
             'details': [
-                'Everything included in Explorer',
                 '10 tokens',
-                '30% Savings'
+                '30% Savings',
+                'Everything included in Explore',
             ],
         },
     ]

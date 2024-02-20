@@ -15,6 +15,7 @@ import getPlaylistItems from "utils/playlist";
 import useStyles from "classes/playlist";
 import { connect } from "react-redux";
 import { addToCurrentPlaylist, deletePlaylist, resetCurrentPlaylist } from "actions";
+import theme from "theme";
 
 const PlaylistCard = ({ 
   classes, 
@@ -107,6 +108,8 @@ export const LeftPanel = ({
   const handleSelectNewPlaylist = () => {
     onResetCurrentPlaylist();
   };
+
+  console.log(theme)
   
   return (
     <Card className={classes.sidePanel}>
@@ -166,7 +169,9 @@ export const LeftPanel = ({
                         New Playlist
                       </Typography>
                   </Box>
-                  <AutoAwesomeIcon color='primary'/>
+                  <AutoAwesomeIcon 
+                    style={{ color: theme.palette.primary.complementary }}
+                  />
               </Card>
             </Tooltip>
           </li>
@@ -192,7 +197,7 @@ export const LeftPanel = ({
                 </div>
               }
             >
-              <Checkbox sx={{ padding: '0px', color: 'white' }}/>
+              <Checkbox sx={{ padding: '0px', color: theme.palette.primary.white }}/>
             </Tooltip>
             <Typography 
               variant='caption1' 
@@ -223,7 +228,9 @@ export const LeftPanel = ({
                 // sx={{ padding: '0 0 0 20px'}}
                 onClick={() => handleDeletePlaylist()}
               >
-                <PlaylistRemoveIcon />
+                <PlaylistRemoveIcon 
+                  style={{ color: theme.palette.primary.white }}
+                />
               </Button>
             </Tooltip>
           </Box>            

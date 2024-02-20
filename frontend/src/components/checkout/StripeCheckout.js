@@ -6,6 +6,7 @@ import { makeStyles } from '@mui/styles';
 import { Box, Button, InputLabel, TextField, Typography } from '@mui/material';
 import { connect } from 'react-redux';
 import 'App.css';
+import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
     stripeForm: {
@@ -13,15 +14,13 @@ const useStyles = makeStyles(() => ({
         padding: '20px',
         display: 'flex',
         flexDirection: 'column',
-        // justifyContent: 'center',
-        /*align-items: center,*/
         width: '50%',
         border: '2px solid rgba(89, 149, 192, 0.5)',
         borderRadius: '18px',
         background: 'rgba(48, 130, 164, 0.1)',
         boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-        backdropFilter: 'blur(5.1px)',
-        WebkitBackdropFilter: 'blur(5.1px)',
+        // backdropFilter: 'blur(5.1px)',
+        // WebkitBackdropFilter: 'blur(5.1px)',
     },
     inputLabel: {
         overflow: 'hidden',   
@@ -35,7 +34,7 @@ const useStyles = makeStyles(() => ({
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
-const CheckoutForm = ({ user, clientSecret }) => {
+const CheckoutForm = ({ clientSecret, selectedPrice, user }) => {
     const classes = useStyles();
 
     const stripe = useStripe();
@@ -103,12 +102,6 @@ const CheckoutForm = ({ user, clientSecret }) => {
         }
     };
 
-    // useEffect(() => {
-    //     if (user.email) {
-    //         setEmail(user.email);
-    //     };
-    // }, [user]);
-
     return (
         <Box display='flex' justifyContent='center'>
             <form className={classes.stripeForm} onSubmit={handleSubmit}>
@@ -118,7 +111,7 @@ const CheckoutForm = ({ user, clientSecret }) => {
                     type='submit'
                 >
                     <span>
-                        {isLoading ? <div className='spinner' id='spinner'></div> : "Pay now"}
+                        {isLoading ? <div className='spinner' id='spinner'></div> : `Pay $${selectedPrice.price/100}`}
                     </span>
                 </Button>
                 {message && (
@@ -135,16 +128,17 @@ const CheckoutForm = ({ user, clientSecret }) => {
 
 export const StripeCheckout = ({user}) => {
     const [clientSecret, setClientSecret] = useState('');
+    const location = useLocation();
+    console.log(location)
+
+    const selectedPrice = location.state?.selectedPrice;
+    console.log(selectedPrice)
 
     useEffect(() => {
         const fetchData = async () => {
             const csrfToken = await getCSRFToken();
 
-            console.log(csrfToken)
-
-            const body = JSON.stringify({ 
-                items: [{ id: 'xl-shirt' }], 
-            })
+            const body = JSON.stringify(selectedPrice)
 
             const response = await fetch('http://localhost:8000/create-payment-intent/', {
                 method: 'POST',
@@ -178,7 +172,11 @@ export const StripeCheckout = ({user}) => {
 
     return clientSecret && (
         <Elements options={options} stripe={stripePromise}>
-            <CheckoutForm user={user} clientSecret={clientSecret}/>
+            <CheckoutForm 
+                user={user} 
+                clientSecret={clientSecret} 
+                selectedPrice={selectedPrice}
+            />
         </Elements>
     );
 };

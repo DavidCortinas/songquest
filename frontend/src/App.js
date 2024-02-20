@@ -43,7 +43,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="App">
+      <div >
           <RoutesContainer />
       </div>
     </ThemeProvider>
