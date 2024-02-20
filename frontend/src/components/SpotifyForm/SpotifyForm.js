@@ -313,7 +313,7 @@ const SpotifyForm = ({
                 ? 'body1'
                 : 'body2',
               textAlign: 'center',
-              color: 'whitesmoke',
+              color: theme.palette.primary.triadic2,
             }} 
             classes={{
               root: classes.root
@@ -333,7 +333,7 @@ const SpotifyForm = ({
                                 paddingBottom='3px'
                                 variant='subtitle2'
                                 textAlign='center' 
-                                color='white'
+                                color={'whitesmoke'}
                                 letterSpacing='1px'
                               >
                                 Choose the songs, artists, and genres you'd like to shape your recommendations.
@@ -363,7 +363,12 @@ const SpotifyForm = ({
                                     onClick={handleViewSavedRequests}
                                   >
                                     <Box display='flex'>
-                                      <BookmarkIcon color='primary' fontSize='small' />
+                                      <BookmarkIcon 
+                                        style={{ 
+                                          color: theme.palette.primary.analogous1
+                                        }} 
+                                        fontSize='small' 
+                                      />
                                       <Typography  
                                         variant='subtitle2' 
                                         color='white'
@@ -466,7 +471,7 @@ const SpotifyForm = ({
                               </Box>
                               <Typography
                                 textAlign='center'
-                                color='whitesmoke'
+                                color={theme.palette.primary.triadic2}
                                 letterSpacing='1px'
                                 variant={
                                   isXsScreen || isSmScreen ?
@@ -537,18 +542,19 @@ const SpotifyForm = ({
                       sx={{ 
                           color: 'white', 
                           borderRadius: '18px',
+                          background: `rgb(121, 44, 216, 0.3)`,
                           height: '55px',
-                          border: '2px solid rgba(89, 149, 192, 0.5)',
+                          border: `2px solid ${theme.palette.primary.triadic1}`,
                           boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
                           textTransform: 'none',
                           display: 'flex',
                           justifyContent: 'space-between',
                           '&:hover, &:active, &.MuiFocusVisible': {
-                            border: '2px solid rgba(89, 149, 192, 0.5)',
-                            background: 'rgba(48, 130, 164, 0.1)',
+                            border: `2px solid ${theme.palette.primary.triadic1}`,
+                            background: `rgb(121, 44, 216, 0.5)`,
                             boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                            backdropFilter: 'blur(5.1px)',
-                            WebkitBackdropFilter: 'blur(5.1px)',
+                            // backdropFilter: 'blur(5.1px)',
+                            // WebkitBackdropFilter: 'blur(5.1px)',
                           },
                       }} 
                       fullWidth
@@ -560,7 +566,7 @@ const SpotifyForm = ({
                       Fine Tune Your Recommendations
                     </Typography>
                     <Typography 
-                      color='#f6f8fc' 
+                      color={'#f6f8fc'} 
                       variant='caption' 
                       textAlign='end'
                       letterSpacing='1px'
@@ -617,21 +623,8 @@ const SpotifyForm = ({
                 type="submit"
                 variant='contained'
                 onClick={handleSubmit(onSubmit)}
-                style={{ 
-                  color: 'white', 
-                  backgroundColor: 'transparent', 
-                  border: '2px solid rgba(89, 149, 192, 0.5)',
-                  borderRadius: '8px' ,
-                  boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-                  '&:hover, &:active, &.MuiFocusVisible': {
-                    border: '2px solid rgba(89, 149, 192, 0.5)',
-                    background: 'rgba(48, 130, 164, 0.1)',
-                    boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                    backdropFilter: 'blur(5.1px)',
-                    WebkitBackdropFilter: 'blur(5.1px)',
-                  },
-                }}
-                >
+                className={classes.button}
+              >
                 {user?.user ? 'Discover' : 'Try For Free'}
               </Button>         
             </Tooltip>

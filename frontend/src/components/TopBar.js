@@ -50,7 +50,6 @@ export const TopBar = ({
       display="flex"
       justifyContent="space-between"
       p={2}
-      className='topbar-nosidebar'
     >
       <Box
         display="flex"

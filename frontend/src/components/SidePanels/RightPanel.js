@@ -18,6 +18,7 @@ import { connect } from "react-redux";
 import { addToSavedPlaylistRequest, createPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
 import { lazy } from "react";
+import theme from "theme";
 
 const PlaylistItemCard = ({ item, key }) => {
   const songName = item?.name;
@@ -159,7 +160,9 @@ const CreatePlaylist = ({
             }
           >
             <Button onClick={handleCreatePlaylist}>
-              <AutoAwesomeIcon />
+              <AutoAwesomeIcon
+                style={{ color: theme.palette.primary.complementary }}
+              />
             </Button>
           </Tooltip>
           <TextField 
@@ -201,7 +204,9 @@ const CreatePlaylist = ({
             }
           >
             <Button onClick={handleBulkRemove}>
-              <PlaylistRemoveIcon />
+              <PlaylistRemoveIcon 
+                style={{ color: theme.palette.primary.white }}
+              />
             </Button>
           </Tooltip>
         </Box>
@@ -231,7 +236,7 @@ const CreatePlaylist = ({
             }
           >
             <Button onClick={handlePlaylistSelectAll}>
-              <Typography variant='subtitle2'>
+              <Typography variant='subtitle2' color='whitesmoke'>
                 {songsToRemove.length === 0 ? 'Select All' : 'Deselect All'}
               </Typography>
             </Button>

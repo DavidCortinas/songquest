@@ -1,15 +1,33 @@
-import { Box, Card, Typography } from "@mui/material";
+import { Box, Button, Card, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import theme from "theme";
 import { getPricing } from "thunks";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   containerBox: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     height: '700px',
+  },
+  button: {
+    color: 'white',
+    backgroundColor: `rgb(121, 44, 216, 0.3)`,
+    border: `2px solid ${theme.palette.primary.triadic1}`,
+    borderRadius: '8px',
+    boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+    width: '50%',
+    transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+    '&:hover, &:active, &.MuiFocusVisible': {
+      border: `2px solid ${theme.palette.primary.triadic1}`,
+      background: `rgb(121, 44, 216, 0.5)`,
+      boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+      // backdropFilter: 'blur(5.1px)',
+      // WebkitBackdropFilter: 'blur(5.1px)',
+    },
   },
   focusedCard: {
     display: 'flex',
@@ -48,7 +66,7 @@ const useStyles = makeStyles(() => ({
     transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out', 
   },
   unfocusedPriceTypography: {
-    color: 'white',
+    color: '#2c8bd8',
     letterSpacing: '2px',
     height: 'auto',
     fontSize: '2rem',
@@ -62,7 +80,7 @@ const useStyles = makeStyles(() => ({
     transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out',
   },
   focusedTitleTypography: {
-    color: 'white',
+    color: '#d82c8b',
     letterSpacing: '2px',
     paddingBottom: '5%',
     height: 'auto',
@@ -70,7 +88,7 @@ const useStyles = makeStyles(() => ({
     transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out',
   },
   focusedPriceTypography: {
-    color: 'white',
+    color: '#d82c8b',
     letterSpacing: '2px',
     height: 'auto',
     fontSize: '3rem',
@@ -91,9 +109,11 @@ const useStyles = makeStyles(() => ({
 }));
 
 export const Pricing = ({ onGetPricing }) => {
-  const classes = useStyles();
+  const classes = useStyles(theme);
   const [focusedIndex, setFocusedIndex] = useState(1);
   const [pricing, setPricing] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleCardFocus = (index) => {
     setFocusedIndex(index);
@@ -116,6 +136,11 @@ export const Pricing = ({ onGetPricing }) => {
     fetchPricing();
   }, [onGetPricing]);
 
+  const handleSelectPricing = (price) => {
+    console.log(price);
+    navigate('/checkout', { state: { selectedPrice: price } });
+  };
+
     return (
     <Box className={classes.containerBox}>
         {pricing && Object.values(pricing).map((price, outerIndex) => (
@@ -128,7 +153,10 @@ export const Pricing = ({ onGetPricing }) => {
             onBlur={handleCardBlur}
             tabIndex={0}
         >
-            <Box display='flex' flexDirection='column' alignItems='center'>
+          <Box display='flex' flexDirection='column' alignItems='center'>
+            {price.name === 'Excavate' && (
+              <Typography color='white' variant='subtitle2'>* Best Value</Typography>
+            )}
             <Typography
                 className={outerIndex === focusedIndex ? classes.focusedTitleTypography : classes.unfocusedTitleTypography}
             >
@@ -156,7 +184,20 @@ export const Pricing = ({ onGetPricing }) => {
                 ))}
                 </ul>
             </Box>
-            </Box>
+            {outerIndex === focusedIndex && (
+              <Button 
+                className={classes.button} 
+                variant='contained'
+                onClick={() => handleSelectPricing(price)}
+              >
+                {
+                  price.name === 'Excavate' ? 'Get 1/2 Off' :
+                  price.name === 'Dig' ? 'Get 30% Savings' :
+                  'Buy'
+                }
+              </Button>
+            )}
+          </Box>
         </Card>
         ))}
     </Box>

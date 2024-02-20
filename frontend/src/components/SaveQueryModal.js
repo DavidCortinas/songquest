@@ -163,8 +163,8 @@ const SaveQueryModal = ({
                         border: '2px solid rgba(89, 149, 192, 0.5)',
                         background: 'rgba(48, 130, 164, 0.1)',
                         boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                        backdropFilter: 'blur(5.1px)',
-                        WebkitBackdropFilter: 'blur(5.1px)',
+                        // backdropFilter: 'blur(5.1px)',
+                        // WebkitBackdropFilter: 'blur(5.1px)',
                     },
                 }}
             >
