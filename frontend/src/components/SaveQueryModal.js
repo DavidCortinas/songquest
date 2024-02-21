@@ -1,9 +1,11 @@
-import { Box, Button, Divider, Modal, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Modal, TextField, Tooltip, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { getSpotifyArtists, getSpotifyTracks } from "thunks";
 import { toCapitalCase } from "utils";
 import { autocompleteParam } from "./spotifyForm/SpotifyForm";
+import CloseIcon from '@mui/icons-material/Close';
+import theme from "theme";
 
 const SaveQueryModal = ({ 
   isModalOpen, 
@@ -133,6 +135,19 @@ const SaveQueryModal = ({
                 },
             }}
         />
+        <Box
+            sx={{
+                position: 'absolute',
+                top: '3%', 
+                right: '3%', 
+                cursor: 'pointer',
+            }}
+        >
+            <CloseIcon 
+                onClick={() => setIsModalOpen(false)} 
+                style={{ color: theme.palette.primary.triadic2 }}
+            />
+        </Box>
         <Tooltip
             arrow
             title={
@@ -141,7 +156,7 @@ const SaveQueryModal = ({
                     maxHeight: '25vh',
                     overflowY: 'auto',
                     padding: '8px',
-                    borderRadius: '8px',
+                    borderRadius: '18px',
                 }}
                 > 
                 <Typography variant='body2' letterSpacing='1px'>
@@ -154,17 +169,16 @@ const SaveQueryModal = ({
                 onClick={handleSaveClick} 
                 sx={{ marginTop: '1%' }}
                 style={{ 
-                    color: 'white', 
-                    backgroundColor: 'transparent', 
+                    color: 'white',
+                    backgroundColor: 'rgb(44, 216, 207, 0.3)',
                     border: '2px solid rgba(89, 149, 192, 0.5)',
-                    borderRadius: '8px' ,
+                    borderRadius: '18px',
                     boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+                    transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
                     '&:hover, &:active, &.MuiFocusVisible': {
                         border: '2px solid rgba(89, 149, 192, 0.5)',
-                        background: 'rgba(48, 130, 164, 0.1)',
+                        backgroundColor: 'rgb(44, 216, 207, 0.5)',
                         boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                        // backdropFilter: 'blur(5.1px)',
-                        // WebkitBackdropFilter: 'blur(5.1px)',
                     },
                 }}
             >

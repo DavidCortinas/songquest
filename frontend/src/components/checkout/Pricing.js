@@ -20,13 +20,11 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '8px',
     boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
     width: '50%',
-    transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+    transition: 'border 0.3s, background 0.3s, boxShadow 0.3s width 0.3s',
     '&:hover, &:active, &.MuiFocusVisible': {
       border: `2px solid ${theme.palette.primary.triadic1}`,
       background: `rgb(121, 44, 216, 0.5)`,
       boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-      // backdropFilter: 'blur(5.1px)',
-      // WebkitBackdropFilter: 'blur(5.1px)',
     },
   },
   focusedCard: {
@@ -192,7 +190,7 @@ export const Pricing = ({ onGetPricing }) => {
               >
                 {
                   price.name === 'Excavate' ? 'Get 1/2 Off' :
-                  price.name === 'Dig' ? 'Get 30% Savings' :
+                  price.name === 'Mine' ? 'Get 30% Savings' :
                   'Buy'
                 }
               </Button>

@@ -6,15 +6,9 @@ import {
   CardHeader,
   Typography,
   useMediaQuery,
-  Tooltip,
-  Card,
 } from '@mui/material';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { makeStyles, useTheme } from '@mui/styles';
+import { makeStyles } from '@mui/styles';
 import { 
-  addToCurrentPlaylist, 
   confirmSpotifyAccess,  
   removeFromCurrentPlaylistById,
 } from '../actions';
@@ -62,16 +56,16 @@ const useStyles = makeStyles((theme) => (
       width: '90%',
       border: '2px solid rgba(89, 149, 192, 0.5)',
       borderRadius: '18px',
-      background: 'rgba(48, 130, 164, 0.1)',
+      background: 'rgba(48, 130, 164, 0.15)',
+      // background: 'rgba(196,213,228, 0.2)',
       boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-      // backdropFilter: 'blur(5.1px)',
-      // WebkitBackdropFilter: 'blur(5.1px)',
       padding: '0 2%',
     },
     panelCard: {
       display: 'flex', 
       width: '18vw',
-      height: '8vh', 
+      minHeight: 'fit-content', 
+      padding: '0.5%',
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',
@@ -82,13 +76,11 @@ const useStyles = makeStyles((theme) => (
       opacity: '0.8',
       '&:hover, &:active, &.MuiFocusVisible': {
           border: '2px solid rgba(89, 149, 192, 0.5)',
-          background: 'rgba(48, 130, 164, 0.1)',
+          background: 'rgba(48, 130, 164, 0.15)',
           boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-          // backdropFilter: 'blur(5.1px)',
-          // WebkitBackdropFilter: 'blur(5.1px)',
       },
     },
-    panelCardWithMargin: {
+    buttonWithMargin: {
       margin: '4%',
       width: '22vw',
       height: '10vh', 
@@ -97,29 +89,32 @@ const useStyles = makeStyles((theme) => (
       color: 'white',
       backgroundColor: 'rgb(44, 216, 207, 0.3)',
       border: '2px solid rgba(89, 149, 192, 0.5)',
-      borderRadius: '8px',
+      borderRadius: '18px',
       boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
       transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
       '&:hover, &:active, &.MuiFocusVisible': {
         border: '2px solid rgba(89, 149, 192, 0.5)',
         backgroundColor: 'rgb(44, 216, 207, 0.5)',
         boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-        // backdropFilter: 'blur(5.1px)',
-        // WebkitBackdropFilter: 'blur(5.1px)',
       },
     },
     sidePanel: {
       marginTop: '10px',
-      maxHeight: '1800px', 
+      height: '95vh', 
       width: '20%',
       color: 'white',
       border: '2px solid rgba(89, 149, 192, 0.5)',
       borderRadius: '18px',
-      background: 'rgba(48, 130, 164, 0.1)',
+      background: 'rgba(48, 130, 164, 0.15)',
       boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-      // backdropFilter: 'blur(5.1px)',
-      // WebkitBackdropFilter: 'blur(5.1px)',
       overflowY: 'auto',
+      scrollbarWidth: 'thin',
+      scrollbarColor: `${theme.palette.primary.analogous1} transparent`,
+      WebkitOverflowScrolling: 'touch',
+      scrollbarFaceColor: theme.palette.primary.analogous2,
+      scrollbarHighlightColor: 'transparent',
+      scrollbarShadowColor: 'transparent',
+      scrollbarDarkShadowColor: 'transparent',
     },
     textField: {
       marginLeft: '8px',
@@ -193,22 +188,6 @@ const useStyles = makeStyles((theme) => (
       alignItems: 'start',
       listStyle: 'none',
     },
-    seedButtons: {
-      width: '25%',
-      color: 'white', 
-      backgroundColor: 'transparent', 
-      border: '2px solid rgba(89, 149, 192, 0.5)',
-      borderRadius: '8px' ,
-      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-      '&:hover, &:active, &.MuiFocusVisible': {
-        border: '2px solid rgba(89, 149, 192, 0.5)',
-        background: 'rgba(48, 130, 164, 0.1)',
-        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-        // backdropFilter: 'blur(5.1px)',
-        // WebkitBackdropFilter: 'blur(5.1px)',
-        // transition: 'backdropFilter 0.3s ease',
-      },
-    },
     recommendationsUl: {
       width: '100%'
     },
@@ -276,7 +255,6 @@ export const SongDiscovery = ({
     dataLoaded,
     user,
     currentPlaylist,
-    onAddToCurrentPlaylist,
     onRemoveFromCurrentPlaylistById,
     onSaveQuery,
  }) => {
@@ -290,7 +268,6 @@ export const SongDiscovery = ({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlaylistOption, setSelectedPlaylistOption] =  useState('create');
 
-  const [songsToAdd, setSongsToAdd] = useState([]);
   const [invalidSearch, setInvalidSearch] = useState(false);
   const [targetParamValues, setTargetParamValues] = useState({
     songs: [],
@@ -354,7 +331,7 @@ export const SongDiscovery = ({
 
   useEffect(() => {
     if (isLoading) {
-      const targetElement = document.getElementById('resultsBox'); // Replace with the actual ID of your target element.
+      const targetElement = document.getElementById('resultsBox');
 
       if (targetElement) {
         targetElement.scrollIntoView({
@@ -365,75 +342,32 @@ export const SongDiscovery = ({
     }
   }, [isLoading]);
 
-  const handleExploreMoreClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+const handleExploreMoreClick = () => {
+  console.log('explore more');
+  
+  // Assuming you have a specific component with an ID 'myComponentId'
+  const myComponent = document.getElementById('topBar');
+
+  if (myComponent) {
+    myComponent.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+};
 
   const classes = useStyles();
   const discoveryRecommendations = recommendations?.tracks
   
   const showTracks = discoveryRecommendations && dataLoaded
-  
-  const handleSelectAll = () => {
-    songsToAdd.length === 0 ?
-    setSongsToAdd(discoveryRecommendations) :
-    setSongsToAdd([])
-  };
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
 
   const handleQueryNameChange = (e) => {
     setQueryName(e.target.value);
   };
 
-  const handleSaveRequestParameters = () => {
-    openModal();
-  };
-
   const handleSelectUseTokens = () => {
 
   };
-
-  const handleBulkAdd = () => {
-    const songsToAddData = songsToAdd.map(song => ({
-      'id': song.id,
-      'name': song.name,
-      'artists': song.artists.map(artist => artist.name),
-      'spotify_id': song.spotify_id,
-      'isrc': song.external_ids.isrc,
-      'image': song.album.images[2].url,
-    }));
-
-    onAddToCurrentPlaylist(...songsToAddData);
-  };
-
-  const handleScroll = () => {
-    const scrollPosition = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const pageHeight = document.documentElement.scrollHeight;
-
-    const buttonsContainer = document.querySelector('.buttons-container');
-
-    const distanceFromTop = 200;
-    const distanceFromBottom = 225;
-
-    if (buttonsContainer && (scrollPosition < distanceFromTop || pageHeight - (scrollPosition + windowHeight) < distanceFromBottom)) {
-      buttonsContainer.style.display = 'none';
-    } 
-    if (buttonsContainer && !(scrollPosition < distanceFromTop || pageHeight - (scrollPosition + windowHeight) < distanceFromBottom)) {
-      buttonsContainer.style.display = 'block';
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   return (
     <>
@@ -479,118 +413,15 @@ export const SongDiscovery = ({
             </Box>
           )}
           {showTracks ? (
-            <Box backgroundColor='transparent' width='95%'>
-              <Box className='buttons-container'>
-                {!isXsScreen && !isSmScreen && !isMdScreen ? (
-                  <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-                    Explore More
-                  </Button>
-                  ) : (
-                  <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-                    <ArrowUpwardIcon />
-                  </Button>
-                )}
-              </Box>
-              <Box 
-                display='flex' 
-                justifyContent='space-between' 
-                marginLeft='20px' 
-                width='100%'
-              >
-                <Tooltip
-                  title={
-                    <div
-                      style={{
-                        maxHeight: '25vh',
-                        overflowY: 'auto',
-                        padding: '8px',
-                        borderRadius: '8px',
-                      }}
-                    > 
-                      <Typography variant='body2' letterSpacing='1px'>
-                        {songsToAdd.length === 0 ? 'Select all discovery results' : 'Deselect all discovery results'}
-                      </Typography>
-                    </div>
-                  }
-                >
-                  <Button onClick={handleSelectAll}>
-                    <Typography 
-                      color='white' 
-                      variant='subtitle1'
-                    >
-                      {songsToAdd.length === 0 ? 'Select All' : 'Deselect All'}
-                    </Typography>
-                  </Button>
-                </Tooltip>
-                {user && (
-                  <Tooltip
-                    title={
-                      <div
-                        style={{
-                          maxHeight: '25vh',
-                          overflowY: 'auto',
-                          padding: '8px',
-                          borderRadius: '8px',
-                        }}
-                      > 
-                        <Typography variant='body2' letterSpacing='1px'>
-                          {'See the parameters from this request'}
-                        </Typography>
-                      </div>
-                    }
-                  >
-                    <Button 
-                      onClick={handleSaveRequestParameters} 
-                      sx={{ 
-                        marginRight: '8%',
-                        width: '50%' 
-                      }}
-                    >
-                      <VisibilityIcon />
-                      <Typography 
-                        color='white' 
-                        variant='subtitle1'
-                        paddingLeft='3%'
-                      >
-                        {'View Request'}
-                      </Typography>
-                    </Button>
-                  </Tooltip>)
-                }
-                <Tooltip
-                  title={
-                    <div
-                      style={{
-                        maxHeight: '25vh',
-                        overflowY: 'auto',
-                        padding: '8px',
-                        borderRadius: '8px',
-                      }}
-                    > 
-                      <Typography variant='body2' letterSpacing='1px'>
-                        {'Add selected to playlist'}
-                      </Typography>
-                    </div>
-                  }
-                >
-                  <Button onClick={handleBulkAdd}>
-                    <PlaylistAddIcon 
-                      fontSize='large' 
-                      style={{ color: theme.palette.primary.analogous1 }}
-                    />
-                  </Button>
-                </Tooltip>
-              </Box>
+            <Box  width='100%' justifyContent='space-between'>
               <Suspense fallback={<div>Loading...</div>}>
                 <Recommendations 
                   classes={classes} 
                   recommendations={discoveryRecommendations}
                   user={user}
                   currentPlaylist={currentPlaylist}
-                  onAddToCurrentPlaylist={onAddToCurrentPlaylist}
                   onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-                  songsToAdd={songsToAdd}
-                  setSongsToAdd={setSongsToAdd}
+                  setIsModalOpen={setIsModalOpen}
                 />
               </Suspense>
             </Box>    
@@ -634,9 +465,10 @@ export const SongDiscovery = ({
                     personalize your results and find music that precisely matches your 
                     preferences.
                   </Typography>
-                  <Card 
-                    className={`${classes.panelCard} ${classes.panelCardWithMargin}`} 
+                  <Button 
+                    className={`${classes.button} ${classes.buttonWithMargin}`} 
                     onClick={() => handleExploreMoreClick()}
+                    variant='contained'
                   >
                     <Typography
                       variant='subtitle1' 
@@ -652,7 +484,7 @@ export const SongDiscovery = ({
                     <Typography variant='h5' paddingLeft='2%'>
                       🚀
                     </Typography>
-                  </Card>
+                  </Button>
                 </Box>
               ) : (
                 <Body 
@@ -671,6 +503,7 @@ export const SongDiscovery = ({
           selectedPlaylistOption={selectedPlaylistOption}
           setSelectedPlaylistOption={setSelectedPlaylistOption}
           handleSelectUseTokens={handleSelectUseTokens}
+          handleExploreMoreClick={handleExploreMoreClick}
         />
       </Box>
       <SaveQueryModal
@@ -698,7 +531,6 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
   onRemoveFromCurrentPlaylistById: (...songs) => dispatch(removeFromCurrentPlaylistById(...songs)),
   onSaveQuery: (userId, query) => dispatch(saveRequestParameters(userId, query)),
 });

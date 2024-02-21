@@ -32,8 +32,8 @@ function App() {
         >
           <CardHeader
             title="Loading..."
-            titleTypographyProps={{ color: 'black' }}
-            subheaderTypographyProps={{ color: '#3d3d3d' }}
+            titleTypographyProps={{ color: 'white' }}
+            subheaderTypographyProps={{ color: 'white' }}
           />
         </Box>
         <LoadingState />

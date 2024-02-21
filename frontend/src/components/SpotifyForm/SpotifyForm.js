@@ -471,7 +471,7 @@ const SpotifyForm = ({
                               </Box>
                               <Typography
                                 textAlign='center'
-                                color={theme.palette.primary.triadic2}
+                                color='whitesmoke'
                                 letterSpacing='1px'
                                 variant={
                                   isXsScreen || isSmScreen ?
@@ -553,8 +553,6 @@ const SpotifyForm = ({
                             border: `2px solid ${theme.palette.primary.triadic1}`,
                             background: `rgb(121, 44, 216, 0.5)`,
                             boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                            // backdropFilter: 'blur(5.1px)',
-                            // WebkitBackdropFilter: 'blur(5.1px)',
                           },
                       }} 
                       fullWidth

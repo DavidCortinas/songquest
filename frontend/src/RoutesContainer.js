@@ -14,7 +14,7 @@ const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 const RoutesContainer = () => {
 
   return (
-      <Box className='main'>
+      <Box>
         <TopBar collapse={true}/>
           <Routes>
             <Route
