@@ -17,10 +17,8 @@ const useStyles = makeStyles(() => ({
         width: '50%',
         border: '2px solid rgba(89, 149, 192, 0.5)',
         borderRadius: '18px',
-        background: 'rgba(48, 130, 164, 0.1)',
+        background: 'rgba(48, 130, 164, 0.15)',
         boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-        // backdropFilter: 'blur(5.1px)',
-        // WebkitBackdropFilter: 'blur(5.1px)',
     },
     inputLabel: {
         overflow: 'hidden',   
@@ -29,6 +27,19 @@ const useStyles = makeStyles(() => ({
         margin: '10px', 
         background: 'white',
         height: '50px'
+    },
+    button: {
+      color: 'white',
+      backgroundColor: 'rgb(44, 216, 207, 0.3)',
+      border: '2px solid rgba(89, 149, 192, 0.5)',
+      borderRadius: '8px',
+      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+      transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+      '&:hover, &:active, &.MuiFocusVisible': {
+        border: '2px solid rgba(89, 149, 192, 0.5)',
+        backgroundColor: 'rgb(44, 216, 207, 0.5)',
+        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+      },
     },
 }))
 
@@ -109,6 +120,8 @@ const CheckoutForm = ({ clientSecret, selectedPrice, user }) => {
                 <Button 
                     disabled={isLoading || !stripe || !elements}  
                     type='submit'
+                    variant='contained'
+                    className={classes.button}
                 >
                     <span>
                         {isLoading ? <div className='spinner' id='spinner'></div> : `Pay $${selectedPrice.price/100}`}

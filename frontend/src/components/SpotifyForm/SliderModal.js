@@ -1,5 +1,7 @@
 import { Box, Grid, Modal, Typography } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import { SliderParameter } from "./SliderParameter";
+import theme from "theme";
 
 const SliderModal = ({ 
   autocompleteParam,
@@ -65,6 +67,19 @@ const SliderModal = ({
                 </Box>
               </Grid>
             </Grid>
+            <Box
+              sx={{
+                  position: 'absolute',
+                  top: '1.5%', 
+                  right: '1.5%', 
+                  cursor: 'pointer',
+              }}
+            >
+                <CloseIcon 
+                    onClick={() => setOpenModal(false)} 
+                    style={{ color: theme.palette.primary.triadic2 }}
+                />
+            </Box>
             {Object.keys(parameters).map((parameter, index) => { 
               return parameter !== 'limit' && !autocompleteParam.includes(parameter) && (
               <SliderParameter

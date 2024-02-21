@@ -9,6 +9,10 @@ export const toCapitalCase= (str) => {
     };
 };
 
+export const handleExploreMoreClick = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 export const transformResponseToQueryStructure = (responseData) => {
   const {
     name,

@@ -62,7 +62,7 @@ def get_all_pricing_packages(request):
     pricing_packages = [
         {
             'id': 1,
-            'name': 'Explore',
+            'name': 'Dig',
             'price': 300,
             'details': [
                 '3 tokens',
@@ -82,7 +82,7 @@ def get_all_pricing_packages(request):
         },
         {
             'id': 3,
-            'name': 'Dig',
+            'name': 'Mine',
             'price': 700,
             'details': [
                 '10 tokens',

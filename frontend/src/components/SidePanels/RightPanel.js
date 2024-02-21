@@ -12,15 +12,21 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import useStyles from "classes/playlist";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { addToSavedPlaylistRequest, createPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
 import { lazy } from "react";
 import theme from "theme";
 
-const PlaylistItemCard = ({ item, key }) => {
+const PlaylistItemCard = ({ 
+  item, 
+  key, 
+  handlePlaylistSelectClick, 
+  isPlaylistItemChecked 
+}) => {
   const songName = item?.name;
   const artists = item?.artists.join(', ');
   const imgUrl = item?.image;  
@@ -32,14 +38,46 @@ const PlaylistItemCard = ({ item, key }) => {
         display: 'flex', 
         width: '18vw',
         height: '11vh', 
-        // alignItems: 'center' ,
+        position: 'relative',
         overflow: 'hidden',
         borderRadius: '8px',
         backgroundColor: '#282828',
         boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
         opacity: '0.9',
         paddingLeft: '2%',
-      }}>
+      }}
+    >
+      <Tooltip
+        title={
+          <div
+            style={{
+              maxHeight: '25vh',
+              overflowY: 'auto',
+              padding: '8px',
+              borderRadius: '8px',
+            }}
+          > 
+            <Typography variant='body2' letterSpacing='1px'>
+              {'Select song from playlist'}
+            </Typography>
+          </div>
+        }
+      >
+        <Checkbox
+          icon={<CircleIcon sx={{ color: '#d2dce1', opacity: '0.5' }} />}
+          checkedIcon={<CheckCircleIcon color='info' />}                       
+          onClick={() => handlePlaylistSelectClick(item)}
+          checked={isPlaylistItemChecked(item)}
+          sx={{
+            color: 'white',
+            position: 'absolute',
+            top: '23%',
+            left: '2%',
+            zIndex: '2',
+            paddingLeft: '0px',
+          }}
+        />
+      </Tooltip>
       <img 
         src={imgUrl} 
         style={{
@@ -62,7 +100,7 @@ const PlaylistItemCard = ({ item, key }) => {
           {songName}
         </Typography>
         <Typography 
-          noWrap
+          // noWrap
           variant='subtitle2' 
           color='white' 
           sx={{ 
@@ -81,8 +119,8 @@ const PlaylistItemCard = ({ item, key }) => {
           maxWidth: '8%', 
           height: 'auto',
           position: 'absolute',
-          right: 20,
-          bottom:15,
+          right: '5%',
+          bottom:'15%',
         }}
       />
     </Card>
@@ -134,37 +172,15 @@ const CreatePlaylist = ({
       <Box
         display='flex'
         flexDirection='column'
+
       >
         <Box 
           display='flex' 
           justifyContent='center'
-          alignItems='center'
-          marginTop='10px'
+          alignSelf='center'
+          width='90%'
+          margin='5%'
         >
-          <Tooltip
-            title={
-              <div
-                style={{
-                  maxHeight: '25vh',
-                  overflowY: 'auto',
-                  padding: '8px',
-                  borderRadius: '8px',
-                }}
-              > 
-                <Typography variant='body2' letterSpacing='1px'>
-                  {user?.user.spotify_connected ? 
-                  'Create Playlist' : 
-                  'Connect to Spotify to create playlists'}
-                </Typography>
-              </div>
-            }
-          >
-            <Button onClick={handleCreatePlaylist}>
-              <AutoAwesomeIcon
-                style={{ color: theme.palette.primary.complementary }}
-              />
-            </Button>
-          </Tooltip>
           <TextField 
             label='Playlist Name' 
             variant='standard' 
@@ -183,10 +199,71 @@ const CreatePlaylist = ({
               sx: {
                 color: 'white',
                 marginLeft: '5px',
-                fontSize: '90%'
+                fontSize: '90%', 
               }
             }}
           />
+        </Box>
+        <Box 
+          display='flex' 
+          justifyContent='space-between'
+        >
+          <Tooltip
+            title={
+              <div
+                style={{
+                  maxHeight: '25vh',
+                  overflowY: 'auto',
+                  padding: '8px',
+                  borderRadius: '8px',
+                }}
+              > 
+                <Typography variant='body2' letterSpacing='1px'>
+                  {
+                    songsToRemove.length === 0 ? 
+                    'Select all tracks in current playlist' : 
+                    'Deselect all tracks in current playlist'
+                  }
+                </Typography>
+              </div>
+            }
+          >
+            <Button onClick={handlePlaylistSelectAll}>
+              <Checkbox sx={{ padding: '0px', color: theme.palette.primary.white }}/>
+            </Button>
+          </Tooltip>
+          <Tooltip
+            title={
+              <div
+                style={{
+                  maxHeight: '25vh',
+                  overflowY: 'auto',
+                  padding: '8px',
+                  borderRadius: '8px',
+                }}
+              > 
+                <Typography variant='body2' letterSpacing='1px'>
+                  {user?.user.spotify_connected ? 
+                  'Create Playlist' : 
+                  'Connect to Spotify to create playlists'}
+                </Typography>
+              </div>
+            }
+          >
+            <Button onClick={handleCreatePlaylist} className={classes.button}>
+              <Box display='flex' alignItems='center'>
+                <AutoAwesomeIcon
+                  style={{ 
+                    color: theme.palette.primary.complementary,
+                    paddingRight: '2%'
+                  }}
+                />
+                <Typography variant='body2' letterSpacing='1px'>
+                  {'Create'}
+                </Typography>
+              </Box>
+            </Button>
+          </Tooltip>
           <Tooltip
             title={
               <div
@@ -210,38 +287,6 @@ const CreatePlaylist = ({
             </Button>
           </Tooltip>
         </Box>
-        <Box 
-          display='flex' 
-          justifyContent='space-between'
-          padding='0 4% 0 0'
-        >
-          <Tooltip
-            title={
-              <div
-                style={{
-                  maxHeight: '25vh',
-                  overflowY: 'auto',
-                  padding: '8px',
-                  borderRadius: '8px',
-                }}
-              > 
-                <Typography variant='body2' letterSpacing='1px'>
-                  {
-                    songsToRemove.length === 0 ? 
-                    'Select all tracks in current playlist' : 
-                    'Deselect all tracks in current playlist'
-                  }
-                </Typography>
-              </div>
-            }
-          >
-            <Button onClick={handlePlaylistSelectAll}>
-              <Typography variant='subtitle2' color='whitesmoke'>
-                {songsToRemove.length === 0 ? 'Select All' : 'Deselect All'}
-              </Typography>
-            </Button>
-          </Tooltip>
-        </Box>
       </Box>
       <ul 
         style={{ 
@@ -256,41 +301,14 @@ const CreatePlaylist = ({
             flexDirection='column'
             alignItems='center'
             paddingBottom='10px'
-            position='relative'
           >
             <li key={index} className={classes.currentPlaylistUl}>
-              <Tooltip
-                title={
-                  <div
-                    style={{
-                      maxHeight: '25vh',
-                      overflowY: 'auto',
-                      padding: '8px',
-                      borderRadius: '8px',
-                    }}
-                  > 
-                    <Typography variant='body2' letterSpacing='1px'>
-                      {'Select song from playlist'}
-                    </Typography>
-                  </div>
-                }
-              >
-                <Checkbox
-                  icon={<CircleIcon sx={{ color: '#d2dce1', opacity: '0.5' }} />}
-                  checkedIcon={<CheckCircleIcon color='info' />}                       
-                  onClick={() => handlePlaylistSelectClick(item)}
-                  checked={isPlaylistItemChecked(item)}
-                  sx={{
-                    color: 'white',
-                    position: 'absolute',
-                    top: '20%',
-                    left: '4%',
-                    zIndex: '2',
-                    paddingLeft: '0px',
-                  }}
-                />
-              </Tooltip>
-              <PlaylistItemCard item={item} key={item.id} />
+              <PlaylistItemCard 
+                item={item} 
+                key={item.id} 
+                handlePlaylistSelectClick={handlePlaylistSelectClick}
+                isPlaylistItemChecked={isPlaylistItemChecked}
+              />
             </li>
           </Box>)
           ) : (
@@ -377,6 +395,7 @@ const CreatePlaylist = ({
       onAddToSavedPlaylist,
       onRemoveFromCurrentPlaylistById,
       selectedPlaylistOption,
+      handleExploreMoreClick,
   }) => {
     const classes = useStyles();
     const navigate = useNavigate();
@@ -417,6 +436,64 @@ const CreatePlaylist = ({
     };
 
     return (
+      <Box>
+        {/* {!isXsScreen && !isSmScreen && !isMdScreen ? ( */}
+        <Tooltip
+          title={
+            <div
+              style={{
+                maxHeight: '25vh',
+                overflowY: 'auto',
+                padding: '8px',
+                borderRadius: '8px',
+              }}
+            >
+              <Typography variant='body2' letterSpacing='1px'>
+                {'Build new playlist'}
+              </Typography>
+            </div>
+          }
+        >
+          <Button
+            onClick={() => {handleExploreMoreClick()}}
+            sx={{
+              color: 'white',
+              background: `rgb(121, 44, 216, 0.3)`,
+              border: '2px solid rgba(89, 149, 192, 0.5)',
+              borderRadius: '18px',
+              boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+              transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+              '&:hover, &:active, &.Mui-focusVisible': {
+                background: `rgb(121, 44, 216, 0.5)`,
+                boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+              },
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '3%',
+              marginTop: '5%',
+              minHeight: 'fit-content',
+              width: '100%'
+            }}
+          >
+            <Box display='flex'>
+              <Typography
+                variant='subtitle1'
+                color='white'
+                letterSpacing='1px'
+                sx={{
+                  cursor: 'pointer',
+                }}
+              >
+                {'New Request'}
+              </Typography>
+              <KeyboardDoubleArrowUpIcon
+                style={{ color: theme.palette.primary.triadic2 }}
+              />
+            </Box>
+          </Button>
+        </Tooltip>
         <Card className={classes.sidePanel}>
           <CreatePlaylist 
             currentPlaylist={currentPlaylist}
@@ -428,6 +505,7 @@ const CreatePlaylist = ({
             onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
           />
         </Card>
+      </Box>
     );
 };
 

@@ -50,6 +50,7 @@ export const TopBar = ({
       display="flex"
       justifyContent="space-between"
       p={2}
+      id='topBar'
     >
       <Box
         display="flex"
