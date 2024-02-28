@@ -21,7 +21,8 @@ const PlaylistCard = ({
   classes, 
   index, 
   userPlaylist, 
-  onAddToCurrentPlaylist 
+  onAddToCurrentPlaylist,
+  isXsScreen, 
 }) => {
   const playlistName = userPlaylist?.name
 
@@ -62,12 +63,12 @@ const PlaylistCard = ({
       >
         <Typography
           noWrap  
-          variant='subtitle2' 
+          variant={isXsScreen ? 'caption' : 'subtitle2'} 
           color='white'
           letterSpacing='1px'
           textAlign='start'
           sx={{
-            fontWeight: 'bold',
+            fontWeight: isXsScreen ? 'normal' : 'bold',
             maxHeight: '30%',
             maxWidth: '65%',
             overflowY: 'hidden',
@@ -98,6 +99,9 @@ export const LeftPanel = ({
   onResetCurrentPlaylist,
   selectedPlaylistOption,
   handleSelectUseTokens,
+  isMdScreen,
+  isSmScreen,
+  isXsScreen,
 }) => {
   const classes = useStyles();
   
@@ -116,6 +120,7 @@ export const LeftPanel = ({
       alignItems='center'
       paddingBottom='5%'
       position='relative'
+      width={(isXsScreen || isSmScreen || isMdScreen) ? '30%' : null}
     > 
       {/* <li style={{ listStyle: 'none' }}> */}
       <Tooltip
@@ -162,20 +167,21 @@ export const LeftPanel = ({
         >
           <Box display='flex' width='100%' justifyContent='center'>
             <Typography
-              variant='subtitle1'
+              variant={isXsScreen ? 'caption' : 'subtitle1'}
               color='white'
               letterSpacing='1px'
               sx={{
                 cursor: 'pointer',
               }}
             >
-              New Playlist
+              {isXsScreen ? 'New' : 'New Playlist'}
             </Typography>
             <AutoAwesomeIcon
               style={{ 
                 color: theme.palette.primary.complementary,
                 paddingLeft: '2%', 
               }}
+              fontSize={isXsScreen ? 'small' : 'medium'}
             />
           </Box>
         </Button>
@@ -189,167 +195,134 @@ export const LeftPanel = ({
             flexDirection: 'column', 
           }}
         > 
-          {/* <Box 
+          <Box 
             display='flex' 
-            flexDirection='column'
-            alignItems='center'
-            paddingBottom='5%'
-            position='relative'
-          >         */}
-            {/* <li style={{ listStyle: 'none' }}>
-              <Tooltip
-                title={
-                  <div
-                    style={{
-                      maxHeight: '25vh',
-                      overflowY: 'auto',
-                      padding: '8px',
-                      borderRadius: '8px',
-                    }}
-                  > 
-                    <Typography variant='body2' letterSpacing='1px'>
-                      {'Build new playlist'}
-                    </Typography>
-                  </div>
-                }
-              >
-                <Card
-                  onClick={handleSelectNewPlaylist}
-                  className={classes.panelCard}
-                  sx={
-                    selectedPlaylistOption === 'create' && 
-                    { 
-                      border: '2px solid rgba(89, 149, 192, 0.5)' 
-                    }
-                  }
-                >
-                    <Box padding='0 5% 0'>
-                        <Typography  
-                          variant='subtitle1' 
-                          color='white'
-                          letterSpacing='1px'
-                          sx={{
-                            fontWeight: 'bold',
-                            maxHeight: '30%',
-                            maxWidth: '100%',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          New Playlist
-                        </Typography>
-                    </Box>
-                    <AutoAwesomeIcon 
-                      style={{ color: theme.palette.primary.complementary }}
-                    />
-                </Card>
-              </Tooltip>
-            </li> */}
-            <Box 
-              display='flex' 
-              alignItems='center' 
-              justifyContent='space-between'
-              padding='5% 0 5% 6%'
-            >
-              <Tooltip
-                title={
-                  <div
-                    style={{
-                      maxHeight: '25vh',
-                      overflowY: 'auto',
-                      padding: '8px',
-                      borderRadius: '8px',
-                    }}
-                  > 
-                    <Typography variant='body2' letterSpacing='1px'>
-                      {'Select all playlists'}
-                    </Typography>
-                  </div>
-                }
-              >
-                <Checkbox sx={{ padding: '0px', color: theme.palette.primary.white }}/>
-              </Tooltip>
-              <Typography 
-                variant='caption1' 
-                textAlign='center'
-                width='100%' 
-                letterSpacing='2px'
-                sx={{ flex: 1, marginLeft: 5 }}
-              >
-                Edit Playlists
-              </Typography>
-              <Tooltip
-                title={
-                  <div
-                    style={{
-                      maxHeight: '25vh',
-                      overflowY: 'auto',
-                      padding: '8px',
-                      borderRadius: '8px',
-                    }}
-                  > 
-                    <Typography variant='body2' letterSpacing='1px'>
-                      {'Delete selected playlists'}
-                    </Typography>
-                  </div>
-                }
-              >
-                <Button
-                  // sx={{ padding: '0 0 0 20px'}}
-                  onClick={() => handleDeletePlaylist()}
-                >
-                  <PlaylistRemoveIcon 
-                    style={{ color: theme.palette.primary.white }}
-                  />
-                </Button>
-              </Tooltip>
-            </Box>            
-            {
-              userPlaylists.length == 0 ? (
-                <Typography 
-                  variant='subtitle1' 
-                  textAlign='center' 
-                  padding='10%'
-                  letterSpacing='2px'
-                >
-                  You have not created any playlists 
-                </Typography>
-              ) : userPlaylists?.map((userPlaylist, index) => {
-                return (
-                  <Box 
-                    display='flex' 
-                    flexDirection='column'
-                    alignItems='center'
-                    paddingBottom='10px'
-                  >
-                    <li 
-                      key={index} 
-                      style={{ listStyle: 'none', position: 'relative' }}
-                    >
-                      <Checkbox
-                        icon={<CircleIcon sx={{ color: '#d2dce1', opacity: '0.5' }} />}
-                        checkedIcon={<CheckCircleIcon color='info' />}                       
-                        // onClick={() => handlePlaylistSelectClick(item)}
-                        // checked={isPlaylistItemChecked(item)}
-                        sx={{
-                          color: 'white',
-                          position: 'absolute',
-                          top: '10%',
-                          left: '5%',
-                          zIndex: '2',
-                          paddingLeft: '0px',
-                        }}
-                      />
-                      <PlaylistCard 
-                        userPlaylist={userPlaylist}
-                        onAddToCurrentPlaylist={onAddToCurrentPlaylist}
-                        index={index}
-                        classes={classes}
-                      />
-                    </li>
-                  </Box>
-                )
+            alignItems='center' 
+            justifyContent='space-around'
+            padding={isXsScreen ? '5% 0 5% 15%' : '5% 0 5% 6%'}
+          >
+            <Tooltip
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {'Select all playlists'}
+                  </Typography>
+                </div>
               }
-            )}
+            >
+            <Checkbox 
+              sx={{ 
+                padding: '0px', 
+                color: theme.palette.primary.white,
+                '& .MuiSvgIcon-root': { 
+                  fontSize: isXsScreen ? '1.25rem' : '2rem', 
+                  transform: 'scale(0.75)', 
+                }
+              }}
+            />
+            </Tooltip>
+            <Typography 
+              variant={isXsScreen ? 'caption' : 'caption1' }
+              textAlign='center'
+              width='100%' 
+              letterSpacing={isXsScreen ? '1px' : '2px'}
+              sx={{  marginLeft: isXsScreen ? 1 : 2 }}
+            >
+              {isXsScreen ? 'Saved' : 'Edit Playlists'}
+            </Typography>
+            <Tooltip
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {'Delete selected playlists'}
+                  </Typography>
+                </div>
+              }
+            >
+              <Button
+                sx={{ padding: '0'}}
+                onClick={() => handleDeletePlaylist()}
+              >
+                <PlaylistRemoveIcon 
+                  style={{ color: theme.palette.primary.white }}
+                  fontSize={isXsScreen ? 'small' : 'medium'} 
+                />
+              </Button>
+            </Tooltip>
+          </Box>            
+          {
+            userPlaylists.length == 0 ? (
+              <Typography 
+                variant='subtitle1' 
+                textAlign='center' 
+                padding='10%'
+                letterSpacing='2px'
+              >
+                You have not created any playlists 
+              </Typography>
+            ) : userPlaylists?.map((userPlaylist, index) => {
+              return (
+                <Box 
+                  display='flex' 
+                  flexDirection='column'
+                  alignItems='center'
+                  paddingBottom='10px'
+                >
+                  <li 
+                    key={index} 
+                    style={{ listStyle: 'none', position: 'relative' }}
+                  >
+                    <Checkbox
+                      icon={
+                        <CircleIcon 
+                          fontSize={isXsScreen ? 'small' : 'medium'}
+                          sx={{ color: '#d2dce1', opacity: '0.5' }} 
+                        />
+                      }
+                      checkedIcon={
+                        <CheckCircleIcon
+                          fontSize={isXsScreen ? 'small' : 'medium'} 
+                          color='info' 
+                        />
+                      }                       
+                      // onClick={() => handlePlaylistSelectClick(item)}
+                      // checked={isPlaylistItemChecked(item)}
+                      sx={{
+                        color: 'white',
+                        position: 'absolute',
+                        top: !isXsScreen && '10%',
+                        left: !isXsScreen && '5%',
+                        bottom: isXsScreen && '-10%',
+                        zIndex: '2',
+                        paddingLeft: '0px',
+                      }}
+                    />
+                    <PlaylistCard 
+                      userPlaylist={userPlaylist}
+                      onAddToCurrentPlaylist={onAddToCurrentPlaylist}
+                      index={index}
+                      classes={classes}
+                      isXsScreen={isXsScreen}
+                    />
+                  </li>
+                </Box>
+              )
+            }
+          )}
         </ul>
       </Card>
     </Box>

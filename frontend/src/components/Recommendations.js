@@ -24,6 +24,7 @@ const Recommendation = ({
   onAddToCurrentPlaylist,
   onRemoveFromCurrentPlaylistById,
   user,
+  isXsScreen,
 }) => {
     const navigate = useNavigate();
     const recommendationInPlaylist = currentPlaylist.some(track => track.spotify_id === recommendation.id);
@@ -68,8 +69,8 @@ const Recommendation = ({
         />
         <iframe
           src={`https://open.spotify.com/embed/track/${recommendation.id}?utm_source=generator`}
-          width='100%'
           height="100%"
+          width={isXsScreen ? "65%" : '100%'}
           frameBorder="0"
           allowFullScreen=""
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -117,6 +118,7 @@ const Recommendations = ({
   onAddToCurrentPlaylist,
   onRemoveFromCurrentPlaylistById,
   setIsModalOpen,
+  isXsScreen,
 }) => {
   const [songsToAdd, setSongsToAdd] = useState([]);
   const [visibleRecommendations, setVisibleRecommendations] = useState(recommendations.length); 
@@ -175,7 +177,7 @@ const Recommendations = ({
         <Box 
           display='flex' 
           justifyContent='space-around' 
-          width='100%'
+          width={isXsScreen ? '110%' : '100%'}
         >
           <Tooltip
             title={
@@ -196,9 +198,13 @@ const Recommendations = ({
             <Button onClick={handleSelectAll}>
               <Typography 
                 color='white' 
-                variant='subtitle1'
+                variant={isXsScreen ? 'caption' : 'subtitle1'}
               >
-                {songsToAdd.length === 0 ? 'Select All' : 'Deselect'}
+                {songsToAdd.length === 0 && !isXsScreen ? 
+                  'Select All' :
+                  songsToAdd.length === 0 && isXsScreen ?
+                  'Select' :
+                  'Deselect'}
               </Typography>
             </Button>
           </Tooltip>
@@ -222,17 +228,20 @@ const Recommendations = ({
               <Button 
                 onClick={handleSaveRequestParameters} 
                 sx={{ 
-                  marginRight: '8%',
+                  marginRight: !isXsScreen ? '8%' : '0',
                   width: '50%' 
                 }}
               >
-                <VisibilityIcon style={{ color: theme.palette.primary.analogous1 }} />
+                <VisibilityIcon 
+                  fontSize={isXsScreen ? 'small' : 'medium'}
+                  style={{ color: theme.palette.primary.analogous1 }} 
+                />
                 <Typography 
                   color='white' 
-                  variant='subtitle1'
+                  variant={isXsScreen ? 'caption' : 'subtitle1'}
                   paddingLeft='3%'
                 >
-                  {'View Request'}
+                  {isXsScreen ? 'Request' : 'View Request'}
                 </Typography>
               </Button>
             </Tooltip>)
@@ -253,9 +262,9 @@ const Recommendations = ({
               </div>
             }
           >
-            <Button onClick={handleBulkAdd}>
+            <Button onClick={handleBulkAdd} sx={{ p: 0 }}>
               <PlaylistAddIcon 
-                fontSize='large' 
+                fontSize={isXsScreen ? 'medium' : 'large' }
                 style={{ color: theme.palette.primary.white }}
               />
             </Button>
@@ -287,6 +296,7 @@ const Recommendations = ({
                 onAddToCurrentPlaylist={onAddToCurrentPlaylist}
                 onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
                 user={user}
+                isXsScreen={isXsScreen}
               />
           ))}
         </div>

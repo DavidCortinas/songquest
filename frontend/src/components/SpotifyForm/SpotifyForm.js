@@ -294,13 +294,15 @@ const SpotifyForm = ({
       >
         <form className={classes.form} onSubmit={handleFormSubmit}>
           <CardHeader
-            title={"Discover New Music, Customize Playlists, and Share Unique Finds"}
+            title={"Unearth New Music, Find Hidden Gems, and Build Your Collection"}
             // title={"🎵 Discover New Music, Customize Playlists, and Share Unique Finds 🎶"}
             titleTypographyProps={{
               width: '100%',
-              variant: isSmScreen || isXsScreen
-                ? 'h6'
-                : 'h5',
+              variant: isXsScreen ?
+                'subtitle1' :
+                isSmScreen ? 
+                'h6' : 
+                'h5',
               textAlign: 'center',
               color: 'white',
               letterSpacing: '1px',
@@ -309,9 +311,11 @@ const SpotifyForm = ({
             //   "Begin your journey by selecting the AI model you would like to copilot your quest"}
             subheaderTypographyProps={{
               width: '100%',
-              variant: isXlScreen || isLgScreen
-                ? 'body1'
-                : 'body2',
+              variant: isXsScreen ?
+                'caption' :
+                isSmScreen ? 
+                'body2' :
+                'body1',
               textAlign: 'center',
               color: theme.palette.primary.triadic2,
             }} 
@@ -370,11 +374,11 @@ const SpotifyForm = ({
                                         fontSize='small' 
                                       />
                                       <Typography  
-                                        variant='subtitle2' 
+                                        variant={isXsScreen ? 'body2' : 'subtitle2' }
                                         color='white'
                                         letterSpacing='1px'
                                         sx={{
-                                          fontWeight: 'bold',
+                                          fontWeight: isXsScreen ? 'normal' : 'bold',
                                           cursor: 'pointer',
                                         }}
                                       >
@@ -447,6 +451,9 @@ const SpotifyForm = ({
                                               '& .MuiChip-deleteIcon': {
                                                 color: 'white',
                                               },
+                                              height: isXsScreen ? '24px' : null,
+                                              fontSize: isXsScreen ? '0.75rem' : null,
+                                              padding: isXsScreen ? '0' : null,
                                               marginLeft: index === 0 ? '8px' : '0px',
                                             }}
                                             label={toCapitalCase(value)}
@@ -521,63 +528,72 @@ const SpotifyForm = ({
                       </Box>
                     ) : null;
                   })}
-                <Tooltip
-                    arrow
-                    title={
-                      <div
-                        style={{
-                          maxHeight: '25vh',
-                          overflowY: 'auto',
-                          padding: '8px',
-                          borderRadius: '8px',
-                        }}
-                      > 
-                        <Typography variant='body2' letterSpacing='1px'>
-                          {'Adjust your discovery settings'}
-                        </Typography>
-                      </div>
-                    }
-                >
+                  <Tooltip
+                      arrow
+                      title={
+                        <div
+                          style={{
+                            maxHeight: '25vh',
+                            overflowY: 'auto',
+                            padding: '8px',
+                            borderRadius: '8px',
+                          }}
+                        > 
+                          <Typography variant='body2' letterSpacing='1px'>
+                            {'Adjust your discovery settings'}
+                          </Typography>
+                        </div>
+                      }
+                  >
                     <Button 
-                      sx={{ 
+                      sx={{
+                          alignSelf: 'center', 
                           color: 'white', 
                           borderRadius: '18px',
                           background: `rgb(121, 44, 216, 0.3)`,
-                          height: '55px',
+                          height: isXsScreen ? '50px' : '55px',
                           border: `2px solid ${theme.palette.primary.triadic1}`,
                           boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
                           textTransform: 'none',
                           display: 'flex',
                           justifyContent: 'space-between',
+                          padding: '2%',
+                          width: (isLgScreen || isXlScreen) ? '66%' : '100%',
                           '&:hover, &:active, &.MuiFocusVisible': {
                             border: `2px solid ${theme.palette.primary.triadic1}`,
                             background: `rgb(121, 44, 216, 0.5)`,
                             boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
                           },
                       }} 
-                      fullWidth
+                      // fullWidth
                       variant='outlined'
                       onClick={() => setOpenModal(true)}
                       disableRipple
                     >
-                    <Typography letterSpacing='1px'>
-                      Fine Tune Your Recommendations
-                    </Typography>
-                    <Typography 
-                      color={'#f6f8fc'} 
-                      variant='caption' 
-                      textAlign='end'
-                      letterSpacing='1px'
-                    >
-                      {
-                        isXsScreen || isSmScreen ? 
-                        "* activate parameters and set the min, target, and max values" : 
-                        "* activate additional parameters and set the min, target, and max values to refine your recommendations"
-                      }
-                    </Typography>
-                    <SettingsSuggestIcon />
+                      <Typography letterSpacing='1px' variant={isXsScreen ? 'body2' : "body1"}>
+                        Fine Tune Your Recommendations
+                      </Typography>
+                      <Typography 
+                        color={'#f6f8fc'} 
+                        variant='caption' 
+                        textAlign='end'
+                        letterSpacing='1px'
+                        sx={{
+                          ...(isXsScreen && {
+                            fontSize: '0.675rem', // Example of making the font size smaller for xs screens
+                            // Add any other style adjustments here
+                          })
+                        }}
+                      >
+                        {
+                          isXsScreen || isSmScreen ? 
+                          "* activate parameters and set the min, target, and max values" : 
+                          "* activate additional parameters and set the min, target, and max values to refine your recommendations"
+                        }
+                      </Typography>
+                      <SettingsSuggestIcon />
                     </Button>
-                </Tooltip>
+                  </Tooltip>
                   <Box className={classes.modal}>
                     <SliderModal
                       autocompleteParam={autocompleteParam}

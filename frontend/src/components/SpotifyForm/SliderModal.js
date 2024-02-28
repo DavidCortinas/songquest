@@ -41,20 +41,18 @@ const SliderModal = ({
             p: 4,
           }}
         >
-            <Grid container columns={20} paddingBottom='15px'>
-              {isMdScreen || isLgScreen || isXlScreen ?
+            <Grid container columns={20} spacing={2} paddingBottom='15px'>
+              {!(isSmScreen || isXsScreen) && 
                 (
                   <Grid item xs={4}>
                     <Typography>Fine Tuning Parameters</Typography>
                   </Grid>
-                ) : (
-                  <Grid item xs={1}></Grid>
                 )
               }
               <Grid item xs={
                 isMdScreen || isLgScreen || isXlScreen ?
                 16 :
-                19
+                20
               }> 
                 <Box 
                   display='flex' 

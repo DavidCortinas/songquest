@@ -4,6 +4,7 @@ import {
     MenuItem, 
     Select 
 } from "@mui/material";
+import theme from "theme";
 
 export const SearchParameter = ({ 
     parameter, 
@@ -21,6 +22,9 @@ export const SearchParameter = ({
               sx={{
                 '.MuiInputBase-input': { 
                   color: 'white',
+                  [theme.breakpoints.down('sm')]: {
+                    padding: '3% 2%',
+                  }
                 },
               }}
               MenuProps={{

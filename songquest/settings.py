@@ -22,7 +22,7 @@ DATABASES = {
         'USER': 'david',
         'PASSWORD': 'tootall33',
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': '5432',
     }
 }
 # DATABASES = {
