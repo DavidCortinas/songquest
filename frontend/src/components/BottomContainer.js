@@ -1,17 +1,22 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
+import theme from "theme";
 
 export const BottomContainer = () => {
+  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+
   return (
     <Box
       sx={{
         backgroundColor: 'transparent',
         display: 'flex',
-        flexDirection: 'column', // Display in a column layout
-        alignItems: 'flex-end', // Align items to the right
+        flexDirection: 'column', 
+        alignItems: (isXsScreen || isSmScreen || isMdScreen) ? 'flex-start' : 'flex-end',
         padding: '3% 6% 5%',
       }}
     >
-      <Box sx={{ textAlign: 'right' }}>
+      <Box sx={{ textAlign: (isXsScreen || isSmScreen || isMdScreen) ? 'left' : 'right' }}>
         <Typography
           style={{
             fontSize: '28px',

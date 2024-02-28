@@ -5,7 +5,8 @@ import {
     Checkbox, 
     TextField, 
     Tooltip, 
-    Typography
+    Typography,
+    useMediaQuery
 } from "@mui/material";
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircleIcon from '@mui/icons-material/Circle';
@@ -137,6 +138,12 @@ const CreatePlaylist = ({
   playlistName,
   onRemoveFromCurrentPlaylistById,
 }) => {
+  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+
   const isPlaylistItemChecked = (item) => {
     return songsToRemove.some(song => song === item.id);
   };
@@ -258,7 +265,7 @@ const CreatePlaylist = ({
                     paddingRight: '2%'
                   }}
                 />
-                <Typography variant='body2' letterSpacing='1px'>
+                <Typography variant={(isLgScreen || isXlScreen) ? 'body2' : 'caption'} letterSpacing='1px'>
                   {'Create'}
                 </Typography>
               </Box>

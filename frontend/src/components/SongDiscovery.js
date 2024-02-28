@@ -31,6 +31,9 @@ const useStyles = makeStyles((theme) => (
   {
     root: {
       padding: '15px 0 5px',
+      [theme.breakpoints.down('md')]: {
+        padding: '0px',
+      }
     },
     paper: {
       marginTop: '1vh',
@@ -79,6 +82,12 @@ const useStyles = makeStyles((theme) => (
           background: 'rgba(48, 130, 164, 0.15)',
           boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
       },
+      [theme.breakpoints.down('lg')]: {
+        width: '25vw',
+      },
+      [theme.breakpoints.down('sm')]: {
+        width: '50vw',
+      },
     },
     buttonWithMargin: {
       margin: '4%',
@@ -117,9 +126,8 @@ const useStyles = makeStyles((theme) => (
       scrollbarDarkShadowColor: 'transparent',
     },
     textField: {
-      marginLeft: '8px',
       width: '66%',
-      [theme.breakpoints.down('md')]: {
+      [theme.breakpoints.down('lg')]: {
         width: '100%',
       },
       backgroundColor: '#30313d',
@@ -128,6 +136,9 @@ const useStyles = makeStyles((theme) => (
     },
     resultsField: {
       width: '15%',
+      [theme.breakpoints.down('lg')]: {
+        width: '25%',
+      },
       [theme.breakpoints.down('md')]: {
         width: '100%',
       },
@@ -141,10 +152,13 @@ const useStyles = makeStyles((theme) => (
       borderRadius: '8px',
       boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
       margin: '0 10px 0 0',
+      [theme.breakpoints.down('lg')]: {
+        width: '75%',
+      },
       [theme.breakpoints.down('md')]: {
         width: '100%',
         paddingRight: '0',
-        margin: '0 0 1em'
+        margin: '1vh'
       },
     },
     secondaryField: {
@@ -246,9 +260,168 @@ const useStyles = makeStyles((theme) => (
       [theme.breakpoints.down('md')]: {
         flexDirection: 'column',
       },
+      [theme.breakpoints.down('sm')]: {
+        marginLeft: '-10px'
+      }
     }
   }
 ));
+
+const MobileResults = ({
+  selectedPlaylistOption,
+  setSelectedPlaylistOption,
+  handleSelectUseTokens,
+  discoveryRecommendations,
+  classes,
+  user,
+  currentPlaylist,
+  onRemoveFromCurrentPlaylistById,
+  setIsModalOpen,
+  isLoading,
+  showTracks,
+  handleExploreMoreClick,
+  isXsScreen,
+  isSmScreen,
+  isMdScreen,
+  isLgScreen,
+  isXlScreen,
+}) => {
+  const [showPlaylists, setShowPlaylists] = useState(true);
+  
+  return (
+    <Box
+      display='flex'
+      flexDirection='row'
+      justifyContent='center'
+      width='100%'
+      id='resultsBox'
+    >
+      {showPlaylists ? (
+        <LeftPanel 
+          selectedPlaylistOption={selectedPlaylistOption}
+          setSelectedPlaylistOption={setSelectedPlaylistOption}
+          handleSelectUseTokens={handleSelectUseTokens}
+          isMdScreen={isMdScreen}
+          isSmScreen={isSmScreen}
+          isXsScreen={isXsScreen}
+        />
+      ) : (
+        <RightPanel 
+          currentPlaylist={currentPlaylist}
+          onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+          selectedPlaylistOption={selectedPlaylistOption}
+          setSelectedPlaylistOption={setSelectedPlaylistOption}
+          handleSelectUseTokens={handleSelectUseTokens}
+          handleExploreMoreClick={handleExploreMoreClick}
+        />
+      )}
+      <Box backgroundColor='transparent' width='65%'>
+        {isLoading && (
+          <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              id='loadingState'
+            >
+              <CardHeader
+                title="Loading Results"
+                titleTypographyProps={{ color: 'black' }}
+                subheaderTypographyProps={{ color: '#3d3d3d' }}
+              />
+            </Box>
+            <LoadingState />
+          </Box>
+        )}
+        {showTracks ? (
+          <Box  width='100%' justifyContent='space-between'>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Recommendations 
+                classes={classes} 
+                recommendations={discoveryRecommendations}
+                user={user}
+                currentPlaylist={currentPlaylist}
+                onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+                setIsModalOpen={setIsModalOpen}
+                isXsScreen={isXsScreen}
+              />
+            </Suspense>
+          </Box>    
+        ) : !isLoading && (
+            user?.user ? (
+              <Box 
+                display='flex'
+                flexDirection='column'
+                justifyContent='center'
+                alignItems='center'
+              >
+                <Typography 
+                  color='white' 
+                  textAlign='center' 
+                  variant='h4'
+                  letterSpacing='1px'
+                  padding='5% 0 0'
+                  width='80%'
+                >
+                  What kind of music are you in the mood for today?
+                </Typography>
+                <Typography 
+                  color='white' 
+                  // textAlign='center' 
+                  variant='subtitle1'
+                  letterSpacing='1px'
+                  padding='5% 3% 0'
+                >
+                  Start discovering new music now. Simply choose from the songs,
+                  artists, and genres that inspire you and start discovering related music.
+                </Typography>
+                <Typography 
+                  color='white' 
+                  // textAlign='center' 
+                  variant='subtitle1'
+                  letterSpacing='1px'
+                  padding='5% 3% 0'
+                >
+                  Adjust your search by clicking on "Fine Tune Your Recommendations" 
+                  to enable and configure fine-tuning parameters. This allows you to 
+                  personalize your results and find music that precisely matches your 
+                  preferences.
+                </Typography>
+                <Button 
+                  className={`${classes.button} ${classes.buttonWithMargin}`} 
+                  onClick={() => handleExploreMoreClick()}
+                  variant='contained'
+                >
+                  <Typography
+                    variant='subtitle1' 
+                    color='white'
+                    letterSpacing='1px'
+                    sx={{
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Get Started On Your Journey
+                  </Typography>
+                  <Typography variant='h5' paddingLeft='2%'>
+                    🚀
+                  </Typography>
+                </Button>
+              </Box>
+            ) : (
+              <Body 
+                isSmScreen={isSmScreen} 
+                isXsScreen={isXsScreen}
+                isMdScreen={isMdScreen}
+                isLgScreen={isLgScreen} 
+                isXlScreen={isXlScreen} 
+              />
+            )
+        )}
+      </Box>
+    </Box>
+  )
+}
 
 export const SongDiscovery = ({ 
     recommendations, 
@@ -382,130 +555,156 @@ const handleExploreMoreClick = () => {
         setIsLoading={setIsLoading}
         user={user}
       />
-      <Box
-        display='flex'
-        flexDirection='row'
-        justifyContent='center'
-        width='100%'
-        id='resultsBox'
-      >
-        <LeftPanel 
+      {!(isSmScreen || isXsScreen || isMdScreen) ? (
+        <Box
+          display='flex'
+          flexDirection='row'
+          justifyContent='center'
+          width='100%'
+          id='resultsBox'
+        >
+          <LeftPanel 
+            selectedPlaylistOption={selectedPlaylistOption}
+            setSelectedPlaylistOption={setSelectedPlaylistOption}
+            handleSelectUseTokens={handleSelectUseTokens}
+            isMdScreen={isMdScreen}
+            isSmScreen={isSmScreen}
+            isXsScreen={isXsScreen}
+          />
+          <Box backgroundColor='transparent' width='53%'>
+            {isLoading && (
+              <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  id='loadingState'
+                >
+                  <CardHeader
+                    title="Loading Results"
+                    titleTypographyProps={{ color: 'black' }}
+                    subheaderTypographyProps={{ color: '#3d3d3d' }}
+                  />
+                </Box>
+                <LoadingState />
+              </Box>
+            )}
+            {showTracks ? (
+              <Box  width='100%' justifyContent='space-between'>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Recommendations 
+                    classes={classes} 
+                    recommendations={discoveryRecommendations}
+                    user={user}
+                    currentPlaylist={currentPlaylist}
+                    onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+                    setIsModalOpen={setIsModalOpen}
+                    isXsScreen={isXsScreen}
+                  />
+                </Suspense>
+              </Box>    
+            ) : !isLoading && (
+                user?.user ? (
+                  <Box 
+                    display='flex'
+                    flexDirection='column'
+                    justifyContent='center'
+                    alignItems='center'
+                  >
+                    <Typography 
+                      color='white' 
+                      textAlign='center' 
+                      variant='h4'
+                      letterSpacing='1px'
+                      padding='5% 0 0'
+                      width='80%'
+                    >
+                      What kind of music are you in the mood for today?
+                    </Typography>
+                    <Typography 
+                      color='white' 
+                      // textAlign='center' 
+                      variant='subtitle1'
+                      letterSpacing='1px'
+                      padding='5% 3% 0'
+                    >
+                      Start discovering new music now. Simply choose from the songs,
+                      artists, and genres that inspire you and start discovering related music.
+                    </Typography>
+                    <Typography 
+                      color='white' 
+                      // textAlign='center' 
+                      variant='subtitle1'
+                      letterSpacing='1px'
+                      padding='5% 3% 0'
+                    >
+                      Adjust your search by clicking on "Fine Tune Your Recommendations" 
+                      to enable and configure fine-tuning parameters. This allows you to 
+                      personalize your results and find music that precisely matches your 
+                      preferences.
+                    </Typography>
+                    <Button 
+                      className={`${classes.button} ${classes.buttonWithMargin}`} 
+                      onClick={() => handleExploreMoreClick()}
+                      variant='contained'
+                    >
+                      <Typography
+                        variant='subtitle1' 
+                        color='white'
+                        letterSpacing='1px'
+                        sx={{
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Get Started On Your Journey
+                      </Typography>
+                      <Typography variant='h5' paddingLeft='2%'>
+                        🚀
+                      </Typography>
+                    </Button>
+                  </Box>
+                ) : (
+                  <Body 
+                    isSmScreen={isSmScreen} 
+                    isXsScreen={isXsScreen}
+                    isMdScreen={isMdScreen}
+                    isLgScreen={isLgScreen} 
+                    isXlScreen={isXlScreen} 
+                  />
+                )
+            )}
+          </Box>
+          <RightPanel 
+            currentPlaylist={currentPlaylist}
+            onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+            selectedPlaylistOption={selectedPlaylistOption}
+            setSelectedPlaylistOption={setSelectedPlaylistOption}
+            handleSelectUseTokens={handleSelectUseTokens}
+            handleExploreMoreClick={handleExploreMoreClick}
+          />
+        </Box>
+      ) : (
+        <MobileResults 
           selectedPlaylistOption={selectedPlaylistOption}
           setSelectedPlaylistOption={setSelectedPlaylistOption}
           handleSelectUseTokens={handleSelectUseTokens}
-        />
-        <Box backgroundColor='transparent' width='53%'>
-          {isLoading && (
-            <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                id='loadingState'
-              >
-                <CardHeader
-                  title="Loading Results"
-                  titleTypographyProps={{ color: 'black' }}
-                  subheaderTypographyProps={{ color: '#3d3d3d' }}
-                />
-              </Box>
-              <LoadingState />
-            </Box>
-          )}
-          {showTracks ? (
-            <Box  width='100%' justifyContent='space-between'>
-              <Suspense fallback={<div>Loading...</div>}>
-                <Recommendations 
-                  classes={classes} 
-                  recommendations={discoveryRecommendations}
-                  user={user}
-                  currentPlaylist={currentPlaylist}
-                  onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-                  setIsModalOpen={setIsModalOpen}
-                />
-              </Suspense>
-            </Box>    
-          ) : !isLoading && (
-              user?.user ? (
-                <Box 
-                  display='flex'
-                  flexDirection='column'
-                  justifyContent='center'
-                  alignItems='center'
-                >
-                  <Typography 
-                    color='white' 
-                    textAlign='center' 
-                    variant='h4'
-                    letterSpacing='1px'
-                    padding='5% 0 0'
-                    width='80%'
-                  >
-                    What kind of music are you in the mood for today?
-                  </Typography>
-                  <Typography 
-                    color='white' 
-                    // textAlign='center' 
-                    variant='subtitle1'
-                    letterSpacing='1px'
-                    padding='5% 3% 0'
-                  >
-                    Start discovering new music now. Simply choose from the songs,
-                    artists, and genres that inspire you and start discovering related music.
-                  </Typography>
-                  <Typography 
-                    color='white' 
-                    // textAlign='center' 
-                    variant='subtitle1'
-                    letterSpacing='1px'
-                    padding='5% 3% 0'
-                  >
-                    Adjust your search by clicking on "Fine Tune Your Recommendations" 
-                    to enable and configure fine-tuning parameters. This allows you to 
-                    personalize your results and find music that precisely matches your 
-                    preferences.
-                  </Typography>
-                  <Button 
-                    className={`${classes.button} ${classes.buttonWithMargin}`} 
-                    onClick={() => handleExploreMoreClick()}
-                    variant='contained'
-                  >
-                    <Typography
-                      variant='subtitle1' 
-                      color='white'
-                      letterSpacing='1px'
-                      sx={{
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Get Started On Your Journey
-                    </Typography>
-                    <Typography variant='h5' paddingLeft='2%'>
-                      🚀
-                    </Typography>
-                  </Button>
-                </Box>
-              ) : (
-                <Body 
-                  isSmScreen={isSmScreen} 
-                  isXsScreen={isXsScreen}
-                  isMdScreen={isMdScreen}
-                  isLgScreen={isLgScreen} 
-                  isXlScreen={isXlScreen} 
-                />
-              )
-          )}
-        </Box>
-        <RightPanel 
+          discoveryRecommendations={discoveryRecommendations}
+          classes={classes}
+          user={user}
           currentPlaylist={currentPlaylist}
           onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-          selectedPlaylistOption={selectedPlaylistOption}
-          setSelectedPlaylistOption={setSelectedPlaylistOption}
-          handleSelectUseTokens={handleSelectUseTokens}
+          setIsModalOpen={setIsModalOpen}
+          isLoading={isLoading}
+          showTracks={showTracks}
           handleExploreMoreClick={handleExploreMoreClick}
+          isXsScreen={isXsScreen}
+          isSmScreen={isSmScreen}
+          isMdScreen={isMdScreen}
+          isLgScreen={isLgScreen}
+          isXlScreen={isXlScreen}
         />
-      </Box>
+      )}
       <SaveQueryModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

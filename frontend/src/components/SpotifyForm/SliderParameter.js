@@ -246,9 +246,10 @@ export const SliderParameter = ({
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: (isSmScreen || isXsScreen) ? 'row' : 'column',
+          justifyContent: (isSmScreen || isXsScreen) && 'space-between',
           alignItems: 'center',
-          marginRight: 2,
+          marginRight: !(isSmScreen || isXsScreen) && 2,
         }}
       >
         <FormControlLabel 
@@ -347,7 +348,7 @@ export const SliderParameter = ({
           { 
             width: '70%',
             opacity: '0.7',
-            color: '#d96cb1', // This changes the thumb color and the color of the track before the thumb
+            color: '#d96cb1',
               '& .MuiSlider-track': {
                 background: 'linear-gradient(to right, #28bfe2, #2c8bd8, #d96cb1)'
               },
@@ -361,12 +362,12 @@ export const SliderParameter = ({
             width: '90%',
             alignSelf: 'flex-end',
             opacity: '0.7',
-            color: '#d96cb1', // This changes the thumb color and the color of the track before the thumb
+            color: '#d96cb1', 
               '& .MuiSlider-track': {
-                backgroundColor: 'pink', // Change 'desiredColor' to the color you want for the track
+                background: 'linear-gradient(to right, #28bfe2, #2c8bd8, #d96cb1)'
               },
               '& .MuiSlider-rail': {
-                backgroundColor: 'pink', // Optional: Change 'railColor' to style the rail if needed
+                background: 'linear-gradient(to right, #28bfe2, #2c8bd8, #d96cb1)'
               },
               '& .MuiSlider-markLabel': {
                 color: 'white',

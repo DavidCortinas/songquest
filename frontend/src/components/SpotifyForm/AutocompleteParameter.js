@@ -8,6 +8,7 @@ import {
     getSpotifySearchResult 
 } from "../../thunks";
 import { Autocomplete, Box, TextField } from "@mui/material";
+import theme from "theme";
 
 const root = {
   "& .MuiAutocomplete-option[data-focus='true']": {
@@ -246,6 +247,7 @@ const AutocompleteParameter = ({
                 color: 'white',
                 '& .MuiInputBase-input': {
                   color: 'white',
+                  fontSize: '0.875rem'
                 },
               },
             }}

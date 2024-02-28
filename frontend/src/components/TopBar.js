@@ -49,7 +49,7 @@ export const TopBar = ({
     <Box
       display="flex"
       justifyContent="space-between"
-      p={2}
+      p={(isXsScreen || isSmScreen) ? 1 : 2}
       id='topBar'
     >
       <Box
@@ -71,11 +71,11 @@ export const TopBar = ({
             src={'static/images/sq-logo-2.png'}
             alt="Logo"
             style={{ 
-              width: '13%',
-              paddingRight: '15px'
+              width: (isXsScreen || isSmScreen) ? '10%' : '13%',
+              paddingRight: (isXsScreen || isSmScreen) ? '2%' : '15px',
            }}
           />
-          <Typography variant="h5" component="div" color='white' letterSpacing='2px'>
+          <Typography variant={(isXsScreen || isSmScreen) ? "h6" : "h5"} component="div" color='white' letterSpacing='2px'>
             SongQuest
           </Typography>
         </Link>

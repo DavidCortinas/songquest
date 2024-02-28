@@ -20,6 +20,9 @@ const useStyles = makeStyles(() => (
             scrollbarHighlightColor: 'transparent',
             scrollbarShadowColor: 'transparent',
             scrollbarDarkShadowColor: 'transparent',
+            [theme.breakpoints.down('lg')]: {
+                width: '30vw',
+            }
         },
         button: {
             color: 'white',
@@ -54,6 +57,9 @@ const useStyles = makeStyles(() => (
         panelCard: {
             display: 'flex', 
             width: '18vw',
+            [theme.breakpoints.down('sm')]: {
+                width: '30vw',
+            },
             minHeight: 'fit-content', 
             padding: '5% 0',
             alignItems: 'center',
