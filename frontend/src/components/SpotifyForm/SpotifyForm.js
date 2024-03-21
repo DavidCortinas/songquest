@@ -1,4 +1,5 @@
 import { 
+  Backdrop,
   Box, 
   Button, 
   Card, 
@@ -17,10 +18,11 @@ import {
 import CancelIcon from '@mui/icons-material/Cancel';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { SpotifyAuth, discoverSongRequest, getRequestParameters, getSpotifyArtists, getSpotifyTracks } from "../../thunks";
 import theme from "theme";
 import { SearchParameter } from "./SearchParameter";
-import { lazy, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { clearSeedsArray, resetDataLoaded, resetQueryParameter, setQueryParameter } from "actions";
 import { startTransition } from "react";
@@ -64,6 +66,8 @@ const SpotifyForm = ({
   query,
   savedQueries,
   user,
+  openDemoModal,
+  setOpenDemoModal,
   onSearchPressed,
   onClearSeedsArray,
   onSetQueryParameter,
@@ -177,13 +181,19 @@ const SpotifyForm = ({
   const { handleSubmit } = useForm();
 
   const onSubmit = () => {
+    console.log('submit')
     setIsLoading(true);
-    setLocalSelectedOptions({
-      songs: [],
-      performers: [],
-      genres: [],
-      markets: [],
-    });
+    if (!user?.user) {
+      setOpenDemoModal(false);
+    } else {
+      setLocalSelectedOptions({
+        songs: [],
+        performers: [],
+        genres: [],
+        markets: [],
+      });
+    };
+    console.log(parameters)
     startTransition(() => {
       onSearchPressed(parameters)
       .then(() => {
@@ -217,17 +227,69 @@ const SpotifyForm = ({
 
   const dispatch = useDispatch();
 
+  const fetchData = async (ids, actionCreator) => {
+    try {
+      const data = await dispatch(actionCreator(user?.user.id, ids));
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching Spotify data:', error.message);
+      return [];
+    }
+  };
+
+  
+  useEffect(() => {
+    if (!user?.user) {
+      setLocalSelectedOptions({
+        limit: savedQueries.initialQuery.limit,
+        songs: savedQueries.initialQuery.songs.map(song => song.label),
+        performers: savedQueries.initialQuery.performers.map(performer => performer.label),
+        genres: savedQueries.initialQuery.genres,
+        market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
+      });
+
+      setTargetParamValues({
+        limit: savedQueries.initialQuery.limit,
+        songs: savedQueries.initialQuery.songs.map(song => song.label),
+        performers: savedQueries.initialQuery.performers.map(performer => performer.label),
+        genres: savedQueries.initialQuery.genres,
+        market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
+      });
+
+      setParameters((prevParameters) => ({
+        ...prevParameters,
+        limit: savedQueries.initialQuery.limit,
+        songs: savedQueries.initialQuery.songs.map(song => song.id),
+        performers: savedQueries.initialQuery.performers.map(performer => performer.id),
+        genres: savedQueries.initialQuery.genres,
+        market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
+      }));
+
+      Object.keys(savedQueries.initialQuery).forEach((param) => {
+        const paramValue = savedQueries.initialQuery[param];
+
+        if (paramValue && typeof paramValue === 'object' && 'min' in paramValue) {
+          const { min, target, max, label } = paramValue;
+          const mappedLabel = labelMapping[param] || param;
+
+          setParameters((prevParameters) => ({
+            ...prevParameters,
+            [param]: {
+              min: min,
+              target: target,
+              max: max,
+              label: mappedLabel,
+            },
+          }));
+
+          onSetQueryParameter(savedQueries.initialQuery, param, [min, target, max]);
+        }
+      });
+    }
+  }, []);
+
   const handleSelectSavedQuery = async (savedQuery) => {
     handleCloseMenu();
-    const fetchData = async (ids, actionCreator) => {
-      try {
-        const data = await dispatch(actionCreator(user?.user.id, ids));
-        return data || [];
-      } catch (error) {
-        console.error('Error fetching Spotify data:', error.message);
-        return [];
-      }
-    };
 
     const fetchedTracks = await fetchData(savedQuery.query.songs, getSpotifyTracks);
     const formattedTracks = fetchedTracks.map(track => `${track.name} - ${track.artists[0].name}`);
@@ -486,7 +548,8 @@ const SpotifyForm = ({
                                   "body1"
                                 }
                               >
-                                {Object.values(targetParamValues).every(arr => arr.length === 0)
+                                {!user?.user ?
+                                  'Register to Unlock the Ability to Customize Your Quest and More!' : Object.values(targetParamValues).every(arr => arr.length === 0)
                                   ? `Choose Up to 5 Recommendation Sources`
                                   : Object.values(targetParamValues).every(arr => arr.length < 5)
                                     ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
@@ -521,6 +584,7 @@ const SpotifyForm = ({
                                   onSelectedOptions={handleSelectedOptions}
                                   localSelectedOptions={localSelectedOptions}
                                   setLocalSelectedOptions={setLocalSelectedOptions}
+                                  user={user}
                                 />
                               </Box>
                             )}
@@ -616,56 +680,106 @@ const SpotifyForm = ({
             }}
           </SpotifyAuth>
           <Grid className={classes.buttonsContainer}>
-            <Tooltip
-              title={
-                <div
-                  style={{
-                    maxHeight: '25vh',
-                    overflowY: 'auto',
-                    padding: '8px',
-                    borderRadius: '8px',
+            <Backdrop 
+              open={openDemoModal}
+              onClick={() => setOpenDemoModal(false)}
+            />
+            <div style={{ position: 'relative' }}>
+              <Tooltip
+                title={
+                  <div
+                    style={{
+                      maxHeight: '25vh',
+                      overflowY: 'auto',
+                      padding: '8px',
+                      borderRadius: '8px',
+                    }}
+                  > 
+                    <Typography variant='body2' letterSpacing='1px'>
+                      {'Discover New Music'}
+                    </Typography>
+                  </div>
+                }
+                arrow
+              >
+                <Button
+                  type="submit"
+                  variant='contained'
+                  onClick={handleSubmit(onSubmit)}
+                  className={`${classes.button} ${openDemoModal ? classes.highlightedButton : ''}`}
+                  sx={(isSmScreen || isXsScreen) && {
+                    typography: {
+                      fontSize: '12px'
+                    }
                   }}
-                > 
-                  <Typography variant='body2' letterSpacing='1px'>
-                    {'Discover New Music'}
-                  </Typography>
-                </div>
-              }
-              arrow
-              >
-              <Button
-                type="submit"
-                variant='contained'
-                onClick={handleSubmit(onSubmit)}
-                className={classes.button}
-              >
-                {user?.user ? 'Discover' : 'Try For Free'}
-              </Button>         
-            </Tooltip>
-            <Tooltip
-              title={
-                <div
-                  style={{
-                    maxHeight: '25vh',
-                    overflowY: 'auto',
-                    padding: '8px',
-                    borderRadius: '8px',
-                  }}
-                > 
-                  <Typography variant='body2' letterSpacing='1px'>
-                    {'Reset discovery parameters'}
-                  </Typography>
-                </div>
-              }
-              arrow
-              >
-              <Button
-                onClick={handleReset}
-                style={{ color: 'white', backgroundColor: 'transparent' }}
                 >
-                Reset
-              </Button>
-            </Tooltip>
+                  {user?.user ? 'Discover' : 'Test Search'}
+                </Button>         
+              </Tooltip>
+              {openDemoModal && (
+                <Box
+                    style={{ 
+                      position: 'absolute', 
+                      top: '80%', right: '70%' 
+                    }}
+                    width='100%'
+                    display='flex'
+                    flexDirection='column'
+                    alignItems='flex-start'
+                >
+                  <Box
+                    display='flex'
+                    alignItems='flex-end'
+                  >
+                    <Typography 
+                      color={theme.palette.primary.white}
+                      variant="caption1"
+                    >
+                      Click Here!
+                    </Typography>
+                    <NorthEastIcon 
+                      sx={{ 
+                        color: theme.palette.primary.white,
+                        paddingBottom: '3%', 
+                      }}
+                    />
+                  </Box>
+                    <Typography 
+                      color={theme.palette.primary.whitesmoke}
+                      variant="caption"
+                      paddingTop='5%'
+                    >
+                      Or anywhere else on the screen to exit...
+                    </Typography>                  
+                </Box>
+              )}
+            </div>
+            {user?.user && (
+              <Tooltip
+                title={
+                  <div
+                    style={{
+                      maxHeight: '25vh',
+                      overflowY: 'auto',
+                      padding: '8px',
+                      borderRadius: '8px',
+                    }}
+                  > 
+                    <Typography variant='body2' letterSpacing='1px'>
+                      {'Reset discovery parameters'}
+                    </Typography>
+                  </div>
+                }
+                arrow
+              >
+                <Button
+                  onClick={handleReset}
+                  style={{ color: 'white', backgroundColor: 'transparent' }}
+                >
+                  Reset
+                </Button>
+              </Tooltip>
+            )}
           </Grid>
           <br />
         </form>

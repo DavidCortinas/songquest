@@ -8,18 +8,15 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { 
-  confirmSpotifyAccess,  
+import {  
   removeFromCurrentPlaylistById,
 } from '../actions';
 import '../App.css';
 import theme from '../theme'
 import { LoadingState } from './LoadingState';
-import { useLocation } from 'react-router-dom';
 import { Body } from './Body';
 import LeftPanel from './sidePanels/LeftPanel';
 import RightPanel from './sidePanels/RightPanel';
-import getCSRFToken from '../csrf';
 import { initialDiscoveryState } from 'reducers';
 import { saveRequestParameters } from 'thunks';
 
@@ -93,6 +90,9 @@ const useStyles = makeStyles((theme) => (
       margin: '4%',
       width: '22vw',
       height: '10vh', 
+      [theme.breakpoints.down('md')] : {
+          width: '80%',
+      },
     },
     button: {
       color: 'white',
@@ -106,6 +106,9 @@ const useStyles = makeStyles((theme) => (
         backgroundColor: 'rgb(44, 216, 207, 0.5)',
         boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
       },
+    },
+    highlightedButton: {
+      backgroundColor: 'rgb(44, 216, 207, 0.5)',
     },
     sidePanel: {
       marginTop: '10px',
@@ -268,8 +271,6 @@ const useStyles = makeStyles((theme) => (
 ));
 
 const MobileResults = ({
-  selectedPlaylistOption,
-  setSelectedPlaylistOption,
   handleSelectUseTokens,
   discoveryRecommendations,
   classes,
@@ -285,37 +286,46 @@ const MobileResults = ({
   isMdScreen,
   isLgScreen,
   isXlScreen,
+  showPlaylists,
+  setShowPlaylists,
 }) => {
-  const [showPlaylists, setShowPlaylists] = useState(true);
   
   return (
     <Box
       display='flex'
       flexDirection='row'
       justifyContent='center'
-      width='100%'
+      width='99%'
       id='resultsBox'
+      paddingLeft={(user?.user || showTracks) && '3%'}
     >
-      {showPlaylists ? (
+      {(user?.user || showTracks) && (showPlaylists ? (
         <LeftPanel 
-          selectedPlaylistOption={selectedPlaylistOption}
-          setSelectedPlaylistOption={setSelectedPlaylistOption}
           handleSelectUseTokens={handleSelectUseTokens}
           isMdScreen={isMdScreen}
           isSmScreen={isSmScreen}
           isXsScreen={isXsScreen}
+          setShowPlaylists={setShowPlaylists}
+          user={user}
         />
       ) : (
         <RightPanel 
           currentPlaylist={currentPlaylist}
           onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-          selectedPlaylistOption={selectedPlaylistOption}
-          setSelectedPlaylistOption={setSelectedPlaylistOption}
           handleSelectUseTokens={handleSelectUseTokens}
           handleExploreMoreClick={handleExploreMoreClick}
+          isSmScreen={isSmScreen}
+          isXsScreen={isXsScreen}
+          setShowPlaylists={setShowPlaylists}
         />
-      )}
-      <Box backgroundColor='transparent' width='65%'>
+      ))}
+      <Box 
+        backgroundColor='transparent' 
+        width={(isXsScreen || isSmScreen) ? 
+          '100%' : 
+          '65%'
+        }
+      >
         {isLoading && (
           <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
             <Box
@@ -326,7 +336,7 @@ const MobileResults = ({
             >
               <CardHeader
                 title="Loading Results"
-                titleTypographyProps={{ color: 'black' }}
+                titleTypographyProps={{ color: 'white' }}
                 subheaderTypographyProps={{ color: '#3d3d3d' }}
               />
             </Box>
@@ -348,75 +358,76 @@ const MobileResults = ({
             </Suspense>
           </Box>    
         ) : !isLoading && (
-            user?.user ? (
-              <Box 
-                display='flex'
-                flexDirection='column'
-                justifyContent='center'
-                alignItems='center'
+          user?.user ? (
+            <Box 
+              display='flex'
+              flexDirection='column'
+              justifyContent='center'
+              alignItems='center'
+            >
+              <Typography 
+                color='white' 
+                textAlign='center' 
+                variant='h6'
+                letterSpacing='1px'
+                padding='5% 0 0'
+                width='80%'
               >
-                <Typography 
-                  color='white' 
-                  textAlign='center' 
-                  variant='h4'
+                What kind of music are you in the mood for today?
+              </Typography>
+              <Typography 
+                color='white' 
+                // textAlign='center' 
+                variant='body1'
+                letterSpacing='1px'
+                padding='5% 5% 0'
+              >
+                Start discovering new music now. Simply choose from the songs,
+                artists, and genres that inspire you and start discovering related music.
+              </Typography>
+              <Typography 
+                color='white' 
+                // textAlign='center' 
+                variant='caption'
+                letterSpacing='1px'
+                padding='5% 5% 0'
+              >
+                * Adjust your search by clicking on "Fine Tune Your Recommendations" 
+                to enable and configure fine-tuning parameters. This allows you to 
+                personalize your results and find music that precisely matches your 
+                preferences.
+              </Typography>
+              <Button 
+                className={`${classes.button} ${classes.buttonWithMargin}`} 
+                onClick={() => handleExploreMoreClick(false)}
+                variant='contained'
+              >
+                <Typography
+                  variant='body2' 
+                  color='white'
                   letterSpacing='1px'
-                  padding='5% 0 0'
-                  width='80%'
+                  sx={{
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
                 >
-                  What kind of music are you in the mood for today?
+                  Get Started On Your Journey
                 </Typography>
-                <Typography 
-                  color='white' 
-                  // textAlign='center' 
-                  variant='subtitle1'
-                  letterSpacing='1px'
-                  padding='5% 3% 0'
-                >
-                  Start discovering new music now. Simply choose from the songs,
-                  artists, and genres that inspire you and start discovering related music.
+                <Typography variant='h5' paddingLeft='2%'>
+                  🚀
                 </Typography>
-                <Typography 
-                  color='white' 
-                  // textAlign='center' 
-                  variant='subtitle1'
-                  letterSpacing='1px'
-                  padding='5% 3% 0'
-                >
-                  Adjust your search by clicking on "Fine Tune Your Recommendations" 
-                  to enable and configure fine-tuning parameters. This allows you to 
-                  personalize your results and find music that precisely matches your 
-                  preferences.
-                </Typography>
-                <Button 
-                  className={`${classes.button} ${classes.buttonWithMargin}`} 
-                  onClick={() => handleExploreMoreClick()}
-                  variant='contained'
-                >
-                  <Typography
-                    variant='subtitle1' 
-                    color='white'
-                    letterSpacing='1px'
-                    sx={{
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Get Started On Your Journey
-                  </Typography>
-                  <Typography variant='h5' paddingLeft='2%'>
-                    🚀
-                  </Typography>
-                </Button>
-              </Box>
-            ) : (
-              <Body 
-                isSmScreen={isSmScreen} 
-                isXsScreen={isXsScreen}
-                isMdScreen={isMdScreen}
-                isLgScreen={isLgScreen} 
-                isXlScreen={isXlScreen} 
-              />
-            )
+              </Button>
+            </Box>
+          ) : (
+            <Body 
+              isSmScreen={isSmScreen} 
+              isXsScreen={isXsScreen}
+              isMdScreen={isMdScreen}
+              isLgScreen={isLgScreen} 
+              isXlScreen={isXlScreen}
+              handleExploreMoreClick={handleExploreMoreClick}
+            />
+          )
         )}
       </Box>
     </Box>
@@ -439,7 +450,6 @@ export const SongDiscovery = ({
 
   const [parameters, setParameters] = useState(initialDiscoveryState.query);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPlaylistOption, setSelectedPlaylistOption] =  useState('create');
 
   const [invalidSearch, setInvalidSearch] = useState(false);
   const [targetParamValues, setTargetParamValues] = useState({
@@ -449,58 +459,10 @@ export const SongDiscovery = ({
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openDemoModal, setOpenDemoModal] = useState(false);
   const [queryName, setQueryName] = useState(''); 
 
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-
-  useEffect(() => {
-      const newSearchParams = new URLSearchParams(searchParams);
-
-      async function fetchData() {
-        const authorizationCode = newSearchParams.get('code');
-        const authorizationState = newSearchParams.get('state')
-        
-          if (authorizationCode) {
-            newSearchParams.delete('code');
-            newSearchParams.delete('state');
-            const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
-            window.history.replaceState({}, document.title, newURL);
-            try {
-                const csrftoken = await getCSRFToken();
-
-                const response = await fetch('http://localhost:8000/auth/spotify/callback/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,
-                        // 'Authorization': `Bearer ${user.access}`
-                    },
-                    body: JSON.stringify({ code: authorizationCode, userId: user.user.id }),
-                });
-
-                const data = await response.json();
-
-                const spotifyConnected = data['spotify_connected']
-
-                if (spotifyConnected) {
-                  dispatch(confirmSpotifyAccess(spotifyConnected))
-                }
-
-                const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
-                window.history.replaceState({}, document.title, newURL);
-            } catch (error) {
-                console.error('Error:', error);
-                // Handle any errors
-            }
-        };
-      };
-
-      // Call the async function
-      fetchData();
-  }, []);
-
-  const dispatch = useDispatch();
+  const [showPlaylists, setShowPlaylists] = useState(true);
 
   useEffect(() => {
     if (isLoading) {
@@ -515,10 +477,7 @@ export const SongDiscovery = ({
     }
   }, [isLoading]);
 
-const handleExploreMoreClick = () => {
-  console.log('explore more');
-  
-  // Assuming you have a specific component with an ID 'myComponentId'
+const handleExploreMoreClick = (activatesModal) => {
   const myComponent = document.getElementById('topBar');
 
   if (myComponent) {
@@ -526,7 +485,11 @@ const handleExploreMoreClick = () => {
       behavior: 'smooth',
       block: 'start',
     });
-  }
+  };
+
+  if (activatesModal) {
+    setOpenDemoModal(true);
+  };
 };
 
   const classes = useStyles();
@@ -554,6 +517,8 @@ const handleExploreMoreClick = () => {
         setTargetParamValues={setTargetParamValues}
         setIsLoading={setIsLoading}
         user={user}
+        openDemoModal={openDemoModal}
+        setOpenDemoModal={setOpenDemoModal}
       />
       {!(isSmScreen || isXsScreen || isMdScreen) ? (
         <Box
@@ -563,15 +528,28 @@ const handleExploreMoreClick = () => {
           width='100%'
           id='resultsBox'
         >
-          <LeftPanel 
-            selectedPlaylistOption={selectedPlaylistOption}
-            setSelectedPlaylistOption={setSelectedPlaylistOption}
-            handleSelectUseTokens={handleSelectUseTokens}
-            isMdScreen={isMdScreen}
-            isSmScreen={isSmScreen}
-            isXsScreen={isXsScreen}
-          />
-          <Box backgroundColor='transparent' width='53%'>
+          {(user?.user || showTracks) && (
+            <LeftPanel 
+              handleSelectUseTokens={handleSelectUseTokens}
+              isMdScreen={isMdScreen}
+              isSmScreen={isSmScreen}
+              isXsScreen={isXsScreen}
+              setShowPlaylists={setShowPlaylists}
+              user={user}
+            />
+          )}
+          <Box 
+            backgroundColor='transparent' 
+            width={(isXsScreen || isSmScreen) ? 
+              '100%' : 
+              (user?.user || showTracks) ? 
+              '53%' : 
+              '70%'
+            }
+            display='flex'
+            flexDirection='column'
+            alignItems='center'
+          >
             {isLoading && (
               <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
                 <Box
@@ -582,7 +560,7 @@ const handleExploreMoreClick = () => {
                 >
                   <CardHeader
                     title="Loading Results"
-                    titleTypographyProps={{ color: 'black' }}
+                    titleTypographyProps={{ color: 'white' }}
                     subheaderTypographyProps={{ color: '#3d3d3d' }}
                   />
                 </Box>
@@ -604,90 +582,95 @@ const handleExploreMoreClick = () => {
                 </Suspense>
               </Box>    
             ) : !isLoading && (
-                user?.user ? (
-                  <Box 
-                    display='flex'
-                    flexDirection='column'
-                    justifyContent='center'
-                    alignItems='center'
+              user?.user ? (
+                <Box 
+                  display='flex'
+                  flexDirection='column'
+                  justifyContent='center'
+                  alignItems='center'
+                  width='95%'
+                >
+                  <Typography 
+                    color='white' 
+                    textAlign='center' 
+                    variant='h4'
+                    letterSpacing='1px'
+                    padding='5% 0 0'
+                    width='80%'
                   >
-                    <Typography 
-                      color='white' 
-                      textAlign='center' 
-                      variant='h4'
+                    What kind of music are you in the mood for today?
+                  </Typography>
+                  <Typography 
+                    color='white' 
+                    // textAlign='center' 
+                    variant='subtitle1'
+                    letterSpacing='1px'
+                    padding='5% 3% 0'
+                    width='100%'
+                  >
+                    Start discovering new music now. Simply choose from the songs,
+                    artists, and genres that inspire you and start discovering related music.
+                  </Typography>
+                  <Typography 
+                    color='white' 
+                    // textAlign='center' 
+                    variant='subtitle1'
+                    letterSpacing='1px'
+                    padding='5% 3% 0'
+                    width='100%'
+                  >
+                    Adjust your search by clicking on "Fine Tune Your Recommendations" 
+                    to enable and configure fine-tuning parameters. This allows you to 
+                    personalize your results and find music that precisely matches your 
+                    preferences.
+                  </Typography>
+                  <Button 
+                    className={`${classes.button} ${classes.buttonWithMargin}`} 
+                    onClick={() => handleExploreMoreClick(false)}
+                    variant='contained'
+                  >
+                    <Typography
+                      variant='subtitle1' 
+                      color='white'
                       letterSpacing='1px'
-                      padding='5% 0 0'
-                      width='80%'
+                      sx={{
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                      }}
                     >
-                      What kind of music are you in the mood for today?
+                      Get Started On Your Journey
                     </Typography>
-                    <Typography 
-                      color='white' 
-                      // textAlign='center' 
-                      variant='subtitle1'
-                      letterSpacing='1px'
-                      padding='5% 3% 0'
-                    >
-                      Start discovering new music now. Simply choose from the songs,
-                      artists, and genres that inspire you and start discovering related music.
+                    <Typography variant='h5' paddingLeft='2%'>
+                      🚀
                     </Typography>
-                    <Typography 
-                      color='white' 
-                      // textAlign='center' 
-                      variant='subtitle1'
-                      letterSpacing='1px'
-                      padding='5% 3% 0'
-                    >
-                      Adjust your search by clicking on "Fine Tune Your Recommendations" 
-                      to enable and configure fine-tuning parameters. This allows you to 
-                      personalize your results and find music that precisely matches your 
-                      preferences.
-                    </Typography>
-                    <Button 
-                      className={`${classes.button} ${classes.buttonWithMargin}`} 
-                      onClick={() => handleExploreMoreClick()}
-                      variant='contained'
-                    >
-                      <Typography
-                        variant='subtitle1' 
-                        color='white'
-                        letterSpacing='1px'
-                        sx={{
-                          fontWeight: 'bold',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Get Started On Your Journey
-                      </Typography>
-                      <Typography variant='h5' paddingLeft='2%'>
-                        🚀
-                      </Typography>
-                    </Button>
-                  </Box>
-                ) : (
-                  <Body 
-                    isSmScreen={isSmScreen} 
-                    isXsScreen={isXsScreen}
-                    isMdScreen={isMdScreen}
-                    isLgScreen={isLgScreen} 
-                    isXlScreen={isXlScreen} 
-                  />
-                )
+                  </Button>
+                </Box>
+              ) : (
+                <Body 
+                  isSmScreen={isSmScreen} 
+                  isXsScreen={isXsScreen}
+                  isMdScreen={isMdScreen}
+                  isLgScreen={isLgScreen} 
+                  isXlScreen={isXlScreen}
+                  handleExploreMoreClick={handleExploreMoreClick}
+                />
+              )
             )}
           </Box>
-          <RightPanel 
-            currentPlaylist={currentPlaylist}
-            onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-            selectedPlaylistOption={selectedPlaylistOption}
-            setSelectedPlaylistOption={setSelectedPlaylistOption}
-            handleSelectUseTokens={handleSelectUseTokens}
-            handleExploreMoreClick={handleExploreMoreClick}
-          />
+          {(user?.user || showTracks) && (
+            <RightPanel 
+              currentPlaylist={currentPlaylist}
+              onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+              handleSelectUseTokens={handleSelectUseTokens}
+              handleExploreMoreClick={handleExploreMoreClick}
+              isSmScreen={isSmScreen}
+              isXsScreen={isXsScreen}
+              setShowPlaylists={setShowPlaylists}
+            />
+          )}
         </Box>
       ) : (
         <MobileResults 
-          selectedPlaylistOption={selectedPlaylistOption}
-          setSelectedPlaylistOption={setSelectedPlaylistOption}
           handleSelectUseTokens={handleSelectUseTokens}
           discoveryRecommendations={discoveryRecommendations}
           classes={classes}
@@ -695,6 +678,8 @@ const handleExploreMoreClick = () => {
           currentPlaylist={currentPlaylist}
           onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
           setIsModalOpen={setIsModalOpen}
+          showPlaylists={showPlaylists}
+          setShowPlaylists={setShowPlaylists}
           isLoading={isLoading}
           showTracks={showTracks}
           handleExploreMoreClick={handleExploreMoreClick}

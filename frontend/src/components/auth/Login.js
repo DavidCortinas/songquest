@@ -15,7 +15,7 @@ import theme from '../../theme'
 import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { checkRegistration, getSpotifyUserAuth, getUserPlaylists, handleUpdateUsername, login, registerUser } from "../../thunks";
-import { setCurrentUser } from "../../actions";
+import { resetDataLoaded, setCurrentUser } from "../../actions";
 
 const useStyles = makeStyles(() => (
   {
@@ -198,6 +198,7 @@ const UsernameInput = ({
 export const Login = ({ 
     onConnectThroughSpotify, 
     onUpdateUsername, 
+    onResetDataLoaded,
     onGetUserPlaylists,
     user 
 }) => {
@@ -223,6 +224,8 @@ export const Login = ({
     const [invalidPassword, setInvalidPassword] = useState(false);
     const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
 
+    console.log(Boolean(user?.user))
+
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -245,7 +248,6 @@ export const Login = ({
         try {
             const currentUser = await dispatch(checkRegistration({
                 email: emailValue,
-                isRegistered: userRegistered,
             }));
             
             if (currentUser.isRegistered) {
@@ -279,11 +281,14 @@ export const Login = ({
             const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
 
             dispatch(setCurrentUser(currentUser));
+            
             if (currentUser && !currentUser.user.spotify_connected) {
                 navigate('/spotify-connect');
             } else if (currentUser) {
                 navigate('/')
-            }
+            };
+
+            onResetDataLoaded();
         } catch (error) {
             console.log('Error: ', error);
         }
@@ -303,7 +308,7 @@ export const Login = ({
             await dispatch(registerUser(emailValue, passwordValue, usernameValue));
             const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
             dispatch(setCurrentUser(currentUser));
-            navigate('/spotify-connect');
+            navigate('/registration-success');
         } catch (error) {
             console.log('Error: ', error);
         }
@@ -360,7 +365,7 @@ export const Login = ({
                             <Box width='100%'>
                                     <form className={classes.form}>
                                         <CardHeader
-                                            title='Login/SignUp'
+                                            title='Login/Register'
                                             titleTypographyProps={{
                                                 width: '100%',
                                                 variant: isSmScreen || isXsScreen
@@ -718,6 +723,7 @@ const mapDispatchToProps= (dispatch) => ({
     onConnectThroughSpotify: () => dispatch(getSpotifyUserAuth()),
     onUpdateUsername: (userId, username) => dispatch(handleUpdateUsername(userId, username)),
     onGetUserPlaylists: (userId) => dispatch(getUserPlaylists(userId)),
+    onResetDataLoaded: () => dispatch(resetDataLoaded()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

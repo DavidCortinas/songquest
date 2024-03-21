@@ -62,33 +62,18 @@ def get_all_pricing_packages(request):
     pricing_packages = [
         {
             'id': 1,
-            'name': 'Dig',
+            'name': '3 Tokens',
             'price': 300,
-            'details': [
-                '3 tokens',
-                'Unlimited searches',
-                'Gain experience to level up and earn extra tokens',
-            ],
         },
         {
             'id': 2,
-            'name': 'Excavate',
+            'name': '20 Tokens',
             'price': 1000,
-            'details': [
-                '20 Tokens',
-                '50% Savings',
-                'Everything included in Explore',
-            ],
         },
         {
             'id': 3,
-            'name': 'Mine',
+            'name': '10 Tokens',
             'price': 700,
-            'details': [
-                '10 tokens',
-                '30% Savings',
-                'Everything included in Explore',
-            ],
         },
     ]
 

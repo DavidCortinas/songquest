@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from songquest.auth.serializers import LoginSerializer, RegisterSerializer
 from songquest.user.models import User
 from songquest.user.serializers import UserSerializer
+from songquest.utilities.email_utlities import send_verification_email
 
 
 class LoginViewSet(ModelViewSet, TokenObtainPairView):
@@ -39,6 +40,14 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.save()
+
+        # Generate verification token and save it to the user model
+        verification_token = RefreshToken.for_user(user).access_token
+        print('verification_token: ', verification_token)
+        user.email_verification_token = verification_token
+        user.save()
+
+        send_verification_email(user.email, verification_token)
 
         refresh = RefreshToken.for_user(user)
         res = {

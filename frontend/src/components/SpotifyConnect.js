@@ -136,7 +136,7 @@ const SpotifyConnect = ({
                           <Button
                               type="submit"
                               className={classes.button}
-                              onClick={() => navigate('/')}
+                              onClick={() => navigate('/pricing')}
                           >
                               Skip
                               <NavigateNextIcon />

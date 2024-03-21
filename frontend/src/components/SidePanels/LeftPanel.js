@@ -23,11 +23,16 @@ const PlaylistCard = ({
   userPlaylist, 
   onAddToCurrentPlaylist,
   isXsScreen, 
+  isSmScreen,
+  setShowPlaylists,
 }) => {
   const playlistName = userPlaylist?.name
 
   const handlePlaylistClick = () => {
     onAddToCurrentPlaylist(...userPlaylist.songs);
+    if (isXsScreen || isSmScreen) {
+      setShowPlaylists(false);
+    }
   };
 
   return (
@@ -97,11 +102,12 @@ export const LeftPanel = ({
   onAddToCurrentPlaylist,
   onDeletePlaylist,
   onResetCurrentPlaylist,
-  selectedPlaylistOption,
   handleSelectUseTokens,
   isMdScreen,
   isSmScreen,
   isXsScreen,
+  setShowPlaylists,
+  user,
 }) => {
   const classes = useStyles();
   
@@ -111,6 +117,9 @@ export const LeftPanel = ({
 
   const handleSelectNewPlaylist = () => {
     onResetCurrentPlaylist();
+    if (isSmScreen || isXsScreen) {
+      setShowPlaylists(false);
+    };
   };
   
   return (
@@ -122,7 +131,6 @@ export const LeftPanel = ({
       position='relative'
       width={(isXsScreen || isSmScreen || isMdScreen) ? '30%' : null}
     > 
-      {/* <li style={{ listStyle: 'none' }}> */}
       <Tooltip
         title={
           <div
@@ -152,9 +160,6 @@ export const LeftPanel = ({
               background: `rgb(121, 44, 216, 0.5)`,
               boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
             },
-            ...(selectedPlaylistOption === 'create' && {
-              border: '2px solid rgba(89, 149, 192, 0.5)',
-            }),
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -272,7 +277,11 @@ export const LeftPanel = ({
                 padding='10%'
                 letterSpacing='2px'
               >
-                You have not created any playlists 
+                {
+                  user?.user ? 
+                  'You have not created any playlists' : 
+                  `Register to unearth new gems and add them to your collection`
+                } 
               </Typography>
             ) : userPlaylists?.map((userPlaylist, index) => {
               return (
@@ -317,6 +326,8 @@ export const LeftPanel = ({
                       index={index}
                       classes={classes}
                       isXsScreen={isXsScreen}
+                      isSmScreen={isSmScreen}
+                      setShowPlaylists={setShowPlaylists}
                     />
                   </li>
                 </Box>

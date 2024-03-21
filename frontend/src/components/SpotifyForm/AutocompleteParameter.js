@@ -8,7 +8,6 @@ import {
     getSpotifySearchResult 
 } from "../../thunks";
 import { Autocomplete, Box, TextField } from "@mui/material";
-import theme from "theme";
 
 const root = {
   "& .MuiAutocomplete-option[data-focus='true']": {
@@ -32,6 +31,7 @@ const AutocompleteParameter = ({
   artists,
   genres,
   markets,
+  user,
   targetParamValues,
   setTargetParamValues,
   onSelectedOptions,
@@ -136,9 +136,24 @@ const AutocompleteParameter = ({
     !Object.values(targetParamValues).flat().includes(option.label)
   );
 
+  const handleOptionRemove = (removedOption) => {
+    // Remove the option from localSelectedOptions
+    setLocalSelectedOptions((prev) => ({
+      ...prev,
+      [parameter]: prev[parameter].filter((option) => option !== removedOption),
+    }));
+
+    // Remove the option from targetParamValues
+    setTargetParamValues((prev) => ({
+      ...prev,
+      [parameter]: prev[parameter].filter((option) => option !== removedOption),
+    }));
+  };
+
   return (
     <>
       <Autocomplete
+        disabled={!user?.user}
         multiple
         filterSelectedOptions
         value={localSelectedOptions[parameter] || []}
@@ -189,6 +204,13 @@ const AutocompleteParameter = ({
         }}
         freeSolo
         ChipProps={{
+          onDelete: (option) => {
+            if (user?.user) {
+              handleOptionRemove(option);
+            } else {
+              return null;
+            };
+          },
           sx: {
             color: {
               color: 'white',

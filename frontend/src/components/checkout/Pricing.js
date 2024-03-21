@@ -1,8 +1,10 @@
-import { Box, Button, Card, Typography } from "@mui/material";
+import { Box, Button, Card, CardHeader, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import { confirmSpotifyAccess } from "actions";
+import getCSRFToken from "csrf";
 import { useEffect, useState } from "react";
-import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { connect, useDispatch } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 import theme from "theme";
 import { getPricing } from "thunks";
 
@@ -11,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: '700px',
+    height: '600px',
   },
   button: {
     color: 'white',
@@ -19,7 +21,8 @@ const useStyles = makeStyles((theme) => ({
     border: `2px solid ${theme.palette.primary.triadic1}`,
     borderRadius: '8px',
     boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-    width: '50%',
+    width: 'fit-content',
+    padding: '2% 5%',
     transition: 'border 0.3s, background 0.3s, boxShadow 0.3s width 0.3s',
     '&:hover, &:active, &.MuiFocusVisible': {
       border: `2px solid ${theme.palette.primary.triadic1}`,
@@ -106,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Pricing = ({ onGetPricing }) => {
+export const Pricing = ({ onGetPricing, user }) => {
   const classes = useStyles(theme);
   const [focusedIndex, setFocusedIndex] = useState(1);
   const [pricing, setPricing] = useState(null);
@@ -139,71 +142,166 @@ export const Pricing = ({ onGetPricing }) => {
     navigate('/checkout', { state: { selectedPrice: price } });
   };
 
-    return (
-    <Box className={classes.containerBox}>
-        {pricing && Object.values(pricing).map((price, outerIndex) => (
-        <Card
-            key={outerIndex}
-            className={outerIndex === focusedIndex ? classes.focusedCard : classes.unfocusedCard}
-            onMouseOver={() => handleCardFocus(outerIndex)}
-            onMouseOut={handleCardBlur}
-            onFocus={() => handleCardFocus(outerIndex)}
-            onBlur={handleCardBlur}
-            tabIndex={0}
-        >
-          <Box display='flex' flexDirection='column' alignItems='center'>
-            {price.name === 'Excavate' && (
-              <Typography color='white' variant='subtitle2'>* Best Value</Typography>
-            )}
-            <Typography
-                className={outerIndex === focusedIndex ? classes.focusedTitleTypography : classes.unfocusedTitleTypography}
-            >
-                {price.name.toUpperCase()}
-            </Typography>
-            <Typography
-                className={outerIndex === focusedIndex ? classes.focusedPriceTypography : classes.unfocusedPriceTypography}
-            >
-                {`$${price.price / 100}`}
-            </Typography>
-            <Box className={classes.detailBox}>
-                <ul>
-                {price.details.map((detail, innerIndex) => (
-                    <li key={innerIndex}>
-                    <Typography
-                        className={
-                        outerIndex === focusedIndex
-                            ? classes.focusedDetailTypography
-                            : classes.unfocusedDetailTypography
-                        }
-                    >
-                        {detail}
-                    </Typography>
-                    </li>
-                ))}
-                </ul>
-            </Box>
-            {outerIndex === focusedIndex && (
-              <Button 
-                className={classes.button} 
-                variant='contained'
-                onClick={() => handleSelectPricing(price)}
-              >
-                {
-                  price.name === 'Excavate' ? 'Get 1/2 Off' :
-                  price.name === 'Mine' ? 'Get 30% Savings' :
-                  'Buy'
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  useEffect(() => {
+      const newSearchParams = new URLSearchParams(searchParams);
+
+      async function fetchData() {
+        const authorizationCode = newSearchParams.get('code');
+        const authorizationState = newSearchParams.get('state')
+        
+          if (authorizationCode) {
+            newSearchParams.delete('code');
+            newSearchParams.delete('state');
+            const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
+            window.history.replaceState({}, document.title, newURL);
+            try {
+                const csrftoken = await getCSRFToken();
+
+                const response = await fetch('http://localhost:8000/auth/spotify/callback/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                        // 'Authorization': `Bearer ${user.access}`
+                    },
+                    body: JSON.stringify({ code: authorizationCode, userId: user.user.id }),
+                });
+
+                const data = await response.json();
+
+                const spotifyConnected = data['spotify_connected']
+
+                if (spotifyConnected) {
+                  dispatch(confirmSpotifyAccess(spotifyConnected))
                 }
-              </Button>
-            )}
-          </Box>
-        </Card>
-        ))}
-    </Box>
+
+                const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
+                window.history.replaceState({}, document.title, newURL);
+            } catch (error) {
+                console.error('Error:', error);
+                // Handle any errors
+            }
+        };
+      };
+
+      // Call the async function
+      fetchData();
+    }, []);
+
+    const dispatch = useDispatch();
+
+    return (
+      <>
+        <Typography 
+          textAlign='center'
+          variant="h4"
+          color='whitesmoke'
+          letterSpacing='1px'
+        >
+          Use Tokens To Uncover Hidden Gems and More
+        </Typography>
+        <Box className={classes.containerBox}>
+          {pricing && Object.values(pricing).map((price, outerIndex) => (
+          <Card
+              key={outerIndex}
+              className={outerIndex === focusedIndex ? classes.focusedCard : classes.unfocusedCard}
+              onMouseOver={() => handleCardFocus(outerIndex)}
+              onMouseOut={handleCardBlur}
+              onFocus={() => handleCardFocus(outerIndex)}
+              onBlur={handleCardBlur}
+              tabIndex={0}
+          >
+            <Box 
+              display='flex' 
+              flexDirection='column' 
+              alignItems='center' 
+              height='80%'
+              justifyContent='space-around'
+            >
+              {price.name === '20 Tokens' && (
+                <Typography color='white' variant='subtitle2'>* Best Value</Typography>
+              )}
+              <Typography
+                  className={outerIndex === focusedIndex ? classes.focusedTitleTypography : classes.unfocusedTitleTypography}
+              >
+                  {price.name.toUpperCase()}
+              </Typography>
+              {price.name === '20 Tokens' ? (
+                <img 
+                  src={'/static/images/twentyTokens.png'} 
+                  style={{
+                    width: '20em'
+                  }}
+                />
+              ) : price.name === '10 Tokens' ? (
+                <img 
+                  src={'/static/images/tenTokens.png'}
+                  style={{
+                    width: '10em'
+                  }} 
+                />
+              ) : (
+                <img 
+                  src={'/static/images/threeTokens.png'}
+                  style={{
+                    width: '10em'
+                  }} 
+                />
+              )}
+              <Typography
+                  className={outerIndex === focusedIndex ? classes.focusedPriceTypography : classes.unfocusedPriceTypography}
+              >
+                  {`$${price.price / 100}`}
+              </Typography>
+              {/* <Box className={classes.detailBox}>
+                  <ul>
+                  {price.details.map((detail, innerIndex) => (
+                      <li key={innerIndex}>
+                      <Typography
+                          className={
+                          outerIndex === focusedIndex
+                              ? classes.focusedDetailTypography
+                              : classes.unfocusedDetailTypography
+                          }
+                      >
+                          {detail}
+                      </Typography>
+                      </li>
+                  ))}
+                  </ul>
+              </Box> */}
+              {outerIndex === focusedIndex && (
+                <Button 
+                  className={classes.button} 
+                  variant='contained'
+                  onClick={() => handleSelectPricing(price)}
+                >
+                  {
+                    price.name === '20 Tokens' ? 'Get 1/2 Off' :
+                    price.name === '10 Tokens' ? 'Get 30% Savings' :
+                    'Buy'
+                  }
+                </Button>
+              )}
+            </Box>
+          </Card>
+          ))}
+        </Box>
+      </>
     );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.user.currentUser,
+  };
 };
 
 const mapDispatchToProps = (dispatch) => ({
   onGetPricing: () => dispatch(getPricing()),
 });
 
-export default connect(null, mapDispatchToProps)(Pricing);
+export default connect(mapStateToProps, mapDispatchToProps)(Pricing);

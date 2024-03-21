@@ -37,10 +37,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     spotify_access = models.CharField(null=True, blank=True)
     spotify_refresh = models.CharField(null=True, blank=True)
     spotify_expires_at = models.FloatField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    email_verification_token = models.CharField(max_length=255, blank=True, null=True)
+    email_verified = models.BooleanField(default=False)
 
     @property
     def spotify_connected(self):
@@ -56,8 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'email', 'username', 'is_active', 'is_staff', 'spotify_refresh',)
-    list_filter = ('is_staff', 'is_superuser', 'is_active')
+    list_display = ('id', 'email', 'username', 'is_active', 'is_staff', 'spotify_refresh', 'email_verification_token', 'email_verified',)
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'email_verified', 'email_verification_token',) 
     search_fields = ('email', 'username')
     ordering = ('email',)
     filter_horizontal = ()
@@ -66,6 +68,7 @@ class UserAdmin(admin.ModelAdmin):
         ('Personal Info', {'fields': ['username']}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         ('Spotify Info', {'fields': ('spotify_access', 'spotify_refresh', 'spotify_expires_at')}),
+        ('Email Verification', {'fields': ('email_verification_token', 'email_verified',)}),
     )
     add_fieldsets = (
         (None, {

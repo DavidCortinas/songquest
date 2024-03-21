@@ -122,15 +122,21 @@ def search_song(request):
 
 @csrf_exempt
 def get_user(request):
-    data = json.loads(request.body)
-    user = data['email']
-    username = User.objects.get(email=user).username
+    print('get_user')
+    user_email = request.headers.get('User-Email')
+    print(user_email)
 
     users = list(User.objects.values_list("email", flat=True))
+    print(users)
     try:
-        if user in users:
+        user = User.objects.get(email=user_email)
+        print(user)
+        username = user.username
+        print(username)
+        if user.email in users:
+            # User's email exists in the list of emails
             response_data = {
-                "email": user,
+                "email": user.email,
                 "username": username,
                 "isRegistered": True,
             }
@@ -140,8 +146,9 @@ def get_user(request):
                 headers={'Access-Control-Allow-Origin': '*'}
             )
         else:
+            # User's email does not exist in the list of emails
             response_data = {
-                "email": user,
+                "email": user.email,
                 "isRegistered": False,
             }
             return JsonResponse(
@@ -160,10 +167,11 @@ def login_user():
 
 
 @csrf_exempt
-def update_username(request, user_id):
+def update_username(request):
     if request.method == 'PATCH':
         try:
             # Retrieve the user
+            user_id = request.headers.get('User-Id')
             user = User.objects.get(pk=user_id)
 
             # Get the new username from the JSON request body
@@ -513,18 +521,18 @@ def handle_spotify_callback(request):
             spotify_connected = user.spotify_refresh is not None
 
             # Define the target URL where you want to redirect
-            target_url = f'http://localhost:3000/?spotify-connected={spotify_connected}'
+            target_url = f'http://localhost:3000/pricing?spotify-connected={spotify_connected}'
 
             # Redirect the user's browser to the target URL
             return JsonResponse({'spotify_connected': spotify_connected})
         else:
             # Handle error: token not in response or token_info is None
             logging.error("Error retrieving access token from Spotify or token_info is None")
-            return redirect('/error/')
+            return redirect('/error')
     else:
         # No code in request, handle accordingly
         logging.error("No authorization code provided")
-        return redirect('/error/')
+        return redirect('/error')
 
 
 def token_expired(expiration_time):

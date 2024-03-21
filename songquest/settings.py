@@ -4,6 +4,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_URL = 'http://localhost:8000'
+# BASE_URL = 'https://songquest.com'
+
+DEFAULT_FROM_EMAIL =  os.getenv('EMAIL_HOST_USER')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')   
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -84,6 +96,7 @@ CORS_ALLOW_HEADERS = [
     'Content-Type', 
     'Authorization',
     'User-Id',
+    'User-Email',
 ]
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',

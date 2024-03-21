@@ -11,6 +11,8 @@ import {
   DELETE_PLAYLIST,
   DISCOVER_SONG,
   DISCOVER_SONG_SUCCESS,
+  EMAIL_VERIFICATION_FAILURE,
+  EMAIL_VERIFICATION_SUCCESS,
   GET_REQUEST_PARAMETERS_FAILURE,
   GET_REQUEST_PARAMETERS_REQUEST,
   GET_REQUEST_PARAMETERS_SUCCESS,
@@ -24,6 +26,9 @@ import {
   RECEIVE_SPOTIFY_SONG_RESULTS,
   REFRESH_SPOTIFY_ACCESS,
   REMOVE_FROM_CURRENT_PLAYLIST_BY_ID,
+  RESEND_VERIFICATION_FAILURE,
+  RESEND_VERIFICATION_REQUEST,
+  RESEND_VERIFICATION_SUCCESS,
   RESET_CURRENT_PLAYLIST,
   RESET_DATA_LOADED,
   RESET_QUERY_PARAMETER,
@@ -148,6 +153,114 @@ export const initialDiscoveryState = {
     }
   },
   savedQueries: {
+    initialQuery: {
+      limit: 5,
+      songs: [
+        {
+          id: "2T7DdtQaacjIxBGLCS0lGh", 
+          image: "https://i.scdn.co/image/ab67616d00004851f335a793eeff3a9cccd3755b",
+          label: "Jeromeo and Juliet (Good Friday) - Deezie Brown"
+        }
+      ],
+      performers: [
+        {
+          id: "0wfd8tvLXYb91azSMD5VXI",
+          image: "https://i.scdn.co/image/ab6761610000f178f08779c5ad35cadc922d7e77",
+          label: "Black Odyssey"
+        }, 
+        {
+          id: "0Akzjllih1lP7k60c8Dtct",
+          image: "https://i.scdn.co/image/ab6761610000f1787738d684e958af2eb04ef52b",
+          label: "Magna Carda"
+        }, 
+      ],
+      genres: ["soul", "r-n-b"],
+      market: '',
+      acousticness: {
+        min: null,
+        target: null,
+        max: null,
+        label: 'acousticness',  
+      },
+      danceability: {
+        min: null,
+        target: null, 
+        max: null,
+        label: 'danceability',  
+      },
+      duration_ms: {
+        min: null,
+        target: null, 
+        max: null, 
+        label: 'length', 
+      },
+      energy: {
+        min: null, 
+        target: null, 
+        max: null,
+        label: 'energy', 
+      },
+      instrumentalness: {
+        min: null, 
+        target: null, 
+        max: null,
+        label: 'instrumentalness', 
+      },
+      key: {
+        min: null, 
+        target: null,
+        max: null, 
+        label: 'key', 
+      },
+      liveness: {
+        min: null, 
+        target: null, 
+        max: null, 
+        label: 'liveness', 
+      },
+      loudness: {
+        min: null,
+        target: null,
+        max: null, 
+        label: 'loudness', 
+      }, 
+      mode: {
+        min: null, 
+        target: null, 
+        max: null,
+        label: 'modality', 
+      },
+      popularity: {
+        min: null, 
+        target: null, 
+        max: null,
+        label: 'popularity', 
+      },
+      speechiness: {
+        min: null, 
+        target: null,
+        max: null,
+        label: 'speechiness', 
+      }, 
+      tempo: {
+        min: null, 
+        target: null,
+        max: null,
+        label: 'tempo',  
+      },
+      time_signature: {
+        min: null, 
+        target: null, 
+        max: null,
+        label: 'time-signature', 
+      },
+      valence: {
+        min: null, 
+        target: null,
+        max: null,
+        label: 'positiveness', 
+      }
+    },
     previous: null,
     saved: [],
   },
@@ -220,13 +333,13 @@ export const song = (state = initialSongState, action) => {
 };
 
 export const user = (state = { currentUser: null }, action) => {
-    const { type, payload } = action;
-    switch (type) {
+  const { type, payload } = action;
+  switch (type) {
     case CONFIRM_USER:
       return {
         ...state,
         currentUser: {
-          user: payload.user,
+            user: payload.user,
         },
         isRegistered: payload.isRegistered
       };
@@ -242,7 +355,7 @@ export const user = (state = { currentUser: null }, action) => {
           ...state.currentUser,
           spotify_access: payload.newAccessToken,
           spotify_expires_at: payload.expiresAt,
-        },
+          },
       };
     case CONFIRM_SPOTIFY_ACCESS:
       return {
@@ -260,12 +373,12 @@ export const user = (state = { currentUser: null }, action) => {
         ...state,
         currentUser: {
           ...state.currentUser,
-          user: {
-            ...state.currentUser.user,
-            username: payload.newUsername,
+            user: {
+              ...state.currentUser.user,
+              username: payload.newUsername,
+            },
           },
-        },
-      };
+        };
     case UPDATE_EMAIL:
       return {
         ...state,
@@ -277,10 +390,52 @@ export const user = (state = { currentUser: null }, action) => {
           },
         },
       };
+    case RESEND_VERIFICATION_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null
+      };
+    case RESEND_VERIFICATION_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: payload.error,
+      };
+    case RESEND_VERIFICATION_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case EMAIL_VERIFICATION_FAILURE:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            emailVerified: payload.emailVerified,
+          }
+        },
+        error: payload.error,
+      };
+    case EMAIL_VERIFICATION_SUCCESS:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            emailVerified: payload.emailVerified,
+          }
+        },
+      };
     default:
       return state;
-  };
+  }
 };
+
 
 export const authSlice = createSlice({
   name: 'auth',

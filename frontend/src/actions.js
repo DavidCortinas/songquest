@@ -66,6 +66,34 @@ export const updateEmail = (newEmail) => ({
   payload: { newEmail },
 });
 
+export const RESEND_VERIFICATION_REQUEST = 'RESEND_VERIFICATION_REQUEST';
+export const resendVerificationRequest = () => ({
+  type: RESEND_VERIFICATION_REQUEST,
+})
+
+export const RESEND_VERIFICATION_SUCCESS = 'RESEND_VERIFICATION_SUCCESS';
+export const resendVerificationSuccess = () => ({
+  type: RESEND_VERIFICATION_SUCCESS,
+});
+
+export const RESEND_VERIFICATION_FAILURE = 'RESEND_VERIFICATION_FAILURE';
+export const resendVerificationFailure = (error) => ({
+  type: RESEND_VERIFICATION_FAILURE,
+  payload: { error },
+});
+
+export const EMAIL_VERIFICATION_SUCCESS = 'EMAIL_VERIFICATION_SUCCESS';
+export const emailVerificationSuccess = (emailVerified) => ({
+  type: EMAIL_VERIFICATION_SUCCESS,
+  payload: { emailVerified }
+});
+
+export const EMAIL_VERIFICATION_FAILURE = 'EMAIL_VERIFICATION_FAILURE';
+export const emailVerificationFailure = (emailVerified, error) => ({
+  type: EMAIL_VERIFICATION_FAILURE,
+  payload: { emailVerified, error }
+});
+
 export const DISCOVER_SONG= 'DISCOVER_SONG';
 export const discoverSong = (recommendations, dataLoaded, query) => {
   return {

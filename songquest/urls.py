@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from songquest import views
+from songquest.auth.views import ResendVerificationEmail, verify_email
 from songquest.payments import views as paymentViews
 from .songs.views import SongUploadView
 from django.views.generic import TemplateView
@@ -14,7 +15,7 @@ urlpatterns = [
      path("search/", views.search_song, name='search-song'),
      path('api/discover/', views.discover_song, name='discover-song'),
      path("user/", views.get_user, name='user'),
-     path('update-username/<int:user_id>/',
+     path('update-username/',
           views.update_username, name='update-username'),
      path('get-csrf-token/', views.get_csrf_token, name='get-csrf-token'),
      path('accounts/', include('django.contrib.auth.urls')),
@@ -44,6 +45,8 @@ urlpatterns = [
      path('save-request-parameters/', views.save_request_parameters, name='save-request-parameters'),
      path('get-user-requests/', views.get_user_requests, name='get-user-requests'),
      path('get-pricing/', paymentViews.get_all_pricing_packages, name='get-pricing'),
+     path('verify/<str:token>/', verify_email, name='verify_email'),
+     path('resend-verification-email/', ResendVerificationEmail.as_view(), name='resend_verification_email'),
      #     path('add-to-spotify/', views.add_to_spotify, name='add-to-spotify'),
      #     path('check-users-tracks/', views.check_users_tracks,
      #          name='check-users-tracks'),

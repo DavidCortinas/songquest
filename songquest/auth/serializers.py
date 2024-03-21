@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.settings import api_settings
-from rest_framework_simplejwt.tokens import RefreshToken
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
-from django.core.exceptions import ObjectDoesNotExist
 
-from songquest.user.serializers import UserSerializer
 from songquest.user.models import User
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
+from django.contrib.auth import authenticate
 
 class LoginSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField(required=True)
@@ -18,19 +18,28 @@ class LoginSerializer(TokenObtainPairSerializer):
         email = attrs.get('email')
         password = attrs.get('password')
 
-        # Authenticate primarily using email
-        user = authenticate(request=self.context.get('request'), 
-                            username=email, password=password)
-
+        # Authenticate using email as username
+        user = authenticate(request=self.context.get('request'), username=email, password=password)
+        
         if not user:
             raise serializers.ValidationError('No active account found with the given credentials')
 
-        # Assuming UserSerializer is your user model serializer
-        data = super().validate(attrs)
-        data.update({'user': UserSerializer(user).data})
+        # Generate token pair for the user
+        token_pair = self.get_token(user)
 
-        return data
+        # Include user data in the response
+        return {
+            'refresh': str(token_pair),
+            'access': str(token_pair.access_token),
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                # Add other user fields as needed
+            }
+        }
 
+    def get_token(self, user):
+        return super().get_token(user)
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
