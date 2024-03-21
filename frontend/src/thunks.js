@@ -23,7 +23,10 @@ import {
   saveQuery,
   getRequestParametersRequest,
   getRequestParametersSuccess,
-  getRequestParametersFailure
+  getRequestParametersFailure,
+  resendVerificationSuccess,
+  resendVerificationFailure,
+  resendVerificationRequest
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
@@ -74,19 +77,16 @@ export const searchSongRequest = (query) => async (dispatch) => {
 };
 
 export const checkRegistration = (user) => async (dispatch) => {
+  console.log('checkRegistration: ', user.email)
   try {
     const csrfToken = await getCSRFToken();
-    const body = JSON.stringify({
-      email: user.email,
-    });
     const response = await fetch('http://localhost:8000/user/', {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+        'User-Email': user.email,
       },
       method: 'post',
-      // credentials: 'include',
-      body,
     });
 
     if (!response.ok) {
@@ -447,13 +447,14 @@ export const checkTokenExpiration = async (
 export const handleUpdateUsername = (userId, newUsername) => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
-    const data = { userId, newUsername }; // Include the user ID and new username in an object
+    const data = { newUsername }; // Include the user ID and new username in an object
     const body = JSON.stringify(data);
 
-    const response = await fetch(`http://localhost:8000/update-username/${userId}/`, {
+    const response = await fetch(`http://localhost:8000/update-username/`, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+        'User-Id': userId,
       },
       method: 'PATCH', // Use the HTTP PATCH method
       body,
@@ -473,6 +474,34 @@ export const handleUpdateUsername = (userId, newUsername) => async (dispatch) =>
     console.log('Error: ' + error.message);
   };
 
+};
+
+export const resendVerification = (userId) => async (dispatch) => {
+  console.log('resend verification');
+  dispatch(resendVerificationRequest());
+  try {
+    const csrfToken = await getCSRFToken();
+    const response = await fetch('http://localhost:8000/resend-verification-email/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    // Check if the request was successful (status code 200)
+    if (response.ok) {
+      // Dispatch an action if the request was successful
+      dispatch(resendVerificationSuccess());
+    } else {
+      // Handle errors if the request was not successful
+      throw new Error('Failed to resend verification email');
+    }
+  } catch (error) {
+    // Dispatch an action to handle errors
+    dispatch(resendVerificationFailure(error.message));
+  }
 };
 
 export const createPlaylistRequest = (
@@ -571,7 +600,6 @@ export const getUserPlaylists = (userId) => async (dispatch) => {
 
 export const saveRequestParameters = (userId, query) => async (dispatch) => {
   try {
-    console.log(query);
     const csrfToken = await getCSRFToken();
 
     const response = await axios.post('http://localhost:8000/save-request-parameters/', query, {
@@ -611,7 +639,6 @@ export const getRequestParameters = (userId) => async (dispatch) => {
     const transformedUserRequestParameters = userRequestParameters.map((request) => {
       return transformResponseToQueryStructure(request);
     });
-    console.log(transformedUserRequestParameters)
     dispatch(getRequestParametersSuccess(transformedUserRequestParameters));
   } catch (error) {
     console.error('Error fetching user request parameters:', error);

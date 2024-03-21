@@ -36,6 +36,11 @@ const useStyles = makeStyles(() => (
                 backgroundColor: 'rgb(44, 216, 207, 0.5)',
                 boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
             },
+            [theme.breakpoints.down('md')]: {
+                padding: '0',
+                height: '5%',
+                minWidth: '54px'
+            },
         },
         actionButton: {
             display: 'flex', 
@@ -78,7 +83,7 @@ const useStyles = makeStyles(() => (
         playlistField: {
             width: '100%',
             [theme.breakpoints.down('md')]: {
-            width: '100%',
+                width: '100%',
             },
             backgroundColor: '#30313d',
             borderRadius: '8px',
@@ -99,9 +104,6 @@ const useStyles = makeStyles(() => (
               background: `rgb(121, 44, 216, 0.5)`,
               boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
             },
-            // ...(selectedPlaylistOption === 'create' && {
-            //   border: '2px solid rgba(89, 149, 192, 0.5)',
-            // }),
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',

@@ -12,21 +12,22 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import useStyles from "classes/playlist";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { connect } from "react-redux";
 import { addToSavedPlaylistRequest, createPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
-import { lazy } from "react";
 import theme from "theme";
 
 const PlaylistItemCard = ({ 
   item, 
   key, 
   handlePlaylistSelectClick, 
-  isPlaylistItemChecked 
+  isPlaylistItemChecked,
+  isSmScreen,
+  isXsScreen, 
 }) => {
   const songName = item?.name;
   const artists = item?.artists.join(', ');
@@ -37,8 +38,8 @@ const PlaylistItemCard = ({
       key={key} 
       sx={{ 
         display: 'flex', 
-        width: '18vw',
-        height: '11vh', 
+        width: (isXsScreen || isSmScreen) ? '30vw' : '18vw',
+        height: (isXsScreen || isSmScreen) ? '7vh' : '11vh', 
         position: 'relative',
         overflow: 'hidden',
         borderRadius: '8px',
@@ -72,25 +73,27 @@ const PlaylistItemCard = ({
           sx={{
             color: 'white',
             position: 'absolute',
-            top: '23%',
+            top: '10%',
             left: '2%',
             zIndex: '2',
             paddingLeft: '0px',
           }}
         />
       </Tooltip>
-      <img 
-        src={imgUrl} 
-        style={{
-          maxWidth: '100%',       
-          height: 'auto',
-          padding: '2% 2% 2% 2vw',         
-        }} 
-      />
-      <Box>
+      {!(isXsScreen || isSmScreen) && (
+        <img 
+          src={imgUrl} 
+          style={{
+            maxWidth: '100%',       
+            height: 'auto',
+            padding: '2% 2% 2% 2vw',         
+          }} 
+        />
+      )}
+      <Box paddingLeft={(isXsScreen || isSmScreen) && '25%'}>
         <Typography
           noWrap  
-          variant='subtitle2' 
+          variant={(isXsScreen || isSmScreen) ? 'caption' : 'subtitle2'} 
           color='white'
           sx={{
             maxHeight: '30%',
@@ -101,8 +104,8 @@ const PlaylistItemCard = ({
           {songName}
         </Typography>
         <Typography 
-          // noWrap
-          variant='subtitle2' 
+          noWrap={(isXsScreen || isSmScreen)}
+          variant={(isXsScreen || isSmScreen) ? 'caption' : 'subtitle2'} 
           color='white' 
           sx={{ 
             fontWeight: 'bold', 
@@ -195,25 +198,35 @@ const CreatePlaylist = ({
             value={playlistName}
             onChange={(e) => setPlaylistName(e.target.value)}
             className={classes.playlistField}
+            sx={{
+              "& .MuiInputBase-root": {
+                marginTop: (isXsScreen || isSmScreen) && '7px',
+              }
+            }}
             InputLabelProps={{
               sx: {
                 color: 'white',
-                marginLeft: '5px',
-                fontSize: '80%',
+                marginLeft: '5%',
+                fontSize: (isXsScreen || isSmScreen) ? '70%' : '80%',
+                transform: (isXsScreen || isSmScreen) ? 'translateY(6px)' : 'translateY(50%)',
               }
             }}
             InputProps={{
               sx: {
                 color: 'white',
                 marginLeft: '5px',
-                fontSize: '90%', 
+                fontSize: (isXsScreen || isSmScreen) ? '70%' : '90%',
+                '& .MuiInputBase-input': {
+                  padding: '2%'
+                },
               }
             }}
           />
         </Box>
         <Box 
           display='flex' 
-          justifyContent='space-between'
+          justifyContent={'space-between'}
+          padding={'5% 0'}
         >
           <Tooltip
             title={
@@ -235,9 +248,17 @@ const CreatePlaylist = ({
               </div>
             }
           >
-            <Button onClick={handlePlaylistSelectAll}>
-              <Checkbox sx={{ padding: '0px', color: theme.palette.primary.white }}/>
-            </Button>
+            <Checkbox
+              onClick={handlePlaylistSelectAll} 
+              sx={{ 
+                padding: '0px', 
+                color: theme.palette.primary.white,
+                '& .MuiSvgIcon-root': { 
+                  fontSize: isXsScreen ? '1.25rem' : '2rem', 
+                  transform: 'scale(0.75)', 
+                }
+              }}
+            />
           </Tooltip>
           <Tooltip
             title={
@@ -257,16 +278,24 @@ const CreatePlaylist = ({
               </div>
             }
           >
-            <Button onClick={handleCreatePlaylist} className={classes.button}>
+            <Button 
+              disabled={!user?.user}
+              onClick={handleCreatePlaylist} 
+              className={classes.button}
+            >
               <Box display='flex' alignItems='center'>
                 <AutoAwesomeIcon
                   style={{ 
                     color: theme.palette.primary.complementary,
-                    paddingRight: '2%'
+                    paddingRight: '2%',
                   }}
+                  fontSize={(isSmScreen || isXsScreen) ? 'small' : 'medium'}
                 />
-                <Typography variant={(isLgScreen || isXlScreen) ? 'body2' : 'caption'} letterSpacing='1px'>
-                  {'Create'}
+                <Typography 
+                  variant={(isLgScreen || isXlScreen) ? 'body2' : 'caption'} 
+                  letterSpacing='1px'
+                >
+                  {!(isXsScreen || isSmScreen) && 'Create'}
                 </Typography>
               </Box>
             </Button>
@@ -287,11 +316,10 @@ const CreatePlaylist = ({
               </div>
             }
           >
-            <Button onClick={handleBulkRemove}>
               <PlaylistRemoveIcon 
                 style={{ color: theme.palette.primary.white }}
+                onClick={handleBulkRemove}
               />
-            </Button>
           </Tooltip>
         </Box>
       </Box>
@@ -315,6 +343,8 @@ const CreatePlaylist = ({
                 key={item.id} 
                 handlePlaylistSelectClick={handlePlaylistSelectClick}
                 isPlaylistItemChecked={isPlaylistItemChecked}
+                isSmScreen={isSmScreen}
+                isXsScreen={isXsScreen}
               />
             </li>
           </Box>)
@@ -328,12 +358,12 @@ const CreatePlaylist = ({
             >
               {user?.user.spotify_connected ? (
                 <Typography 
-                  variant='subtitle1' 
+                  variant={(isXsScreen || isSmScreen) ? 'subtitle2' : 'subtitle1' }
                   textAlign='center' 
                   padding='20px'
                   letterSpacing='2px'
                 >
-                  Start exploring new music to unearth new gems and add them to your collection...
+                  Unearth new gems and add them to your collection...
                 </Typography>
               ) : (
                 <>
@@ -343,18 +373,16 @@ const CreatePlaylist = ({
                     padding='20px'
                     letterSpacing='2px'
                   >
-                    Connect to Spotify to earn tokens and start creating playlists
+                    {
+                      user?.user ? 
+                      'Connect to Spotify to earn tokens and start creating playlists' :
+                      `Register/Login, Connect to Spotify, Use tokens to unearth new gems and add them to your collection`
+                    }
                   </Typography>
                   <li style={{ listStyle: 'none' }}>
                     <Card
                       onClick={handleSelectUseTokens}
                       className={classes.panelCard}
-                      // sx={
-                        //   selectedPlaylistOption === 'create' && 
-                        //   { 
-                          //     border: '2px solid rgba(89, 149, 192, 0.5)' 
-                          //   }
-                          // }
                     >
                       <Box padding='0 5% 0'>
                         <Typography 
@@ -401,12 +429,18 @@ const CreatePlaylist = ({
       onCreatePlaylist,
       onAddToSavedPlaylist,
       onRemoveFromCurrentPlaylistById,
-      selectedPlaylistOption,
       handleExploreMoreClick,
+      isSmScreen,
+      isXsScreen,
+      setShowPlaylists,
   }) => {
     const classes = useStyles();
     const navigate = useNavigate();
     const [playlistName, setPlaylistName] = useState('');
+
+    const handleBackToPlaylists = () => {
+      setShowPlaylists(true);
+    };
 
     const handleCreatePlaylist = () => {
       if (!user?.user.spotify_connected) {
@@ -444,7 +478,6 @@ const CreatePlaylist = ({
 
     return (
       <Box>
-        {/* {!isXsScreen && !isSmScreen && !isMdScreen ? ( */}
         <Tooltip
           title={
             <div
@@ -456,13 +489,17 @@ const CreatePlaylist = ({
               }}
             >
               <Typography variant='body2' letterSpacing='1px'>
-                {'Build new playlist'}
+                {(isXsScreen || isSmScreen) ? 'Back to collections' : 'Build new playlist'}
               </Typography>
             </div>
           }
         >
           <Button
-            onClick={() => {handleExploreMoreClick()}}
+            onClick={() => {
+              (isXsScreen || isSmScreen) ? 
+              handleBackToPlaylists() : 
+              handleExploreMoreClick(false)
+            }}
             sx={{
               color: 'white',
               background: `rgb(121, 44, 216, 0.3)`,
@@ -485,19 +522,27 @@ const CreatePlaylist = ({
             }}
           >
             <Box display='flex'>
+              {(isSmScreen ||isXsScreen) && (
+                <KeyboardDoubleArrowLeftIcon 
+                  style={{ color: theme.palette.primary.triadic2 }}
+                  fontSize={'small'}
+                />
+              )}
               <Typography
-                variant='subtitle1'
+                variant={isXsScreen ? 'caption' : 'subtitle1'}
                 color='white'
                 letterSpacing='1px'
                 sx={{
                   cursor: 'pointer',
                 }}
               >
-                {'New Request'}
+                {(isSmScreen || isXsScreen) ? 'Back' : 'New Request'}
               </Typography>
-              <KeyboardDoubleArrowUpIcon
-                style={{ color: theme.palette.primary.triadic2 }}
-              />
+              {!(isSmScreen ||isXsScreen) && (
+                <KeyboardDoubleArrowUpIcon
+                  style={{ color: theme.palette.primary.triadic2 }}
+                />
+              )}
             </Box>
           </Button>
         </Tooltip>

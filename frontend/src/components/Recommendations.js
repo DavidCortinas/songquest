@@ -56,7 +56,6 @@ const Recommendation = ({
     }, [recommendation, recommendationInSongsToAdd, setSongsToAdd]);
 
     const isChecked = recommendationInSongsToAdd;
-    console.log(theme)
 
     return (
       <li className={classes.recommendations} key={index}>
@@ -176,7 +175,7 @@ const Recommendations = ({
       >
         <Box 
           display='flex' 
-          justifyContent='space-around' 
+          justifyContent={'space-between'}
           width={isXsScreen ? '110%' : '100%'}
         >
           <Tooltip

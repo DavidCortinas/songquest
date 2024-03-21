@@ -10,6 +10,7 @@ const theme = createTheme({
       triadic1: '#792cd8',
       triadic2: '#d82c8b',
       white: 'white',
+      whitesmoke: 'whitesmoke',
       dark: '#30313d',
     },
   },

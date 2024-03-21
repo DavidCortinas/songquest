@@ -8,6 +8,8 @@ import SpotifyConnect from './components/SpotifyConnect';
 import StripeCheckout from './components/checkout/StripeCheckout';
 import ProtectedRoute from './ProtectedRoute';
 import Pricing from 'components/checkout/Pricing';
+import RegistrationSuccess from 'components/auth/RegistrationSuccess';
+import ErrorPage from 'components/ErrorPage';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 
@@ -24,21 +26,33 @@ const RoutesContainer = () => {
               }
             />
             <Route 
-              path={'/pricing'}
-              element={
-                <Pricing />
-              }
-            />
-            <Route 
               path={'/login'}
               element={
                 <Login />
               }
             />
+            <Route 
+              path={'/error'}
+              element={
+                <ErrorPage />
+              }
+            />
+            <Route element={<ProtectedRoute />}>
+              <Route 
+                path={'/registration-success'} 
+                element={<RegistrationSuccess />} 
+              />
+            </Route>
             <Route element={<ProtectedRoute />}>
               <Route 
                 path={'/spotify-connect'} 
                 element={<SpotifyConnect />} 
+              />
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route 
+                path={'/pricing'} 
+                element={<Pricing />} 
               />
             </Route>
             <Route element={<ProtectedRoute />}>
