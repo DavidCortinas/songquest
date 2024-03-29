@@ -50,8 +50,6 @@ const RegistrationSuccess = ({
         navigate('/spotify-connect');
     };
 
-    console.log(user.user.emailVerified)
-
     return (
         <Box
             display="flex"

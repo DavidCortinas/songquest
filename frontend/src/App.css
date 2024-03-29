@@ -35,6 +35,31 @@ li::marker {
   pointer-events: none;
 }
 
+.added-tokens-animation,
+.added-xp-animation {
+  position: absolute;
+  top: -20px; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pop-up 2s ease forwards;
+}
+
+@keyframes pop-up {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-20px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-50px);
+    opacity: 0;
+    display: none;
+  }
+}
+
 @keyframes spinning {
   from {
     transform: rotate(0deg);

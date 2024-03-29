@@ -21,7 +21,8 @@ import { connect } from 'react-redux';
 import '../App.css';
 import theme from 'theme';
 import { authSlice } from '../reducers';
-import { withStyles } from '@mui/styles';
+import { makeStyles, withStyles } from '@mui/styles';
+import { TokenCounter, XPCounter } from 'utils';
 
 const StyledLinearProgress = withStyles({
   colorPrimary: {
@@ -31,6 +32,16 @@ const StyledLinearProgress = withStyles({
     backgroundColor: theme.palette.primary.triadic2
   },
 })(LinearProgress);
+
+const useStyles = makeStyles(() => ({
+  counterContainer: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '32px',
+  }
+}))
 
 export const TopBar = ({ 
   onResetDataLoaded,
@@ -43,6 +54,7 @@ export const TopBar = ({
   userPlaylists,
   currentPlaylist, 
 }) => {
+  const classes = useStyles();
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -71,7 +83,11 @@ export const TopBar = ({
     navigate('/');
   };
 
-  // try moving 'lvl 1' above achievement bar and reducing bar size by about 10%
+  const handleGetMoreTokens = () => {
+    navigate('/pricing');
+  };
+
+  const xpPercentage = (currentUser?.user.xp/250)*100
 
   return (
     <Box
@@ -151,6 +167,9 @@ export const TopBar = ({
               width={'500px'} 
               justifyContent='flex-end'
             >
+              <Box className={classes.counterContainer}>
+                <TokenCounter tokens={currentUser?.user.tokens || 0} />
+              </Box>
               <Tooltip
                 title={
                   <div
@@ -162,7 +181,7 @@ export const TopBar = ({
                     }}
                   > 
                     <Typography variant='caption' letterSpacing='1px'>
-                      {`Tokens: ${0}`}
+                      {`Tokens: ${currentUser?.user.tokens}`}
                     </Typography>
                     <Typography variant='body2' letterSpacing='1px'>
                       {`Get More Tokens`}
@@ -173,27 +192,30 @@ export const TopBar = ({
                 <Box display='flex'>
                   <PaidIcon
                     fontSize='medium' 
-                    sx={{ color: '#c4a537' }} 
+                    sx={{ color: '#c4a537' }}
+                    onClick={handleGetMoreTokens} 
                   />
-                  <PriorityHighIcon 
-                    color='warning'
-                    sx={{
-                      height: '15px',
-                      marginLeft: '-8px'
-                    }}
-                  />
+                  {currentUser.user.tokens === 0 && (
+                    <PriorityHighIcon 
+                      color='warning'
+                        sx={{
+                          height: '15px',
+                          marginLeft: '-8px'
+                      }}
+                    />
+                  )}
                 </Box>                
               </Tooltip>
               <Box sx={{ width: '100px', height: '8px' }}>
                 <StyledLinearProgress 
                   variant='determinate' 
-                  value={78} 
+                  value={xpPercentage} 
                   sx={{ borderRadius: '5px', height: '8px', marginRight: '10%' }}
                 />
               </Box>
-              <Typography letterSpacing='1px' color='whitesmoke' paddingRight='1%'>
-                lvl 1
-              </Typography>
+              <Box className={classes.counterContainer}>
+                <XPCounter currentXp={currentUser.user.xp} maxXp={250} />
+              </Box>
               <Tooltip
                   arrow
                   title={

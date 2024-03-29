@@ -43,7 +43,6 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairView):
 
         # Generate verification token and save it to the user model
         verification_token = RefreshToken.for_user(user).access_token
-        print('verification_token: ', verification_token)
         user.email_verification_token = verification_token
         user.save()
 

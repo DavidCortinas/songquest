@@ -34,7 +34,9 @@ class LoginSerializer(TokenObtainPairSerializer):
             'user': {
                 'id': user.id,
                 'email': user.email,
-                # Add other user fields as needed
+                'xp': user.xp,
+                'tokens': user.tokens,
+                'spotify_connected': bool(user.spotify_refresh),
             }
         }
 

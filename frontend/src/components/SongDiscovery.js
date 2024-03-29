@@ -1,9 +1,11 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import {
   Box,
   Button,
   CardHeader,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
   useMediaQuery,
 } from '@mui/material';
@@ -18,7 +20,8 @@ import { Body } from './Body';
 import LeftPanel from './sidePanels/LeftPanel';
 import RightPanel from './sidePanels/RightPanel';
 import { initialDiscoveryState } from 'reducers';
-import { saveRequestParameters } from 'thunks';
+import { getUserTokens, saveRequestParameters } from 'thunks';
+import { useLocation } from 'react-router-dom';
 
 const Recommendations = lazy(() => import('./Recommendations'))
 const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'))
@@ -104,6 +107,19 @@ const useStyles = makeStyles((theme) => (
       '&:hover, &:active, &.MuiFocusVisible': {
         border: '2px solid rgba(89, 149, 192, 0.5)',
         backgroundColor: 'rgb(44, 216, 207, 0.5)',
+        boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+      },
+    },
+    disabled: {
+      color: 'grey',
+      backgroundColor: 'rgb(44, 216, 207, 0.1)',
+      border: '2px solid rgba(89, 149, 192, 0.5)',
+      borderRadius: '18px',
+      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+      transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+      '&:hover, &:active, &.MuiFocusVisible': {
+        border: '2px solid rgba(89, 149, 192, 0.5)',
+        backgroundColor: 'rgb(44, 216, 207, 0.2)',
         boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
       },
     },
@@ -271,7 +287,6 @@ const useStyles = makeStyles((theme) => (
 ));
 
 const MobileResults = ({
-  handleSelectUseTokens,
   discoveryRecommendations,
   classes,
   user,
@@ -300,8 +315,7 @@ const MobileResults = ({
       paddingLeft={(user?.user || showTracks) && '3%'}
     >
       {(user?.user || showTracks) && (showPlaylists ? (
-        <LeftPanel 
-          handleSelectUseTokens={handleSelectUseTokens}
+        <LeftPanel       
           isMdScreen={isMdScreen}
           isSmScreen={isSmScreen}
           isXsScreen={isXsScreen}
@@ -311,8 +325,7 @@ const MobileResults = ({
       ) : (
         <RightPanel 
           currentPlaylist={currentPlaylist}
-          onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-          handleSelectUseTokens={handleSelectUseTokens}
+          onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}      
           handleExploreMoreClick={handleExploreMoreClick}
           isSmScreen={isSmScreen}
           isXsScreen={isXsScreen}
@@ -326,6 +339,12 @@ const MobileResults = ({
           '65%'
         }
       >
+        <Box display="flex" justifyContent="center">
+          <ToggleButtonGroup exclusive>
+            <ToggleButton value="Discover">Results</ToggleButton>
+            <ToggleButton value="Selected Playlist">Playlist</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
         {isLoading && (
           <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
             <Box
@@ -436,8 +455,9 @@ const MobileResults = ({
 
 export const SongDiscovery = ({ 
     recommendations, 
+    selectedPlaylist,
     dataLoaded,
-    user,
+    currentUser,
     currentPlaylist,
     onRemoveFromCurrentPlaylistById,
     onSaveQuery,
@@ -463,6 +483,8 @@ export const SongDiscovery = ({
   const [queryName, setQueryName] = useState(''); 
 
   const [showPlaylists, setShowPlaylists] = useState(true);
+
+  const [toggleValue, setToggleValue] = useState('Discovery Results');
 
   useEffect(() => {
     if (isLoading) {
@@ -495,14 +517,18 @@ const handleExploreMoreClick = (activatesModal) => {
   const classes = useStyles();
   const discoveryRecommendations = recommendations?.tracks
   
-  const showTracks = discoveryRecommendations && dataLoaded
+  const showTracks = discoveryRecommendations && dataLoaded || toggleValue === 'Selected Playlist';
 
   const handleQueryNameChange = (e) => {
     setQueryName(e.target.value);
   };
 
-  const handleSelectUseTokens = () => {
-
+  const handleToggle = () => {
+    if (toggleValue === 'Discovery Results') {
+      setToggleValue('Selected Playlist')
+    } else {
+      setToggleValue('Discovery Results')
+    }
   };
 
   return (
@@ -516,9 +542,10 @@ const handleExploreMoreClick = (activatesModal) => {
         targetParamValues={targetParamValues}
         setTargetParamValues={setTargetParamValues}
         setIsLoading={setIsLoading}
-        user={user}
+        currentUser={currentUser}
         openDemoModal={openDemoModal}
         setOpenDemoModal={setOpenDemoModal}
+        setToggleValue={setToggleValue}
       />
       {!(isSmScreen || isXsScreen || isMdScreen) ? (
         <Box
@@ -528,21 +555,21 @@ const handleExploreMoreClick = (activatesModal) => {
           width='100%'
           id='resultsBox'
         >
-          {(user?.user || showTracks) && (
+          {(currentUser?.user || showTracks) && (
             <LeftPanel 
-              handleSelectUseTokens={handleSelectUseTokens}
+              setToggleValue={setToggleValue}
               isMdScreen={isMdScreen}
               isSmScreen={isSmScreen}
               isXsScreen={isXsScreen}
               setShowPlaylists={setShowPlaylists}
-              user={user}
+              user={currentUser}
             />
           )}
           <Box 
             backgroundColor='transparent' 
             width={(isXsScreen || isSmScreen) ? 
               '100%' : 
-              (user?.user || showTracks) ? 
+              (currentUser?.user || showTracks) ? 
               '53%' : 
               '70%'
             }
@@ -550,6 +577,33 @@ const handleExploreMoreClick = (activatesModal) => {
             flexDirection='column'
             alignItems='center'
           >
+            <ToggleButtonGroup 
+              exclusive
+              sx={{
+                background: 'rgba(48, 130, 164, 0.15)',
+                boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+              }}
+              onChange={handleToggle}
+            >
+              <ToggleButton 
+                value="Discovery Results"
+                sx={{
+                  backgroundColor: toggleValue === 'Discovery Results' ? 'transparent' : 'rgba(48, 130, 164, 0.15)',
+                  color: toggleValue === 'Discovery Results' ? 'whitesmoke' : 'grey',
+                }}
+              >
+                Discovery Results
+              </ToggleButton>
+              <ToggleButton 
+                value="Selected Playlist"
+                sx={{
+                  backgroundColor: toggleValue === 'Selected Playlist' ? 'transparent' : 'rgba(48, 130, 164, 0.15)',
+                  color: toggleValue === 'Selected Playlist' ? 'whitesmoke' : 'grey',
+                }}
+              >
+                Selected Playlist
+              </ToggleButton>
+            </ToggleButtonGroup>
             {isLoading && (
               <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
                 <Box
@@ -572,17 +626,18 @@ const handleExploreMoreClick = (activatesModal) => {
                 <Suspense fallback={<div>Loading...</div>}>
                   <Recommendations 
                     classes={classes} 
-                    recommendations={discoveryRecommendations}
-                    user={user}
+                    recommendations={toggleValue === 'Selected Playlist' ? selectedPlaylist.songs : discoveryRecommendations}
+                    user={currentUser}
                     currentPlaylist={currentPlaylist}
                     onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
                     setIsModalOpen={setIsModalOpen}
                     isXsScreen={isXsScreen}
+                    toggleValue={toggleValue}
                   />
                 </Suspense>
               </Box>    
             ) : !isLoading && (
-              user?.user ? (
+              currentUser?.user ? (
                 <Box 
                   display='flex'
                   flexDirection='column'
@@ -657,11 +712,11 @@ const handleExploreMoreClick = (activatesModal) => {
               )
             )}
           </Box>
-          {(user?.user || showTracks) && (
+          {(currentUser?.user || showTracks) && (
             <RightPanel 
               currentPlaylist={currentPlaylist}
               onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-              handleSelectUseTokens={handleSelectUseTokens}
+          
               handleExploreMoreClick={handleExploreMoreClick}
               isSmScreen={isSmScreen}
               isXsScreen={isXsScreen}
@@ -671,10 +726,10 @@ const handleExploreMoreClick = (activatesModal) => {
         </Box>
       ) : (
         <MobileResults 
-          handleSelectUseTokens={handleSelectUseTokens}
+      
           discoveryRecommendations={discoveryRecommendations}
           classes={classes}
-          user={user}
+          user={currentUser}
           currentPlaylist={currentPlaylist}
           onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
           setIsModalOpen={setIsModalOpen}
@@ -696,7 +751,7 @@ const handleExploreMoreClick = (activatesModal) => {
         onSaveQuery={onSaveQuery}
         queryName={queryName}
         handleQueryNameChange={handleQueryNameChange}
-        user={user}
+        user={currentUser}
         classes={classes}
         parameters={parameters}
       />
@@ -708,8 +763,9 @@ const mapStateToProps = (state) => {
   return {
     error: state.discovery.error,
     recommendations: state.discovery.recommendations,
+    selectedPlaylist: state.playlist.selectedPlaylist,
     dataLoaded: state.discovery.dataLoaded,
-    user: state.user.currentUser,
+    currentUser: state.user.currentUser,
     currentPlaylist: state.playlist.currentPlaylist,
   };
 };

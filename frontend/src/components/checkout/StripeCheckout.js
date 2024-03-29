@@ -93,7 +93,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice, user }) => {
         const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
-                return_url: 'http://localhost:3000/payment-complete',
+                return_url: 'http://localhost:3000/?payment=success',
             },
         });
 
@@ -139,13 +139,11 @@ const CheckoutForm = ({ clientSecret, selectedPrice, user }) => {
     );
 };
 
-export const StripeCheckout = ({user}) => {
+export const StripeCheckout = ({ user }) => {
     const [clientSecret, setClientSecret] = useState('');
     const location = useLocation();
-    console.log(location)
 
     const selectedPrice = location.state?.selectedPrice;
-    console.log(selectedPrice)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -158,6 +156,7 @@ export const StripeCheckout = ({user}) => {
                 headers: { 
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken,
+                    'User-Id': user?.id,
                  },
                 body: body,
             });

@@ -30,7 +30,7 @@ const PlaylistItemCard = ({
   isXsScreen, 
 }) => {
   const songName = item?.name;
-  const artists = item?.artists.join(', ');
+  const artists = item?.artists?.join(', ');
   const imgUrl = item?.image;  
 
   return (
@@ -135,11 +135,11 @@ const CreatePlaylist = ({
   classes,
   currentPlaylist,
   handleCreatePlaylist,
-  handleSelectUseTokens,
   user,
   setPlaylistName,
   playlistName,
   onRemoveFromCurrentPlaylistById,
+  navigate,
 }) => {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -147,11 +147,12 @@ const CreatePlaylist = ({
   const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
+  
+  const [songsToRemove, setSongsToRemove] = useState([]);
+
   const isPlaylistItemChecked = (item) => {
     return songsToRemove.some(song => song === item.id);
   };
-
-  const [songsToRemove, setSongsToRemove] = useState([]);
 
   const handleBulkRemove = () => {
     onRemoveFromCurrentPlaylistById(...songsToRemove.map(songId => songId));
@@ -170,10 +171,18 @@ const CreatePlaylist = ({
   };
 
   const handlePlaylistSelectAll = () => {
-    if (songsToRemove.length === 0) {
+    if (songsToRemove.length !== currentPlaylist.length) {
         setSongsToRemove(currentPlaylist.map(song => song.id));
     } else {
         setSongsToRemove([]);
+    };
+  };
+
+  const handleConnectToSpotify = () => {
+    if (!user?.user) {
+      navigate('/login');
+    } else {
+
     };
   };
 
@@ -226,7 +235,7 @@ const CreatePlaylist = ({
         <Box 
           display='flex' 
           justifyContent={'space-between'}
-          padding={'5% 0'}
+          padding={'5% 0 0 5%'}
         >
           <Tooltip
             title={
@@ -271,8 +280,10 @@ const CreatePlaylist = ({
                 }}
               > 
                 <Typography variant='body2' letterSpacing='1px'>
-                  {user?.user.spotify_connected ? 
+                  {user?.user.spotifyConnected && user?.user.tokens > 2 ? 
                   'Create Playlist' : 
+                  user?.user.tokens < 2 ?
+                  "Get more tokens to complete request" :
                   'Connect to Spotify to create playlists'}
                 </Typography>
               </div>
@@ -281,7 +292,7 @@ const CreatePlaylist = ({
             <Button 
               disabled={!user?.user}
               onClick={handleCreatePlaylist} 
-              className={classes.button}
+              className={user?.user.tokens < 2 ? classes.disabled : classes.button}
             >
               <Box display='flex' alignItems='center'>
                 <AutoAwesomeIcon
@@ -316,10 +327,14 @@ const CreatePlaylist = ({
               </div>
             }
           >
+            <Button
+                sx={{ padding: '0'}}
+            >
               <PlaylistRemoveIcon 
                 style={{ color: theme.palette.primary.white }}
                 onClick={handleBulkRemove}
               />
+            </Button>
           </Tooltip>
         </Box>
       </Box>
@@ -356,7 +371,7 @@ const CreatePlaylist = ({
               paddingBottom='5%'
               position='relative'
             >
-              {user?.user.spotify_connected ? (
+              {user?.user.spotifyConnected ? (
                 <Typography 
                   variant={(isXsScreen || isSmScreen) ? 'subtitle2' : 'subtitle1' }
                   textAlign='center' 
@@ -381,7 +396,7 @@ const CreatePlaylist = ({
                   </Typography>
                   <li style={{ listStyle: 'none' }}>
                     <Card
-                      onClick={handleSelectUseTokens}
+                      onClick={handleConnectToSpotify}
                       className={classes.panelCard}
                     >
                       <Box padding='0 5% 0'>
@@ -443,17 +458,22 @@ const CreatePlaylist = ({
     };
 
     const handleCreatePlaylist = () => {
-      if (!user?.user.spotify_connected) {
+      if (!user?.user.spotifyConnected) {
         navigate('/spotify-connect')
+      };
+
+      if (user?.user.tokens < 2) {
+        navigate('/pricing');
       };
 
       const newPlaylist = {
         name: playlistName, 
         tracks: currentPlaylist
-      }
+      };
 
       onCreatePlaylist(user?.user.id, newPlaylist)
         .then(createdPlaylist => {
+          console.log('createdPlaylist: ', createdPlaylist)
           const playlistId = createdPlaylist.id;
           const playlistTracks = newPlaylist.tracks.map(track => {
             return {
@@ -464,6 +484,7 @@ const CreatePlaylist = ({
               image: track.image
             }
           });
+          console.log(playlistTracks)
 
           return onAddToSavedPlaylist(playlistId, user?.user.id, playlistTracks);
         })
@@ -555,6 +576,7 @@ const CreatePlaylist = ({
             setPlaylistName={setPlaylistName}
             classes={classes}
             onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+            navigate={navigate}
           />
         </Card>
       </Box>

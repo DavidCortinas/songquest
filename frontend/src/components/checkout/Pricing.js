@@ -138,7 +138,6 @@ export const Pricing = ({ onGetPricing, user }) => {
   }, [onGetPricing]);
 
   const handleSelectPricing = (price) => {
-    console.log(price);
     navigate('/checkout', { state: { selectedPrice: price } });
   };
 

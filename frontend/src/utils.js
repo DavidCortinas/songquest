@@ -1,3 +1,6 @@
+import { Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+
 export const toCapitalCase= (str) => {
     if (str) {
         return str
@@ -11,6 +14,75 @@ export const toCapitalCase= (str) => {
 
 export const handleExploreMoreClick = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+export const TokenCounter = ({ tokens }) => {
+  const [displayTokens, setDisplayTokens] = useState(tokens);
+  const [addedTokens, setAddedTokens] = useState(0);
+
+  useEffect(() => {
+    const newTokensAdded = tokens - displayTokens;
+    if (newTokensAdded > 0) {
+      setAddedTokens(newTokensAdded);
+      let currentDisplay = displayTokens;
+      
+      const intervalId = setInterval(() => {
+        currentDisplay++;
+        setDisplayTokens(currentDisplay);
+        if (currentDisplay >= tokens) {
+          clearInterval(intervalId);
+        }
+      }, 50);
+    }
+  }, [tokens]);
+
+  return (
+    <Typography
+      color='white'
+      paddingRight='1%'
+      variant='h6'
+    >
+      {addedTokens > 0 && (
+        <div className="added-tokens-animation">+{addedTokens}</div>
+      )}
+      {displayTokens}
+    </Typography>
+  );
+};
+
+export const XPCounter = ({ currentXp, maxXp }) => {
+  const [displayXp, setDisplayXp] = useState(currentXp);
+  const [addedXp, setAddedXp] = useState(0);
+
+  useEffect(() => {
+    const xpDifference = currentXp - displayXp;
+    if (xpDifference > 0) {
+      setAddedXp(xpDifference);
+      let currentDisplay = displayXp;
+      
+      const intervalId = setInterval(() => {
+        currentDisplay++;
+        setDisplayXp(currentDisplay);
+        if (currentDisplay >= currentXp) {
+          clearInterval(intervalId);
+          setTimeout(() => setAddedXp(0), 2000);
+        }
+      }, 50);
+    }
+  }, [currentXp, displayXp]);
+
+  return (
+    <Typography
+      color='white'
+      paddingRight='1%'
+      letterSpacing='1px'
+    >
+      {addedXp > 0 && (
+        <div className="added-xp-animation">+{addedXp}</div>
+      )}
+        {`${displayXp}/${maxXp}xp`}
+    </Typography>
+  );
 };
 
 export const transformResponseToQueryStructure = (responseData) => {

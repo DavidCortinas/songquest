@@ -10,6 +10,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Pricing from 'components/checkout/Pricing';
 import RegistrationSuccess from 'components/auth/RegistrationSuccess';
 import ErrorPage from 'components/ErrorPage';
+import CleanUrlAndHandlePaymentSuccess from 'components/checkout/utilities/CleanUrlAndHandlePaymentSuccess';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 
@@ -22,7 +23,9 @@ const RoutesContainer = () => {
             <Route
               path={'/'}
               element={
-                <SongDiscovery />
+                <CleanUrlAndHandlePaymentSuccess>
+                  <SongDiscovery />
+                </CleanUrlAndHandlePaymentSuccess>
               }
             />
             <Route 

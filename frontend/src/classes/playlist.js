@@ -41,6 +41,24 @@ const useStyles = makeStyles(() => (
                 height: '5%',
                 minWidth: '54px'
             },
+            },
+        disabled: {
+            color: 'grey',
+            backgroundColor: 'rgb(44, 216, 207, 0.1)',
+            border: '2px solid rgba(89, 149, 192, 0.5)',
+            borderRadius: '18px',
+            boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+            transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+            '&:hover, &:active, &.MuiFocusVisible': {
+                border: '2px solid rgba(89, 149, 192, 0.5)',
+                backgroundColor: 'rgb(44, 216, 207, 0.2)',
+                boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+            },
+            [theme.breakpoints.down('md')]: {
+                padding: '0',
+                height: '5%',
+                minWidth: '54px'
+            },
         },
         actionButton: {
             display: 'flex', 
@@ -79,6 +97,11 @@ const useStyles = makeStyles(() => (
                 background: 'rgba(48, 130, 164, 0.15)',
                 boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
             },
+        },
+        panelCardSelected: {
+            border: '2px solid rgba(89, 149, 192, 0.5)',
+            background: 'rgba(48, 130, 164, 0.15)',
+            boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',         
         },
         playlistField: {
             width: '100%',
