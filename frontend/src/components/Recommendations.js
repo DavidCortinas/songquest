@@ -30,7 +30,7 @@ const Recommendation = ({
     const recommendationInPlaylist = currentPlaylist.some(track => track.spotify_id === recommendation.id);
 
     const handleAddToPlaylistClick = useCallback(() => {
-      if (!user?.user.spotify_connected) {
+      if (!user?.user.spotifyConnected) {
         navigate('/spotify-connect');
       } else {
         recommendationInPlaylist
@@ -42,7 +42,7 @@ const Recommendation = ({
               image: recommendation.album.images[2].url,
             });
       }
-    }, [user?.user.spotify_connected, navigate, recommendation, recommendationInPlaylist, onRemoveFromCurrentPlaylistById, onAddToCurrentPlaylist]);
+    }, [user?.user.spotifyConnected, navigate, recommendation, recommendationInPlaylist, onRemoveFromCurrentPlaylistById, onAddToCurrentPlaylist]);
 
 
     const recommendationInSongsToAdd = songsToAdd.some(obj => obj.id === recommendation.id);
@@ -56,6 +56,7 @@ const Recommendation = ({
     }, [recommendation, recommendationInSongsToAdd, setSongsToAdd]);
 
     const isChecked = recommendationInSongsToAdd;
+    console.log(recommendation)
 
     return (
       <li className={classes.recommendations} key={index}>
@@ -67,7 +68,7 @@ const Recommendation = ({
           sx={{ padding: '0 3% 0 2%' }}
         />
         <iframe
-          src={`https://open.spotify.com/embed/track/${recommendation.id}?utm_source=generator`}
+          src={`https://open.spotify.com/embed/track/${recommendation.spotify_id || recommendation.id}?utm_source=generator`}
           height="100%"
           width={isXsScreen ? "65%" : '100%'}
           frameBorder="0"
@@ -88,7 +89,7 @@ const Recommendation = ({
                 }}
               > 
                 <Typography variant='body2' letterSpacing='1px'>
-                  {user?.user.spotify_connected && !recommendationInPlaylist ? 
+                  {user?.user.spotifyConnected && !recommendationInPlaylist ? 
                   "Add to current playlist" :
                   recommendationInPlaylist ?
                   "Remove from current playlist" :
@@ -118,9 +119,10 @@ const Recommendations = ({
   onRemoveFromCurrentPlaylistById,
   setIsModalOpen,
   isXsScreen,
+  toggleValue,
 }) => {
   const [songsToAdd, setSongsToAdd] = useState([]);
-  const [visibleRecommendations, setVisibleRecommendations] = useState(recommendations.length); 
+  const [visibleRecommendations, setVisibleRecommendations] = useState(recommendations?.length); 
   const containerRef = useRef(null);
 
   const openModal = () => {
@@ -231,16 +233,23 @@ const Recommendations = ({
                   width: '50%' 
                 }}
               >
-                <VisibilityIcon 
-                  fontSize={isXsScreen ? 'small' : 'medium'}
-                  style={{ color: theme.palette.primary.analogous1 }} 
-                />
+                {toggleValue === 'Discovery Results' && (
+                  <VisibilityIcon 
+                    fontSize={isXsScreen ? 'small' : 'medium'}
+                    style={{ color: theme.palette.primary.analogous1 }} 
+                  />
+                )}
                 <Typography 
                   color='white' 
                   variant={isXsScreen ? 'caption' : 'subtitle1'}
                   paddingLeft='3%'
                 >
-                  {isXsScreen ? 'Request' : 'View Request'}
+                  {isXsScreen && toggleValue === 'Discovery Results' ? 
+                    'Request' : 
+                    toggleValue === 'Discovery Results' ? 
+                    'View Request' :
+                    'Selected Playlist'
+                  }
                 </Typography>
               </Button>
             </Tooltip>)
@@ -284,7 +293,7 @@ const Recommendations = ({
             scrollbarDarkShadowColor: 'transparent',
           }}
         >
-          {recommendations.slice(0, visibleRecommendations).map((recommendation, index) => (
+          {recommendations?.slice(0, visibleRecommendations).map((recommendation, index) => (
               <Recommendation
                 classes={classes}
                 recommendation={recommendation}

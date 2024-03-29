@@ -122,43 +122,20 @@ def search_song(request):
 
 @csrf_exempt
 def get_user(request):
-    print('get_user')
     user_email = request.headers.get('User-Email')
-    print(user_email)
 
-    users = list(User.objects.values_list("email", flat=True))
-    print(users)
     try:
         user = User.objects.get(email=user_email)
-        print(user)
-        username = user.username
-        print(username)
-        if user.email in users:
-            # User's email exists in the list of emails
-            response_data = {
-                "email": user.email,
-                "username": username,
-                "isRegistered": True,
-            }
-            return JsonResponse(
-                response_data,
-                status=200,
-                headers={'Access-Control-Allow-Origin': '*'}
-            )
-        else:
-            # User's email does not exist in the list of emails
-            response_data = {
-                "email": user.email,
-                "isRegistered": False,
-            }
-            return JsonResponse(
-                response_data,
-                status=200,
-                headers={'Access-Control-Allow-Origin': '*'}
-            )
+        response_data = {
+            "email": user.email,
+            "username": user.display_name,
+            "isRegistered": True,
+        }
+        return JsonResponse(response_data, status=200, headers={'Access-Control-Allow-Origin': '*'})
 
-    except ValueError:
-        print("ValueError: ", ValueError)
+    except User.DoesNotExist:
+        # Handling case where user does not exist
+        return JsonResponse({"error": "User does not exist", "isRegistered": False}, status=404, headers={'Access-Control-Allow-Origin': '*'}) 
 
 
 @csrf_exempt
@@ -167,21 +144,21 @@ def login_user():
 
 
 @csrf_exempt
-def update_username(request):
+def update_display_name(request):
     if request.method == 'PATCH':
         try:
             # Retrieve the user
             user_id = request.headers.get('User-Id')
             user = User.objects.get(pk=user_id)
 
-            # Get the new username from the JSON request body
+            # Get the new display_name from the JSON request body
             data = json.loads(request.body.decode('utf-8'))
-            new_username = data.get('newUsername')
+            new_display_name = data.get('newUsername')
 
-            # Update the username
-            user.username = new_username
+            # Update the display_name
+            user.display_name = new_display_name
 
-            # Save the user object to update the username
+            # Save the user object to update the display_name
             user.save()
 
             # Return a success response
@@ -194,14 +171,35 @@ def update_username(request):
 
 @csrf_exempt
 def discover_song(request):
-    data = json.loads(request.body)
-    response = get_recommendations(data)
+    try:
+        data = json.loads(request.body)
+        action = data['action']
 
-    return JsonResponse(
-        response,
-        status=200,
-        headers={'Access-Control-Allow-Origin': '*'}
-    )
+        user_id = request.headers.get('User-Id')
+        user = get_user_model().objects.get(id=user_id)
+
+        user.use_tokens(action)
+        user.update_xp(action)
+
+        parameters = data['parameters']
+        recommendations = get_recommendations(parameters)
+
+        response = {
+            'updated_tokens': user.tokens,
+            'updated_xp': user.xp, 
+            'recommendations': recommendations,
+        }
+
+        return JsonResponse(response, status=200, headers={'Access-Control-Allow-Origin': '*'})
+    
+    except KeyError:
+        return JsonResponse({'error': 'Missing action parameter in request.'}, status=400)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except get_user_model().DoesNotExist:
+        return JsonResponse({'error': 'Invalid User-Id'}, status=404)
 
 
 @csrf_exempt
@@ -422,7 +420,6 @@ def get_spotify_artists(request):
                 return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
 
         artist_ids = data.get('artistIds', [])
-        print('artist_ids: ', artist_ids)
 
         if not artist_ids:
             return JsonResponse({'error': 'No artistIds provided'}, status=400)
@@ -636,6 +633,8 @@ def create_playlist(request):
 
     try:
         data = json.loads(request.body.decode('utf-8'))
+        action = data['action']
+        playlist = data['playlist']
         user_id = request.headers.get('User-Id')
         if not user_id:
             return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
@@ -671,11 +670,12 @@ def create_playlist(request):
         }
         
         body = json.dumps({
-            'name': data['name'],
+            'name': playlist['name'],
             'description': 'Created with SongQuest',
         })
 
         response = requests.post(spotify_url, headers=headers, data=body)
+        print('create playlist response: ', response)
 
         if response.status_code == 201:
             spotify_data = response.json()
@@ -689,13 +689,23 @@ def create_playlist(request):
                 user=user
             )
 
+            print('user: ', user)
+            user.use_tokens(action)
+            user.update_xp(action)
+
             playlist_data = {
                 'id': playlist.id,
                 'name': playlist.name,
                 'songs': [],
             }
 
-            return JsonResponse(playlist_data, status=200)
+            data = {
+                'playlist_data': playlist_data,
+                'updated_tokens': user.tokens,
+                'updated_xp': user.xp,
+            }
+
+            return JsonResponse(data, status=200)
         else:
             return JsonResponse({'error': 'Failed to create playlist'}, status=response.status_code)
 
@@ -703,6 +713,30 @@ def create_playlist(request):
         print('Error: ', str(e))
         return JsonResponse({'error': 'Server error'}, status=500)
 
+
+@csrf_exempt
+def delete_playlist(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        playlist_ids = data.get('playlist_ids')  # Note the plural 'playlist_ids'
+        
+        if not playlist_ids:
+            return JsonResponse({'error': 'Playlist IDs are required'}, status=400)
+
+        try:
+            # Use filter instead of get to delete multiple playlists
+            playlists = Playlist.objects.filter(id__in=playlist_ids)
+            playlists.delete()
+            return JsonResponse({'message': 'Playlists deleted successfully'}, status=200)
+        except Playlist.DoesNotExist:
+            return JsonResponse({'error': 'One or more playlists not found'}, status=404)
+
+    except Exception as e:
+        print('Error: ', str(e))
+        return JsonResponse({'error': 'Server error'}, status=500)
 
 @csrf_exempt
 def add_to_playlist(request, playlist_id):
@@ -766,8 +800,9 @@ def add_to_playlist(request, playlist_id):
             playlist.songs.add(song)
         
         response = requests.post(spotify_url, headers=headers, data=body)
+        print('add to playlist response: ', response)
 
-        if response.status_code == 201:
+        if response.status_code == 201 or response.status_code == 200:
             serialized_playlist = {
                 'id': playlist.id,
                 'name': playlist.name,
@@ -782,9 +817,9 @@ def add_to_playlist(request, playlist_id):
                     for song in playlist.songs.all()
                 ],
             }
-            return JsonResponse({'playlist': serialized_playlist, 'message': 'Playlist created successfully'}, status=200)
+            return JsonResponse({'playlist': serialized_playlist, 'message': 'Tracks successfully added to playlist'}, status=200)
         else:
-            return JsonResponse({'error': 'Failed to create playlist'}, status=response.status_code)
+            return JsonResponse({'error': 'Failed to add to playlist'}, status=response.status_code)
 
     except Exception as e:
         print('Error: ', str(e))
@@ -935,6 +970,22 @@ def get_user_requests(request):
         serialized_request = req.to_dict()
         serialized_requests.append(serialized_request)
     return JsonResponse({'requests': serialized_requests})
+
+
+@csrf_exempt
+def get_user_tokens(request):
+    user_id = request.headers.get('User-Id')
+    if not user_id:
+        return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
+
+    try:
+        user = get_user_model().objects.get(id=user_id)
+    except get_user_model().DoesNotExist:
+        return JsonResponse({'error': 'Invalid User-Id'}, status=400)
+
+    user_tokens = user.tokens
+
+    return JsonResponse({'tokens': user_tokens})
 
 
 # @csrf_exempt

@@ -14,34 +14,46 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import getPlaylistItems from "utils/playlist";
 import useStyles from "classes/playlist";
 import { connect } from "react-redux";
-import { addToCurrentPlaylist, deletePlaylist, resetCurrentPlaylist } from "actions";
+import { addToCurrentPlaylist, resetCurrentPlaylist, setSelectedPlaylist } from "actions";
 import theme from "theme";
+import { useState } from "react";
+import { deletePlaylistRequest } from "thunks";
 
 const PlaylistCard = ({ 
   classes, 
   index, 
   userPlaylist, 
+  selectedPlaylist,
   onAddToCurrentPlaylist,
+  onSetCurrentPlaylist,
+  onResetCurrentPlaylist,
   isXsScreen, 
   isSmScreen,
   setShowPlaylists,
+  setToggleValue,
 }) => {
   const playlistName = userPlaylist?.name
 
   const handlePlaylistClick = () => {
-    onAddToCurrentPlaylist(...userPlaylist.songs);
+    onResetCurrentPlaylist();
+    
+    // onAddToCurrentPlaylist(...userPlaylist.songs);
+    onSetCurrentPlaylist(userPlaylist.id);
+    setToggleValue('Selected Playlist');
     if (isXsScreen || isSmScreen) {
       setShowPlaylists(false);
     }
   };
+
+  const selected = Boolean(selectedPlaylist === userPlaylist)
 
   return (
     <Tooltip 
       title={
         <div
           style={{
-            maxHeight: '25vh', // Set the max height for the tooltip content
-            overflowY: 'auto', // Allow scrolling for overflow
+            maxHeight: '25vh',
+            overflowY: 'auto',
             padding: '8px',
             borderRadius: '8px',
           }}
@@ -64,7 +76,7 @@ const PlaylistCard = ({
       <Card
         onClick={handlePlaylistClick}
         key={index} 
-        className={classes.panelCard}
+        className={`${classes.panelCard} ${selected && classes.panelCardSelected}`}
       >
         <Typography
           noWrap  
@@ -100,19 +112,46 @@ const PlaylistCard = ({
 export const LeftPanel = ({
   userPlaylists,
   onAddToCurrentPlaylist,
+  onSetCurrentPlaylist,
   onDeletePlaylist,
   onResetCurrentPlaylist,
-  handleSelectUseTokens,
+  selectedPlaylist,
   isMdScreen,
   isSmScreen,
   isXsScreen,
   setShowPlaylists,
+  setToggleValue,
   user,
 }) => {
   const classes = useStyles();
+
+  const [playlistsToRemove, setPlaylistsToRemove] = useState([]);
+
+  const isPlaylistItemChecked = (item) => {
+    return playlistsToRemove.some(playlist => playlist === item.id);
+  };
+
+  const handleCheckPlaylist = (item) => {
+    if (isPlaylistItemChecked(item)) {
+      setPlaylistsToRemove(playlistsToRemove.filter(playlist => playlist !== item.id));
+    } else {
+      setPlaylistsToRemove([...playlistsToRemove, item.id])
+    };
+  };
+
+  const handleSelectAllPlaylists = () => {
+    if (playlistsToRemove.length !== userPlaylists.length) {
+      setPlaylistsToRemove(userPlaylists.map(playlist => playlist.id))
+    } else {
+      setPlaylistsToRemove([]);
+    };
+  }
   
-  const handleDeletePlaylist = (playlistId) => {
-    onDeletePlaylist(playlistId)
+  const handleBulkRemove = () => {
+    onDeletePlaylist(
+      playlistsToRemove.map(playlistId => playlistId),
+      () => setPlaylistsToRemove([])
+    );
   };
 
   const handleSelectNewPlaylist = () => {
@@ -222,7 +261,8 @@ export const LeftPanel = ({
                 </div>
               }
             >
-            <Checkbox 
+            <Checkbox
+              onClick={handleSelectAllPlaylists} 
               sx={{ 
                 padding: '0px', 
                 color: theme.palette.primary.white,
@@ -260,11 +300,11 @@ export const LeftPanel = ({
             >
               <Button
                 sx={{ padding: '0'}}
-                onClick={() => handleDeletePlaylist()}
               >
                 <PlaylistRemoveIcon 
                   style={{ color: theme.palette.primary.white }}
                   fontSize={isXsScreen ? 'small' : 'medium'} 
+                  onClick={handleBulkRemove}
                 />
               </Button>
             </Tooltip>
@@ -308,8 +348,8 @@ export const LeftPanel = ({
                           color='info' 
                         />
                       }                       
-                      // onClick={() => handlePlaylistSelectClick(item)}
-                      // checked={isPlaylistItemChecked(item)}
+                      onClick={() => handleCheckPlaylist(userPlaylist)}
+                      checked={isPlaylistItemChecked(userPlaylist)}
                       sx={{
                         color: 'white',
                         position: 'absolute',
@@ -323,11 +363,15 @@ export const LeftPanel = ({
                     <PlaylistCard 
                       userPlaylist={userPlaylist}
                       onAddToCurrentPlaylist={onAddToCurrentPlaylist}
+                      onSetCurrentPlaylist={onSetCurrentPlaylist}
+                      onResetCurrentPlaylist={onResetCurrentPlaylist}
                       index={index}
                       classes={classes}
                       isXsScreen={isXsScreen}
                       isSmScreen={isSmScreen}
                       setShowPlaylists={setShowPlaylists}
+                      selectedPlaylist={selectedPlaylist}
+                      setToggleValue={setToggleValue}
                     />
                   </li>
                 </Box>
@@ -343,12 +387,14 @@ export const LeftPanel = ({
 const mapStateToProps = (state) => {
 return {
   userPlaylists: state.playlist.playlists,
+  selectedPlaylist: state.playlist.selectedPlaylist,
 };
 };
 
 const mapDispatchToProps = (dispatch) => ({
   onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
-  onDeletePlaylist: (playlistId) => dispatch(deletePlaylist(playlistId)),
+  onSetCurrentPlaylist: (playlistId) => dispatch(setSelectedPlaylist(playlistId)),
+  onDeletePlaylist: (playlistIds, onSuccess) => dispatch(deletePlaylistRequest(playlistIds, onSuccess)),
   onResetCurrentPlaylist: () => dispatch(resetCurrentPlaylist()),
 });
 

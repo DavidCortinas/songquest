@@ -49,14 +49,15 @@ export const refreshSpotifyAccess = (newAccessToken, expiresAt) => ({
 });
 
 export const CONFIRM_SPOTIFY_ACCESS = 'CONFIRM_SPOTIFY_ACCESS';
-export const confirmSpotifyAccess = (spotifyConnected) => ({
+export const confirmSpotifyAccess = (spotifyConnected) => (
+  {
   type: CONFIRM_SPOTIFY_ACCESS,
   payload: { spotifyConnected },
 });
 
-export const UPDATE_USERNAME = 'UPDATE_USERNAME';
-export const updateUsername = (newUsername) => ({
-  type: UPDATE_USERNAME,
+export const UPDATE_DISPLAY_NAME = 'UPDATE_DISPLAY_NAME';
+export const updateDisplayName = (newUsername) => ({
+  type: UPDATE_DISPLAY_NAME,
   payload: { newUsername },
 });
 
@@ -185,6 +186,12 @@ export const addToCurrentPlaylist = (...songs) => ({
   payload: { songs },
 });
 
+export const SET_SELECTED_PLAYLIST = 'SET_SELECTED_PLAYLIST';
+export const setSelectedPlaylist = (playlistId) => ({
+  type: SET_SELECTED_PLAYLIST,
+  payload: { playlistId },
+});
+
 export const REMOVE_FROM_CURRENT_PLAYLIST_BY_ID = 'REMOVE_FROM_CURRENT_PLAYLIST_BY_ID';
 export const removeFromCurrentPlaylistById = (...songIds) => ({
   type: REMOVE_FROM_CURRENT_PLAYLIST_BY_ID,
@@ -212,6 +219,17 @@ export const addToSavedPlaylist = (playlistId, songs) => ({
   },
 });
 
+export const DELETE_PLAYLIST = 'DELETE_PLAYLIST';
+export const deletePlaylist = (...playlistIds) => ({
+  type: DELETE_PLAYLIST,
+  payload: { playlists: playlistIds },
+});
+
+export const RESET_CURRENT_PLAYLIST = 'RESET_CURRENT_PLAYLIST';
+export const resetCurrentPlaylist = () => ({
+  type: RESET_CURRENT_PLAYLIST,
+});
+
 export const GET_USER_PLAYLISTS_REQUEST = 'GET_USER_PLAYLISTS_REQUEST';
 export const getUserPlaylistsRequest = () => ({
  type: GET_USER_PLAYLISTS_REQUEST,
@@ -227,17 +245,6 @@ export const GET_USER_PLAYLISTS_FAILURE = 'GET_USER_PLAYLISTS_FAILURE';
 export const getUserPlaylistsFailure = (error) => ({
  type: GET_USER_PLAYLISTS_FAILURE,
  payload: { error },
-});
-
-export const DELETE_PLAYLIST = 'DELETE_PLAYLIST';
-export const deletePlaylist = (...playlistIds) => ({
-  type: DELETE_PLAYLIST,
-  payload: { playlists: playlistIds },
-});
-
-export const RESET_CURRENT_PLAYLIST = 'RESET_CURRENT_PLAYLIST';
-export const resetCurrentPlaylist = () => ({
-  type: RESET_CURRENT_PLAYLIST,
 });
 
 export const GET_REQUEST_PARAMETERS_REQUEST = 'GET_REQUEST_PARAMETERS_REQUEST';
@@ -256,6 +263,40 @@ export const getRequestParametersFailure = (error) => ({
   type: GET_REQUEST_PARAMETERS_FAILURE,
   payload: { error },
 });
+
+export const GET_USER_TOKENS_REQUEST = 'GET_USER_TOKENS_REQUEST';
+export const getUserTokensRequest = () => ({
+  type: GET_USER_TOKENS_REQUEST,
+});
+
+export const GET_USER_TOKENS_SUCCESS = 'GET_USER_TOKENS_SUCCESS';
+export const getUserTokensSuccess = (userTokens) => ({
+  type: GET_USER_TOKENS_SUCCESS,
+  payload: { userTokens },
+});
+
+export const GET_USER_TOKENS_FAILURE = 'GET_USER_TOKENS_FAILURE';
+export const getUserTokensFailure = (error) => ({
+  type: GET_USER_TOKENS_FAILURE,
+  payload: { error },
+}); 
+
+export const GET_USER_XP_REQUEST = 'GET_USER_XP_REQUEST';
+export const getUserXpRequest = () => ({
+  type: GET_USER_XP_REQUEST,
+});
+
+export const GET_USER_XP_SUCCESS = 'GET_USER_XP_SUCCESS';
+export const getUserXpSuccess = (userXp) => ({
+  type: GET_USER_XP_SUCCESS,
+  payload: { userXp },
+});
+
+export const GET_USER_XP_FAILURE = 'GET_USER_XP_FAILURE';
+export const getUserXpFailure = (error) => ({
+  type: GET_USER_XP_FAILURE,
+  payload: { error },
+}); 
 
 
 

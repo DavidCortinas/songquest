@@ -30,6 +30,7 @@ import { useForm } from "react-hook-form";
 import { initialDiscoveryState } from "reducers";
 import { toCapitalCase } from "utils";
 import { getCode } from "iso-3166-1-alpha-2";
+import { useNavigate } from "react-router-dom";
 
 const SliderModal = lazy(() => import('./SliderModal'));
 const AutocompleteParameter = lazy(() => import('./AutocompleteParameter'));
@@ -58,6 +59,7 @@ const SpotifyForm = ({
   classes,
   parameters,
   setIsLoading,
+  setToggleValue,
   tracks,
   artists,
   genres,
@@ -65,7 +67,7 @@ const SpotifyForm = ({
   setParameters,
   query,
   savedQueries,
-  user,
+  currentUser,
   openDemoModal,
   setOpenDemoModal,
   onSearchPressed,
@@ -179,12 +181,16 @@ const SpotifyForm = ({
   };
 
   const { handleSubmit } = useForm();
+  
+  const navigate = useNavigate();
 
   const onSubmit = () => {
-    console.log('submit')
+    setToggleValue('Discovery Results');
     setIsLoading(true);
-    if (!user?.user) {
+    if (!currentUser?.user) {
       setOpenDemoModal(false);
+    } else if (!currentUser?.user.tokens) {
+      navigate('/pricing');
     } else {
       setLocalSelectedOptions({
         songs: [],
@@ -193,9 +199,8 @@ const SpotifyForm = ({
         markets: [],
       });
     };
-    console.log(parameters)
     startTransition(() => {
-      onSearchPressed(parameters)
+      onSearchPressed(parameters, currentUser.user.id)
       .then(() => {
         setIsLoading(false);
       })
@@ -217,7 +222,7 @@ const SpotifyForm = ({
   };
 
   const handleViewSavedRequests = (e) => {
-    onGetRequestParameters(user?.user.id);
+    onGetRequestParameters(currentUser?.user.id);
     setAnchorEl(e.currentTarget);
   };
 
@@ -229,7 +234,7 @@ const SpotifyForm = ({
 
   const fetchData = async (ids, actionCreator) => {
     try {
-      const data = await dispatch(actionCreator(user?.user.id, ids));
+      const data = await dispatch(actionCreator(currentUser?.user.id, ids));
       return data || [];
     } catch (error) {
       console.error('Error fetching Spotify data:', error.message);
@@ -239,7 +244,7 @@ const SpotifyForm = ({
 
   
   useEffect(() => {
-    if (!user?.user) {
+    if (!currentUser?.user) {
       setLocalSelectedOptions({
         limit: savedQueries.initialQuery.limit,
         songs: savedQueries.initialQuery.songs.map(song => song.label),
@@ -405,7 +410,7 @@ const SpotifyForm = ({
                                 Choose the songs, artists, and genres you'd like to shape your recommendations.
                               </Typography>
                               <Box display='flex' justifyContent='center'>
-                              {user?.user && (
+                              {currentUser?.user && (
                                 <Tooltip
                                   arrow
                                   placement="top"
@@ -548,7 +553,7 @@ const SpotifyForm = ({
                                   "body1"
                                 }
                               >
-                                {!user?.user ?
+                                {!currentUser?.user ?
                                   'Register to Unlock the Ability to Customize Your Quest and More!' : Object.values(targetParamValues).every(arr => arr.length === 0)
                                   ? `Choose Up to 5 Recommendation Sources`
                                   : Object.values(targetParamValues).every(arr => arr.length < 5)
@@ -584,7 +589,7 @@ const SpotifyForm = ({
                                   onSelectedOptions={handleSelectedOptions}
                                   localSelectedOptions={localSelectedOptions}
                                   setLocalSelectedOptions={setLocalSelectedOptions}
-                                  user={user}
+                                  user={currentUser}
                                 />
                               </Box>
                             )}
@@ -696,7 +701,7 @@ const SpotifyForm = ({
                     }}
                   > 
                     <Typography variant='body2' letterSpacing='1px'>
-                      {'Discover New Music'}
+                      {!currentUser?.user.tokens ? "Get more tokens to complete request" : 'Discover New Music'}
                     </Typography>
                   </div>
                 }
@@ -706,14 +711,14 @@ const SpotifyForm = ({
                   type="submit"
                   variant='contained'
                   onClick={handleSubmit(onSubmit)}
-                  className={`${classes.button} ${openDemoModal ? classes.highlightedButton : ''}`}
+                  className={`${currentUser?.user && !currentUser?.user.tokens ? classes.disabled : classes.button} ${openDemoModal ? classes.highlightedButton : ''}`}
                   sx={(isSmScreen || isXsScreen) && {
                     typography: {
                       fontSize: '12px'
                     }
                   }}
                 >
-                  {user?.user ? 'Discover' : 'Test Search'}
+                  {currentUser?.user ? 'Discover' : 'Test Search'}
                 </Button>         
               </Tooltip>
               {openDemoModal && (
@@ -754,7 +759,7 @@ const SpotifyForm = ({
                 </Box>
               )}
             </div>
-            {user?.user && (
+            {currentUser?.user && (
               <Tooltip
                 title={
                   <div
@@ -800,7 +805,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  onSearchPressed: (query) => dispatch(discoverSongRequest(query)),
+  onSearchPressed: (query, userId) => dispatch(discoverSongRequest(query, userId)),
   onClearSeedsArray: () => dispatch(clearSeedsArray()),
   onResetQueryParameter: () =>
     dispatch(resetQueryParameter()),

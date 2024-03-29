@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import theme from '../../theme'
 import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { checkRegistration, getSpotifyUserAuth, getUserPlaylists, handleUpdateUsername, login, registerUser } from "../../thunks";
+import { checkRegistration, getSpotifyUserAuth, getUserPlaylists, handleUpdateDisplayName, login, registerUser } from "../../thunks";
 import { resetDataLoaded, setCurrentUser } from "../../actions";
 
 const useStyles = makeStyles(() => (
@@ -76,7 +76,7 @@ const useStyles = makeStyles(() => (
   }
 }));
 
-const UsernameInput = ({
+const DisplayNameInput = ({
     isXlScreen,
     isLgScreen,
     isMdScreen,
@@ -84,12 +84,12 @@ const UsernameInput = ({
     isXsScreen,
     classes,
     errors,
-    usernameValue,
+    displayNameValue,
     register,
-    handleUsernameChange,
-    invalidUsername,
+    handleDisplayNameChange,
+    invalidDisplayName,
     handleSubmit,
-    onCreateUsername
+    onCreateDisplayName
 }) => {
 
     return (
@@ -107,7 +107,7 @@ const UsernameInput = ({
                                     textAlign: 'center',
                                     color: 'white',
                                 }}
-                                subheader="Enter a username to get started"
+                                subheader="Enter a display name to get started"
                                 subheaderTypographyProps={{ 
                                     width: '100%', 
                                     variant: isXlScreen || isLgScreen 
@@ -142,17 +142,17 @@ const UsernameInput = ({
                                             color: 'white'
                                         },
                                     }}
-                                    error={errors.username}
+                                    error={errors.display_name}
                                     required
                                     className={classes.textField}
-                                    value={usernameValue}
-                                    label={errors.username ? "Invalid Username" : "username"}
-                                    type="username"
-                                    {...register('username', 
+                                    value={displayNameValue}
+                                    label={errors.display_name ? "Invalid Display Name" : "Display Name"}
+                                    type="display-name"
+                                    {...register('display-name', 
                                         { 
                                             required: true, 
-                                            onChange: (e) => handleUsernameChange(e),
-                                            error: invalidUsername,
+                                            onChange: (e) => handleDisplayNameChange(e),
+                                            error: invalidDisplayName,
                                         })
                                     }
                                 />
@@ -172,7 +172,7 @@ const UsernameInput = ({
                                         }}
                                     > 
                                         <Typography variant='body2' letterSpacing='1px'>
-                                        {'Create username and continue'}
+                                        {'Create display name and continue'}
                                         </Typography>
                                     </div>
                                     }
@@ -180,7 +180,7 @@ const UsernameInput = ({
                                     <Button
                                         type="submit"
                                         className={classes.button}
-                                        onClick={handleSubmit(onCreateUsername)}
+                                        onClick={handleSubmit(onCreateDisplayName)}
                                     >
                                         Next
                                         <NavigateNextIcon />
@@ -197,7 +197,7 @@ const UsernameInput = ({
 
 export const Login = ({ 
     onConnectThroughSpotify, 
-    onUpdateUsername, 
+    onUpdateDisplayName, 
     onResetDataLoaded,
     onGetUserPlaylists,
     user 
@@ -213,26 +213,24 @@ export const Login = ({
     const { handleSubmit, register, formState: { errors } } = useForm();
     
     const [emailValue, setEmailValue] = useState('');
-    const [usernameValue, setUsernameValue] = useState('');
+    const [displayNameValue, setDisplayNameValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
     const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
     const [checkedRegistration, setCheckedRegistration] = useState(false);
     const [userRegistered, setUserRegistered] = useState(false);
     const [invalidEmail, setInvalidEmail] = useState(false);
-    const [invalidUsername, setInvalidUsername] = useState(false);
-    const [usernameCreated, setUsernameCreated] = useState(Boolean(user?.user));
+    const [invalidDisplayName, setInvalidDisplayName] = useState(false);
+    const [displayNameCreated, setDisplayNameCreated] = useState(Boolean(user?.user));
     const [invalidPassword, setInvalidPassword] = useState(false);
     const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
-
-    console.log(Boolean(user?.user))
 
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user?.user?.username) {
-            setUsernameCreated(true);
+        if (user?.user?.display_name) {
+            setDisplayNameCreated(true);
         };
 
         onGetUserPlaylists(user?.user.id);
@@ -253,22 +251,22 @@ export const Login = ({
             if (currentUser.isRegistered) {
                 setUserRegistered(true);
             };
-            if (currentUser.username) {
-                setUsernameCreated(true)
-                setUsernameValue(currentUser.username)
+            if (currentUser.display_name) {
+                setDisplayNameCreated(true)
+                setDisplayNameValue(currentUser.display_name)
             }
         } catch (error) {
             console.log('Error: ', error);
         }
     };
 
-    const onCreateUsername = async () => {
-        if (!usernameValue) {
-            setInvalidUsername(true);
+    const onCreateDisplayName = async () => {
+        if (!displayNameValue) {
+            setInvalidDisplayName(true);
             return;
         };
 
-        setUsernameCreated(true);
+        setDisplayNameCreated(true);
     };
 
     const onPasswordSubmit = async () => {
@@ -278,7 +276,7 @@ export const Login = ({
         }
 
         try {
-            const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
+            const currentUser = await dispatch(login(emailValue, passwordValue, displayNameValue));
 
             dispatch(setCurrentUser(currentUser));
             
@@ -305,8 +303,8 @@ export const Login = ({
         }
         
         try {
-            await dispatch(registerUser(emailValue, passwordValue, usernameValue));
-            const currentUser = await dispatch(login(emailValue, passwordValue, usernameValue));
+            await dispatch(registerUser(emailValue, passwordValue, displayNameValue));
+            const currentUser = await dispatch(login(emailValue, passwordValue, displayNameValue));
             dispatch(setCurrentUser(currentUser));
             navigate('/registration-success');
         } catch (error) {
@@ -324,9 +322,9 @@ export const Login = ({
         setPasswordValue(e.target.value);
     };
 
-    const handleUsernameChange = (e) => {
-        setInvalidUsername(false);
-        setUsernameValue(e.target.value);
+    const handleDisplayNameChange = (e) => {
+        setInvalidDisplayName(false);
+        setDisplayNameValue(e.target.value);
     };
 
     const handleConfirmPasswordChange = (e) => {
@@ -543,7 +541,7 @@ export const Login = ({
                                                     }}
                                                 > 
                                                     <Typography variant='body2' letterSpacing='1px'>
-                                                    {`Sign in as ${user?.user.username}`}
+                                                    {`Sign in as ${user?.user.display_name}`}
                                                     </Typography>
                                                 </div>
                                                 }
@@ -563,9 +561,9 @@ export const Login = ({
                             </Box>
                         </Box>
                     </>     
-                ) : !usernameCreated
+                ) : !displayNameCreated
                 ? (
-                    <UsernameInput
+                    <DisplayNameInput
                         errors={errors}
                         isXlScreen={isXlScreen}
                         isLgScreen={isLgScreen} 
@@ -573,12 +571,12 @@ export const Login = ({
                         isSmScreen={isSmScreen} 
                         isXsScreen={isXsScreen} 
                         classes={classes}
-                        usernameValue={usernameValue}
+                        displayNameValue={displayNameValue}
                         register={register}
-                        handleUsernameChange={handleUsernameChange}
-                        invalidUsername={invalidUsername}
+                        handleDisplayNameChange={handleDisplayNameChange}
+                        invalidDisplayName={invalidDisplayName}
                         handleSubmit={handleSubmit}
-                        onCreateUsername={onCreateUsername}
+                        onCreateDisplayName={onCreateDisplayName}
                     />
                 ) : (
                     <>
@@ -721,7 +719,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps= (dispatch) => ({
     onConnectThroughSpotify: () => dispatch(getSpotifyUserAuth()),
-    onUpdateUsername: (userId, username) => dispatch(handleUpdateUsername(userId, username)),
+    onUpdateDisplayName: (userId, displayName) => dispatch(handleUpdateDisplayName(userId, displayName)),
     onGetUserPlaylists: (userId) => dispatch(getUserPlaylists(userId)),
     onResetDataLoaded: () => dispatch(resetDataLoaded()),
 });

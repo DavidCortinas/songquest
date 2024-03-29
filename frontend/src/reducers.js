@@ -19,6 +19,12 @@ import {
   GET_USER_PLAYLISTS_FAILURE,
   GET_USER_PLAYLISTS_REQUEST,
   GET_USER_PLAYLISTS_SUCCESS,
+  GET_USER_TOKENS_FAILURE,
+  GET_USER_TOKENS_REQUEST,
+  GET_USER_TOKENS_SUCCESS,
+  GET_USER_XP_FAILURE,
+  GET_USER_XP_REQUEST,
+  GET_USER_XP_SUCCESS,
   RECEIVE_LYRIC_RESULTS,
   RECEIVE_SPOTIFY_MARKETS,
   RECEIVE_SPOTIFY_PERFORMER_RESULTS,
@@ -37,10 +43,11 @@ import {
   SEARCH_SONG,
   SEARCH_SONG_FAILURE,
   SEARCH_SONG_SUCCESS,
+  SET_SELECTED_PLAYLIST,
   SET_CURRENT_USER,
   SET_QUERY_PARAMETER,
   UPDATE_EMAIL,
-  UPDATE_USERNAME,
+  UPDATE_DISPLAY_NAME,
 } from './actions';
 
 const initialSongState = {
@@ -164,9 +171,9 @@ export const initialDiscoveryState = {
       ],
       performers: [
         {
-          id: "0wfd8tvLXYb91azSMD5VXI",
-          image: "https://i.scdn.co/image/ab6761610000f178f08779c5ad35cadc922d7e77",
-          label: "Black Odyssey"
+          id: "062tCT8GVioC9EMiI9jeOV",
+          image: "https://i.scdn.co/image/ab6761610000f17823687e58992f1da5c1cba960",
+          label: "BLK ODYSSY"
         }, 
         {
           id: "0Akzjllih1lP7k60c8Dtct",
@@ -344,17 +351,31 @@ export const user = (state = { currentUser: null }, action) => {
         isRegistered: payload.isRegistered
       };
     case SET_CURRENT_USER:
-      return {
-        ...state,
-        currentUser: payload.user,
-      };
+      if (payload.user && 'spotify_connected' in payload.user.user) {
+        const { spotify_connected: spotifyConnected, ...restOfUser } = payload.user.user;
+        return {
+          ...state,
+          currentUser: {
+            ...payload,
+            user: {
+              ...restOfUser,
+              spotifyConnected,
+            },
+          },
+        };
+      } else {
+        return {
+          ...state,
+          currentUser: payload.user,
+        };
+      }
     case REFRESH_SPOTIFY_ACCESS:
       return {
         ...state,
         currentUser: {
           ...state.currentUser,
-          spotify_access: payload.newAccessToken,
-          spotify_expires_at: payload.expiresAt,
+          spotifyAccess: payload.newAccessToken,
+          spotifyExpiresAt: payload.expiresAt,
           },
       };
     case CONFIRM_SPOTIFY_ACCESS:
@@ -364,11 +385,11 @@ export const user = (state = { currentUser: null }, action) => {
           ...state.currentUser,
           user: {
             ...state.currentUser.user,
-            spotify_connected: payload.spotifyConnected
+            spotifyConnected: payload.spotifyConnected
           }
         }
       };
-    case UPDATE_USERNAME:
+    case UPDATE_DISPLAY_NAME:
       return {
         ...state,
         currentUser: {
@@ -411,13 +432,6 @@ export const user = (state = { currentUser: null }, action) => {
     case EMAIL_VERIFICATION_FAILURE:
       return {
         ...state,
-        currentUser: {
-          ...state.currentUser,
-          user: {
-            ...state.currentUser.user,
-            emailVerified: payload.emailVerified,
-          }
-        },
         error: payload.error,
       };
     case EMAIL_VERIFICATION_SUCCESS:
@@ -431,6 +445,50 @@ export const user = (state = { currentUser: null }, action) => {
           }
         },
       };
+    case GET_USER_TOKENS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null
+      };
+    case GET_USER_TOKENS_SUCCESS:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            tokens: payload.userTokens,
+          }
+        },
+      };
+    case GET_USER_TOKENS_FAILURE:
+      return {
+        ...state,
+        error: payload.error,
+      };  
+    case GET_USER_XP_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null
+      };
+    case GET_USER_XP_SUCCESS:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            xp: payload.userXp,
+          }
+        },
+      };
+    case GET_USER_XP_FAILURE:
+      return {
+        ...state,
+        error: payload.error,
+      };  
     default:
       return state;
   }
@@ -460,7 +518,18 @@ export const authSlice = createSlice({
   },
 });
 
-export const playlist = (state = {playlists: [], currentPlaylist: []}, action) => {
+export const playlist = (
+  state = {
+    playlists: [], 
+    currentPlaylist: [],
+    selectedPlaylist: {
+      id: null,
+      name: null,
+      tracks: [],
+    }
+  }, 
+  action
+) => {
   const { type, payload } = action;
   switch (type) {
     case GET_USER_PLAYLISTS_REQUEST:
@@ -485,6 +554,14 @@ export const playlist = (state = {playlists: [], currentPlaylist: []}, action) =
       return {
         ...state,
         currentPlaylist: [...state.currentPlaylist, ...payload.songs]
+      };
+    case SET_SELECTED_PLAYLIST:
+      console.log(payload)
+      return {
+        ...state,
+        selectedPlaylist: state.playlists.find(playlist => 
+          payload.playlistId === playlist.id
+        )
       };
     case REMOVE_FROM_CURRENT_PLAYLIST_BY_ID:
       const payloadSongIds = payload.songIds.map(songId => songId);
