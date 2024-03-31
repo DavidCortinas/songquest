@@ -77,10 +77,8 @@ const RegistrationSuccess = ({
                             width: '60%' 
                         }}
                     >
-                        You steps away from unearthing new gems for your musical 
-                        collection. Check your email to confirm your registration, then 
-                        make sure to watch the short demo to see how SongQuest can help you dig 
-                        deeper into your musical universe than ever before!
+                        You are steps away from unearthing new gems for your musical 
+                        collection. Check your email to confirm your registration!
                     </Typography>
                     <Typography 
                         variant="body1"
@@ -117,7 +115,7 @@ const RegistrationSuccess = ({
                         width: '60%' 
                     }}
                 >
-                    Your email is confirmed. Now watch the short demo to see how 
+                    Your email is confirmed! Now watch the short demo to see how 
                     SongQuest can help you dig deeper into your musical universe 
                     than ever before!
                 </Typography> 

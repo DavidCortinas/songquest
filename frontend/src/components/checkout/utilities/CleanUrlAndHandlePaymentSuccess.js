@@ -5,6 +5,7 @@ import { getUserTokens } from 'thunks';
 
 const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) => {
   const location = useLocation();
+  console.log('CleanURL: ', location.search)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

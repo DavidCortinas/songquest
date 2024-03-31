@@ -45,91 +45,75 @@ const useStyles = makeStyles(() => ({
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
-const CheckoutForm = ({ clientSecret, selectedPrice, user }) => {
+const CheckoutForm = ({ clientSecret, selectedPrice }) => {
     const classes = useStyles();
 
     const stripe = useStripe();
     const elements = useElements();
 
-    const [message, setMessage] = useState(null);
+    const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        if (!stripe) {
-            return;
-        };
-
-        if (!clientSecret) {
-            return;
-        };
-
-        stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-            switch (paymentIntent.status) {
-                case "succeeded":
-                    setMessage("Payment succeeded!");
-                    break;
-                case "processing":
-                    setMessage("Your payment is processing.");
-                    break;
-                case "requires_payment_method":
-                    setMessage("Your payment was not successful, please try again.");
-                    break;
-                default:
-                    setMessage("Something went wrong.");
-                    break;
-            };
-        });
-    }, [stripe]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
         if (!stripe || !elements) {
+            console.log("Stripe.js has not loaded yet.");
             return;
-        };
+        }
 
         setIsLoading(true);
 
-        const { error } = await stripe.confirmPayment({
+        const { error, paymentIntent } = await stripe.confirmPayment({
             elements,
             confirmParams: {
                 return_url: 'http://localhost:3000/?payment=success',
             },
         });
 
-        if (error.type === 'card_error' || error.type === 'validation_error') {
+        // Handle errors from Stripe
+        if (error) {
             setMessage(error.message);
-        } else {
-            setMessage("An unexpected error occurred.");
-        };
+        } else if (paymentIntent) {
+            // Depending on your needs, you might not need to check paymentIntent status here,
+            // as the user will be redirected to return_url upon success.
+            // However, if you're not using redirect, you can handle different statuses here.
+            console.log(`PaymentIntent status: ${paymentIntent.status}`);
+            switch (paymentIntent.status) {
+                case 'succeeded':
+                    setMessage("Payment succeeded!");
+                    break;
+                case 'processing':
+                    setMessage("Your payment is processing.");
+                    break;
+                case 'requires_payment_method':
+                    setMessage("Your payment could not be processed. Please try again with a different payment method.");
+                    break;
+                default:
+                    setMessage("Something went wrong.");
+                    break;
+            }
+        }
 
         setIsLoading(false);
-    };
-
-    const paymentElementOptions = {
-        layout: 'tabs',
-        business: {
-            name: 'SongQuest',
-        }
     };
 
     return (
         <Box display='flex' justifyContent='center'>
             <form className={classes.stripeForm} onSubmit={handleSubmit}>
-                <PaymentElement id='payment-element' options={paymentElementOptions} />
-                <Button 
-                    disabled={isLoading || !stripe || !elements}  
-                    type='submit'
+                <PaymentElement id='payment-element' />
+                <Button
+                    disabled={isLoading || !stripe || !elements}
+                    type="submit"
                     variant='contained'
+                    color='primary'
                     className={classes.button}
                 >
-                    <span>
-                        {isLoading ? <div className='spinner' id='spinner'></div> : `Pay $${selectedPrice.price/100}`}
-                    </span>
+                    {isLoading ? 'Processing…' : `Pay $${selectedPrice.price / 100}`}
                 </Button>
                 {message && (
-                    <Box display='flex' justifyContent='center'>
-                        <Typography color='error' id='payment-message'>
+                    <Box marginTop={2}>
+                        <Typography color='error'>
                             {message}
                         </Typography>
                     </Box>
@@ -138,6 +122,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice, user }) => {
         </Box>
     );
 };
+
 
 export const StripeCheckout = ({ user }) => {
     const [clientSecret, setClientSecret] = useState('');

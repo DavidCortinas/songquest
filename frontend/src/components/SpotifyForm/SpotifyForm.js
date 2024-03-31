@@ -200,7 +200,7 @@ const SpotifyForm = ({
       });
     };
     startTransition(() => {
-      onSearchPressed(parameters, currentUser.user.id)
+      onSearchPressed(parameters, currentUser?.user.id)
       .then(() => {
         setIsLoading(false);
       })

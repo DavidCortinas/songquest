@@ -31,7 +31,9 @@ import {
   getUserTokensFailure,
   getUserTokensSuccess,
   getUserXpSuccess,
-  deletePlaylist
+  deletePlaylist,
+  updateBirthday,
+  updatePreferredGenres
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
@@ -107,13 +109,12 @@ export const checkRegistration = (user) => async (dispatch) => {
   }
 }
 
-export const registerUser = (email, password, username) => async (dispatch) => {
+export const registerUser = (email, password) => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
     const body = JSON.stringify({
       email: email,
       password: password,
-      username: username,
     });
     const response = await fetch(`http://localhost:8000/api/auth/register/`, {
       headers: {
@@ -138,15 +139,13 @@ export const registerUser = (email, password, username) => async (dispatch) => {
 
 export const login = (
   email,
-  password, 
-  username, 
+  password,  
 ) => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
     const body = JSON.stringify({
       email: email,
       password: password,
-      username: username,
     });
     const response = await fetch(`http://localhost:8000/api/auth/login/`, {
       headers: {
@@ -194,39 +193,53 @@ export const discoverSongRequest = (parameters, userId) => async (dispatch, getS
     const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
     const body = JSON.stringify({ action: 'quest', parameters: parameters });
 
+    let headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+    };
+
+    // Conditionally add the 'User-Id' header if 'userId' is present
+    if (userId) {
+      headers['User-Id'] = userId;
+    }
+
     const response = await fetch('http://localhost:8000/api/discover/', {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
+      headers: headers,
       method: 'post',
-      // credentials: 'include',
       body: body,
     });
 
     if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
+      throw new Error(`Request failed with status ${response.status}`);
     }
 
     const res = await response.json();
+    console.log('res: ', res);
     const discovery = res['recommendations'];
     const userTokens = res['updated_tokens'];
     const userXp = res['updated_xp'];
 
-    dispatch(getUserTokensSuccess(userTokens));
-    dispatch(getUserXpSuccess(userXp));
+    if (typeof userTokens === 'number') {
+      dispatch(getUserTokensSuccess(userTokens));
+    }
+
+    if (typeof userXp === 'number') {
+      dispatch(getUserXpSuccess(userXp));
+    }
+
     dispatch(discoverSong(discovery, false, parameters));
 
     const prevQuery = getState().discovery.query;
     dispatch(savePreviousQuery(prevQuery));
-    
+
     dispatch(discoverSongSuccess(discovery, true));
     return discovery;
+
   } catch (error) {
-    console.log('Error: ' + error.message);
-  };
+    console.error(`Error: ${error.message}`);
+  }
 };
+
 
 export const SpotifyAuth = ({ children }) => {
   const [accessToken, setAccessToken] = useState('');
@@ -337,6 +350,7 @@ export const getSpotifyGenres = (
 
     const result = response.data;
     dispatch(receiveSpotifySeedGenres(result.genres));
+    return result.genres
   } catch (error) {
     console.log('Error: ', error);
   }
@@ -458,33 +472,82 @@ export const handleUpdateDisplayName = (userId, newDisplayName) => async (dispat
   try {
     const csrfToken = await getCSRFToken();
     const data = { newDisplayName }; // Include the user ID and new display-name in an object
-    const body = JSON.stringify(data);
 
-    const response = await fetch(`http://localhost:8000/update-display-name/`, {
+    const response = await axios.patch(`http://localhost:8000/update-display-name/`, data, {
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+        'X-CSRFToken': csrfToken,
         'User-Id': userId,
       },
-      method: 'PATCH', // Use the HTTP PATCH method
-      body,
     });
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
+    const { user } = response.data;
+    if (user && user.display_name) {
+      dispatch(updateDisplayName(user.display_name)); 
     }
 
-    const res = await response.json();
-
-    // You can dispatch an action if needed
-    dispatch(updateDisplayName(newDisplayName));
-
-    return res;
+    return response.data.user.display_name;
   } catch (error) {
-    console.log('Error: ' + error.message);
-  };
-
+    console.error(`Error: ${error.response ? error.response.data : error.message}`);
+    // Handle error accordingly. You can dispatch a failure action here if you have one.
+  }
 };
+
+export const handleUpdateBirthday = (userId, date) => async (dispatch) => {
+  try {
+    const csrfToken = await getCSRFToken();
+    const data = { date };
+
+    const response = await axios.patch(`http://localhost:8000/update-birthday/`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    console.log(response.data)
+    const { birthday } = response.data;
+    if (birthday) {
+      dispatch(updateBirthday(birthday)); 
+    };
+
+    console.log('Birthday Saved Successfully');
+    return birthday
+  } catch (error) {
+    console.error(`Error: ${error.response ? error.response.data : error.message}`);
+    // Handle error accordingly. You can dispatch a failure action here if you have one.
+  }
+};
+
+
+export const handleUpdatePreferredGenres = (userId, genres) => async (dispatch) => {
+  try {
+    const csrfToken = await getCSRFToken();
+    const data = { genres };
+
+    const response = await axios.patch(`http://localhost:8000/update-preferred-genres/`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    console.log(response.data)
+    const { preferred_genres } = response.data;
+    if (preferred_genres) {
+      dispatch(updatePreferredGenres(preferred_genres)); 
+    };
+
+    console.log('Preferred Genres Saved Successfully');
+    return preferred_genres
+  } catch (error) {
+    console.error(`Error: ${error.response ? error.response.data : error.message}`);
+    // Handle error accordingly. You can dispatch a failure action here if you have one.
+  }
+};
+
 
 export const resendVerification = (userId) => async (dispatch) => {
   dispatch(resendVerificationRequest());

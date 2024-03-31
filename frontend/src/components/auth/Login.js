@@ -12,69 +12,10 @@ import { useForm } from "react-hook-form";
 import { connect, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import theme from '../../theme'
-import { makeStyles } from "@mui/styles";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { checkRegistration, getSpotifyUserAuth, getUserPlaylists, handleUpdateDisplayName, login, registerUser } from "../../thunks";
 import { resetDataLoaded, setCurrentUser } from "../../actions";
-
-const useStyles = makeStyles(() => (
-  {
-  card: {
-    backgroundColor: "transparent",
-    justifyContent: 'center',
-    display: 'flex',
-    width: '100%',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    color: "#007fbf",
-    backgroundColor: "transparent",
-  },
-  box: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    color: "#007fbf",
-    backgroundColor: "transparent",
-    marginBottom: '5%',
-  },
-  textField: {
-    width: '300px',
-    [theme.breakpoints.down('sm')]: {
-      width: '80%',
-    },
-    input: {
-        color: 'white',
-    },
-    backgroundColor: '#30313d',
-    color: 'white',
-    borderRadius: '8px',
-    boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-  },
-  subHeader: {
-    width: '40%',
-    [theme.breakpoints.up('sm')]: {
-      width: '25rem',
-    },
-  },
-  description: {
-    maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
-    color: '#6f6f71',
-    paddingTop: '1rem',
-  },
-  buttonsContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: '1rem',
-  },
-  button: {
-    color: 'white'
-  },
-  noBottomLine: {
-    borderBottom: 'none',
-  }
-}));
+import { useStyles } from "./classes";
 
 const DisplayNameInput = ({
     isXlScreen,
@@ -197,7 +138,6 @@ const DisplayNameInput = ({
 
 export const Login = ({ 
     onConnectThroughSpotify, 
-    onUpdateDisplayName, 
     onResetDataLoaded,
     onGetUserPlaylists,
     user 
@@ -213,14 +153,11 @@ export const Login = ({
     const { handleSubmit, register, formState: { errors } } = useForm();
     
     const [emailValue, setEmailValue] = useState('');
-    const [displayNameValue, setDisplayNameValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
     const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
     const [checkedRegistration, setCheckedRegistration] = useState(false);
     const [userRegistered, setUserRegistered] = useState(false);
     const [invalidEmail, setInvalidEmail] = useState(false);
-    const [invalidDisplayName, setInvalidDisplayName] = useState(false);
-    const [displayNameCreated, setDisplayNameCreated] = useState(Boolean(user?.user));
     const [invalidPassword, setInvalidPassword] = useState(false);
     const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
 
@@ -229,9 +166,9 @@ export const Login = ({
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user?.user?.display_name) {
-            setDisplayNameCreated(true);
-        };
+        // if (user?.user?.display_name) {
+        //     setDisplayNameCreated(true);
+        // };
 
         onGetUserPlaylists(user?.user.id);
     }, [user]);
@@ -244,6 +181,7 @@ export const Login = ({
         setCheckedRegistration(true);
 
         try {
+            // setDisplayNameCreated(true);
             const currentUser = await dispatch(checkRegistration({
                 email: emailValue,
             }));
@@ -251,22 +189,13 @@ export const Login = ({
             if (currentUser.isRegistered) {
                 setUserRegistered(true);
             };
-            if (currentUser.display_name) {
-                setDisplayNameCreated(true)
-                setDisplayNameValue(currentUser.display_name)
-            }
+            // if (currentUser.display_name) {
+            //     setDisplayNameCreated(true)
+            //     setDisplayNameValue(currentUser.display_name)
+            // }
         } catch (error) {
             console.log('Error: ', error);
         }
-    };
-
-    const onCreateDisplayName = async () => {
-        if (!displayNameValue) {
-            setInvalidDisplayName(true);
-            return;
-        };
-
-        setDisplayNameCreated(true);
     };
 
     const onPasswordSubmit = async () => {
@@ -276,7 +205,7 @@ export const Login = ({
         }
 
         try {
-            const currentUser = await dispatch(login(emailValue, passwordValue, displayNameValue));
+            const currentUser = await dispatch(login(emailValue, passwordValue));
 
             dispatch(setCurrentUser(currentUser));
             
@@ -303,8 +232,8 @@ export const Login = ({
         }
         
         try {
-            await dispatch(registerUser(emailValue, passwordValue, displayNameValue));
-            const currentUser = await dispatch(login(emailValue, passwordValue, displayNameValue));
+            await dispatch(registerUser(emailValue, passwordValue));
+            const currentUser = await dispatch(login(emailValue, passwordValue));
             dispatch(setCurrentUser(currentUser));
             navigate('/registration-success');
         } catch (error) {
@@ -320,11 +249,6 @@ export const Login = ({
     const handlePasswordChange = (e) => {
         setInvalidPassword(false);
         setPasswordValue(e.target.value);
-    };
-
-    const handleDisplayNameChange = (e) => {
-        setInvalidDisplayName(false);
-        setDisplayNameValue(e.target.value);
     };
 
     const handleConfirmPasswordChange = (e) => {
@@ -358,357 +282,339 @@ export const Login = ({
     return (
         <>
             {!checkedRegistration && !userRegistered ? (
-                    <>
-                        <Box display='flex' justifyContent='center'>
-                            <Box width='100%'>
-                                    <form className={classes.form}>
-                                        <CardHeader
-                                            title='Login/Register'
-                                            titleTypographyProps={{
-                                                width: '100%',
-                                                variant: isSmScreen || isXsScreen
-                                                ? 'h6'
-                                                : 'h5',
-                                                textAlign: 'center',
-                                                color: 'white',
-                                                paddingTop: '1rem'
+                <>
+                    <Box display='flex' justifyContent='center'>
+                        <Box width='100%'>
+                                <form className={classes.form}>
+                                    <CardHeader
+                                        title='Login/Register'
+                                        titleTypographyProps={{
+                                            width: '100%',
+                                            variant: isSmScreen || isXsScreen
+                                            ? 'h6'
+                                            : 'h5',
+                                            textAlign: 'center',
+                                            color: 'white',
+                                            paddingTop: '1rem'
+                                        }}
+                                        subheader='Enter an email to get started!'
+                                        subheaderTypographyProps={{ 
+                                            width: '100%', 
+                                            variant: isXlScreen || isLgScreen 
+                                            ? 'body1'
+                                            : 'body2',
+                                            textAlign: 'center',
+                                            color: 'whitesmoke',
+                                            paddingTop: '5px',
+                                        }}
+                                    />
+                                    <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
+                                        <TextField 
+                                            autoComplete="off"
+                                            autoFocus
+                                            variant="standard"
+                                            InputLabelProps={{ 
+                                                style: { 
+                                                    margin: '2px 5px',
+                                                    color: 'white', 
+                                                },
+                                                sx: {
+                                                    color: 'white',
+                                                    backgroundColor: '#30313d',
+                                                },
                                             }}
-                                            subheader='Enter an email to get started!'
-                                            subheaderTypographyProps={{ 
-                                                width: '100%', 
-                                                variant: isXlScreen || isLgScreen 
-                                                ? 'body1'
-                                                : 'body2',
-                                                textAlign: 'center',
-                                                color: 'whitesmoke',
-                                                paddingTop: '5px',
+                                            InputProps={{ 
+                                                disableUnderline: 'true', 
+                                                style: { 
+                                                    margin: '5px', 
+                                                    padding: '5px 0', 
+                                                    fill: 'white',
+                                                },
+                                                sx: {
+                                                    color: 'white'
+                                                },
                                             }}
+                                            error={errors.email}
+                                            required
+                                            className={classes.textField}
+                                            value={emailValue}
+                                            label={errors.email ? "Invalid Email" : "email"}
+                                            {...register('email', 
+                                                { 
+                                                    required: true, 
+                                                    pattern: /^\S+@\S+$/i, 
+                                                    onChange: (e) => handleEmailChange(e),
+                                                    error: invalidEmail,
+                                                })
+                                            }
                                         />
-                                        <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-                                            <TextField 
-                                                autoComplete="off"
-                                                autoFocus
-                                                variant="standard"
-                                                InputLabelProps={{ 
-                                                    style: { 
-                                                        margin: '2px 5px',
-                                                        color: 'white', 
-                                                    },
-                                                    sx: {
-                                                        color: 'white',
-                                                        backgroundColor: '#30313d',
-                                                    },
+                                    </Box>
+                                    <br />
+                                    <br />
+                                    <Grid className={classes.buttonsContainer}>
+                                        <Tooltip
+                                            arrow
+                                            title={
+                                            <div
+                                                style={{
+                                                maxHeight: '25vh',
+                                                overflowY: 'auto',
+                                                padding: '8px',
+                                                borderRadius: '8px',
                                                 }}
-                                                InputProps={{ 
-                                                    disableUnderline: 'true', 
-                                                    style: { 
-                                                        margin: '5px', 
-                                                        padding: '5px 0', 
-                                                        fill: 'white',
-                                                    },
-                                                    sx: {
-                                                        color: 'white'
-                                                    },
-                                                }}
-                                                error={errors.email}
-                                                required
-                                                className={classes.textField}
-                                                value={emailValue}
-                                                label={errors.email ? "Invalid Email" : "email"}
-                                                {...register('email', 
-                                                    { 
-                                                        required: true, 
-                                                        pattern: /^\S+@\S+$/i, 
-                                                        onChange: (e) => handleEmailChange(e),
-                                                        error: invalidEmail,
-                                                    })
-                                                }
-                                            />
-                                        </Box>
-                                        <br />
-                                        <br />
-                                        <Grid className={classes.buttonsContainer}>
-                                            <Tooltip
-                                                arrow
-                                                title={
-                                                <div
-                                                    style={{
-                                                    maxHeight: '25vh',
-                                                    overflowY: 'auto',
-                                                    padding: '8px',
-                                                    borderRadius: '8px',
-                                                    }}
-                                                > 
-                                                    <Typography variant='body2' letterSpacing='1px'>
-                                                    {'Continue to next step'}
-                                                    </Typography>
-                                                </div>
-                                                }
+                                            > 
+                                                <Typography variant='body2' letterSpacing='1px'>
+                                                {'Continue to next step'}
+                                                </Typography>
+                                            </div>
+                                            }
+                                        >
+                                            <Button
+                                                type="submit"
+                                                className={classes.button}
+                                                onClick={handleSubmit(onEmailSubmit)}
                                             >
-                                                <Button
-                                                    type="submit"
-                                                    className={classes.button}
-                                                    onClick={handleSubmit(onEmailSubmit)}
-                                                >
-                                                    Next
-                                                    <NavigateNextIcon />
-                                                </Button>
-                                            </Tooltip>
-                                        </Grid>
-                                        <br />
-                                    </form>
-                            </Box>
+                                                Next
+                                                <NavigateNextIcon />
+                                            </Button>
+                                        </Tooltip>
+                                    </Grid>
+                                    <br />
+                                </form>
                         </Box>
-                    </>
-                    ) : checkedRegistration && userRegistered 
-                    ? (
-                    <>
-                        <Box display='flex' justifyContent='center' paddingTop='3rem'>
-                            <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
-                                    <form className={classes.form} onSubmit={handlePasswordSubmit}>
-                                        <CardHeader
-                                            title='Welcome Back!'
-                                            titleTypographyProps={{
-                                                width: '100%',
-                                                variant: isSmScreen || isXsScreen
-                                                ? 'h6'
-                                                : 'h5',
-                                                textAlign: 'center',
-                                                color: 'white',
+                    </Box>
+                </>
+            ) : checkedRegistration && userRegistered ? (
+                <>
+                    <Box display='flex' justifyContent='center' paddingTop='3rem'>
+                        <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
+                                <form className={classes.form} onSubmit={handlePasswordSubmit}>
+                                    <CardHeader
+                                        title='Welcome Back!'
+                                        titleTypographyProps={{
+                                            width: '100%',
+                                            variant: isSmScreen || isXsScreen
+                                            ? 'h6'
+                                            : 'h5',
+                                            textAlign: 'center',
+                                            color: 'white',
+                                        }}
+                                        subheader={"Enter password to sign in and continue"}
+                                        subheaderTypographyProps={{ 
+                                            width: '100%', 
+                                            variant: isXlScreen || isLgScreen 
+                                            ? 'body1'
+                                            : 'body2',
+                                            textAlign: 'center',
+                                            color: 'white',
                                             }}
-                                            subheader={"Enter password to sign in and continue"}
-                                            subheaderTypographyProps={{ 
-                                                width: '100%', 
-                                                variant: isXlScreen || isLgScreen 
-                                                ? 'body1'
-                                                : 'body2',
-                                                textAlign: 'center',
-                                                color: 'white',
-                                                }}
-                                        />
-                                        <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-                                            <TextField 
-                                                autoFocus
-                                                variant="standard"
-                                                InputLabelProps={{ 
-                                                    style: { 
-                                                        margin: '2px 5px',
-                                                        color: 'white', 
-                                                    },
-                                                    sx: {
-                                                        color: 'white',
-                                                        backgroundColor: '#30313d',
-                                                    },
-                                                }}
-                                                InputProps={{ 
-                                                    disableUnderline: 'true', 
-                                                    style: { 
-                                                        margin: '5px', 
-                                                        padding: '5px 0', 
-                                                        fill: 'white',
-                                                    },
-                                                    sx: {
-                                                        color: 'white'
-                                                    },
-                                                }}
-                                                error={errors.password}
-                                                required
-                                                className={classes.textField}
-                                                value={passwordValue}
-                                                label={errors.password ? "Invalid Password" : "password"}
-                                                type="password"
-                                                {...register('password', 
-                                                    { 
-                                                        required: true, 
-                                                        onChange: (e) => handlePasswordChange(e),
-                                                        error: invalidPassword,
-                                                    })
-                                                }
-                                            />
-                                        </Box>
-                                        <br />
-                                        <br />
-                                        <Grid className={classes.buttonsContainer}>
-                                            <Tooltip
-                                                arrow
-                                                title={
-                                                <div
-                                                    style={{
-                                                    maxHeight: '25vh',
-                                                    overflowY: 'auto',
-                                                    padding: '8px',
-                                                    borderRadius: '8px',
-                                                    }}
-                                                > 
-                                                    <Typography variant='body2' letterSpacing='1px'>
-                                                    {`Sign in as ${user?.user.display_name}`}
-                                                    </Typography>
-                                                </div>
-                                                }
-                                            >
-                                                <Button
-                                                    type="submit"
-                                                    className={classes.button}
-                                                    onClick={handleSubmit(onPasswordSubmit)}
-                                                >
-                                                    Login
-                                                    <NavigateNextIcon />
-                                                </Button>
-                                            </Tooltip>
-                                        </Grid>
-                                        <br />
-                                    </form>
-                            </Box>
-                        </Box>
-                    </>     
-                ) : !displayNameCreated
-                ? (
-                    <DisplayNameInput
-                        errors={errors}
-                        isXlScreen={isXlScreen}
-                        isLgScreen={isLgScreen} 
-                        isMdScreen={isMdScreen} 
-                        isSmScreen={isSmScreen} 
-                        isXsScreen={isXsScreen} 
-                        classes={classes}
-                        displayNameValue={displayNameValue}
-                        register={register}
-                        handleDisplayNameChange={handleDisplayNameChange}
-                        invalidDisplayName={invalidDisplayName}
-                        handleSubmit={handleSubmit}
-                        onCreateDisplayName={onCreateDisplayName}
-                    />
-                ) : (
-                    <>
-                        <Box display='flex' justifyContent='center' paddingTop='1rem'>
-                            <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
-                                    <form className={classes.form} onSubmit={handleCreatePassword}>
-                                        <CardHeader
-                                            title='Register'
-                                            titleTypographyProps={{
-                                                width: '100%',
-                                                variant: isSmScreen || isXsScreen
-                                                ? 'h6'
-                                                : 'h5',
-                                                textAlign: 'center',
-                                                color: 'white',
+                                    />
+                                    <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
+                                        <TextField 
+                                            autoFocus
+                                            variant="standard"
+                                            InputLabelProps={{ 
+                                                style: { 
+                                                    margin: '2px 5px',
+                                                    color: 'white', 
+                                                },
+                                                sx: {
+                                                    color: 'white',
+                                                    backgroundColor: '#30313d',
+                                                },
                                             }}
+                                            InputProps={{ 
+                                                disableUnderline: 'true', 
+                                                style: { 
+                                                    margin: '5px', 
+                                                    padding: '5px 0', 
+                                                    fill: 'white',
+                                                },
+                                                sx: {
+                                                    color: 'white'
+                                                },
+                                            }}
+                                            error={errors.password}
+                                            required
+                                            className={classes.textField}
+                                            value={passwordValue}
+                                            label={errors.password ? "Invalid Password" : "password"}
+                                            type="password"
+                                            {...register('password', 
+                                                { 
+                                                    required: true, 
+                                                    onChange: (e) => handlePasswordChange(e),
+                                                    error: invalidPassword,
+                                                })
+                                            }
                                         />
-                                        <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-                                            <TextField 
-                                                autoFocus
-                                                variant="standard"
-                                                InputLabelProps={{ 
-                                                    style: { 
-                                                        margin: '2px 5px',
-                                                        color: 'white', 
-                                                    },
-                                                    sx: {
-                                                        color: 'white',
-                                                        backgroundColor: '#30313d',
-                                                    },
+                                    </Box>
+                                    <br />
+                                    <br />
+                                    <Grid className={classes.buttonsContainer}>
+                                        <Tooltip
+                                            arrow
+                                            title={
+                                            <div
+                                                style={{
+                                                maxHeight: '25vh',
+                                                overflowY: 'auto',
+                                                padding: '8px',
+                                                borderRadius: '8px',
                                                 }}
-                                                InputProps={{ 
-                                                    disableUnderline: 'true', 
-                                                    style: { 
-                                                        margin: '5px', 
-                                                        padding: '5px 0', 
-                                                        fill: 'white',
-                                                    },
-                                                    sx: {
-                                                        color: 'white'
-                                                    },
-                                                }}
-                                                error={errors.password}
-                                                required
-                                                className={classes.textField}
-                                                value={passwordValue}
-                                                label={errors.password ? "Invalid Password" : "password"}
-                                                type="password"
-                                                {...register('password', 
-                                                    { 
-                                                        required: true, 
-                                                        onChange: (e) => handlePasswordChange(e),
-                                                        error: invalidPassword,
-                                                    })
-                                                }
-                                            />
-                                        </Box>
-                                        <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-                                            <TextField 
-                                                variant="standard"
-                                                InputLabelProps={{ 
-                                                    style: { 
-                                                        margin: '2px 5px',
-                                                        color: 'white', 
-                                                    },
-                                                    sx: {
-                                                        color: 'white',
-                                                        backgroundColor: '#30313d',
-                                                    },
-                                                }}
-                                                InputProps={{ 
-                                                    disableUnderline: 'true', 
-                                                    style: { 
-                                                        margin: '5px', 
-                                                        padding: '5px 0', 
-                                                        fill: 'white',
-                                                    },
-                                                    sx: {
-                                                        color: 'white'
-                                                    },
-                                                }}
-                                                error={errors.reenterPassword}
-                                                required
-                                                className={classes.textField}
-                                                value={confirmPasswordValue}
-                                                label={errors.password ? "Invalid Password" : "re-enter password"}
-                                                type="password"
-                                                {...register('reenterPassword', 
-                                                    { 
-                                                        required: true, 
-                                                        onChange: (e) => handleConfirmPasswordChange(e),
-                                                        error: invalidConfirmPassword,
-                                                    })
-                                                }
-                                            />
-                                        </Box>
-                                        <br />
-                                        <br />
-                                        <Grid className={classes.buttonsContainer}>
-                                            <Tooltip
-                                                arrow
-                                                title={
-                                                <div
-                                                    style={{
-                                                    maxHeight: '25vh',
-                                                    overflowY: 'auto',
-                                                    padding: '8px',
-                                                    borderRadius: '8px',
-                                                    }}
-                                                > 
-                                                    <Typography variant='body2' letterSpacing='1px'>
-                                                    {'Create your account'}
-                                                    </Typography>
-                                                </div>
-                                                }
+                                            > 
+                                                <Typography variant='body2' letterSpacing='1px'>
+                                                {`Sign in as ${user?.user.display_name}`}
+                                                </Typography>
+                                            </div>
+                                            }
+                                        >
+                                            <Button
+                                                type="submit"
+                                                className={classes.button}
+                                                onClick={handleSubmit(onPasswordSubmit)}
                                             >
-                                                <Button
-                                                    type="submit"
-                                                    className={classes.button}
-                                                    onClick={handleSubmit(onCreatePassword)}
-                                                >
-                                                    Next
-                                                    <NavigateNextIcon />
-                                                </Button>
-                                            </Tooltip>
-                                        </Grid>
-                                        <br />
-                                    </form>
-                            </Box>
+                                                Login
+                                                <NavigateNextIcon />
+                                            </Button>
+                                        </Tooltip>
+                                    </Grid>
+                                    <br />
+                                </form>
                         </Box>
-                    </>     
-                )}
+                    </Box>
+                </>     
+            ) : (
+                <>
+                    <Box display='flex' justifyContent='center' paddingTop='1rem'>
+                        <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
+                                <form className={classes.form} onSubmit={handleCreatePassword}>
+                                    <CardHeader
+                                        title='Register'
+                                        titleTypographyProps={{
+                                            width: '100%',
+                                            variant: isSmScreen || isXsScreen
+                                            ? 'h6'
+                                            : 'h5',
+                                            textAlign: 'center',
+                                            color: 'white',
+                                        }}
+                                    />
+                                    <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
+                                        <TextField 
+                                            autoFocus
+                                            variant="standard"
+                                            InputLabelProps={{ 
+                                                style: { 
+                                                    margin: '2px 5px',
+                                                    color: 'white', 
+                                                },
+                                                sx: {
+                                                    color: 'white',
+                                                    backgroundColor: '#30313d',
+                                                },
+                                            }}
+                                            InputProps={{ 
+                                                disableUnderline: 'true', 
+                                                style: { 
+                                                    margin: '5px', 
+                                                    padding: '5px 0', 
+                                                    fill: 'white',
+                                                },
+                                                sx: {
+                                                    color: 'white'
+                                                },
+                                            }}
+                                            error={errors.password}
+                                            required
+                                            className={classes.textField}
+                                            value={passwordValue}
+                                            label={errors.password ? "Invalid Password" : "password"}
+                                            type="password"
+                                            {...register('password', 
+                                                { 
+                                                    required: true, 
+                                                    onChange: (e) => handlePasswordChange(e),
+                                                    error: invalidPassword,
+                                                })
+                                            }
+                                        />
+                                    </Box>
+                                    <Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
+                                        <TextField 
+                                            variant="standard"
+                                            InputLabelProps={{ 
+                                                style: { 
+                                                    margin: '2px 5px',
+                                                    color: 'white', 
+                                                },
+                                                sx: {
+                                                    color: 'white',
+                                                    backgroundColor: '#30313d',
+                                                },
+                                            }}
+                                            InputProps={{ 
+                                                disableUnderline: 'true', 
+                                                style: { 
+                                                    margin: '5px', 
+                                                    padding: '5px 0', 
+                                                    fill: 'white',
+                                                },
+                                                sx: {
+                                                    color: 'white'
+                                                },
+                                            }}
+                                            error={errors.reenterPassword}
+                                            required
+                                            className={classes.textField}
+                                            value={confirmPasswordValue}
+                                            label={errors.password ? "Invalid Password" : "re-enter password"}
+                                            type="password"
+                                            {...register('reenterPassword', 
+                                                { 
+                                                    required: true, 
+                                                    onChange: (e) => handleConfirmPasswordChange(e),
+                                                    error: invalidConfirmPassword,
+                                                })
+                                            }
+                                        />
+                                    </Box>
+                                    <br />
+                                    <br />
+                                    <Grid className={classes.buttonsContainer}>
+                                        <Tooltip
+                                            arrow
+                                            title={
+                                            <div
+                                                style={{
+                                                maxHeight: '25vh',
+                                                overflowY: 'auto',
+                                                padding: '8px',
+                                                borderRadius: '8px',
+                                                }}
+                                            > 
+                                                <Typography variant='body2' letterSpacing='1px'>
+                                                {'Create your account'}
+                                                </Typography>
+                                            </div>
+                                            }
+                                        >
+                                            <Button
+                                                type="submit"
+                                                className={classes.button}
+                                                onClick={handleSubmit(onCreatePassword)}
+                                            >
+                                                Next
+                                                <NavigateNextIcon />
+                                            </Button>
+                                        </Tooltip>
+                                    </Grid>
+                                    <br />
+                                </form>
+                        </Box>
+                    </Box>
+                </>     
+            )}
         </>
     )
 };
@@ -719,7 +625,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps= (dispatch) => ({
     onConnectThroughSpotify: () => dispatch(getSpotifyUserAuth()),
-    onUpdateDisplayName: (userId, displayName) => dispatch(handleUpdateDisplayName(userId, displayName)),
     onGetUserPlaylists: (userId) => dispatch(getUserPlaylists(userId)),
     onResetDataLoaded: () => dispatch(resetDataLoaded()),
 });
