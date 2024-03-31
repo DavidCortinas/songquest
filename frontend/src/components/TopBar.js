@@ -195,7 +195,7 @@ export const TopBar = ({
                     sx={{ color: '#c4a537' }}
                     onClick={handleGetMoreTokens} 
                   />
-                  {currentUser.user.tokens === 0 && (
+                  {currentUser?.user.tokens === 0 && (
                     <PriorityHighIcon 
                       color='warning'
                         sx={{

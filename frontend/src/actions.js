@@ -56,9 +56,21 @@ export const confirmSpotifyAccess = (spotifyConnected) => (
 });
 
 export const UPDATE_DISPLAY_NAME = 'UPDATE_DISPLAY_NAME';
-export const updateDisplayName = (newUsername) => ({
+export const updateDisplayName = (newDisplayName) => ({
   type: UPDATE_DISPLAY_NAME,
-  payload: { newUsername },
+  payload: { newDisplayName },
+});
+
+export const UPDATE_BIRTHDAY = 'UPDATE_BIRTHDAY';
+export const updateBirthday = (birthday) => ({
+  type: UPDATE_BIRTHDAY,
+  payload: { birthday },
+});
+
+export const UPDATE_PREFERRED_GENRES = 'UPDATE_PREFERRED_GENRES';
+export const updatePreferredGenres = (genres) => ({
+  type: UPDATE_PREFERRED_GENRES,
+  payload: { genres },
 });
 
 export const UPDATE_EMAIL = 'UPDATE_EMAIL';

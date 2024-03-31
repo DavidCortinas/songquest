@@ -518,6 +518,7 @@ const handleExploreMoreClick = (activatesModal) => {
   const discoveryRecommendations = recommendations?.tracks
   
   const showTracks = discoveryRecommendations && dataLoaded || toggleValue === 'Selected Playlist';
+  console.log(discoveryRecommendations)
 
   const handleQueryNameChange = (e) => {
     setQueryName(e.target.value);

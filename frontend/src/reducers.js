@@ -48,6 +48,8 @@ import {
   SET_QUERY_PARAMETER,
   UPDATE_EMAIL,
   UPDATE_DISPLAY_NAME,
+  UPDATE_BIRTHDAY,
+  UPDATE_PREFERRED_GENRES,
 } from './actions';
 
 const initialSongState = {
@@ -396,10 +398,32 @@ export const user = (state = { currentUser: null }, action) => {
           ...state.currentUser,
             user: {
               ...state.currentUser.user,
-              username: payload.newUsername,
+              displayName: payload.newDisplayName,
             },
           },
         };
+    case UPDATE_BIRTHDAY:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            birthday: payload.birthday,
+          },
+        },
+      };
+    case UPDATE_PREFERRED_GENRES:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            preferredGenres: payload.genres,
+          },
+        },
+      };
     case UPDATE_EMAIL:
       return {
         ...state,

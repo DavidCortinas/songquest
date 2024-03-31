@@ -11,6 +11,7 @@ import Pricing from 'components/checkout/Pricing';
 import RegistrationSuccess from 'components/auth/RegistrationSuccess';
 import ErrorPage from 'components/ErrorPage';
 import CleanUrlAndHandlePaymentSuccess from 'components/checkout/utilities/CleanUrlAndHandlePaymentSuccess';
+import Onboard from 'components/auth/Onboard';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 
@@ -44,6 +45,12 @@ const RoutesContainer = () => {
               <Route 
                 path={'/registration-success'} 
                 element={<RegistrationSuccess />} 
+              />
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route 
+                path={'/onboard'} 
+                element={<Onboard />} 
               />
             </Route>
             <Route element={<ProtectedRoute />}>
