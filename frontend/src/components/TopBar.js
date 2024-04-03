@@ -10,8 +10,8 @@ import {
   Menu,
   MenuItem,
   ListItemIcon,
+  Avatar,
 } from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -78,7 +78,7 @@ export const TopBar = ({
     onLogout();
     onSetCurrentUser(null);
     onDeletePlaylist(...userPlaylists.map(playlist => playlist.id));
-    onRemoveFromCurrentPlaylistById(...currentPlaylist.map(song => song));
+    onRemoveFromCurrentPlaylistById(...currentPlaylist.tracks.map(song => song));
     onResetDataLoaded();
     navigate('/');
   };
@@ -87,7 +87,7 @@ export const TopBar = ({
     navigate('/pricing');
   };
 
-  const xpPercentage = (currentUser?.user.xp/250)*100
+  const xpPercentage = (currentUser?.user?.xp/1000)*100
 
   return (
     <Box
@@ -214,7 +214,7 @@ export const TopBar = ({
                 />
               </Box>
               <Box className={classes.counterContainer}>
-                <XPCounter currentXp={currentUser.user.xp} maxXp={250} />
+                <XPCounter currentXp={currentUser?.user.xp} maxXp={1000} />
               </Box>
               <Tooltip
                   arrow
@@ -233,14 +233,20 @@ export const TopBar = ({
                     </div>
                   }
               >  
-                <AccountCircleIcon
-                  onClick={handleMenuClick}
-                  fontSize='large'
+              <IconButton onClick={handleMenuClick} size="large">
+                <Avatar
+                  src={
+                    currentUser?.user.profileImage ? 
+                    currentUser?.user.profileImage : 
+                    "/path/to/nonexistent/image.jpg"
+                  }
+                  alt={currentUser?.user.displayName}
                   sx={{
-                    paddingRight: '1%',
-                    color: theme.palette.primary.white
+                    width: 48,
+                    height: 48,
                   }}
-                /> 
+                />
+              </IconButton>
               </Tooltip>
               <Menu
                 open={open}
@@ -274,7 +280,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.auth.account,
     currentUser: state.user.currentUser,
-    currentPlaylist: state.playlist.currentPlaylist,
+    currentPlaylist: state.playlist.currentPlaylist.newPlaylist,
     userPlaylists: state.playlist.playlists,
   };
 };

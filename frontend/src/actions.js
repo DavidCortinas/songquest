@@ -73,6 +73,24 @@ export const updatePreferredGenres = (genres) => ({
   payload: { genres },
 });
 
+export const UPDATE_USER_TYPE = 'UPDATE_USER_TYPE';
+export const updateUserType = (user_type) => ({
+  type: UPDATE_USER_TYPE,
+  payload: { user_type },
+});
+
+export const UPDATE_USER_PROFESSION = 'UPDATE_USER_PROFESSION';
+export const updateUserProfession = (profession) => ({
+  type: UPDATE_USER_PROFESSION,
+  payload: { profession },
+});
+
+export const UPDATE_PROFILE_IMAGE = 'UPDATE_PROFILE_IMAGE';
+export const updateProfileImage = (imageUrl) => ({
+  type: UPDATE_PROFILE_IMAGE,
+  payload: { imageUrl },
+});
+
 export const UPDATE_EMAIL = 'UPDATE_EMAIL';
 export const updateEmail = (newEmail) => ({
   type: UPDATE_EMAIL,

@@ -78,12 +78,12 @@ def get_all_pricing_packages(request):
         {
             'id': 2,
             'name': '20 Tokens',
-            'price': 1000,
+            'price': 1250,
         },
         {
             'id': 3,
             'name': '10 Tokens',
-            'price': 700,
+            'price': 800,
         },
     ]
 
@@ -96,6 +96,7 @@ def stripe_webhook(request):
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     temp_endpoint_secret = os.environ.get('STRIPE_TEMP_ENDPOINT_SECRET', '')
+    endpoint_secret = os.environ.get('STRIPE_ENDPOINT_SECRET', '')
 
     try:
         event = stripe.Webhook.construct_event(

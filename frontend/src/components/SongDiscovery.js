@@ -289,7 +289,7 @@ const useStyles = makeStyles((theme) => (
 const MobileResults = ({
   discoveryRecommendations,
   classes,
-  user,
+  currentUser,
   currentPlaylist,
   onRemoveFromCurrentPlaylistById,
   setIsModalOpen,
@@ -312,15 +312,15 @@ const MobileResults = ({
       justifyContent='center'
       width='99%'
       id='resultsBox'
-      paddingLeft={(user?.user || showTracks) && '3%'}
+      paddingLeft={(currentUser?.user || showTracks) && '3%'}
     >
-      {(user?.user || showTracks) && (showPlaylists ? (
+      {(currentUser?.user || showTracks) && (showPlaylists ? (
         <LeftPanel       
           isMdScreen={isMdScreen}
           isSmScreen={isSmScreen}
           isXsScreen={isXsScreen}
           setShowPlaylists={setShowPlaylists}
-          user={user}
+          currentUser={currentUser}
         />
       ) : (
         <RightPanel 
@@ -368,7 +368,7 @@ const MobileResults = ({
               <Recommendations 
                 classes={classes} 
                 recommendations={discoveryRecommendations}
-                user={user}
+                user={currentUser}
                 currentPlaylist={currentPlaylist}
                 onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
                 setIsModalOpen={setIsModalOpen}
@@ -377,7 +377,7 @@ const MobileResults = ({
             </Suspense>
           </Box>    
         ) : !isLoading && (
-          user?.user ? (
+          currentUser?.user ? (
             <Box 
               display='flex'
               flexDirection='column'
@@ -432,9 +432,9 @@ const MobileResults = ({
                 >
                   Get Started On Your Journey
                 </Typography>
-                <Typography variant='h5' paddingLeft='2%'>
+                {/* <Typography variant='h5' paddingLeft='2%'>
                   🚀
-                </Typography>
+                </Typography> */}
               </Button>
             </Box>
           ) : (
@@ -518,7 +518,6 @@ const handleExploreMoreClick = (activatesModal) => {
   const discoveryRecommendations = recommendations?.tracks
   
   const showTracks = discoveryRecommendations && dataLoaded || toggleValue === 'Selected Playlist';
-  console.log(discoveryRecommendations)
 
   const handleQueryNameChange = (e) => {
     setQueryName(e.target.value);
@@ -563,7 +562,7 @@ const handleExploreMoreClick = (activatesModal) => {
               isSmScreen={isSmScreen}
               isXsScreen={isXsScreen}
               setShowPlaylists={setShowPlaylists}
-              user={currentUser}
+              currentUser={currentUser}
             />
           )}
           <Box 
@@ -578,33 +577,49 @@ const handleExploreMoreClick = (activatesModal) => {
             flexDirection='column'
             alignItems='center'
           >
-            <ToggleButtonGroup 
-              exclusive
-              sx={{
-                background: 'rgba(48, 130, 164, 0.15)',
-                boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-              }}
-              onChange={handleToggle}
-            >
-              <ToggleButton 
-                value="Discovery Results"
+            {currentUser && (
+              <ToggleButtonGroup 
+                exclusive
                 sx={{
-                  backgroundColor: toggleValue === 'Discovery Results' ? 'transparent' : 'rgba(48, 130, 164, 0.15)',
-                  color: toggleValue === 'Discovery Results' ? 'whitesmoke' : 'grey',
+                  boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+                  borderRadius: '8px',
+                  width: '70%',
+                  marginTop: '2%',
                 }}
+                onChange={handleToggle}
               >
-                Discovery Results
-              </ToggleButton>
-              <ToggleButton 
-                value="Selected Playlist"
-                sx={{
-                  backgroundColor: toggleValue === 'Selected Playlist' ? 'transparent' : 'rgba(48, 130, 164, 0.15)',
-                  color: toggleValue === 'Selected Playlist' ? 'whitesmoke' : 'grey',
-                }}
-              >
-                Selected Playlist
-              </ToggleButton>
-            </ToggleButtonGroup>
+                <ToggleButton 
+                  value="Discovery Results"
+                  sx={{
+                    backgroundColor: toggleValue === 'Discovery Results' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
+                    color: toggleValue === 'Discovery Results' ? 'whitesmoke' : 'grey',
+                    borderRadius: '8px',
+                    width: '50%',
+                    '&:hover': {
+                        backgroundColor: 'rgb(44, 216, 207, 0.5)',
+                        color: 'whitesmoke',
+                    },
+                  }}
+                >
+                  {'Discovery Results'}
+                </ToggleButton>
+                <ToggleButton 
+                  value="Selected Playlist"
+                  sx={{
+                    backgroundColor: toggleValue === 'Selected Playlist' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
+                    color: toggleValue === 'Selected Playlist' ? 'whitesmoke' : 'grey',
+                    borderRadius: '8px',
+                    width: '50%',
+                    '&:hover': {
+                        backgroundColor: 'rgb(44, 216, 207, 0.5)',
+                        color: 'whitesmoke',
+                    },
+                  }}
+                >
+                  {'Selected Playlist'}
+                </ToggleButton>
+              </ToggleButtonGroup>
+            )}
             {isLoading && (
               <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
                 <Box
@@ -634,6 +649,7 @@ const handleExploreMoreClick = (activatesModal) => {
                     setIsModalOpen={setIsModalOpen}
                     isXsScreen={isXsScreen}
                     toggleValue={toggleValue}
+                    handleExploreMoreClick={handleExploreMoreClick}
                   />
                 </Suspense>
               </Box>    
@@ -654,7 +670,7 @@ const handleExploreMoreClick = (activatesModal) => {
                     padding='5% 0 0'
                     width='80%'
                   >
-                    What kind of music are you in the mood for today?
+                    {'What kind of music are you in the mood for today?'}
                   </Typography>
                   <Typography 
                     color='white' 
@@ -664,8 +680,8 @@ const handleExploreMoreClick = (activatesModal) => {
                     padding='5% 3% 0'
                     width='100%'
                   >
-                    Start discovering new music now. Simply choose from the songs,
-                    artists, and genres that inspire you and start discovering related music.
+                    {`Start discovering new music now. Simply choose from the songs,
+                    artists, and genres that inspire you and start discovering related music.`}
                   </Typography>
                   <Typography 
                     color='white' 
@@ -675,10 +691,10 @@ const handleExploreMoreClick = (activatesModal) => {
                     padding='5% 3% 0'
                     width='100%'
                   >
-                    Adjust your search by clicking on "Fine Tune Your Recommendations" 
+                    {`Adjust your search by clicking on "Fine Tune Your Recommendations" 
                     to enable and configure fine-tuning parameters. This allows you to 
                     personalize your results and find music that precisely matches your 
-                    preferences.
+                    preferences.`}
                   </Typography>
                   <Button 
                     className={`${classes.button} ${classes.buttonWithMargin}`} 
@@ -694,11 +710,11 @@ const handleExploreMoreClick = (activatesModal) => {
                         cursor: 'pointer',
                       }}
                     >
-                      Get Started On Your Journey
+                      {'Get Started On Your Journey'}
                     </Typography>
-                    <Typography variant='h5' paddingLeft='2%'>
+                    {/* <Typography variant='h5' paddingLeft='2%'>
                       🚀
-                    </Typography>
+                    </Typography> */}
                   </Button>
                 </Box>
               ) : (
@@ -717,7 +733,6 @@ const handleExploreMoreClick = (activatesModal) => {
             <RightPanel 
               currentPlaylist={currentPlaylist}
               onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-          
               handleExploreMoreClick={handleExploreMoreClick}
               isSmScreen={isSmScreen}
               isXsScreen={isXsScreen}
@@ -727,10 +742,9 @@ const handleExploreMoreClick = (activatesModal) => {
         </Box>
       ) : (
         <MobileResults 
-      
           discoveryRecommendations={discoveryRecommendations}
           classes={classes}
-          user={currentUser}
+          currentUser={currentUser}
           currentPlaylist={currentPlaylist}
           onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
           setIsModalOpen={setIsModalOpen}
@@ -764,10 +778,10 @@ const mapStateToProps = (state) => {
   return {
     error: state.discovery.error,
     recommendations: state.discovery.recommendations,
-    selectedPlaylist: state.playlist.selectedPlaylist,
+    selectedPlaylist: state.playlist.currentPlaylist.selectedPlaylist,
     dataLoaded: state.discovery.dataLoaded,
     currentUser: state.user.currentUser,
-    currentPlaylist: state.playlist.currentPlaylist,
+    currentPlaylist: state.playlist.currentPlaylist.newPlaylist,
   };
 };
 

@@ -16,6 +16,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { checkRegistration, getSpotifyUserAuth, getUserPlaylists, handleUpdateDisplayName, login, registerUser } from "../../thunks";
 import { resetDataLoaded, setCurrentUser } from "../../actions";
 import { useStyles } from "./classes";
+import { LoadingState } from "components/LoadingState";
 
 const DisplayNameInput = ({
     isXlScreen,
@@ -160,25 +161,23 @@ export const Login = ({
     const [invalidEmail, setInvalidEmail] = useState(false);
     const [invalidPassword, setInvalidPassword] = useState(false);
     const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
-        // if (user?.user?.display_name) {
-        //     setDisplayNameCreated(true);
-        // };
 
-        onGetUserPlaylists(user?.user.id);
+        onGetUserPlaylists(user?.user?.id);
     }, [user]);
 
     const onEmailSubmit = async () => {
         if (!emailValue) {
             setInvalidEmail(true);
             return;
-        }
-        setCheckedRegistration(true);
+        };
+        setIsLoading(true);
 
         try {
             // setDisplayNameCreated(true);
@@ -188,13 +187,14 @@ export const Login = ({
             
             if (currentUser.isRegistered) {
                 setUserRegistered(true);
+            } else {
+                setUserRegistered(false);
             };
-            // if (currentUser.display_name) {
-            //     setDisplayNameCreated(true)
-            //     setDisplayNameValue(currentUser.display_name)
-            // }
+            setCheckedRegistration(true);
         } catch (error) {
             console.log('Error: ', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -270,18 +270,13 @@ export const Login = ({
         e.preventDefault(); 
         onCreatePassword(); 
     };
-
-    const handleConnectThroughSpotify = async (e) => {
-        e.preventDefault();
-
-        const authorizationUrl = `http://localhost:8000/request-authorization/`;
-
-        window.location.href = authorizationUrl;
-    };
+    
 
     return (
         <>
-            {!checkedRegistration && !userRegistered ? (
+            {isLoading ? (
+                <LoadingState />
+            ) : !checkedRegistration ? (
                 <>
                     <Box display='flex' justifyContent='center'>
                         <Box width='100%'>
@@ -336,7 +331,7 @@ export const Login = ({
                                             }}
                                             error={errors.email}
                                             required
-                                            className={classes.textField}
+                                            className={`${classes.textField} ${classes.emailField}`}
                                             value={emailValue}
                                             label={errors.email ? "Invalid Email" : "email"}
                                             {...register('email', 
@@ -384,7 +379,7 @@ export const Login = ({
                         </Box>
                     </Box>
                 </>
-            ) : checkedRegistration && userRegistered ? (
+            ) : userRegistered ? (
                 <>
                     <Box display='flex' justifyContent='center' paddingTop='3rem'>
                         <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
@@ -490,12 +485,21 @@ export const Login = ({
                         <Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
                                 <form className={classes.form} onSubmit={handleCreatePassword}>
                                     <CardHeader
-                                        title='Register'
+                                        title="Looks like your new here..."
                                         titleTypographyProps={{
                                             width: '100%',
                                             variant: isSmScreen || isXsScreen
                                             ? 'h6'
                                             : 'h5',
+                                            textAlign: 'center',
+                                            color: 'white',
+                                        }}
+                                        subheader="Enter and confirm your password to register"
+                                        subheaderTypographyProps={{
+                                            width: '100%',
+                                            variant: isSmScreen || isXsScreen
+                                            ? 'body2'
+                                            : 'body1',
                                             textAlign: 'center',
                                             color: 'white',
                                         }}

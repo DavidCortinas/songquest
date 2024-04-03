@@ -24,8 +24,7 @@ const PlaylistCard = ({
   index, 
   userPlaylist, 
   selectedPlaylist,
-  onAddToCurrentPlaylist,
-  onSetCurrentPlaylist,
+  onSetSelectedPlaylist,
   onResetCurrentPlaylist,
   isXsScreen, 
   isSmScreen,
@@ -37,8 +36,8 @@ const PlaylistCard = ({
   const handlePlaylistClick = () => {
     onResetCurrentPlaylist();
     
-    // onAddToCurrentPlaylist(...userPlaylist.songs);
-    onSetCurrentPlaylist(userPlaylist.id);
+    onSetSelectedPlaylist(userPlaylist.id);
+    // onSetCurrentPlaylist(...userPlaylist.songs);
     setToggleValue('Selected Playlist');
     if (isXsScreen || isSmScreen) {
       setShowPlaylists(false);
@@ -111,8 +110,7 @@ const PlaylistCard = ({
 
 export const LeftPanel = ({
   userPlaylists,
-  onAddToCurrentPlaylist,
-  onSetCurrentPlaylist,
+  onSetSelectedPlaylist,
   onDeletePlaylist,
   onResetCurrentPlaylist,
   selectedPlaylist,
@@ -121,7 +119,7 @@ export const LeftPanel = ({
   isXsScreen,
   setShowPlaylists,
   setToggleValue,
-  user,
+  currentUser,
 }) => {
   const classes = useStyles();
 
@@ -150,6 +148,7 @@ export const LeftPanel = ({
   const handleBulkRemove = () => {
     onDeletePlaylist(
       playlistsToRemove.map(playlistId => playlistId),
+      currentUser?.user.id,
       () => setPlaylistsToRemove([])
     );
   };
@@ -318,7 +317,7 @@ export const LeftPanel = ({
                 letterSpacing='2px'
               >
                 {
-                  user?.user ? 
+                  currentUser?.user ? 
                   'You have not created any playlists' : 
                   `Register to unearth new gems and add them to your collection`
                 } 
@@ -362,8 +361,7 @@ export const LeftPanel = ({
                     />
                     <PlaylistCard 
                       userPlaylist={userPlaylist}
-                      onAddToCurrentPlaylist={onAddToCurrentPlaylist}
-                      onSetCurrentPlaylist={onSetCurrentPlaylist}
+                      onSetSelectedPlaylist={onSetSelectedPlaylist}
                       onResetCurrentPlaylist={onResetCurrentPlaylist}
                       index={index}
                       classes={classes}
@@ -387,14 +385,13 @@ export const LeftPanel = ({
 const mapStateToProps = (state) => {
 return {
   userPlaylists: state.playlist.playlists,
-  selectedPlaylist: state.playlist.selectedPlaylist,
+  selectedPlaylist: state.playlist.currentPlaylist.selectedPlaylist,
 };
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
-  onSetCurrentPlaylist: (playlistId) => dispatch(setSelectedPlaylist(playlistId)),
-  onDeletePlaylist: (playlistIds, onSuccess) => dispatch(deletePlaylistRequest(playlistIds, onSuccess)),
+  onSetSelectedPlaylist: (playlistId) => dispatch(setSelectedPlaylist(playlistId)),
+  onDeletePlaylist: (playlistIds, userId, onSuccess) => dispatch(deletePlaylistRequest(playlistIds, userId, onSuccess)),
   onResetCurrentPlaylist: () => dispatch(resetCurrentPlaylist()),
 });
 

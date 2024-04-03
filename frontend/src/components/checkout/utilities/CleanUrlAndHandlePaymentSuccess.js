@@ -5,7 +5,6 @@ import { getUserTokens } from 'thunks';
 
 const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) => {
   const location = useLocation();
-  console.log('CleanURL: ', location.search)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -28,7 +27,7 @@ const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) 
 };
 
 const mapStateToProps = (state) => ({
-  userId: state.user.currentUser?.user.id, 
+  userId: state.user.currentUser?.user?.id, 
 });
 
 const mapDispatchToProps = (dispatch) => ({

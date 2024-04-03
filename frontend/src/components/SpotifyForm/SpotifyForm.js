@@ -469,11 +469,35 @@ const SpotifyForm = ({
                                 }}
                                 classes={{ paper: classes.paper }}
                               >
-                                {savedQueries.saved.map((savedQuery) => (
+                                {savedQueries.saved.length > 0 ? savedQueries.saved.map((savedQuery) => (
                                   <MenuItem onClick={() => handleSelectSavedQuery(savedQuery)} sx={{ color: 'white' }}>
                                     {savedQuery.name}
                                   </MenuItem>
-                                ))}
+                                )) : (
+                                    <>
+                                    <Typography
+                                      color='whitesmoke'
+                                      textAlign='center'
+                                      variant='subtitle1'
+                                      letterSpacing='1px'
+                                    >
+                                      {'No Saved Requests'}
+                                    </Typography>
+                                    <Typography
+                                      color='rgb(210,220,225)'
+                                      textAlign='center'
+                                      variant='subtitle2'
+                                      letterSpacing='1px'
+                                      margin='2%'
+                                    >
+                                      {
+                                        `Requests that yield quality finds can be 
+                                        saved for later review in the results section
+                                        below`
+                                      }
+                                    </Typography>
+                                  </>
+                                )}
                               </Menu>
                               </Box>
                               <Box
@@ -701,7 +725,7 @@ const SpotifyForm = ({
                     }}
                   > 
                     <Typography variant='body2' letterSpacing='1px'>
-                      {!currentUser?.user.tokens ? "Get more tokens to complete request" : 'Discover New Music'}
+                      {!currentUser?.user?.tokens ? "Get more tokens to complete request" : 'Discover New Music'}
                     </Typography>
                   </div>
                 }

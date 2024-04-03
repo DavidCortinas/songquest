@@ -18,10 +18,7 @@ def send_verification_email(user_email, verification_token):
         "P.S. If you have any questions or need assistance, feel free to reach out to us at support@songquest.com. Let the music play!"
     )
     from_email = settings.DEFAULT_FROM_EMAIL
-    print('from: ', from_email)
     recipient_list = [user_email]
-    print(recipient_list)
-    print('send mail')
 
     send_mail(subject, message, from_email, recipient_list)
 

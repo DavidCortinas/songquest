@@ -1,29 +1,24 @@
 import base64
-from urllib.parse import urlencode
-from django.forms import model_to_dict
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
+import dateutil
+from django.conf import settings
+from django.shortcuts import redirect
 import json
 import concurrent.futures
 import os
 from django.contrib.auth import get_user_model
 from django.middleware.csrf import get_token
-from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.views.decorators.http import require_GET
 from django.http import JsonResponse
-import urllib.parse
+from django.core.files.storage import default_storage
 from time import time
 
 from songquest.playlists.models import Playlist, Song
 from songquest.recommendations.models import RecommendationRequest
-from .openai.playlistGenerator import initial_request, subsequent_requests
-from .chatgpt import ChatGPT
-from rest_framework import status
 
 import requests
 
-from songquest.user.models import User
+from songquest.user.models import Genre, User
+from songquest.utilities.image_utlities import resize_image
 from .spotify_discovery import get_access_token, get_recommendations
 from . import spotify_api
 from .scrapers import ascap_scraper, bmi_scraper
@@ -147,24 +142,147 @@ def login_user():
 def update_display_name(request):
     if request.method == 'PATCH':
         try:
-            # Retrieve the user
             user_id = request.headers.get('User-Id')
             user = User.objects.get(pk=user_id)
 
-            # Get the new display_name from the JSON request body
             data = json.loads(request.body.decode('utf-8'))
-            new_display_name = data.get('newUsername')
+            new_display_name = data.get('newDisplayName')
 
-            # Update the display_name
             user.display_name = new_display_name
 
-            # Save the user object to update the display_name
             user.save()
 
-            # Return a success response
-            return JsonResponse({'message': 'Username updated successfully'})
+            user_data = {
+                'id': user.id,
+                'email': user.email,
+                'display_name': user.display_name,
+                'spotifyConnected': user.spotify_connected,
+                'tokens': user.tokens,
+                'xp': user.xp,
+            }
+
+            return JsonResponse({'message': 'Display name updated successfully', 'user': user_data})
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+@csrf_exempt
+def update_birthday(request):
+    if request.method == 'PATCH':
+        try:
+            user_id = request.headers.get('User-Id')
+            user = User.objects.get(pk=user_id)
+
+            data = json.loads(request.body.decode('utf-8'))
+            birthday = data.get('date')
+
+            parsed_birthday = dateutil.parser.isoparse(birthday).date()
+            formatted_birthday = parsed_birthday.strftime('%Y-%m-%d')
+
+            user.birthday = formatted_birthday
+            user.save()
+
+            return JsonResponse({'message': 'Birthday updated successfully', 'birthday': user.birthday})
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+@csrf_exempt
+def update_preferred_genres(request):
+    if request.method == 'PATCH':
+        try:
+            user_id = request.headers.get('User-Id')
+            user = User.objects.get(pk=user_id)
+
+            data = json.loads(request.body.decode('utf-8'))
+            genre_names = data.get('genres') 
+
+            for genre_name in genre_names:
+                Genre.objects.get_or_create(name=genre_name)
+
+            genre_objects = Genre.objects.filter(name__in=genre_names)
+
+            user.preferred_genres.set(genre_objects)
+
+            updated_genre_names = [genre.name for genre in genre_objects]
+
+            return JsonResponse({'message': 'Preferred genres updated successfully', 'preferred_genres': updated_genre_names})
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+@csrf_exempt
+def update_user_type(request):
+    if request.method == 'PATCH':
+        try:
+            user_id = request.headers.get('User-Id')
+            user = User.objects.get(pk=user_id)
+
+            data = json.loads(request.body.decode('utf-8'))
+            user_type = data.get('userType') 
+
+            user.user_type = user_type
+
+            return JsonResponse({'message': 'Preferred genres updated successfully', 'user_type': user.user_type})
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def update_user_profession(request):
+    if request.method == 'PATCH':
+        try:
+            user_id = request.headers.get('User-Id')
+            user = User.objects.get(pk=user_id)
+
+            data = json.loads(request.body.decode('utf-8'))
+            profession = data.get('profession') 
+
+            user.profession = profession
+
+            return JsonResponse({'message': 'Preferred genres updated successfully', 'saved_profession': user.profession})
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+@csrf_exempt
+def update_profile_image(request):
+    if request.method == 'POST':
+        try:
+            user_id = request.headers.get('User-Id')
+            user = User.objects.get(pk=user_id)
+            file = request.FILES['imageFile'] if 'imageFile' in request.FILES else None
+
+            if not file:
+                return JsonResponse({'error': 'No file provided'}, status=400)
+
+            resized_image = resize_image(file)
+
+            user.profile_image.save(resized_image.name, resized_image)
+
+            profile_image_url = settings.BASE_URL + user.profile_image.url if user.profile_image else None
+
+            return JsonResponse(
+                {
+                    'message': 'Profile image updated successfully', 
+                    'profile_image': profile_image_url
+                }
+            )
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            # Catch other errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -174,32 +292,39 @@ def discover_song(request):
     try:
         data = json.loads(request.body)
         action = data['action']
-
-        user_id = request.headers.get('User-Id')
-        user = get_user_model().objects.get(id=user_id)
-
-        user.use_tokens(action)
-        user.update_xp(action)
-
         parameters = data['parameters']
-        recommendations = get_recommendations(parameters)
 
+        # Initialize the response
         response = {
-            'updated_tokens': user.tokens,
-            'updated_xp': user.xp, 
-            'recommendations': recommendations,
+            'updated_tokens': 'User not authenticated',
+            'updated_xp': 'User not authenticated',
+            'recommendations': get_recommendations(parameters)
         }
 
+        # Process for registered users
+        user_id = request.headers.get('User-Id')
+        if user_id and user_id != 'undefined':
+            try:
+                user = get_user_model().objects.get(id=user_id)
+                user.use_tokens(action)
+                user.update_xp(action)
+                
+                response['updated_tokens'] = user.tokens
+                response['updated_xp'] = user.xp
+                
+            except get_user_model().DoesNotExist:
+                # If user_id is provided but invalid, return an error
+                return JsonResponse({'error': 'Invalid User-Id'}, status=404)
+
+        # For unregistered users, recommendations are still provided without updating tokens or XP
         return JsonResponse(response, status=200, headers={'Access-Control-Allow-Origin': '*'})
-    
+
     except KeyError:
         return JsonResponse({'error': 'Missing action parameter in request.'}, status=400)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON.'}, status=400)
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except get_user_model().DoesNotExist:
-        return JsonResponse({'error': 'Invalid User-Id'}, status=404)
 
 
 @csrf_exempt
@@ -675,7 +800,6 @@ def create_playlist(request):
         })
 
         response = requests.post(spotify_url, headers=headers, data=body)
-        print('create playlist response: ', response)
 
         if response.status_code == 201:
             spotify_data = response.json()
@@ -716,27 +840,64 @@ def create_playlist(request):
 
 @csrf_exempt
 def delete_playlist(request):
+    print('delete')
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
     try:
+        print('try')
         data = json.loads(request.body.decode('utf-8'))
-        playlist_ids = data.get('playlist_ids')  # Note the plural 'playlist_ids'
         
+        user_id = request.headers.get('User-Id')
+        user = User.objects.get(id=user_id)
+        print(user)
+
+        spotify_access = user.spotify_access
+        spotify_refresh = user.spotify_refresh
+        expires_at = user.spotify_expires_at
+
+        if token_expired(expires_at):
+            token_info = refresh_spotify_access(spotify_refresh)
+            if token_info:
+                spotify_access = token_info['access_token']
+                user.spotify_access = spotify_access
+                expires_at = time() + token_info['expires_in']
+                user.spotify_expires_at = expires_at
+                user.save()
+            else:
+                return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
+
+        playlist_ids = data.get('playlist_ids')
         if not playlist_ids:
             return JsonResponse({'error': 'Playlist IDs are required'}, status=400)
 
-        try:
-            # Use filter instead of get to delete multiple playlists
-            playlists = Playlist.objects.filter(id__in=playlist_ids)
-            playlists.delete()
-            return JsonResponse({'message': 'Playlists deleted successfully'}, status=200)
-        except Playlist.DoesNotExist:
-            return JsonResponse({'error': 'One or more playlists not found'}, status=404)
+        headers = {
+            'Authorization': f'Bearer {spotify_access}',
+            'Content-Type': 'application/json'
+        }
 
+        for playlist_id in playlist_ids:
+            playlist = Playlist.objects.get(id=playlist_id)
+            response = requests.delete(
+                f'https://api.spotify.com/v1/playlists/{playlist.spotify_id}/followers',
+                headers=headers
+            )
+
+            if response.status_code in (200, 204):
+                playlist.delete()
+            else:
+                return JsonResponse({'error': 'Failed to unfollow playlist on Spotify', 'status_code': response.status_code}, status=response.status_code)
+
+        return JsonResponse({'message': 'Playlists deleted successfully'}, status=200)
+
+    except Playlist.DoesNotExist:
+        return JsonResponse({'error': 'One or more playlists not found'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
     except Exception as e:
-        print('Error: ', str(e))
+        print(f"Exception occurred: {str(e)}")
         return JsonResponse({'error': 'Server error'}, status=500)
+
 
 @csrf_exempt
 def add_to_playlist(request, playlist_id):
@@ -800,7 +961,6 @@ def add_to_playlist(request, playlist_id):
             playlist.songs.add(song)
         
         response = requests.post(spotify_url, headers=headers, data=body)
-        print('add to playlist response: ', response)
 
         if response.status_code == 201 or response.status_code == 200:
             serialized_playlist = {

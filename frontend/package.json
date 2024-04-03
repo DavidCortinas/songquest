@@ -62,6 +62,7 @@
     "jsmediatags": "^3.9.7",
     "material-react-table": "^1.11.4",
     "material-ui-image": "^3.3.2",
+    "mui-file-dropzone": "^4.0.2",
     "mui-image": "^1.0.7",
     "music-metadata": "^8.1.4",
     "music-metadata-browser": "^2.5.10",

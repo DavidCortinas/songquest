@@ -6,16 +6,31 @@ from django.db.models import Q
 class EmailOrUsernameBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         UserModel = get_user_model()
+        
+        # Adjusting the logic to prioritize email authentication.
+        email = kwargs.get('email', username)
+        
         try:
-            user = UserModel.objects.get(Q(username__iexact=username) | Q(email__iexact=username))
+            # Trying to fetch the user by email.
+            user = UserModel.objects.get(email__iexact=email)
             if user.check_password(password):
                 return user
         except UserModel.DoesNotExist:
-            # Create a new user. Note that we can set password
-            # to anything, because it's set below
+            # If no user is found with the email, try with username if provided.
+            if username:
+                try:
+                    user = UserModel.objects.get(username__iexact=username)
+                    if user.check_password(password):
+                        return user
+                except UserModel.DoesNotExist:
+                    return None
+                except MultipleObjectsReturned:
+                    return UserModel.objects.filter(username=username).order_by('id').first()
             return None
         except MultipleObjectsReturned:
-            return UserModel.objects.filter(email=username).order_by('id').first()
+            # Handling the case where multiple users have the same email.
+            # It's recommended to enforce email uniqueness to avoid this scenario.
+            return UserModel.objects.filter(email=email).order_by('id').first()
 
     def get_user(self, user_id):
         UserModel = get_user_model()
@@ -23,4 +38,3 @@ class EmailOrUsernameBackend(ModelBackend):
             return UserModel.objects.get(pk=user_id)
         except UserModel.DoesNotExist:
             return None
-

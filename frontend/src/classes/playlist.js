@@ -136,6 +136,20 @@ const useStyles = makeStyles(() => (
             minHeight: 'fit-content',
             width: '100%'
         },
+        textField: {
+            width: '100%',
+            // maxHeight: '30px',
+            [theme.breakpoints.down('sm')]: {
+                width: '80%',
+            },
+            input: {
+                color: 'white',
+            },
+            backgroundColor: '#30313d',
+            color: 'white',
+            borderRadius: '8px',
+            boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+        },
     }
 ));
 
