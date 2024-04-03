@@ -1,9 +1,12 @@
 import { 
+  Autocomplete,
     Box, 
     Button, 
     Card, 
     Checkbox, 
     TextField, 
+    ToggleButton, 
+    ToggleButtonGroup, 
     Tooltip, 
     Typography,
     useMediaQuery
@@ -20,6 +23,17 @@ import { connect } from "react-redux";
 import { addToSavedPlaylistRequest, createPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
 import theme from "theme";
+
+const root = {
+  "& .MuiAutocomplete-option[data-focus='true']": {
+    backgroundColor: '#40444d',
+    color: 'white',
+  },
+  "& .MuiAutocomplete-option:hover": {
+    backgroundColor: '#40444d',
+    color: 'white',
+  },
+};
 
 const PlaylistItemCard = ({ 
   item, 
@@ -131,11 +145,12 @@ const PlaylistItemCard = ({
   );
 };
 
-const CreatePlaylist = ({
+const CreateOrEditPlaylist = ({
   classes,
   currentPlaylist,
   handleCreatePlaylist,
   user,
+  playlists,
   setPlaylistName,
   playlistName,
   onRemoveFromCurrentPlaylistById,
@@ -146,9 +161,12 @@ const CreatePlaylist = ({
   const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
   const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+  console.log(currentPlaylist)
 
   
   const [songsToRemove, setSongsToRemove] = useState([]);
+  const [playlistToEdit, setPlaylistToEdit] = useState('');
+  const [toggleValue, setToggleValue] = useState('Create');
 
   const isPlaylistItemChecked = (item) => {
     return songsToRemove.some(song => song === item.id);
@@ -171,8 +189,8 @@ const CreatePlaylist = ({
   };
 
   const handlePlaylistSelectAll = () => {
-    if (songsToRemove.length !== currentPlaylist.length) {
-        setSongsToRemove(currentPlaylist.map(song => song.id));
+    if (songsToRemove.length !== currentPlaylist.tracks.length) {
+        setSongsToRemove(currentPlaylist.tracks.map(song => song.id));
     } else {
         setSongsToRemove([]);
     };
@@ -186,6 +204,18 @@ const CreatePlaylist = ({
     };
   };
 
+  const handleChange = (event, newValue) => {
+      // setSelectedGenres(newValue);
+  };
+
+  const handleToggle = () => {
+    if (toggleValue === 'Create') {
+      setToggleValue('Edit')
+    } else {
+      setToggleValue('Create')
+    }
+  };
+
   return (
     <>
       <Box
@@ -193,6 +223,51 @@ const CreatePlaylist = ({
         flexDirection='column'
 
       >
+        <Box display="flex" justifyContent="center">
+          <ToggleButtonGroup 
+            exclusive
+            sx={{
+              boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+              borderRadius: '8px',
+              width: '70%',
+              marginTop: '2%',
+            }}
+            onChange={handleToggle}
+          >
+            <ToggleButton 
+              value="Create"
+              sx={{
+                backgroundColor: toggleValue === 'Create' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
+                color: toggleValue === 'Create' ? 'whitesmoke' : 'grey',
+                borderRadius: '8px',
+                width: '50%',
+                padding: '1%',
+                '&:hover': {
+                    backgroundColor: 'rgb(44, 216, 207, 0.5)',
+                    color: 'whitesmoke',
+                },
+              }}
+            >
+              {'Create'}
+            </ToggleButton>
+            <ToggleButton 
+              value="Edit"
+              sx={{
+                backgroundColor: toggleValue === 'Edit' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
+                color: toggleValue === 'Edit' ? 'whitesmoke' : 'grey',
+                borderRadius: '8px',
+                width: '50%',
+                padding: '1%',
+                '&:hover': {
+                    backgroundColor: 'rgb(44, 216, 207, 0.5)',
+                    color: 'whitesmoke',
+                },
+              }}
+            >
+              {'Edit'}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
         <Box 
           display='flex' 
           justifyContent='center'
@@ -200,37 +275,115 @@ const CreatePlaylist = ({
           width='90%'
           margin='5%'
         >
-          <TextField 
-            label='Playlist Name' 
-            variant='standard' 
-            required
-            value={playlistName}
-            onChange={(e) => setPlaylistName(e.target.value)}
-            className={classes.playlistField}
-            sx={{
-              "& .MuiInputBase-root": {
-                marginTop: (isXsScreen || isSmScreen) && '7px',
-              }
-            }}
-            InputLabelProps={{
-              sx: {
-                color: 'white',
-                marginLeft: '5%',
-                fontSize: (isXsScreen || isSmScreen) ? '70%' : '80%',
-                transform: (isXsScreen || isSmScreen) ? 'translateY(6px)' : 'translateY(50%)',
-              }
-            }}
-            InputProps={{
-              sx: {
-                color: 'white',
-                marginLeft: '5px',
-                fontSize: (isXsScreen || isSmScreen) ? '70%' : '90%',
-                '& .MuiInputBase-input': {
-                  padding: '2%'
-                },
-              }
-            }}
-          />
+          {toggleValue === 'Create' ? (
+            <TextField 
+              label='Playlist Name' 
+              variant='standard' 
+              required
+              value={playlistName}
+              onChange={(e) => setPlaylistName(e.target.value)}
+              className={classes.playlistField}
+              sx={(isXsScreen || isSmScreen) && {
+                "& .MuiInputBase-root": {
+                  marginTop: '7px',
+                }
+              }}
+              InputLabelProps={{
+                sx: {
+                  color: 'white',
+                  marginLeft: '5%',
+                  fontSize: (isXsScreen || isSmScreen) ? '70%' : '100%',
+                }
+              }}
+              InputProps={{
+                sx: {
+                  color: 'white',
+                  marginLeft: '5px',
+                  fontSize: (isXsScreen || isSmScreen) ? '70%' : '97%',
+                  '& .MuiInputBase-input': {
+                    padding: '2%'
+                  },
+                }
+              }}
+            />
+          ) : (
+            <Autocomplete 
+              freeSolo
+              filterSelectedOptions
+              selectOnFocus
+              clearOnBlur
+              handleHomeEndKeys
+              value={playlistToEdit.name}
+              onChange={handleChange}
+              label={'Select Playlist'}
+              options={playlists.map(playlist => playlist.name)}
+              ListboxProps={{
+                sx: {
+                    ...root,
+                    padding: 0,
+                }
+              }}
+              className={classes.textField}
+              renderOption={(props, option) => (
+                <Box
+                  component="li"
+                  sx={{
+                      justifyContent: 'space-between',
+                      background: '#30313d',
+                      color: 'white',
+                  }}
+                  {...props}
+                >
+                  {option}
+                </Box>
+              )}
+              ChipProps={{
+                sx: {
+                  color: 'white',
+                  backgroundColor: '#006f96',
+                  '& .MuiChip-deleteIcon': {
+                      color: 'white',
+                  },
+                  '& .MuiChip-deleteIcon:hover': {
+                      color: '#00435a',
+                  },
+                }       
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Playlist"
+                  variant="standard"
+                  InputLabelProps={{
+                    sx: {
+                      paddingLeft: '1em',
+                      // backgroundColor: '#30313d',
+                      color: 'white',
+                    },
+                  }}
+                  InputProps={{
+                    ...params.InputProps,
+                    style: { 
+                      // margin: '5px 0', 
+                      // padding: '5px 10px', 
+                      fill: 'white',
+                    },
+                    sx: {
+                      ...params.InputProps.sx,
+                      color: 'white',
+                      '&:before': { 
+                          borderBottom: 'none',
+                      },
+                      '&:hover:not(.Mui-disabled):before': {
+                          borderBottom: 'none',
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+          )
+        }
         </Box>
         <Box 
           display='flex' 
@@ -280,8 +433,10 @@ const CreatePlaylist = ({
                 }}
               > 
                 <Typography variant='body2' letterSpacing='1px'>
-                  {user?.user.spotifyConnected && user?.user.tokens > 2 ? 
+                  {user?.user.spotifyConnected && user?.user.tokens > 2 && toggleValue === 'Create' ? 
                   'Create Playlist' : 
+                  user?.user.spotifyConnected && user?.user.tokens > 2 ?
+                  'Update Playlist' :
                   user?.user.tokens < 2 ?
                   "Get more tokens to complete request" :
                   'Connect to Spotify to create playlists'}
@@ -306,7 +461,11 @@ const CreatePlaylist = ({
                   variant={(isLgScreen || isXlScreen) ? 'body2' : 'caption'} 
                   letterSpacing='1px'
                 >
-                  {!(isXsScreen || isSmScreen) && 'Create'}
+                  {!(isXsScreen || isSmScreen) && 
+                    toggleValue === 'Create' ? 
+                    'Create' :
+                    'Update'
+                  }
                 </Typography>
               </Box>
             </Button>
@@ -345,7 +504,7 @@ const CreatePlaylist = ({
           flexDirection: 'column', 
         }}
       >
-        {currentPlaylist.length > 0 ? currentPlaylist.map((item, index) => (
+        {currentPlaylist.tracks.length > 0 ? currentPlaylist.tracks.map((item, index) => (
           <Box 
             display='flex' 
             flexDirection='column'
@@ -378,7 +537,7 @@ const CreatePlaylist = ({
                   padding='20px'
                   letterSpacing='2px'
                 >
-                  Unearth new gems and add them to your collection...
+                  {'Unearth new gems and add them to your collection...'}
                 </Typography>
               ) : (
                 <>
@@ -441,6 +600,7 @@ const CreatePlaylist = ({
   export const RightPanel = ({
       currentPlaylist,
       user,
+      playlists,
       onCreatePlaylist,
       onAddToSavedPlaylist,
       onRemoveFromCurrentPlaylistById,
@@ -468,12 +628,11 @@ const CreatePlaylist = ({
 
       const newPlaylist = {
         name: playlistName, 
-        tracks: currentPlaylist
+        tracks: currentPlaylist.tracks,
       };
 
       onCreatePlaylist(user?.user.id, newPlaylist)
         .then(createdPlaylist => {
-          console.log('createdPlaylist: ', createdPlaylist)
           const playlistId = createdPlaylist.id;
           const playlistTracks = newPlaylist.tracks.map(track => {
             return {
@@ -484,7 +643,6 @@ const CreatePlaylist = ({
               image: track.image
             }
           });
-          console.log(playlistTracks)
 
           return onAddToSavedPlaylist(playlistId, user?.user.id, playlistTracks);
         })
@@ -568,7 +726,7 @@ const CreatePlaylist = ({
           </Button>
         </Tooltip>
         <Card className={classes.sidePanel}>
-          <CreatePlaylist 
+          <CreateOrEditPlaylist 
             currentPlaylist={currentPlaylist}
             handleCreatePlaylist={handleCreatePlaylist}
             user={user}
@@ -577,6 +735,7 @@ const CreatePlaylist = ({
             classes={classes}
             onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
             navigate={navigate}
+            playlists={playlists}
           />
         </Card>
       </Box>
@@ -586,6 +745,7 @@ const CreatePlaylist = ({
 const mapStateToProps = (state) => {
   return {
     user: state.user.currentUser,
+    playlists: state.playlist.playlists,
   };
 };
 

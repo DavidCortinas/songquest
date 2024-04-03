@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardHeader, Typography } from "@mui/material";
+import { Box, Button, Card, CardHeader, Typography, useMediaQuery } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { confirmSpotifyAccess } from "actions";
 import getCSRFToken from "csrf";
@@ -110,6 +110,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Pricing = ({ onGetPricing, user }) => {
+  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+
   const classes = useStyles(theme);
   const [focusedIndex, setFocusedIndex] = useState(1);
   const [pricing, setPricing] = useState(null);
@@ -202,6 +208,48 @@ export const Pricing = ({ onGetPricing, user }) => {
         >
           Use Tokens To Uncover Hidden Gems and More
         </Typography>
+        <Typography 
+          textAlign='center'
+          variant="h6"
+          color='whitesmoke'
+          letterSpacing='1px'
+        >
+          {
+            `Tokens are required to discover new songs and build your collections.` 
+          }
+        </Typography>
+        <Typography 
+          textAlign='center'
+          variant="h6"
+          color='whitesmoke'
+          letterSpacing='1px'
+        >
+          {
+            `You can earn tokens through in-app achievements or you can purchase more here.`
+          }
+        </Typography>
+        {/* <CardHeader
+          title="Use Tokens To Uncover Hidden Gems and More"
+          titleTypographyProps={{
+              width: '100%',
+              variant: isSmScreen || isXsScreen
+              ? 'h5'
+              : 'h4',
+              textAlign: 'center',
+              color: 'white',
+              letterSpacing: '1px',
+          }}
+          subheader="Enter a display name to get started on your profile"
+          subheaderTypographyProps={{ 
+              width: '100%', 
+              variant: isXlScreen || isLgScreen 
+              ? 'body1'
+              : 'body2',
+              textAlign: 'center',
+              color: 'white',
+              letterSpacing: '1px',
+          }}
+        /> */}
         <Box className={classes.containerBox}>
           {pricing && Object.values(pricing).map((price, outerIndex) => (
           <Card
@@ -253,7 +301,7 @@ export const Pricing = ({ onGetPricing, user }) => {
               <Typography
                   className={outerIndex === focusedIndex ? classes.focusedPriceTypography : classes.unfocusedPriceTypography}
               >
-                  {`$${price.price / 100}`}
+                  {`$${(price.price / 100).toFixed(2)}`}
               </Typography>
               {/* <Box className={classes.detailBox}>
                   <ul>

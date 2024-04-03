@@ -180,7 +180,12 @@ const AutocompleteParameter = ({
         clearOnBlur
         handleHomeEndKeys
         options={filteredOptions}
-        ListboxProps={{ sx: root }}
+        ListboxProps={{
+            sx: {
+                ...root,
+                padding: 0,
+            }
+        }}
         renderOption={(props, option) => {
           return (
             <Box

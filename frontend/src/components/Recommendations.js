@@ -25,9 +25,10 @@ const Recommendation = ({
   onRemoveFromCurrentPlaylistById,
   user,
   isXsScreen,
+  toggleValue,
 }) => {
     const navigate = useNavigate();
-    const recommendationInPlaylist = currentPlaylist.some(track => track.spotify_id === recommendation.id);
+    const recommendationInPlaylist = currentPlaylist.tracks.some(track => track.spotify_id === recommendation.id);
 
     const handleAddToPlaylistClick = useCallback(() => {
       if (!user?.user.spotifyConnected) {
@@ -56,7 +57,6 @@ const Recommendation = ({
     }, [recommendation, recommendationInSongsToAdd, setSongsToAdd]);
 
     const isChecked = recommendationInSongsToAdd;
-    console.log(recommendation)
 
     return (
       <li className={classes.recommendations} key={index}>
@@ -120,6 +120,7 @@ const Recommendations = ({
   setIsModalOpen,
   isXsScreen,
   toggleValue,
+  handleExploreMoreClick,
 }) => {
   const [songsToAdd, setSongsToAdd] = useState([]);
   const [visibleRecommendations, setVisibleRecommendations] = useState(recommendations?.length); 
@@ -293,7 +294,7 @@ const Recommendations = ({
             scrollbarDarkShadowColor: 'transparent',
           }}
         >
-          {recommendations?.slice(0, visibleRecommendations).map((recommendation, index) => (
+          {recommendations ? recommendations?.slice(0, visibleRecommendations).map((recommendation, index) => (
               <Recommendation
                 classes={classes}
                 recommendation={recommendation}
@@ -305,8 +306,71 @@ const Recommendations = ({
                 onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
                 user={user}
                 isXsScreen={isXsScreen}
+                toggleValue={toggleValue}
               />
-          ))}
+          )) : (
+            <Box
+              display='flex'
+              flexDirection='column'
+              alignItems='center'
+              width='85%'
+              style={{margin: '0 auto'}}
+            >
+              <Typography
+                variant='h5'
+                textAlign='center'
+                color='whitesmoke'
+                paddingTop='5%'
+              >
+                {'No Playlist Selected'}
+              </Typography>
+              <Typography
+                variant='h6'
+                textAlign='center'
+                color='whitesmoke'
+                paddingTop='3%'
+              >
+                {`Select one of your saved playlists from the left panel to 
+                preview the gems you have in your collection, or use the song
+                explorer to start unearthing new gems for your collection.`}
+              </Typography>
+              <Button 
+                  onClick={() => handleExploreMoreClick(false)}
+                  variant='contained'
+                  sx={{
+                      color: 'white',
+                      backgroundColor: 'rgb(44, 216, 207, 0.3)',
+                      border: '2px solid rgba(89, 149, 192, 0.5)',
+                      borderRadius: '18px',
+                      boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+                      transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+                      margin: '4%',
+                      width: '22vw',
+                      height: '7vh', 
+                      [theme.breakpoints.down('md')] : {
+                          width: '70%',
+                      },
+                      '&:hover, &:active, &.MuiFocusVisible': {
+                          border: '2px solid rgba(89, 149, 192, 0.5)',
+                          backgroundColor: 'rgb(44, 216, 207, 0.5)',
+                          boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+                      },
+                  }}
+              >
+              <Typography
+                variant='body2' 
+                color='white'
+                letterSpacing='1px'
+                sx={{
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                }}
+              >
+                {'Use Song Explorer'}
+              </Typography>
+              </Button>
+            </Box>
+          )}
         </div>
       </ul>
       <Box display='flex' justifyContent='center' alignItems='center'>

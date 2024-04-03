@@ -33,7 +33,10 @@ import {
   getUserXpSuccess,
   deletePlaylist,
   updateBirthday,
-  updatePreferredGenres
+  updatePreferredGenres,
+  updateUserType,
+  updateUserProfession,
+  updateProfileImage
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
@@ -214,7 +217,7 @@ export const discoverSongRequest = (parameters, userId) => async (dispatch, getS
     }
 
     const res = await response.json();
-    console.log('res: ', res);
+
     const discovery = res['recommendations'];
     const userTokens = res['updated_tokens'];
     const userXp = res['updated_xp'];
@@ -506,7 +509,6 @@ export const handleUpdateBirthday = (userId, date) => async (dispatch) => {
       },
     });
 
-    console.log(response.data)
     const { birthday } = response.data;
     if (birthday) {
       dispatch(updateBirthday(birthday)); 
@@ -534,7 +536,6 @@ export const handleUpdatePreferredGenres = (userId, genres) => async (dispatch) 
       },
     });
 
-    console.log(response.data)
     const { preferred_genres } = response.data;
     if (preferred_genres) {
       dispatch(updatePreferredGenres(preferred_genres)); 
@@ -542,6 +543,84 @@ export const handleUpdatePreferredGenres = (userId, genres) => async (dispatch) 
 
     console.log('Preferred Genres Saved Successfully');
     return preferred_genres
+  } catch (error) {
+    console.error(`Error: ${error.response ? error.response.data : error.message}`);
+    // Handle error accordingly. You can dispatch a failure action here if you have one.
+  }
+};
+
+export const handleUpdateUserType = (userId, userType) => async (dispatch) => {
+  try {
+    const csrfToken = await getCSRFToken();
+    const data = { userType };
+
+    const response = await axios.patch(`http://localhost:8000/update-user-type/`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    const { user_type } = response.data;
+    if (user_type) {
+      dispatch(updateUserType(user_type)); 
+    };
+
+    console.log('User Type Saved Successfully');
+    return user_type
+  } catch (error) {
+    console.error(`Error: ${error.response ? error.response.data : error.message}`);
+    // Handle error accordingly. You can dispatch a failure action here if you have one.
+  }
+};
+
+export const handleUpdateUserProfession = (userId, profession) => async (dispatch) => {
+  try {
+    const csrfToken = await getCSRFToken();
+    const data = { profession };
+
+    const response = await axios.patch(`http://localhost:8000/update-user-profession/`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    const { saved_profession } = response.data;
+    if (saved_profession) {
+      dispatch(updateUserProfession(saved_profession)); 
+    };
+
+    console.log('User Profession Saved Successfully');
+    return saved_profession
+  } catch (error) {
+    console.error(`Error: ${error.response ? error.response.data : error.message}`);
+    // Handle error accordingly. You can dispatch a failure action here if you have one.
+  }
+};
+
+export const handleUpdateProfileImage = (userId, imageFile) => async (dispatch) => {
+  try {
+    const csrfToken = await getCSRFToken();
+    const formData = new FormData();
+    formData.append('imageFile', imageFile);
+
+    const response = await axios.post(`http://localhost:8000/update-profile-image/`, formData, {
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    const { profile_image } = response.data;
+    if (profile_image) {
+      dispatch(updateProfileImage(profile_image)); 
+    };
+
+    console.log('Profile Image Saved Successfully');
+    return profile_image
   } catch (error) {
     console.error(`Error: ${error.response ? error.response.data : error.message}`);
     // Handle error accordingly. You can dispatch a failure action here if you have one.
@@ -601,7 +680,7 @@ export const createPlaylistRequest = (
     }
 
     const res = await response.json();
-    console.log(res)
+
     const playlistData = res['playlist_data']
     const userTokens = res['updated_tokens'];
     const userXp = res['updated_xp'];
@@ -610,20 +689,19 @@ export const createPlaylistRequest = (
     dispatch(getUserTokensSuccess(userTokens));
     dispatch(getUserXpSuccess(userXp));
 
-    console.log('returning playlist data: ', playlistData)
-
     return playlistData
   } catch (error) {
     console.log('Error: ' + error.message);
   };
 };
 
-export const deletePlaylistRequest = (playlistIds, onSuccess) => async (dispatch) => {
+export const deletePlaylistRequest = (playlistIds, userId, onSuccess) => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
+      'User-Id': userId,
     };
 
     const body = { playlist_ids: playlistIds };
@@ -652,7 +730,7 @@ export const addToSavedPlaylistRequest = (
   userId,
   tracks,
 ) => async (dispatch) => {
-  console.log('addToSavedPlaylist')
+
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
@@ -677,9 +755,8 @@ export const addToSavedPlaylistRequest = (
     }
 
     const res = await response.json();
-    console.log('addToSavedPlaylist res: ', res)
     const playlist = res['playlist'] 
-    console.log('addToSavedPlaylist playlist: ', playlist)
+
 
     dispatch(addToSavedPlaylist(playlist.id, playlist.songs));
     return playlist.songs

@@ -24,7 +24,7 @@ export const useStyles = makeStyles(() => (
     marginBottom: '5%',
   },
   textField: {
-    width: '300px',
+    width: '55%',
     [theme.breakpoints.down('sm')]: {
       width: '80%',
     },
@@ -35,6 +35,9 @@ export const useStyles = makeStyles(() => (
     color: 'white',
     borderRadius: '8px',
     boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+  },
+  emailField: {
+    width: '30%',
   },
   subHeader: {
     width: '40%',
@@ -57,5 +60,23 @@ export const useStyles = makeStyles(() => (
   },
   noBottomLine: {
     borderBottom: 'none',
-  }
+  },
+  dropzone: {
+    borderRadius: '18px',
+    borderColor: 'rgb(210,220,225, 0.6)',
+    background: 'rgba(48, 130, 164, 0.15)',
+    marginBottom: '2%',
+    '& p': {
+      color: 'white'
+    },
+    '& .MuiDropzoneArea-active': {
+      borderColor: 'green'
+    }
+  },
+  imagePreviewContainer: {
+    display: 'flex',        
+    justifyContent: 'center', 
+    alignItems: 'center',    
+    height: '100%',    
+  },
 }));

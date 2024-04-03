@@ -35,7 +35,6 @@ const useStyles = makeStyles(() => (
     [theme.breakpoints.down('sm')]: {
       width: '100%',
     },
-
     backgroundColor: 'white',
     borderRadius: '5px',
   },
@@ -130,7 +129,7 @@ const SpotifyConnect = ({
                               }}
                               src={'/static/images/spotifyLogo.png'}
                           />
-                          </Button>
+                        </Button>
                       <br />
                       <Grid className={classes.buttonsContainer}>
                           <Button

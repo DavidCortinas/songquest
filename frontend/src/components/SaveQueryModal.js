@@ -362,7 +362,6 @@ const mapStateToProps = (state) => {
     recommendations: state.discovery.recommendations,
     dataLoaded: state.discovery.dataLoaded,
     user: state.user.currentUser,
-    currentPlaylist: state.playlist.currentPlaylist,
     savedQueries: state.discovery.savedQueries,
   };
 };

@@ -44,7 +44,7 @@ def verify_email(request, token):
         user.save()
     
     # Construct the redirect URL with the email_verified status as a query parameter
-    redirect_url = f"http://localhost:3000/registration-success?email_verified={user.email_verified}"
+    redirect_url = f"http://localhost:3000/onboard?email_verified={user.email_verified}"
     
     # Redirect the user to the frontend URL
     return HttpResponseRedirect(redirect_url)

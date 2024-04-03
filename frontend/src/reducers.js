@@ -50,7 +50,12 @@ import {
   UPDATE_DISPLAY_NAME,
   UPDATE_BIRTHDAY,
   UPDATE_PREFERRED_GENRES,
+  UPDATE_USER_TYPE,
+  UPDATE_USER_PROFESSION,
+  UPDATE_PROFILE_IMAGE,
+  SET_CURRENT_PLAYLIST,
 } from './actions';
+import { toCamelCase } from 'utils';
 
 const initialSongState = {
   query: { song: '', performer: '' },
@@ -353,24 +358,14 @@ export const user = (state = { currentUser: null }, action) => {
         isRegistered: payload.isRegistered
       };
     case SET_CURRENT_USER:
-      if (payload.user && 'spotify_connected' in payload.user.user) {
-        const { spotify_connected: spotifyConnected, ...restOfUser } = payload.user.user;
-        return {
-          ...state,
-          currentUser: {
-            ...payload,
-            user: {
-              ...restOfUser,
-              spotifyConnected,
-            },
-          },
-        };
-      } else {
-        return {
-          ...state,
-          currentUser: payload.user,
-        };
-      }
+      const userWithCamelCase = toCamelCase(payload.user?.user);
+      return {
+        ...state,
+        currentUser: {
+          ...payload.user,
+          user: userWithCamelCase,
+        },
+      };
     case REFRESH_SPOTIFY_ACCESS:
       return {
         ...state,
@@ -421,6 +416,39 @@ export const user = (state = { currentUser: null }, action) => {
           user: {
             ...state.currentUser.user,
             preferredGenres: payload.genres,
+          },
+        },
+      };
+    case UPDATE_USER_TYPE:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            userType: payload.user_type,
+          },
+        },
+      };
+    case UPDATE_USER_PROFESSION:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            profession: payload.profession,
+          },
+        },
+      };
+    case UPDATE_PROFILE_IMAGE:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            profileImage: payload.imageUrl,
           },
         },
       };
@@ -545,11 +573,17 @@ export const authSlice = createSlice({
 export const playlist = (
   state = {
     playlists: [], 
-    currentPlaylist: [],
-    selectedPlaylist: {
-      id: null,
-      name: null,
-      tracks: [],
+    currentPlaylist: {
+      newPlaylist: {
+        id: null,
+        name: null,
+        tracks: [],
+      },
+      selectedPlaylist: {
+        id: null,
+        name: null,
+        tracks: [],
+      }
     }
   }, 
   action
@@ -575,25 +609,44 @@ export const playlist = (
         error: payload.error,
       };
     case ADD_TO_CURRENT_PLAYLIST:
+      // Add songs to the newPlaylist's tracks within currentPlaylist
       return {
         ...state,
-        currentPlaylist: [...state.currentPlaylist, ...payload.songs]
+        currentPlaylist: {
+          ...state.currentPlaylist,
+          newPlaylist: {
+            ...state.currentPlaylist.newPlaylist,
+            tracks: [...state.currentPlaylist.newPlaylist.tracks, ...payload.songs],
+          },
+        },
       };
     case SET_SELECTED_PLAYLIST:
-      console.log(payload)
+      // Set a playlist as the selectedPlaylist within currentPlaylist
+      const selected = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
+      console.log(selected)
       return {
         ...state,
-        selectedPlaylist: state.playlists.find(playlist => 
-          payload.playlistId === playlist.id
-        )
+        currentPlaylist: {
+          ...state.currentPlaylist,
+          selectedPlaylist: {
+            id: selected.id || null,
+            name: selected.name || null,
+            songs: selected.songs || [],
+          },
+        },
       };
     case REMOVE_FROM_CURRENT_PLAYLIST_BY_ID:
-      const payloadSongIds = payload.songIds.map(songId => songId);
+      // Remove songs from the newPlaylist's tracks within currentPlaylist
       return {
         ...state,
-        currentPlaylist: state.currentPlaylist.filter(song =>
-          payloadSongIds.includes(song)
-        )
+        currentPlaylist: {
+          ...state.currentPlaylist,
+          newPlaylist: {
+            ...state.currentPlaylist.newPlaylist,
+            tracks: state.currentPlaylist.newPlaylist.tracks.filter(song => 
+              !payload.songIds.includes(song.id)),
+          },
+        },
       };
     case CREATE_PLAYLIST:
       if (state.playlists.some(pl => pl.id === payload.playlist.id)) {
@@ -625,10 +678,22 @@ export const playlist = (
         })
       };
     case RESET_CURRENT_PLAYLIST:
+      // Reset both newPlaylist and selectedPlaylist within currentPlaylist
       return {
         ...state,
-        currentPlaylist: [],
-      }
+        currentPlaylist: {
+          newPlaylist: {
+            id: null,
+            name: null,
+            tracks: [],
+          },
+          selectedPlaylist: {
+            id: null,
+            name: null,
+            tracks: [],
+          },
+        },
+      };
     default:
       return state;
   };

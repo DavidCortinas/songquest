@@ -10,6 +10,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 
+from songquest.user.serializers import UserSerializer
+
 class LoginSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)
@@ -18,26 +20,19 @@ class LoginSerializer(TokenObtainPairSerializer):
         email = attrs.get('email')
         password = attrs.get('password')
 
-        # Authenticate using email as username
-        user = authenticate(request=self.context.get('request'), username=email, password=password)
+        user = authenticate(email=email, password=password)
         
         if not user:
             raise serializers.ValidationError('No active account found with the given credentials')
+        
+        user_data = UserSerializer(user, context={'request': self.context.get('request')}).data
 
-        # Generate token pair for the user
         token_pair = self.get_token(user)
 
-        # Include user data in the response
         return {
             'refresh': str(token_pair),
             'access': str(token_pair.access_token),
-            'user': {
-                'id': user.id,
-                'email': user.email,
-                'xp': user.xp,
-                'tokens': user.tokens,
-                'spotify_connected': bool(user.spotify_refresh),
-            }
+            'user': user_data,
         }
 
     def get_token(self, user):
@@ -53,12 +48,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         required=True, write_only=True, max_length=128)
     password = serializers.CharField(
         max_length=128, min_length=8, write_only=True)
-    username = serializers.CharField(
-        required=True, max_length=150)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'username']
+        fields = ['email', 'password']
 
     def create(self, validated_data):
         # Check if a user with this email already exists
@@ -69,7 +62,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Create the user
         user = User.objects.create_user(
             email=validated_data['email'],
-            username=validated_data['username'],
             password=validated_data['password']
         )
 

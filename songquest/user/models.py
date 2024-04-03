@@ -48,6 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     stripe_customer_id = models.CharField(max_length=255, null=True, blank=True)
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
+    profession = models.CharField(max_length=255, null=True, blank=True)
     USER_TYPES = (
         ('fan', 'Fan'),
         ('pro_user', 'Pro User'),
@@ -65,6 +66,13 @@ class User(AbstractBaseUser, PermissionsMixin):
             return self.dealer
         except Dealer.DoesNotExist:
             return None
+        
+    @property
+    def professional_info(self):
+        """Return profession info if user is a pro_user, else None."""
+        if self.user_type == 'pro_user':
+            return self.profession
+        return None
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -86,9 +94,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         xp_to_add = xp_values[action]
         self.xp += xp_to_add
 
-        if self.xp >= 250:
+        if self.xp >= 1000:
             self.tokens += 5
-            self.xp = (self.xp - 250) % 250
+            self.xp = (self.xp - 1000) % 1000
 
         self.save()
 

@@ -55,6 +55,11 @@ export const XPCounter = ({ currentXp, maxXp }) => {
   const [addedXp, setAddedXp] = useState(0);
 
   useEffect(() => {
+    if (displayXp === undefined) {
+      setDisplayXp(currentXp);
+      return;
+    };
+
     const xpDifference = currentXp - displayXp;
     if (xpDifference > 0) {
       setAddedXp(xpDifference);
@@ -233,5 +238,18 @@ export const transformResponseToQueryStructure = (responseData) => {
   };
 
   return transformedQuery;
+};
+
+export const toCamelCase = (obj) => {
+  if (Array.isArray(obj)) {
+    return obj.map(v => toCamelCase(v));
+  } else if (obj !== null && obj?.constructor === Object) {
+    return Object.keys(obj).reduce((result, key) => {
+      const camelCaseKey = key.replace(/([-_][a-z])/ig, ($1) => $1.toUpperCase().replace('-', '').replace('_', ''));
+      result[camelCaseKey] = toCamelCase(obj[key]);
+      return result;
+    }, {});
+  }
+  return obj;
 };
 
