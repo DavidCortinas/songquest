@@ -280,7 +280,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.auth.account,
     currentUser: state.user.currentUser,
-    currentPlaylist: state.playlist.currentPlaylist.newPlaylist,
+    currentPlaylist: state.playlist.currentPlaylist.createPlaylist,
     userPlaylists: state.playlist.playlists,
   };
 };

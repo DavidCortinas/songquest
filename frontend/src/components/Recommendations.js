@@ -18,7 +18,7 @@ const Recommendation = ({
   classes,
   recommendation,
   index,
-  currentPlaylist,
+  createPlaylist,
   songsToAdd,
   setSongsToAdd,
   onAddToCurrentPlaylist,
@@ -28,9 +28,10 @@ const Recommendation = ({
   toggleValue,
 }) => {
     const navigate = useNavigate();
-    const recommendationInPlaylist = currentPlaylist.tracks.some(track => track.spotify_id === recommendation.id);
+    const recommendationInPlaylist = createPlaylist?.tracks.some(track => track.spotify_id === recommendation.id);
 
     const handleAddToPlaylistClick = useCallback(() => {
+      console.log(recommendation)
       if (!user?.user.spotifyConnected) {
         navigate('/spotify-connect');
       } else {
@@ -38,9 +39,9 @@ const Recommendation = ({
           ? onRemoveFromCurrentPlaylistById(recommendation.id)
           : onAddToCurrentPlaylist({
               name: recommendation.name,
-              artists: recommendation.artists.map((artist) => artist.name),
+              artists: recommendation.artists.map((artist) => artist.name ? artist.name : artist),
               spotify_id: recommendation.id,
-              image: recommendation.album.images[2].url,
+              image: recommendation.album ? recommendation.album.images[2].url : recommendation.image,
             });
       }
     }, [user?.user.spotifyConnected, navigate, recommendation, recommendationInPlaylist, onRemoveFromCurrentPlaylistById, onAddToCurrentPlaylist]);
@@ -68,7 +69,7 @@ const Recommendation = ({
           sx={{ padding: '0 3% 0 2%' }}
         />
         <iframe
-          src={`https://open.spotify.com/embed/track/${recommendation.spotify_id || recommendation.id}?utm_source=generator`}
+          src={`https://open.spotify.com/embed/track/${recommendation.spotifyId || recommendation.id}?utm_source=generator`}
           height="100%"
           width={isXsScreen ? "65%" : '100%'}
           frameBorder="0"
@@ -114,7 +115,7 @@ const Recommendations = ({
   classes,
   recommendations,
   user,
-  currentPlaylist,
+  createPlaylist,
   onAddToCurrentPlaylist,
   onRemoveFromCurrentPlaylistById,
   setIsModalOpen,
@@ -137,13 +138,14 @@ const Recommendations = ({
   };
 
   const handleBulkAdd = () => {
+    console.log(songsToAdd)
     const songsToAddData = songsToAdd.map(song => ({
       'id': song.id,
       'name': song.name,
       'artists': song.artists.map(artist => artist.name),
-      'spotify_id': song.spotify_id,
-      'isrc': song.external_ids.isrc,
-      'image': song.album.images[2].url,
+      'spotify_id': song.spotifyId,
+      'isrc': song.external_ids ? song.external_ids.isrc : song.isrc,
+      'image': song.album ? song.album.images[2].url : song.image,
     }));
 
     onAddToCurrentPlaylist(...songsToAddData);
@@ -299,7 +301,7 @@ const Recommendations = ({
                 classes={classes}
                 recommendation={recommendation}
                 index={index}
-                currentPlaylist={currentPlaylist}
+                createPlaylist={createPlaylist}
                 songsToAdd={songsToAdd}
                 setSongsToAdd={setSongsToAdd}
                 onAddToCurrentPlaylist={onAddToCurrentPlaylist}

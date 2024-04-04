@@ -711,7 +711,9 @@ export const deletePlaylistRequest = (playlistIds, userId, onSuccess) => async (
     if (response.status === 200) {
       const res = response.data;
 
-      onSuccess();
+      if (onSuccess) {
+        onSuccess();
+      }
 
       dispatch(deletePlaylist(...playlistIds));
 

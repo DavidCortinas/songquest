@@ -847,7 +847,7 @@ def delete_playlist(request):
     try:
         print('try')
         data = json.loads(request.body.decode('utf-8'))
-        
+
         user_id = request.headers.get('User-Id')
         user = User.objects.get(id=user_id)
         print(user)
@@ -1002,13 +1002,15 @@ def get_user_playlists(request):
     serialized_playlists = []
     for playlist in playlists:
         songs = playlist.songs.all()
+        print('songs: ', songs)
         serialized_songs = [
             {
                 'id': song.id,
                 'name': song.name,
                 'artists': song.artists.split(', '),
-                'spotify_id': song.spotify_id,
+                'spotifyId': song.spotify_id,
                 'image': song.image,
+                'isrc': song.isrc,
             } for song in songs
         ]
 

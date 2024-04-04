@@ -150,6 +150,20 @@ const useStyles = makeStyles(() => (
             borderRadius: '8px',
             boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
         },
+        deleteIcon: {
+            opacity: 0,
+            transition: 'opacity 0.3s ease',
+            position: 'absolute',
+            right: '-7px',
+            top: '-8px',
+            color: 'rgb(210,220,225, 0.8)',
+            cursor: 'pointer',
+        },
+        cardHovered: {
+            '&:hover $deleteIcon': {
+            opacity: 1,
+            },
+        },
     }
 ));
 
