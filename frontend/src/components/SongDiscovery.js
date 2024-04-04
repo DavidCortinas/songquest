@@ -642,7 +642,7 @@ const handleExploreMoreClick = (activatesModal) => {
                 <Suspense fallback={<div>Loading...</div>}>
                   <Recommendations 
                     classes={classes} 
-                    recommendations={toggleValue === 'Selected Playlist' ? selectedPlaylist.songs : discoveryRecommendations}
+                    recommendations={toggleValue === 'Selected Playlist' ? selectedPlaylist.tracks : discoveryRecommendations}
                     user={currentUser}
                     currentPlaylist={currentPlaylist}
                     onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
@@ -781,7 +781,7 @@ const mapStateToProps = (state) => {
     selectedPlaylist: state.playlist.currentPlaylist.selectedPlaylist,
     dataLoaded: state.discovery.dataLoaded,
     currentUser: state.user.currentUser,
-    currentPlaylist: state.playlist.currentPlaylist.newPlaylist,
+    currentPlaylist: state.playlist.currentPlaylist.createPlaylist,
   };
 };
 

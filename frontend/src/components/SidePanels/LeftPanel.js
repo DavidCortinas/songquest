@@ -9,6 +9,7 @@ import {
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import getPlaylistItems from "utils/playlist";
@@ -19,44 +20,57 @@ import theme from "theme";
 import { useState } from "react";
 import { deletePlaylistRequest } from "thunks";
 
-const PlaylistCard = ({ 
-  classes, 
-  index, 
-  userPlaylist, 
+const PlaylistCard = ({
+  classes,
+  index,
+  currentUser,
+  userPlaylist,
   selectedPlaylist,
   onSetSelectedPlaylist,
-  onResetCurrentPlaylist,
-  isXsScreen, 
+  onDeletePlaylist,
+  isXsScreen,
   isSmScreen,
   setShowPlaylists,
   setToggleValue,
 }) => {
-  const playlistName = userPlaylist?.name
+  const [showOuterTooltip, setShowOuterTooltip] = useState(false);
+  const [isCardHovered, setIsCardHovered] = useState(false);
+
+  const playlistName = userPlaylist?.name;
 
   const handlePlaylistClick = () => {
-    onResetCurrentPlaylist();
-    
     onSetSelectedPlaylist(userPlaylist.id);
-    // onSetCurrentPlaylist(...userPlaylist.songs);
     setToggleValue('Selected Playlist');
+
     if (isXsScreen || isSmScreen) {
       setShowPlaylists(false);
     }
   };
 
-  const selected = Boolean(selectedPlaylist === userPlaylist)
+  const selected = Boolean(selectedPlaylist === userPlaylist);
+
+  const handleCardMouseEnter = () => {
+    setIsCardHovered(true);
+    setShowOuterTooltip(true);
+  };
+
+  const handleCardMouseLeave = () => {
+    setIsCardHovered(false);
+    setShowOuterTooltip(false);
+  };
+
+  const handleDeletePlaylist = () => {
+    onDeletePlaylist(
+      [userPlaylist.id],
+      currentUser?.user.id,
+      null
+    );
+  };
 
   return (
-    <Tooltip 
+    <Tooltip
       title={
-        <div
-          style={{
-            maxHeight: '25vh',
-            overflowY: 'auto',
-            padding: '8px',
-            borderRadius: '8px',
-          }}
-        >
+        <div style={{ maxHeight: '25vh', overflowY: 'auto', padding: '8px', borderRadius: '8px' }}>
           <Box display='flex' alignItems='center'>
             <EditNoteIcon />
             <Typography variant='body2' letterSpacing='1px' paddingLeft='2%'>
@@ -71,15 +85,18 @@ const PlaylistCard = ({
         </div>
       }
       arrow
+      placement="right-start"
+      open={showOuterTooltip && isCardHovered}
     >
       <Card
         onClick={handlePlaylistClick}
-        key={index} 
-        className={`${classes.panelCard} ${selected && classes.panelCardSelected}`}
+        onMouseEnter={handleCardMouseEnter}
+        onMouseLeave={handleCardMouseLeave}
+        className={`${classes.panelCard} ${selected && classes.panelCardSelected} ${classes.cardHovered}`}
       >
         <Typography
-          noWrap  
-          variant={isXsScreen ? 'caption' : 'subtitle2'} 
+          noWrap
+          variant={isXsScreen ? 'caption' : 'subtitle2'}
           color='white'
           letterSpacing='1px'
           textAlign='start'
@@ -93,16 +110,33 @@ const PlaylistCard = ({
         >
           {playlistName}
         </Typography>
-        <img 
-          src='/static/images/Spotify_Icon_RGB_White.png' 
-          style={{ 
-            maxWidth: '8%', 
+        <img
+          src='/static/images/Spotify_Icon_RGB_White.png'
+          style={{
+            maxWidth: '8%',
             height: 'auto',
             position: 'absolute',
             right: '5%',
             bottom: '24%',
           }}
         />
+        <Tooltip
+          title={
+            <Typography variant='body2' letterSpacing='1px'>
+              {`Delete ${playlistName}`}
+            </Typography>
+          }
+          arrow
+          placement='right'
+          onMouseEnter={() => setShowOuterTooltip(false)}
+          onMouseLeave={() => setShowOuterTooltip(isCardHovered)}
+        >
+          <DeleteIcon 
+            fontSize='small' 
+            className={classes.deleteIcon}
+            onClick={handleDeletePlaylist}
+          />
+        </Tooltip>
       </Card>
     </Tooltip>
   );
@@ -360,9 +394,10 @@ export const LeftPanel = ({
                       }}
                     />
                     <PlaylistCard 
+                      currentUser={currentUser}
                       userPlaylist={userPlaylist}
                       onSetSelectedPlaylist={onSetSelectedPlaylist}
-                      onResetCurrentPlaylist={onResetCurrentPlaylist}
+                      onDeletePlaylist={onDeletePlaylist}
                       index={index}
                       classes={classes}
                       isXsScreen={isXsScreen}

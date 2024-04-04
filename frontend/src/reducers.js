@@ -54,6 +54,9 @@ import {
   UPDATE_USER_PROFESSION,
   UPDATE_PROFILE_IMAGE,
   SET_CURRENT_PLAYLIST,
+  SET_EDIT_PLAYLIST,
+  SET_PLAYLIST_TO_EDIT,
+  SET_CREATE_PLAYLIST,
 } from './actions';
 import { toCamelCase } from 'utils';
 
@@ -574,7 +577,13 @@ export const playlist = (
   state = {
     playlists: [], 
     currentPlaylist: {
-      newPlaylist: {
+      action: 'create',
+      createPlaylist: {
+        id: null,
+        name: null,
+        tracks: [],
+      },
+      editPlaylist: {
         id: null,
         name: null,
         tracks: [],
@@ -609,14 +618,45 @@ export const playlist = (
         error: payload.error,
       };
     case ADD_TO_CURRENT_PLAYLIST:
-      // Add songs to the newPlaylist's tracks within currentPlaylist
+      // Add songs to the createPlaylist's tracks within currentPlaylist
       return {
         ...state,
         currentPlaylist: {
           ...state.currentPlaylist,
-          newPlaylist: {
-            ...state.currentPlaylist.newPlaylist,
-            tracks: [...state.currentPlaylist.newPlaylist.tracks, ...payload.songs],
+          createPlaylist: {
+            ...state.currentPlaylist.createPlaylist,
+            tracks: [...state.currentPlaylist.createPlaylist.tracks, ...payload.songs],
+          },
+        },
+      };
+    case SET_CREATE_PLAYLIST:
+      return {
+        ...state,
+        currentPlaylist: {
+          ...state.currentPlaylist,
+          action: 'create',
+        }
+      }
+    case SET_EDIT_PLAYLIST:
+      return {
+        ...state,
+        currentPlaylist: {
+          ...state.currentPlaylist,
+          action: 'edit',
+        }
+      }
+    case SET_PLAYLIST_TO_EDIT:
+      // Set a playlist as the editPlaylist within currentPlaylist
+      const playlistToEdit = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
+      console.log(playlistToEdit)
+      return {
+        ...state,
+        currentPlaylist: {
+          ...state.currentPlaylist,
+          editPlaylist: {
+            id: playlistToEdit.id || null,
+            name: playlistToEdit.name || null,
+            tracks: playlistToEdit.songs || [],
           },
         },
       };
@@ -631,19 +671,19 @@ export const playlist = (
           selectedPlaylist: {
             id: selected.id || null,
             name: selected.name || null,
-            songs: selected.songs || [],
+            tracks: selected.songs || [],
           },
         },
       };
     case REMOVE_FROM_CURRENT_PLAYLIST_BY_ID:
-      // Remove songs from the newPlaylist's tracks within currentPlaylist
+      // Remove songs from the createPlaylist's tracks within currentPlaylist
       return {
         ...state,
         currentPlaylist: {
           ...state.currentPlaylist,
-          newPlaylist: {
-            ...state.currentPlaylist.newPlaylist,
-            tracks: state.currentPlaylist.newPlaylist.tracks.filter(song => 
+          createPlaylist: {
+            ...state.currentPlaylist.createPlaylist,
+            tracks: state.currentPlaylist.createPlaylist.tracks.filter(song => 
               !payload.songIds.includes(song.id)),
           },
         },
@@ -671,23 +711,20 @@ export const playlist = (
           if (playlist.id === payload.playlistId) {
             return {
               ...playlist,
-              songs: [...playlist.songs, ...payload.songs]
+              tracks: [...playlist.songs, ...payload.songs]
             };
           }
           return playlist;
         })
       };
     case RESET_CURRENT_PLAYLIST:
-      // Reset both newPlaylist and selectedPlaylist within currentPlaylist
+      // Reset both createPlaylist and selectedPlaylist within currentPlaylist
       return {
         ...state,
         currentPlaylist: {
-          newPlaylist: {
-            id: null,
-            name: null,
-            tracks: [],
-          },
-          selectedPlaylist: {
+          ...state.currentPlaylist,
+          action: 'create',
+          createPlaylist: {
             id: null,
             name: null,
             tracks: [],

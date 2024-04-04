@@ -23,6 +23,7 @@ import { connect } from "react-redux";
 import { addToSavedPlaylistRequest, createPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
 import theme from "theme";
+import { addToCurrentPlaylist, setCreatePlaylist, setEditPlaylist, setPlaylistToEdit } from "actions";
 
 const root = {
   "& .MuiAutocomplete-option[data-focus='true']": {
@@ -147,12 +148,16 @@ const PlaylistItemCard = ({
 
 const CreateOrEditPlaylist = ({
   classes,
-  currentPlaylist,
+  playlist,
   handleCreatePlaylist,
-  user,
+  currentUser,
   playlists,
+  playlistAction,
   setPlaylistName,
   playlistName,
+  onSetCreatePlaylist,
+  onSetEditPlaylist,
+  onSetPlaylistToEdit,
   onRemoveFromCurrentPlaylistById,
   navigate,
 }) => {
@@ -161,7 +166,7 @@ const CreateOrEditPlaylist = ({
   const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
   const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
-  console.log(currentPlaylist)
+  console.log(playlist)
 
   
   const [songsToRemove, setSongsToRemove] = useState([]);
@@ -189,15 +194,15 @@ const CreateOrEditPlaylist = ({
   };
 
   const handlePlaylistSelectAll = () => {
-    if (songsToRemove.length !== currentPlaylist.tracks.length) {
-        setSongsToRemove(currentPlaylist.tracks.map(song => song.id));
+    if (songsToRemove.length !== playlist.tracks.length) {
+        setSongsToRemove(playlist.tracks.map(song => song.id));
     } else {
         setSongsToRemove([]);
     };
   };
 
   const handleConnectToSpotify = () => {
-    if (!user?.user) {
+    if (!currentUser?.user) {
       navigate('/login');
     } else {
 
@@ -205,16 +210,21 @@ const CreateOrEditPlaylist = ({
   };
 
   const handleChange = (event, newValue) => {
-      // setSelectedGenres(newValue);
+    console.log(newValue)
+    if (newValue) {
+      onSetPlaylistToEdit(newValue?.id)
+    }
   };
 
   const handleToggle = () => {
-    if (toggleValue === 'Create') {
-      setToggleValue('Edit')
+    if (playlistAction === 'create') {
+      onSetEditPlaylist();
     } else {
-      setToggleValue('Create')
+      onSetCreatePlaylist();
     }
   };
+
+  console.log(playlist)
 
   return (
     <>
@@ -237,8 +247,8 @@ const CreateOrEditPlaylist = ({
             <ToggleButton 
               value="Create"
               sx={{
-                backgroundColor: toggleValue === 'Create' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
-                color: toggleValue === 'Create' ? 'whitesmoke' : 'grey',
+                backgroundColor: playlistAction === 'create' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
+                color: playlistAction === 'create' ? 'whitesmoke' : 'grey',
                 borderRadius: '8px',
                 width: '50%',
                 padding: '1%',
@@ -253,8 +263,8 @@ const CreateOrEditPlaylist = ({
             <ToggleButton 
               value="Edit"
               sx={{
-                backgroundColor: toggleValue === 'Edit' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
-                color: toggleValue === 'Edit' ? 'whitesmoke' : 'grey',
+                backgroundColor: playlistAction === 'edit' ? 'rgb(44, 216, 207, 0.3)' : 'rgba(48, 130, 164, 0.15)',
+                color: playlistAction === 'edit' ? 'whitesmoke' : 'grey',
                 borderRadius: '8px',
                 width: '50%',
                 padding: '1%',
@@ -275,7 +285,7 @@ const CreateOrEditPlaylist = ({
           width='90%'
           margin='5%'
         >
-          {toggleValue === 'Create' ? (
+          {playlistAction === 'create' ? (
             <TextField 
               label='Playlist Name' 
               variant='standard' 
@@ -316,7 +326,8 @@ const CreateOrEditPlaylist = ({
               value={playlistToEdit.name}
               onChange={handleChange}
               label={'Select Playlist'}
-              options={playlists.map(playlist => playlist.name)}
+              options={playlists}
+              getOptionLabel={(option) => option.name}
               ListboxProps={{
                 sx: {
                     ...root,
@@ -334,7 +345,7 @@ const CreateOrEditPlaylist = ({
                   }}
                   {...props}
                 >
-                  {option}
+                  {option.name}
                 </Box>
               )}
               ChipProps={{
@@ -433,11 +444,13 @@ const CreateOrEditPlaylist = ({
                 }}
               > 
                 <Typography variant='body2' letterSpacing='1px'>
-                  {user?.user.spotifyConnected && user?.user.tokens > 2 && toggleValue === 'Create' ? 
+                  {currentUser && currentUser?.user.spotifyConnected && 
+                  currentUser?.user.tokens > 2 && playlistAction === 'create' ? 
                   'Create Playlist' : 
-                  user?.user.spotifyConnected && user?.user.tokens > 2 ?
+                  currentUser?.user.spotifyConnected && 
+                  currentUser?.user.tokens > 2 ?
                   'Update Playlist' :
-                  user?.user.tokens < 2 ?
+                  currentUser?.user.tokens < 2 ?
                   "Get more tokens to complete request" :
                   'Connect to Spotify to create playlists'}
                 </Typography>
@@ -445,9 +458,9 @@ const CreateOrEditPlaylist = ({
             }
           >
             <Button 
-              disabled={!user?.user}
+              disabled={!currentUser?.user}
               onClick={handleCreatePlaylist} 
-              className={user?.user.tokens < 2 ? classes.disabled : classes.button}
+              className={currentUser?.user.tokens < 2 ? classes.disabled : classes.button}
             >
               <Box display='flex' alignItems='center'>
                 <AutoAwesomeIcon
@@ -462,7 +475,7 @@ const CreateOrEditPlaylist = ({
                   letterSpacing='1px'
                 >
                   {!(isXsScreen || isSmScreen) && 
-                    toggleValue === 'Create' ? 
+                    playlistAction === 'create' ? 
                     'Create' :
                     'Update'
                   }
@@ -504,7 +517,7 @@ const CreateOrEditPlaylist = ({
           flexDirection: 'column', 
         }}
       >
-        {currentPlaylist.tracks.length > 0 ? currentPlaylist.tracks.map((item, index) => (
+        {playlist?.tracks?.length > 0 ? playlist.tracks.map((item, index) => (
           <Box 
             display='flex' 
             flexDirection='column'
@@ -530,14 +543,18 @@ const CreateOrEditPlaylist = ({
               paddingBottom='5%'
               position='relative'
             >
-              {user?.user.spotifyConnected ? (
+              {currentUser?.user.spotifyConnected ? (
                 <Typography 
                   variant={(isXsScreen || isSmScreen) ? 'subtitle2' : 'subtitle1' }
                   textAlign='center' 
                   padding='20px'
                   letterSpacing='2px'
                 >
-                  {'Unearth new gems and add them to your collection...'}
+                  {
+                    playlistAction === 'create' ? 
+                    'Unearth new gems and add them to your collection...' :
+                    'Select a playlist to edit from you collection above...'
+                  }
                 </Typography>
               ) : (
                 <>
@@ -548,7 +565,7 @@ const CreateOrEditPlaylist = ({
                     letterSpacing='2px'
                   >
                     {
-                      user?.user ? 
+                      currentUser?.user ? 
                       'Connect to Spotify to earn tokens and start creating playlists' :
                       `Register/Login, Connect to Spotify, Use tokens to unearth new gems and add them to your collection`
                     }
@@ -598,11 +615,16 @@ const CreateOrEditPlaylist = ({
 };
 
   export const RightPanel = ({
-      currentPlaylist,
-      user,
+      createPlaylist,
+      editPlaylist,
+      currentUser,
       playlists,
+      playlistAction,
       onCreatePlaylist,
       onAddToSavedPlaylist,
+      onSetCreatePlaylist,
+      onSetEditPlaylist,
+      onSetPlaylistToEdit,
       onRemoveFromCurrentPlaylistById,
       handleExploreMoreClick,
       isSmScreen,
@@ -618,20 +640,22 @@ const CreateOrEditPlaylist = ({
     };
 
     const handleCreatePlaylist = () => {
-      if (!user?.user.spotifyConnected) {
+      if (!currentUser?.user?.spotifyConnected) {
         navigate('/spotify-connect')
       };
 
-      if (user?.user.tokens < 2) {
+      if (currentUser?.user.tokens < 2) {
         navigate('/pricing');
       };
 
+      console.log(editPlaylist)
+
       const newPlaylist = {
         name: playlistName, 
-        tracks: currentPlaylist.tracks,
+        tracks: editPlaylist.songs,
       };
 
-      onCreatePlaylist(user?.user.id, newPlaylist)
+      onCreatePlaylist(currentUser?.user.id, newPlaylist)
         .then(createdPlaylist => {
           const playlistId = createdPlaylist.id;
           const playlistTracks = newPlaylist.tracks.map(track => {
@@ -644,7 +668,7 @@ const CreateOrEditPlaylist = ({
             }
           });
 
-          return onAddToSavedPlaylist(playlistId, user?.user.id, playlistTracks);
+          return onAddToSavedPlaylist(playlistId, currentUser?.user.id, playlistTracks);
         })
         .then(response => {
           onRemoveFromCurrentPlaylistById(...response.map(song => song));
@@ -727,15 +751,23 @@ const CreateOrEditPlaylist = ({
         </Tooltip>
         <Card className={classes.sidePanel}>
           <CreateOrEditPlaylist 
-            currentPlaylist={currentPlaylist}
+            playlist={
+              playlistAction === 'create' ? 
+              createPlaylist : 
+              editPlaylist
+            }
             handleCreatePlaylist={handleCreatePlaylist}
-            user={user}
+            currentUser={currentUser}
             playlistName={playlistName}
             setPlaylistName={setPlaylistName}
             classes={classes}
+            onSetCreatePlaylist={onSetCreatePlaylist}
+            onSetEditPlaylist={onSetEditPlaylist}
+            onSetPlaylistToEdit={onSetPlaylistToEdit}
             onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
             navigate={navigate}
             playlists={playlists}
+            playlistAction={playlistAction}
           />
         </Card>
       </Box>
@@ -744,14 +776,20 @@ const CreateOrEditPlaylist = ({
 
 const mapStateToProps = (state) => {
   return {
-    user: state.user.currentUser,
+    currentUser: state.user.currentUser,
     playlists: state.playlist.playlists,
+    createPlaylist: state.playlist.currentPlaylist.createPlaylist,
+    editPlaylist: state.playlist.currentPlaylist.editPlaylist,
+    playlistAction: state.playlist.currentPlaylist.action,
   };
 };
 
 const mapDispatchToProps = (dispatch) => ({
   onCreatePlaylist: (userId, playlist) => dispatch(createPlaylistRequest(userId, playlist)),
   onAddToSavedPlaylist: (playlistId, userId, ...songs) => dispatch(addToSavedPlaylistRequest(playlistId, userId, ...songs)),
+  onSetCreatePlaylist: () => dispatch(setCreatePlaylist()),
+  onSetEditPlaylist: () => dispatch(setEditPlaylist()),
+  onSetPlaylistToEdit: (playlistId) => dispatch(setPlaylistToEdit(playlistId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(RightPanel);

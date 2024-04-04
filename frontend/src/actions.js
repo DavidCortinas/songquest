@@ -216,6 +216,22 @@ export const addToCurrentPlaylist = (...songs) => ({
   payload: { songs },
 });
 
+export const SET_CREATE_PLAYLIST = 'SET_CREATE_PLAYLIST';
+export const setCreatePlaylist = () => ({
+  type: SET_CREATE_PLAYLIST,
+});
+
+export const SET_EDIT_PLAYLIST = 'SET_EDIT_PLAYLIST';
+export const setEditPlaylist = () => ({
+  type: SET_EDIT_PLAYLIST,
+});
+
+export const SET_PLAYLIST_TO_EDIT = 'SET_PLAYLIST_TO_EDIT';
+export const setPlaylistToEdit = (playlistId) => ({
+  type: SET_PLAYLIST_TO_EDIT,
+  payload: { playlistId },
+});
+
 export const SET_SELECTED_PLAYLIST = 'SET_SELECTED_PLAYLIST';
 export const setSelectedPlaylist = (playlistId) => ({
   type: SET_SELECTED_PLAYLIST,
