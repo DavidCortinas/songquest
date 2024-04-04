@@ -57,6 +57,7 @@ import {
   SET_EDIT_PLAYLIST,
   SET_PLAYLIST_TO_EDIT,
   SET_CREATE_PLAYLIST,
+  REMOVE_FROM_SAVED_PLAYLIST,
 } from './actions';
 import { toCamelCase } from 'utils';
 
@@ -648,7 +649,6 @@ export const playlist = (
     case SET_PLAYLIST_TO_EDIT:
       // Set a playlist as the editPlaylist within currentPlaylist
       const playlistToEdit = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
-      console.log(playlistToEdit)
       return {
         ...state,
         currentPlaylist: {
@@ -663,7 +663,6 @@ export const playlist = (
     case SET_SELECTED_PLAYLIST:
       // Set a playlist as the selectedPlaylist within currentPlaylist
       const selected = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
-      console.log(selected)
       return {
         ...state,
         currentPlaylist: {
@@ -711,7 +710,24 @@ export const playlist = (
           if (playlist.id === payload.playlistId) {
             return {
               ...playlist,
-              tracks: [...playlist.songs, ...payload.songs]
+              songs: [...playlist.songs, ...payload.tracks]
+            };
+          }
+          return playlist;
+        })
+      };
+    case REMOVE_FROM_SAVED_PLAYLIST:
+      return {
+        ...state,
+        playlists: state.playlists.map(playlist => {
+          if (playlist.id === payload.playlistId) {
+            // Filter out the tracks that are in payload.tracks from the playlist's songs
+            const updatedSongs = playlist.songs.filter(song => 
+              payload.tracks.map(track => track.spotifyId).includes(song.spotifyId)
+            );
+            return {
+              ...playlist,
+              songs: updatedSongs
             };
           }
           return playlist;

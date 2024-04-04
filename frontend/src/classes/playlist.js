@@ -113,8 +113,12 @@ const useStyles = makeStyles(() => (
             boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
         },
         currentPlaylistUl: {
+            position: 'relative',
             margin: '0 5% 0 0',
             listStyle: 'none',
+            '&:hover $nonNestedDeleteIcon': {
+                opacity: 1,
+            },
         },
         resetBtn: {
             color: 'white',
@@ -159,9 +163,19 @@ const useStyles = makeStyles(() => (
             color: 'rgb(210,220,225, 0.8)',
             cursor: 'pointer',
         },
+        nonNestedDeleteIcon: {
+            opacity: 1,
+            position: 'absolute',
+            right: '-12px',
+            top: '-8px',
+            color: 'rgb(210,220,225, 0.8)',
+            cursor: 'pointer',
+            opacity: 0,
+            transition: 'opacity 0.3s ease',
+        },
         cardHovered: {
             '&:hover $deleteIcon': {
-            opacity: 1,
+                opacity: 1,
             },
         },
     }

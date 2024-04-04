@@ -14,13 +14,14 @@ import {
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import useStyles from "classes/playlist";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { addToSavedPlaylistRequest, createPlaylistRequest } from "thunks";
+import { addToSavedPlaylistRequest, createPlaylistRequest, removeFromPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
 import theme from "theme";
 import { addToCurrentPlaylist, setCreatePlaylist, setEditPlaylist, setPlaylistToEdit } from "actions";
@@ -37,6 +38,7 @@ const root = {
 };
 
 const PlaylistItemCard = ({ 
+  classes,
   item, 
   key, 
   handlePlaylistSelectClick, 
@@ -155,6 +157,7 @@ const CreateOrEditPlaylist = ({
   playlistAction,
   setPlaylistName,
   playlistName,
+  onRemoveFromSavedPlaylist,
   onSetCreatePlaylist,
   onSetEditPlaylist,
   onSetPlaylistToEdit,
@@ -166,8 +169,6 @@ const CreateOrEditPlaylist = ({
   const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
   const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
-  console.log(playlist)
-
   
   const [songsToRemove, setSongsToRemove] = useState([]);
   const [playlistToEdit, setPlaylistToEdit] = useState('');
@@ -210,7 +211,6 @@ const CreateOrEditPlaylist = ({
   };
 
   const handleChange = (event, newValue) => {
-    console.log(newValue)
     if (newValue) {
       onSetPlaylistToEdit(newValue?.id)
     }
@@ -224,7 +224,14 @@ const CreateOrEditPlaylist = ({
     }
   };
 
-  console.log(playlist)
+  const handleDeleteSong = (track) => {
+    console.log('initiate delete: ', track)
+    if (playlistAction === 'create') {
+      onRemoveFromCurrentPlaylistById(track.id)
+    } else {
+      onRemoveFromSavedPlaylist(playlist.id, currentUser?.user.id, [track])
+    }
+  };
 
   return (
     <>
@@ -526,6 +533,7 @@ const CreateOrEditPlaylist = ({
           >
             <li key={index} className={classes.currentPlaylistUl}>
               <PlaylistItemCard 
+                classes={classes}
                 item={item} 
                 key={item.id} 
                 handlePlaylistSelectClick={handlePlaylistSelectClick}
@@ -533,6 +541,24 @@ const CreateOrEditPlaylist = ({
                 isSmScreen={isSmScreen}
                 isXsScreen={isXsScreen}
               />
+            <Tooltip
+              title={
+                <Typography variant='body2' letterSpacing='1px'>
+                  {playlistAction === 'create' ? 
+                    `Remove ${item?.name} from current playlist` : 
+                    `Delete ${item?.name}`
+                  }
+                </Typography>
+              }
+              arrow
+              placement='right'
+            >
+              <DeleteIcon 
+                fontSize='small' 
+                className={classes.nonNestedDeleteIcon}
+                onClick={() => handleDeleteSong(item)}
+              />
+            </Tooltip>
             </li>
           </Box>)
           ) : (
@@ -614,164 +640,170 @@ const CreateOrEditPlaylist = ({
   )
 };
 
-  export const RightPanel = ({
-      createPlaylist,
-      editPlaylist,
-      currentUser,
-      playlists,
-      playlistAction,
-      onCreatePlaylist,
-      onAddToSavedPlaylist,
-      onSetCreatePlaylist,
-      onSetEditPlaylist,
-      onSetPlaylistToEdit,
-      onRemoveFromCurrentPlaylistById,
-      handleExploreMoreClick,
-      isSmScreen,
-      isXsScreen,
-      setShowPlaylists,
-  }) => {
-    const classes = useStyles();
-    const navigate = useNavigate();
-    const [playlistName, setPlaylistName] = useState('');
+export const RightPanel = ({
+    createPlaylist,
+    editPlaylist,
+    currentUser,
+    playlists,
+    playlistAction,
+    onCreatePlaylist,
+    onAddToSavedPlaylist,
+    onRemoveFromSavedPlaylist,
+    onSetCreatePlaylist,
+    onSetEditPlaylist,
+    onSetPlaylistToEdit,
+    onRemoveFromCurrentPlaylistById,
+    handleExploreMoreClick,
+    isSmScreen,
+    isXsScreen,
+    setShowPlaylists,
+}) => {
+  const classes = useStyles();
+  const navigate = useNavigate();
+  const [playlistName, setPlaylistName] = useState('');
 
-    const handleBackToPlaylists = () => {
-      setShowPlaylists(true);
+  const handleBackToPlaylists = () => {
+    setShowPlaylists(true);
+  };
+
+  const playlist = playlistAction === 'create' ? 
+    createPlaylist : 
+    editPlaylist
+
+  const handleCreatePlaylist = () => {
+    if (!currentUser?.user?.spotifyConnected) {
+      navigate('/spotify-connect')
     };
 
-    const handleCreatePlaylist = () => {
-      if (!currentUser?.user?.spotifyConnected) {
-        navigate('/spotify-connect')
-      };
-
-      if (currentUser?.user.tokens < 2) {
-        navigate('/pricing');
-      };
-
-      console.log(editPlaylist)
-
-      const newPlaylist = {
-        name: playlistName, 
-        tracks: editPlaylist.songs,
-      };
-
-      onCreatePlaylist(currentUser?.user.id, newPlaylist)
-        .then(createdPlaylist => {
-          const playlistId = createdPlaylist.id;
-          const playlistTracks = newPlaylist.tracks.map(track => {
-            return {
-              name: track.name,
-              artists: track.artists,
-              spotifyId: track.id,
-              isrc: track.isrc,
-              image: track.image
-            }
-          });
-
-          return onAddToSavedPlaylist(playlistId, currentUser?.user.id, playlistTracks);
-        })
-        .then(response => {
-          onRemoveFromCurrentPlaylistById(...response.map(song => song));
-          setPlaylistName('');
-        })
-        .catch(error => {
-          console.log("Error in creating playlist and adding tracks: ", error);
-        });
+    if (currentUser?.user.tokens < 2) {
+      navigate('/pricing');
     };
 
-    return (
-      <Box>
-        <Tooltip
-          title={
-            <div
-              style={{
-                maxHeight: '25vh',
-                overflowY: 'auto',
-                padding: '8px',
-                borderRadius: '8px',
-              }}
-            >
-              <Typography variant='body2' letterSpacing='1px'>
-                {(isXsScreen || isSmScreen) ? 'Back to collections' : 'Build new playlist'}
-              </Typography>
-            </div>
+    const newPlaylist = {
+      name: playlistName, 
+      tracks: playlist.songs ? playlist.songs : playlist.tracks,
+    };
+
+    onCreatePlaylist(currentUser?.user.id, newPlaylist)
+      .then(createdPlaylist => {
+        const playlistId = createdPlaylist.id;
+        const playlistTracks = newPlaylist.tracks.map(track => {
+          return {
+            name: track.name,
+            artists: track.artists,
+            spotifyId: track.id,
+            isrc: track.isrc,
+            image: track.image
           }
-        >
-          <Button
-            onClick={() => {
-              (isXsScreen || isSmScreen) ? 
-              handleBackToPlaylists() : 
-              handleExploreMoreClick(false)
-            }}
-            sx={{
-              color: 'white',
-              background: `rgb(121, 44, 216, 0.3)`,
-              border: '2px solid rgba(89, 149, 192, 0.5)',
-              borderRadius: '18px',
-              boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-              transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
-              '&:hover, &:active, &.Mui-focusVisible': {
-                background: `rgb(121, 44, 216, 0.5)`,
-                boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-              },
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '3%',
-              marginTop: '5%',
-              minHeight: 'fit-content',
-              width: '100%'
+        });
+
+        return onAddToSavedPlaylist(playlistId, currentUser?.user.id, playlistTracks);
+      })
+      .then(response => {
+        onRemoveFromCurrentPlaylistById(...response.map(song => song));
+        setPlaylistName('');
+      })
+      .catch(error => {
+        console.log("Error in creating playlist and adding tracks: ", error);
+      });
+  };
+
+  useEffect(() => {
+    if (!playlists.some(playlist => playlist.id === editPlaylist)) {
+      onSetPlaylistToEdit(null)
+    }
+  }, [playlists])
+
+  return (
+    <Box>
+      <Tooltip
+        title={
+          <div
+            style={{
+              maxHeight: '25vh',
+              overflowY: 'auto',
+              padding: '8px',
+              borderRadius: '8px',
             }}
           >
-            <Box display='flex'>
-              {(isSmScreen ||isXsScreen) && (
-                <KeyboardDoubleArrowLeftIcon 
-                  style={{ color: theme.palette.primary.triadic2 }}
-                  fontSize={'small'}
-                />
-              )}
-              <Typography
-                variant={isXsScreen ? 'caption' : 'subtitle1'}
-                color='white'
-                letterSpacing='1px'
-                sx={{
-                  cursor: 'pointer',
-                }}
-              >
-                {(isSmScreen || isXsScreen) ? 'Back' : 'New Request'}
-              </Typography>
-              {!(isSmScreen ||isXsScreen) && (
-                <KeyboardDoubleArrowUpIcon
-                  style={{ color: theme.palette.primary.triadic2 }}
-                />
-              )}
-            </Box>
-          </Button>
-        </Tooltip>
-        <Card className={classes.sidePanel}>
-          <CreateOrEditPlaylist 
-            playlist={
-              playlistAction === 'create' ? 
-              createPlaylist : 
-              editPlaylist
-            }
-            handleCreatePlaylist={handleCreatePlaylist}
-            currentUser={currentUser}
-            playlistName={playlistName}
-            setPlaylistName={setPlaylistName}
-            classes={classes}
-            onSetCreatePlaylist={onSetCreatePlaylist}
-            onSetEditPlaylist={onSetEditPlaylist}
-            onSetPlaylistToEdit={onSetPlaylistToEdit}
-            onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-            navigate={navigate}
-            playlists={playlists}
-            playlistAction={playlistAction}
-          />
-        </Card>
-      </Box>
-    );
+            <Typography variant='body2' letterSpacing='1px'>
+              {(isXsScreen || isSmScreen) ? 'Back to collections' : 'Build new playlist'}
+            </Typography>
+          </div>
+        }
+      >
+        <Button
+          onClick={() => {
+            (isXsScreen || isSmScreen) ? 
+            handleBackToPlaylists() : 
+            handleExploreMoreClick(false)
+          }}
+          sx={{
+            color: 'white',
+            background: `rgb(121, 44, 216, 0.3)`,
+            border: '2px solid rgba(89, 149, 192, 0.5)',
+            borderRadius: '18px',
+            boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+            transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+            '&:hover, &:active, &.Mui-focusVisible': {
+              background: `rgb(121, 44, 216, 0.5)`,
+              boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+            },
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '3%',
+            marginTop: '5%',
+            minHeight: 'fit-content',
+            width: '100%'
+          }}
+        >
+          <Box display='flex'>
+            {(isSmScreen ||isXsScreen) && (
+              <KeyboardDoubleArrowLeftIcon 
+                style={{ color: theme.palette.primary.triadic2 }}
+                fontSize={'small'}
+              />
+            )}
+            <Typography
+              variant={isXsScreen ? 'caption' : 'subtitle1'}
+              color='white'
+              letterSpacing='1px'
+              sx={{
+                cursor: 'pointer',
+              }}
+            >
+              {(isSmScreen || isXsScreen) ? 'Back' : 'New Request'}
+            </Typography>
+            {!(isSmScreen ||isXsScreen) && (
+              <KeyboardDoubleArrowUpIcon
+                style={{ color: theme.palette.primary.triadic2 }}
+              />
+            )}
+          </Box>
+        </Button>
+      </Tooltip>
+      <Card className={classes.sidePanel}>
+        <CreateOrEditPlaylist 
+          playlist={playlist}
+          handleCreatePlaylist={handleCreatePlaylist}
+          currentUser={currentUser}
+          playlistName={playlistName}
+          setPlaylistName={setPlaylistName}
+          classes={classes}
+          onRemoveFromSavedPlaylist={onRemoveFromSavedPlaylist}
+          onSetCreatePlaylist={onSetCreatePlaylist}
+          onSetEditPlaylist={onSetEditPlaylist}
+          onSetPlaylistToEdit={onSetPlaylistToEdit}
+          onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+          navigate={navigate}
+          playlists={playlists}
+          playlistAction={playlistAction}
+        />
+      </Card>
+    </Box>
+  );
 };
 
 const mapStateToProps = (state) => {
@@ -787,6 +819,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
   onCreatePlaylist: (userId, playlist) => dispatch(createPlaylistRequest(userId, playlist)),
   onAddToSavedPlaylist: (playlistId, userId, ...songs) => dispatch(addToSavedPlaylistRequest(playlistId, userId, ...songs)),
+  onRemoveFromSavedPlaylist: (playlistId, userId, ...songs) => dispatch(removeFromPlaylistRequest(playlistId, userId, ...songs)),
   onSetCreatePlaylist: () => dispatch(setCreatePlaylist()),
   onSetEditPlaylist: () => dispatch(setEditPlaylist()),
   onSetPlaylistToEdit: (playlistId) => dispatch(setPlaylistToEdit(playlistId)),

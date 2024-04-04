@@ -261,7 +261,16 @@ export const addToSavedPlaylist = (playlistId, songs) => ({
   type: ADD_TO_SAVED_PLAYLIST,
   payload: { 
     playlistId, 
-    songs: Array.isArray(songs) ? songs : [songs] 
+    tracks: Array.isArray(songs) ? songs : [songs] 
+  },
+});
+
+export const REMOVE_FROM_SAVED_PLAYLIST = 'REMOVE_FROM_SAVED_PLAYLIST';
+export const removeFromSavedPlaylist = (playlistId, songs) => ({
+  type: REMOVE_FROM_SAVED_PLAYLIST,
+  payload: { 
+    playlistId, 
+    tracks: Array.isArray(songs) ? songs : [songs] 
   },
 });
 
