@@ -48,6 +48,8 @@ urlpatterns = [
           views.delete_playlist, name='delete-playlist'),
      path('add-to-playlist/<str:playlist_id>/',
           views.add_to_playlist, name='add-to-playlist'),
+     path('remove-from-playlist/<str:playlist_id>/',
+          views.remove_from_playlist, name='remove-from-playlist'),
      path('create-payment-intent/', 
           paymentViews.create_payment, name='create-payment'),
      path('webhooks/stripe/', paymentViews.stripe_webhook, name='stripe-webhook'),

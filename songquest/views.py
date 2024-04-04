@@ -1,4 +1,5 @@
 import base64
+from django.utils import timezone
 import dateutil
 from django.conf import settings
 from django.shortcuts import redirect
@@ -10,9 +11,10 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
+from django.shortcuts import get_object_or_404
 from time import time
 
-from songquest.playlists.models import Playlist, Song
+from songquest.playlists.models import Playlist, PlaylistSong, Song
 from songquest.recommendations.models import RecommendationRequest
 
 import requests
@@ -840,17 +842,14 @@ def create_playlist(request):
 
 @csrf_exempt
 def delete_playlist(request):
-    print('delete')
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
     try:
-        print('try')
         data = json.loads(request.body.decode('utf-8'))
 
         user_id = request.headers.get('User-Id')
         user = User.objects.get(id=user_id)
-        print(user)
 
         spotify_access = user.spotify_access
         spotify_refresh = user.spotify_refresh
@@ -906,7 +905,7 @@ def add_to_playlist(request, playlist_id):
 
     try:
         data = json.loads(request.body.decode('utf-8'))
-        user_id = data['user']
+        user_id = request.headers.get('User-Id')
         user = User.objects.get(id=user_id)
 
         spotify_access = user.spotify_access
@@ -959,6 +958,8 @@ def add_to_playlist(request, playlist_id):
             )
 
             playlist.songs.add(song)
+
+            PlaylistSong.objects.create(playlist=playlist, song=song, added_on=timezone.now())
         
         response = requests.post(spotify_url, headers=headers, data=body)
 
@@ -966,12 +967,12 @@ def add_to_playlist(request, playlist_id):
             serialized_playlist = {
                 'id': playlist.id,
                 'name': playlist.name,
-                'songs': [
+                'tracks': [
                     {
                         'id': song.id,
                         'name': song.name,
                         'artists': song.artists.split(', '),
-                        'spotify_id': song.spotify_id,
+                        'spotifyId': song.spotify_id,
                         'image': song.image,
                     }
                     for song in playlist.songs.all()
@@ -980,6 +981,82 @@ def add_to_playlist(request, playlist_id):
             return JsonResponse({'playlist': serialized_playlist, 'message': 'Tracks successfully added to playlist'}, status=200)
         else:
             return JsonResponse({'error': 'Failed to add to playlist'}, status=response.status_code)
+
+    except Exception as e:
+        print('Error: ', str(e))
+        return JsonResponse({'error': 'Server error'}, status=500)
+    
+
+@csrf_exempt
+def remove_from_playlist(request, playlist_id):
+    if request.method != 'DELETE':
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        user_id = request.headers.get('User-Id')
+        user = get_object_or_404(User, id=user_id)
+
+        spotify_access = user.spotify_access
+        spotify_refresh = user.spotify_refresh
+        expires_at = user.spotify_expires_at
+
+        if token_expired(expires_at):
+            token_info = refresh_spotify_access(spotify_refresh)
+            if token_info:
+                spotify_access = token_info['access_token']
+                user.spotify_access = spotify_access
+                expires_at = time() + token_info['expires_in']
+                user.spotify_expires_at = expires_at
+                user.save()
+            else:
+                return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
+
+        playlist = get_object_or_404(Playlist, id=playlist_id)
+        spotify_id = playlist.spotify_id
+        spotify_url = f"https://api.spotify.com/v1/playlists/{spotify_id}/tracks"
+
+        headers = {
+            'Authorization': f'Bearer {spotify_access}',
+            'Content-Type': 'application/json'
+        }
+
+        tracks = data['tracks']
+        body = json.dumps({'tracks': [{'uri': f'spotify:track:{track["spotifyId"]}' for track in tracks}]})
+
+        for track in tracks:
+            spotify_id = track['spotifyId']
+            song = get_object_or_404(Song, spotify_id=spotify_id)
+            playlist.songs.remove(song)
+
+            PlaylistSong.objects.filter(playlist=playlist, song=song, removed_on__isnull=True).update(removed_on=timezone.now())
+        
+        playlist.refresh_from_db()
+        
+        response = requests.delete(spotify_url, headers=headers, data=body)
+
+        if response.status_code == 200:
+            serialized_playlist = {
+                'id': playlist.id,
+                'name': playlist.name,
+                'tracks': [
+                    {
+                        'id': song.id,
+                        'name': song.name,
+                        'artists': song.artists.split(', '),
+                        'spotifyId': song.spotify_id,
+                        'image': song.image,
+                    }
+                    for song in playlist.songs.all()
+                ],
+            }
+            return JsonResponse({
+                'message': 'Tracks successfully removed from playlist',
+                'snapshot_id': response.json().get('snapshot_id'),
+                'playlist': serialized_playlist,
+            }, status=200)
+        else:
+            return JsonResponse({'error': 'Failed to remove from playlist'}, status=response.status_code)
 
     except Exception as e:
         print('Error: ', str(e))
@@ -1002,7 +1079,6 @@ def get_user_playlists(request):
     serialized_playlists = []
     for playlist in playlists:
         songs = playlist.songs.all()
-        print('songs: ', songs)
         serialized_songs = [
             {
                 'id': song.id,

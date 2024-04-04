@@ -11,6 +11,7 @@ class Song(models.Model):
     def __str__(self):
         return f'{self.name} - {self.artists}'
 
+
 class Playlist(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -23,3 +24,13 @@ class Playlist(models.Model):
 
     class Meta:
         unique_together = ('user', 'spotify_id',)
+
+
+class PlaylistSong(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    added_on = models.DateTimeField(auto_now_add=True)
+    removed_on = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.song.name} in {self.playlist.name}'

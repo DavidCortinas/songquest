@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {  
-  removeFromCurrentPlaylistById,
+  removeFromCurrentPlaylistById, setSelectedPlaylist,
 } from '../actions';
 import '../App.css';
 import theme from '../theme'
@@ -456,11 +456,13 @@ const MobileResults = ({
 export const SongDiscovery = ({ 
     recommendations, 
     selectedPlaylist,
+    onSetSelectedPlaylist,
     dataLoaded,
     currentUser,
     currentPlaylist,
     onRemoveFromCurrentPlaylistById,
     onSaveQuery,
+    playlists,
  }) => {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -498,6 +500,12 @@ export const SongDiscovery = ({
       }
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    if (!playlists.some(playlist => playlist.id === selectedPlaylist)) {
+      onSetSelectedPlaylist(null)
+    }
+  }, playlists)
 
 const handleExploreMoreClick = (activatesModal) => {
   const myComponent = document.getElementById('topBar');
@@ -782,12 +790,14 @@ const mapStateToProps = (state) => {
     dataLoaded: state.discovery.dataLoaded,
     currentUser: state.user.currentUser,
     currentPlaylist: state.playlist.currentPlaylist.createPlaylist,
+    playlists: state.playlist.playlists,
   };
 };
 
 const mapDispatchToProps = (dispatch) => ({
   onRemoveFromCurrentPlaylistById: (...songs) => dispatch(removeFromCurrentPlaylistById(...songs)),
   onSaveQuery: (userId, query) => dispatch(saveRequestParameters(userId, query)),
+  onSetSelectedPlaylist: (playlistId) => dispatch(setSelectedPlaylist(playlistId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SongDiscovery);

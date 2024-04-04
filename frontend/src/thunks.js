@@ -36,7 +36,8 @@ import {
   updatePreferredGenres,
   updateUserType,
   updateUserProfession,
-  updateProfileImage
+  updateProfileImage,
+  removeFromSavedPlaylist
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
@@ -732,39 +733,66 @@ export const addToSavedPlaylistRequest = (
   userId,
   tracks,
 ) => async (dispatch) => {
-
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, 
-    }
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'User-Id': userId,
+    };
 
-    const body = JSON.stringify({ 
-      id: playlistId,  
-      user: userId, 
-      tracks: tracks 
-    });
+    const body = {
+      id: playlistId,
+      tracks: tracks,
+    };
 
-    const response = await fetch(`http://localhost:8000/add-to-playlist/${playlistId}/`, {
-      headers: headers,
-      method: 'POST', 
-      body,
-    });
+    const response = await axios.post(`http://localhost:8000/add-to-playlist/${playlistId}/`, body, { headers });
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
+    const playlist = response.data['playlist'];
 
-    const res = await response.json();
-    const playlist = res['playlist'] 
-
-
-    dispatch(addToSavedPlaylist(playlist.id, playlist.songs));
-    return playlist.songs
+    dispatch(addToSavedPlaylist(playlist.id, playlist.tracks));
+    return playlist.tracks;
   } catch (error) {
-    console.log('Error: ' + error.message);
-  };
+    console.log('Error: ', error.message);
+  }
+};
+
+export const removeFromPlaylistRequest = (
+  playlistId,
+  userId,
+  tracks,
+) => async (dispatch) => {
+  try {
+    const csrfToken = await getCSRFToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'User-Id': userId, // Assuming your backend uses this header for identifying the user
+    };
+
+    // Note: Axios delete method does not natively support body as a second parameter, 
+    // so we use the `data` field in the config parameter to send the body.
+    const config = {
+      method: 'delete',
+      url: `http://localhost:8000/remove-from-playlist/${playlistId}/`, // Note the URL change to match the Django view
+      headers: headers,
+      data: JSON.stringify({ // Body of the request is sent through the `data` attribute
+        id: playlistId,
+        tracks: tracks,
+      }),
+    };
+
+    const response = await axios(config);
+
+    // Assuming the backend response structure is similar to adding tracks
+    const playlist = response.data['playlist'];
+
+    // Assuming there is an action creator `removeFromSavedPlaylist` that updates the state
+    dispatch(removeFromSavedPlaylist(playlist.id, playlist.tracks));
+    return playlist.tracks;
+  } catch (error) {
+    console.error('Error: ', error.message);
+  }
 };
 
 export const getUserPlaylists = (userId) => async (dispatch) => {

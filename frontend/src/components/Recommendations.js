@@ -28,10 +28,9 @@ const Recommendation = ({
   toggleValue,
 }) => {
     const navigate = useNavigate();
-    const recommendationInPlaylist = createPlaylist?.tracks.some(track => track.spotify_id === recommendation.id);
+    const recommendationInPlaylist = createPlaylist?.tracks.some(track => track.spotifyId === recommendation.id);
 
     const handleAddToPlaylistClick = useCallback(() => {
-      console.log(recommendation)
       if (!user?.user.spotifyConnected) {
         navigate('/spotify-connect');
       } else {
@@ -138,7 +137,6 @@ const Recommendations = ({
   };
 
   const handleBulkAdd = () => {
-    console.log(songsToAdd)
     const songsToAddData = songsToAdd.map(song => ({
       'id': song.id,
       'name': song.name,
@@ -296,7 +294,7 @@ const Recommendations = ({
             scrollbarDarkShadowColor: 'transparent',
           }}
         >
-          {recommendations ? recommendations?.slice(0, visibleRecommendations).map((recommendation, index) => (
+          {recommendations?.length > 0 ? recommendations?.slice(0, visibleRecommendations).map((recommendation, index) => (
               <Recommendation
                 classes={classes}
                 recommendation={recommendation}
