@@ -762,6 +762,7 @@ export const removeFromPlaylistRequest = (
   userId,
   tracks,
 ) => async (dispatch) => {
+    console.log('remove: ', tracks)
   try {
     const csrfToken = await getCSRFToken();
     const headers = {
@@ -788,6 +789,7 @@ export const removeFromPlaylistRequest = (
     const playlist = response.data['playlist'];
 
     // Assuming there is an action creator `removeFromSavedPlaylist` that updates the state
+    console.log('response: ', playlist)
     dispatch(removeFromSavedPlaylist(playlist.id, playlist.tracks));
     return playlist.tracks;
   } catch (error) {

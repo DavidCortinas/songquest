@@ -15,6 +15,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DragHandleIcon from '@mui/icons-material/DragHandle';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
@@ -23,8 +24,10 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { addToSavedPlaylistRequest, createPlaylistRequest, removeFromPlaylistRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import theme from "theme";
-import { addToCurrentPlaylist, setCreatePlaylist, setEditPlaylist, setPlaylistToEdit } from "actions";
+import { addToCurrentPlaylist, setCreatePlaylist, setEditPlaylist, setPlaylist, setPlaylistToEdit, setSelectedPlaylist } from "actions";
+import { reorder } from "utils";
 
 const root = {
   "& .MuiAutocomplete-option[data-focus='true']": {
@@ -40,7 +43,6 @@ const root = {
 const PlaylistItemCard = ({ 
   classes,
   item, 
-  key, 
   handlePlaylistSelectClick, 
   isPlaylistItemChecked,
   isSmScreen,
@@ -52,18 +54,20 @@ const PlaylistItemCard = ({
 
   return (
     <Card 
-      key={key} 
+      key={item.id} 
       sx={{ 
         display: 'flex', 
+        position: 'relative',
         width: (isXsScreen || isSmScreen) ? '30vw' : '18vw',
         height: (isXsScreen || isSmScreen) ? '7vh' : '11vh', 
-        position: 'relative',
         overflow: 'hidden',
         borderRadius: '8px',
         backgroundColor: '#282828',
         boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
         opacity: '0.9',
         paddingLeft: '2%',
+        margin: '0 auto 3%',
+        paddingBottom: '2%',
       }}
     >
       <Tooltip
@@ -134,6 +138,16 @@ const PlaylistItemCard = ({
           {artists}
         </Typography>
       </Box>
+      <DragHandleIcon
+        fontSize="large"
+        sx={{
+          color: 'rgb(210,220,225, 0.8)',
+          textAlign: 'center',
+          position: 'absolute',
+          bottom: '0',
+          right: '35%',
+        }}
+      />
       <img 
         src='/static/images/Spotify_Icon_RGB_White.png' 
         style={{ 
@@ -162,6 +176,7 @@ const CreateOrEditPlaylist = ({
   onSetEditPlaylist,
   onSetPlaylistToEdit,
   onRemoveFromCurrentPlaylistById,
+  onSetPlaylist,
   navigate,
 }) => {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -224,14 +239,32 @@ const CreateOrEditPlaylist = ({
     }
   };
 
-  const handleDeleteSong = (track) => {
-    console.log('initiate delete: ', track)
+  const handleDeleteSong = async (track) => {
+    console.log(track)
     if (playlistAction === 'create') {
       onRemoveFromCurrentPlaylistById(track.id)
     } else {
-      onRemoveFromSavedPlaylist(playlist.id, currentUser?.user.id, [track])
+      const updatedTrackList = await onRemoveFromSavedPlaylist(playlist.id, currentUser?.user.id, [track])
+      onSetPlaylist(playlist.id, updatedTrackList)
     }
   };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = reorder(
+      playlist.tracks,
+      result.source.index,
+      result.destination.index
+    );
+
+    onSetPlaylist(playlist.id, items);
+    onSetPlaylistToEdit(playlist.id);
+  };
+
+  console.log(playlist)
 
   return (
     <>
@@ -517,72 +550,60 @@ const CreateOrEditPlaylist = ({
           </Tooltip>
         </Box>
       </Box>
-      <ul 
-        style={{ 
-          padding: '0px', 
-          display: 'flex', 
-          flexDirection: 'column', 
-        }}
-      >
-        {playlist?.tracks?.length > 0 ? playlist.tracks.map((item, index) => (
-          <Box 
-            display='flex' 
-            flexDirection='column'
-            alignItems='center'
-            paddingBottom='10px'
-          >
-            <li key={index} className={classes.currentPlaylistUl}>
-              <PlaylistItemCard 
-                classes={classes}
-                item={item} 
-                key={item.id} 
-                handlePlaylistSelectClick={handlePlaylistSelectClick}
-                isPlaylistItemChecked={isPlaylistItemChecked}
-                isSmScreen={isSmScreen}
-                isXsScreen={isXsScreen}
-              />
-            <Tooltip
-              title={
-                <Typography variant='body2' letterSpacing='1px'>
-                  {playlistAction === 'create' ? 
-                    `Remove ${item?.name} from current playlist` : 
-                    `Delete ${item?.name}`
-                  }
-                </Typography>
-              }
-              arrow
-              placement='right'
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable-playlist">
+          {(provided, snapshot) => {
+            return (
+            <ul 
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              style={{ 
+                padding: '0px', 
+                display: 'flex', 
+                flexDirection: 'column', 
+              }}
             >
-              <DeleteIcon 
-                fontSize='small' 
-                className={classes.nonNestedDeleteIcon}
-                onClick={() => handleDeleteSong(item)}
-              />
-            </Tooltip>
-            </li>
-          </Box>)
-          ) : (
-            <Box 
-              display='flex' 
-              flexDirection='column'
-              alignItems='center'
-              paddingBottom='5%'
-              position='relative'
-            >
-              {currentUser?.user.spotifyConnected ? (
-                <Typography 
-                  variant={(isXsScreen || isSmScreen) ? 'subtitle2' : 'subtitle1' }
-                  textAlign='center' 
-                  padding='20px'
-                  letterSpacing='2px'
-                >
-                  {
-                    playlistAction === 'create' ? 
-                    'Unearth new gems and add them to your collection...' :
-                    'Select a playlist to edit from you collection above...'
-                  }
-                </Typography>
-              ) : (
+              {playlist?.tracks?.length > 0 ? playlist.tracks.map((item, index) => {
+                return (
+                <Draggable key={item.id} draggableId={item.id.toString()} index={index}>
+                  {(provided, snapshot) => {
+                    return (
+                    <li 
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className={classes.currentPlaylistUl}
+                    >
+                      <PlaylistItemCard 
+                        classes={classes}
+                        item={item} 
+                        handlePlaylistSelectClick={handlePlaylistSelectClick}
+                        isPlaylistItemChecked={isPlaylistItemChecked}
+                        isSmScreen={isSmScreen}
+                        isXsScreen={isXsScreen}
+                      />
+                      <Tooltip
+                        title={
+                          <Typography variant='body2' letterSpacing='1px'>
+                            {playlistAction === 'create' ? 
+                              `Remove ${item?.name} from current playlist` : 
+                              `Delete ${item?.name}`
+                            }
+                          </Typography>
+                        }
+                        arrow
+                        placement='right'
+                      >
+                        <DeleteIcon 
+                          fontSize='small' 
+                          className={classes.nonNestedDeleteIcon}
+                          onClick={() => handleDeleteSong(item)}
+                        />
+                      </Tooltip>
+                    </li>
+                  )}}
+                </Draggable>
+              )}) : (
                 <>
                   <Typography 
                     variant='subtitle1' 
@@ -600,6 +621,10 @@ const CreateOrEditPlaylist = ({
                     <Card
                       onClick={handleConnectToSpotify}
                       className={classes.panelCard}
+                      style={{
+                        display: 'flex',
+                        margin: '0 auto',
+                      }}
                     >
                       <Box padding='0 5% 0'>
                         <Typography 
@@ -623,19 +648,17 @@ const CreateOrEditPlaylist = ({
                         style={{ 
                           maxWidth: '8%', 
                           height: 'auto',
-                          position: 'absolute',
-                          right: 20,
-                          bottom:20,
                         }}
                       />
                     </Card>
                   </li>
-                </>
+                </> 
               )}
-            </Box>
-          )
-        }
-      </ul>
+              {provided.placeholder}
+            </ul>
+          )}}
+        </Droppable>
+      </DragDropContext>
     </>
   )
 };
@@ -652,6 +675,8 @@ export const RightPanel = ({
     onSetCreatePlaylist,
     onSetEditPlaylist,
     onSetPlaylistToEdit,
+    onSetPlaylist,
+    onSetSelectedPlaylist,
     onRemoveFromCurrentPlaylistById,
     handleExploreMoreClick,
     isSmScreen,
@@ -681,7 +706,7 @@ export const RightPanel = ({
 
     const newPlaylist = {
       name: playlistName, 
-      tracks: playlist.songs ? playlist.songs : playlist.tracks,
+      tracks: playlist.tracks,
     };
 
     onCreatePlaylist(currentUser?.user.id, newPlaylist)
@@ -709,8 +734,12 @@ export const RightPanel = ({
   };
 
   useEffect(() => {
-    if (!playlists.some(playlist => playlist.id === editPlaylist)) {
-      onSetPlaylistToEdit(null)
+    if (playlistAction === 'edit') {
+      const currentPlaylist = playlists.find(playlist => playlist.id === editPlaylist.id);
+
+      if (!currentPlaylist?.tracks) {
+        onSetSelectedPlaylist(null);
+      } 
     }
   }, [playlists])
 
@@ -797,6 +826,7 @@ export const RightPanel = ({
           onSetEditPlaylist={onSetEditPlaylist}
           onSetPlaylistToEdit={onSetPlaylistToEdit}
           onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+          onSetPlaylist={onSetPlaylist}
           navigate={navigate}
           playlists={playlists}
           playlistAction={playlistAction}
@@ -823,6 +853,8 @@ const mapDispatchToProps = (dispatch) => ({
   onSetCreatePlaylist: () => dispatch(setCreatePlaylist()),
   onSetEditPlaylist: () => dispatch(setEditPlaylist()),
   onSetPlaylistToEdit: (playlistId) => dispatch(setPlaylistToEdit(playlistId)),
+  onSetPlaylist: (playlistId, tracks) => dispatch(setPlaylist(playlistId, tracks)),
+  onSetSelectedPlaylist: (playlistId) => dispatch(setSelectedPlaylist(playlistId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(RightPanel);

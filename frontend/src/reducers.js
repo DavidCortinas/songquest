@@ -58,6 +58,7 @@ import {
   SET_PLAYLIST_TO_EDIT,
   SET_CREATE_PLAYLIST,
   REMOVE_FROM_SAVED_PLAYLIST,
+  SET_PLAYLIST,
 } from './actions';
 import { toCamelCase } from 'utils';
 
@@ -626,7 +627,7 @@ export const playlist = (
           ...state.currentPlaylist,
           createPlaylist: {
             ...state.currentPlaylist.createPlaylist,
-            tracks: [...state.currentPlaylist.createPlaylist.tracks, ...payload.songs],
+            tracks: [...state.currentPlaylist.createPlaylist.tracks, ...payload.tracks],
           },
         },
       };
@@ -649,6 +650,7 @@ export const playlist = (
     case SET_PLAYLIST_TO_EDIT:
       // Set a playlist as the editPlaylist within currentPlaylist
       const playlistToEdit = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
+      console.log(playlistToEdit)
       return {
         ...state,
         currentPlaylist: {
@@ -656,13 +658,14 @@ export const playlist = (
           editPlaylist: {
             id: playlistToEdit.id || null,
             name: playlistToEdit.name || null,
-            tracks: playlistToEdit.songs || [],
+            tracks: playlistToEdit.tracks || [],
           },
         },
       };
     case SET_SELECTED_PLAYLIST:
       // Set a playlist as the selectedPlaylist within currentPlaylist
       const selected = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
+      console.log(selected)
       return {
         ...state,
         currentPlaylist: {
@@ -670,7 +673,7 @@ export const playlist = (
           selectedPlaylist: {
             id: selected.id || null,
             name: selected.name || null,
-            tracks: selected.songs || [],
+            tracks: selected.tracks || [],
           },
         },
       };
@@ -710,11 +713,31 @@ export const playlist = (
           if (playlist.id === payload.playlistId) {
             return {
               ...playlist,
-              songs: [...playlist.songs, ...payload.tracks]
+              tracks: [...playlist.tracks, ...payload.tracks]
             };
           }
           return playlist;
         })
+      };
+    case SET_PLAYLIST:
+      return {
+        ...state,
+        playlists: state.playlists.map(playlist => {
+          if (playlist.id === payload.playlistId) {
+            // Assuming payload.tracks is an array of song objects
+            return {
+              ...playlist,
+              tracks: payload.tracks,
+            };
+          }
+          return playlist;
+        }),
+        currentPlaylist: {
+          ...state.currentPlaylist,
+          editPlaylist: state.playlists.find(
+            playlist => playlist.id === payload.playlistId
+          ),
+        }
       };
     case REMOVE_FROM_SAVED_PLAYLIST:
       return {
@@ -722,12 +745,12 @@ export const playlist = (
         playlists: state.playlists.map(playlist => {
           if (playlist.id === payload.playlistId) {
             // Filter out the tracks that are in payload.tracks from the playlist's songs
-            const updatedSongs = playlist.songs.filter(song => 
+            const updatedSongs = playlist.tracks.filter(song => 
               payload.tracks.map(track => track.spotifyId).includes(song.spotifyId)
             );
             return {
               ...playlist,
-              songs: updatedSongs
+              tracks: updatedSongs
             };
           }
           return playlist;
