@@ -265,6 +265,15 @@ export const addToSavedPlaylist = (playlistId, songs) => ({
   },
 });
 
+export const SET_PLAYLIST = 'SET_PLAYLIST';
+export const setPlaylist = (playlistId, tracks) => ({
+  type: SET_PLAYLIST,
+  payload: {
+    playlistId,
+    tracks,
+  },
+});
+
 export const REMOVE_FROM_SAVED_PLAYLIST = 'REMOVE_FROM_SAVED_PLAYLIST';
 export const removeFromSavedPlaylist = (playlistId, songs) => ({
   type: REMOVE_FROM_SAVED_PLAYLIST,

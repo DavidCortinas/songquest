@@ -456,6 +456,7 @@ const MobileResults = ({
 export const SongDiscovery = ({ 
     recommendations, 
     selectedPlaylist,
+    editPlaylist,
     onSetSelectedPlaylist,
     dataLoaded,
     currentUser,
@@ -502,10 +503,24 @@ export const SongDiscovery = ({
   }, [isLoading]);
 
   useEffect(() => {
-    if (!playlists.some(playlist => playlist.id === selectedPlaylist)) {
-      onSetSelectedPlaylist(null)
+    if (selectedPlaylist) {
+      const currentPlaylist = playlists.find(playlist => playlist.id === selectedPlaylist.id);
+
+      if (!currentPlaylist?.tracks) {
+        onSetSelectedPlaylist(null);
+      } else {
+        const selectedIsEdit = selectedPlaylist.id === editPlaylist.id
+        const orderChanged = Array.isArray(selectedPlaylist.tracks) && Array.isArray(editPlaylist.tracks) && 
+          selectedPlaylist.tracks.some((track, index) => 
+            track.id !== editPlaylist.tracks[index]?.id
+          );
+
+        if (selectedIsEdit && orderChanged) {
+          onSetSelectedPlaylist(editPlaylist.id);
+        }
+      }
     }
-  }, playlists)
+  }, [playlists, onSetSelectedPlaylist, editPlaylist]);
 
 const handleExploreMoreClick = (activatesModal) => {
   const myComponent = document.getElementById('topBar');
@@ -787,6 +802,7 @@ const mapStateToProps = (state) => {
     error: state.discovery.error,
     recommendations: state.discovery.recommendations,
     selectedPlaylist: state.playlist.currentPlaylist.selectedPlaylist,
+    editPlaylist: state.playlist.currentPlaylist.editPlaylist,
     dataLoaded: state.discovery.dataLoaded,
     currentUser: state.user.currentUser,
     currentPlaylist: state.playlist.currentPlaylist.createPlaylist,

@@ -114,7 +114,7 @@ const useStyles = makeStyles(() => (
         },
         currentPlaylistUl: {
             position: 'relative',
-            margin: '0 5% 0 0',
+            margin: '0 0 0 0',
             listStyle: 'none',
             '&:hover $nonNestedDeleteIcon': {
                 opacity: 1,
@@ -166,7 +166,7 @@ const useStyles = makeStyles(() => (
         nonNestedDeleteIcon: {
             opacity: 1,
             position: 'absolute',
-            right: '-12px',
+            right: '2px',
             top: '-8px',
             color: 'rgb(210,220,225, 0.8)',
             cursor: 'pointer',

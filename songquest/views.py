@@ -1022,16 +1022,22 @@ def remove_from_playlist(request, playlist_id):
         }
 
         tracks = data['tracks']
+        print('remove:')
+        print(tracks)
         body = json.dumps({'tracks': [{'uri': f'spotify:track:{track["spotifyId"]}' for track in tracks}]})
 
         for track in tracks:
             spotify_id = track['spotifyId']
             song = get_object_or_404(Song, spotify_id=spotify_id)
+            print('song: ')
+            print(song)
             playlist.songs.remove(song)
 
             PlaylistSong.objects.filter(playlist=playlist, song=song, removed_on__isnull=True).update(removed_on=timezone.now())
         
         playlist.refresh_from_db()
+        print('playlist:')
+        print(playlist)
         
         response = requests.delete(spotify_url, headers=headers, data=body)
 
@@ -1060,6 +1066,78 @@ def remove_from_playlist(request, playlist_id):
 
     except Exception as e:
         print('Error: ', str(e))
+        return JsonResponse({'error': 'Server error'}, status=500)
+    
+
+@csrf_exempt
+def update_playlist_items(request, playlist_id):
+    if request.method != 'PUT':
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        user_id = request.headers.get('User-Id')
+        user = User.objects.get(id=user_id)
+
+        spotify_access = user.spotify_access
+        spotify_refresh = user.spotify_refresh
+        expires_at = user.spotify_expires_at
+
+        if token_expired(expires_at):
+            token_info = refresh_spotify_access(spotify_refresh)
+            if token_info:
+                spotify_access = token_info['access_token']
+                user.spotify_access = spotify_access
+                expires_at = datetime.now(timezone.utc) + timedelta(seconds=token_info['expires_in'])
+                user.spotify_expires_at = expires_at
+                user.save()
+            else:
+                return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
+
+        playlist = Playlist.objects.get(id=playlist_id)
+        spotify_id = playlist.spotify_id
+        spotify_url = f"https://api.spotify.com/v1/playlists/{spotify_id}/tracks"
+
+        headers = {
+            'Authorization': f'Bearer {spotify_access}',
+            'Content-Type': 'application/json'
+        }
+
+        # Check if the request is for reordering or replacing items
+        if 'uris' in data:
+            # Replacing items in the playlist
+            body = json.dumps({'uris': data['uris']})
+            method = requests.put
+        elif 'range_start' in data:
+            # Reordering items in the playlist
+            body = json.dumps({
+                'range_start': data['range_start'],
+                'insert_before': data['insert_before'],
+                'range_length': data.get('range_length', 1),
+                'snapshot_id': data.get('snapshot_id')
+            })
+            method = requests.put
+        else:
+            return JsonResponse({'error': 'Invalid parameters'}, status=400)
+
+        response = method(spotify_url, headers=headers, data=body)
+
+        if response.status_code in [200, 201]:
+            # Here you might want to update your Playlist model to reflect changes.
+            # This could involve reordering the Playlist's songs in your database 
+            # to match the new order on Spotify. The implementation will depend on 
+            # how your models are set up.
+            
+            return JsonResponse({'message': 'Playlist updated successfully', 'snapshot_id': response.json().get('snapshot_id')}, status=200)
+        else:
+            return JsonResponse({'error': 'Failed to update playlist on Spotify', 'status_code': response.status_code}, status=response.status_code)
+
+    except Playlist.DoesNotExist:
+        return JsonResponse({'error': 'Playlist not found'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        print(f"Exception occurred: {str(e)}")
         return JsonResponse({'error': 'Server error'}, status=500)
     
 
@@ -1094,7 +1172,7 @@ def get_user_playlists(request):
             'id': playlist.id,
             'name': playlist.name,
             'spotifyId': playlist.spotify_id,
-            'songs': serialized_songs,
+            'tracks': serialized_songs,
         }
         serialized_playlists.append(serialized_playlist)
 
