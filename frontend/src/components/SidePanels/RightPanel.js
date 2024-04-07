@@ -22,11 +22,11 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 import useStyles from "classes/playlist";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { addToSavedPlaylistRequest, createPlaylistRequest, removeFromPlaylistRequest } from "thunks";
+import { addToSavedPlaylistRequest, createPlaylistRequest, removeFromPlaylistRequest, updatePlaylistItemsRequest } from "thunks";
 import { useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import theme from "theme";
-import { addToCurrentPlaylist, setCreatePlaylist, setEditPlaylist, setPlaylist, setPlaylistToEdit, setSelectedPlaylist } from "actions";
+import { addToCurrentPlaylist, setCreatePlaylist, setEditPlaylist, setPlaylistToEdit, setSelectedPlaylist } from "actions";
 import { reorder } from "utils";
 
 const root = {
@@ -176,7 +176,7 @@ const CreateOrEditPlaylist = ({
   onSetEditPlaylist,
   onSetPlaylistToEdit,
   onRemoveFromCurrentPlaylistById,
-  onSetPlaylist,
+  onUpdatePlaylistOrder,
   navigate,
 }) => {
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -187,7 +187,14 @@ const CreateOrEditPlaylist = ({
   
   const [songsToRemove, setSongsToRemove] = useState([]);
   const [playlistToEdit, setPlaylistToEdit] = useState('');
-  const [toggleValue, setToggleValue] = useState('Create');
+  const [localTracks, setLocalTracks] = useState([]);
+  const [isOptimisticUpdate, setIsOptimisticUpdate] = useState(false);
+
+  useEffect(() => {
+      if (!isOptimisticUpdate) {
+          setLocalTracks(playlist?.tracks || []);
+      }
+  }, [playlist?.tracks]);
 
   const isPlaylistItemChecked = (item) => {
     return songsToRemove.some(song => song === item.id);
@@ -240,31 +247,54 @@ const CreateOrEditPlaylist = ({
   };
 
   const handleDeleteSong = async (track) => {
-    console.log(track)
     if (playlistAction === 'create') {
       onRemoveFromCurrentPlaylistById(track.id)
     } else {
       const updatedTrackList = await onRemoveFromSavedPlaylist(playlist.id, currentUser?.user.id, [track])
-      onSetPlaylist(playlist.id, updatedTrackList)
     }
   };
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
+    new Promise((resolve, reject) => {
+      resolve("Manual promise resolved");
+    })
+    .then(result => console.log(result))
+    .catch(error => console.error(error));
+
     if (!result.destination) {
-      return;
+      return; // If the item is dropped outside the list
     }
 
-    const items = reorder(
-      playlist.tracks,
-      result.source.index,
-      result.destination.index
-    );
+    const { source, destination } = result;
+    const reorderedTracks = Array.from(playlist.tracks);
+    const [removed] = reorderedTracks.splice(source.index, 1);
+    reorderedTracks.splice(destination.index, 0, removed);
 
-    onSetPlaylist(playlist.id, items);
-    onSetPlaylistToEdit(playlist.id);
+    setIsOptimisticUpdate(true);
+    setLocalTracks(reorderedTracks);
+
+    const orderedSpotifyIds = reorderedTracks.map(track => track.spotifyId);
+
+    const updatedData = {
+      range_start: source.index,
+      insert_before: destination.index,
+      range_length: 1,
+      snapshot_id: playlist.snapshotId,
+      ordered_spotify_ids: orderedSpotifyIds,
+    };
+
+    onUpdatePlaylistOrder(currentUser?.user.id, playlist.id, updatedData)
+      .then(() => {
+        setIsOptimisticUpdate(false);
+        console.log("Order updated successfully.");
+      })
+      .catch(error => {
+        // Handle error
+        console.error("Failed to update playlist order: ", error);
+        setLocalTracks(playlist.tracks || []);
+        setIsOptimisticUpdate(false);
+      });
   };
-
-  console.log(playlist)
 
   return (
     <>
@@ -484,13 +514,13 @@ const CreateOrEditPlaylist = ({
                 }}
               > 
                 <Typography variant='body2' letterSpacing='1px'>
-                  {currentUser && currentUser?.user.spotifyConnected && 
-                  currentUser?.user.tokens > 2 && playlistAction === 'create' ? 
+                  {currentUser && currentUser?.user?.spotifyConnected && 
+                  currentUser?.user?.tokens > 2 && playlistAction === 'create' ? 
                   'Create Playlist' : 
-                  currentUser?.user.spotifyConnected && 
-                  currentUser?.user.tokens > 2 ?
+                  currentUser?.user?.spotifyConnected && 
+                  currentUser?.user?.tokens > 2 ?
                   'Update Playlist' :
-                  currentUser?.user.tokens < 2 ?
+                  currentUser?.user?.tokens < 2 ?
                   "Get more tokens to complete request" :
                   'Connect to Spotify to create playlists'}
                 </Typography>
@@ -500,7 +530,7 @@ const CreateOrEditPlaylist = ({
             <Button 
               disabled={!currentUser?.user}
               onClick={handleCreatePlaylist} 
-              className={currentUser?.user.tokens < 2 ? classes.disabled : classes.button}
+              className={currentUser?.user?.tokens < 2 ? classes.disabled : classes.button}
             >
               <Box display='flex' alignItems='center'>
                 <AutoAwesomeIcon
@@ -563,9 +593,9 @@ const CreateOrEditPlaylist = ({
                 flexDirection: 'column', 
               }}
             >
-              {playlist?.tracks?.length > 0 ? playlist.tracks.map((item, index) => {
+              {localTracks?.length > 0 ? localTracks.map((item, index) => {
                 return (
-                <Draggable key={item.id} draggableId={item.id.toString()} index={index}>
+                <Draggable key={item?.id} draggableId={item?.id.toString()} index={index}>
                   {(provided, snapshot) => {
                     return (
                     <li 
@@ -675,7 +705,7 @@ export const RightPanel = ({
     onSetCreatePlaylist,
     onSetEditPlaylist,
     onSetPlaylistToEdit,
-    onSetPlaylist,
+    onUpdatePlaylistOrder,
     onSetSelectedPlaylist,
     onRemoveFromCurrentPlaylistById,
     handleExploreMoreClick,
@@ -686,6 +716,18 @@ export const RightPanel = ({
   const classes = useStyles();
   const navigate = useNavigate();
   const [playlistName, setPlaylistName] = useState('');
+  const [localEditPlaylist, setLocalEditPlaylist] = useState(editPlaylist);
+
+  useEffect(() => {
+    const updatedEditPlaylist = playlists.find(p => p?.id === editPlaylist?.id);
+    if (updatedEditPlaylist) {
+      console.log('if setLocalEdit')
+      setLocalEditPlaylist(updatedEditPlaylist);
+    } else {
+      console.log('else setLocalEdit')
+      setLocalEditPlaylist(editPlaylist);
+    }
+  }, [playlists, editPlaylist]);
 
   const handleBackToPlaylists = () => {
     setShowPlaylists(true);
@@ -693,7 +735,7 @@ export const RightPanel = ({
 
   const playlist = playlistAction === 'create' ? 
     createPlaylist : 
-    editPlaylist
+    localEditPlaylist
 
   const handleCreatePlaylist = () => {
     if (!currentUser?.user?.spotifyConnected) {
@@ -734,14 +776,23 @@ export const RightPanel = ({
   };
 
   useEffect(() => {
-    if (playlistAction === 'edit') {
-      const currentPlaylist = playlists.find(playlist => playlist.id === editPlaylist.id);
+    if (playlistAction === 'edit' && editPlaylist.id) {
+      // Find the updated playlist in the playlists state
+      const updatedPlaylist = playlists.find(p => p.id === editPlaylist.id);
 
-      if (!currentPlaylist?.tracks) {
+      // Check if the playlist still exists and if there are changes in the order of tracks
+      if (updatedPlaylist) {
+        // Update the editPlaylist state only if there are changes
+        if (JSON.stringify(editPlaylist.tracks) !== JSON.stringify(updatedPlaylist.tracks)) {
+          console.log('onSetPlaylistToEdit')
+          onSetPlaylistToEdit(updatedPlaylist.id);
+        }
+      } else {
+        // If the playlist has been removed, set selected playlist to null
         onSetSelectedPlaylist(null);
-      } 
+      }
     }
-  }, [playlists])
+  }, [playlists, editPlaylist, onSetPlaylistToEdit, onSetSelectedPlaylist, playlistAction]);
 
   return (
     <Box>
@@ -826,7 +877,7 @@ export const RightPanel = ({
           onSetEditPlaylist={onSetEditPlaylist}
           onSetPlaylistToEdit={onSetPlaylistToEdit}
           onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
-          onSetPlaylist={onSetPlaylist}
+          onUpdatePlaylistOrder={onUpdatePlaylistOrder}
           navigate={navigate}
           playlists={playlists}
           playlistAction={playlistAction}
@@ -853,7 +904,11 @@ const mapDispatchToProps = (dispatch) => ({
   onSetCreatePlaylist: () => dispatch(setCreatePlaylist()),
   onSetEditPlaylist: () => dispatch(setEditPlaylist()),
   onSetPlaylistToEdit: (playlistId) => dispatch(setPlaylistToEdit(playlistId)),
-  onSetPlaylist: (playlistId, tracks) => dispatch(setPlaylist(playlistId, tracks)),
+  onUpdatePlaylistOrder: (userId, playlistId, updatedData) => {
+    return (
+      dispatch(updatePlaylistItemsRequest(userId, playlistId, updatedData))
+    )
+  },
   onSetSelectedPlaylist: (playlistId) => dispatch(setSelectedPlaylist(playlistId)),
 });
 

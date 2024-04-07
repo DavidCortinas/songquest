@@ -1,8 +1,10 @@
 import { 
+    Alert,
     Box, 
     Button, 
     CardHeader, 
     Grid, 
+    Snackbar,
     TextField, 
     Tooltip, 
     Typography, 
@@ -163,13 +165,18 @@ export const Login = ({
     const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState("info")
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
 
-        onGetUserPlaylists(user?.user?.id);
+        if (user?.user) {
+            onGetUserPlaylists(user?.user?.id);
+        }
     }, [user]);
 
     const onEmailSubmit = async () => {
@@ -185,7 +192,7 @@ export const Login = ({
                 email: emailValue,
             }));
             
-            if (currentUser.isRegistered) {
+            if (currentUser?.isRegistered) {
                 setUserRegistered(true);
             } else {
                 setUserRegistered(false);
@@ -222,6 +229,8 @@ export const Login = ({
     }
 
     const onCreatePassword = async () => {
+        setSnackbarMessage('One moment while we register your account...')
+        setSnackbarOpen(true)
         if (!passwordValue) {
             setInvalidPassword(true);
             return;
@@ -237,6 +246,13 @@ export const Login = ({
             dispatch(setCurrentUser(currentUser));
             navigate('/registration-success');
         } catch (error) {
+            setSnackbarSeverity('error')
+            setSnackbarMessage(
+                `There was an issue registering your account. 
+                Please try again. If the issue persists, please contact 
+                support@songquest.io`
+            )
+            setSnackbarOpen(true)
             console.log('Error: ', error);
         }
     }
@@ -270,7 +286,14 @@ export const Login = ({
         e.preventDefault(); 
         onCreatePassword(); 
     };
-    
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+        return;
+        }
+
+        setSnackbarOpen(false);
+    };
 
     return (
         <>
@@ -619,6 +642,16 @@ export const Login = ({
                     </Box>
                 </>     
             )}
+            <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={snackbarSeverity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </>
     )
 };

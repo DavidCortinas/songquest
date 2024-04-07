@@ -55,6 +55,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (event) => {
+        console.log('submit')
         event.preventDefault();
 
         if (!stripe || !elements) {
@@ -62,9 +63,11 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
             return;
         }
 
+        console.log('before set is loading')
+
         setIsLoading(true);
 
-        const { error, paymentIntent } = await stripe.confirmPayment({
+        const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
                 return_url: 'http://localhost:3000/?payment=success',
@@ -74,25 +77,6 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
         // Handle errors from Stripe
         if (error) {
             setMessage(error.message);
-        } else if (paymentIntent) {
-            // Depending on your needs, you might not need to check paymentIntent status here,
-            // as the user will be redirected to return_url upon success.
-            // However, if you're not using redirect, you can handle different statuses here.
-            console.log(`PaymentIntent status: ${paymentIntent.status}`);
-            switch (paymentIntent.status) {
-                case 'succeeded':
-                    setMessage("Payment succeeded!");
-                    break;
-                case 'processing':
-                    setMessage("Your payment is processing.");
-                    break;
-                case 'requires_payment_method':
-                    setMessage("Your payment could not be processed. Please try again with a different payment method.");
-                    break;
-                default:
-                    setMessage("Something went wrong.");
-                    break;
-            }
         }
 
         setIsLoading(false);
@@ -109,7 +93,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
                     color='primary'
                     className={classes.button}
                 >
-                    {isLoading ? 'Processing…' : `Pay $${selectedPrice.price / 100}`}
+                    {isLoading ? 'Processing…' : `Pay $${(selectedPrice.price / 100).toFixed(2)}`}
                 </Button>
                 {message && (
                     <Box marginTop={2}>

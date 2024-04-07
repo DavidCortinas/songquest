@@ -18,6 +18,7 @@ class Playlist(models.Model):
     spotify_id = models.CharField(max_length=255)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     songs = models.ManyToManyField(Song)
+    snapshot_id = models.CharField()
 
     def __str__(self):
         return self.name
@@ -29,8 +30,14 @@ class Playlist(models.Model):
 class PlaylistSong(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
     added_on = models.DateTimeField(auto_now_add=True)
     removed_on = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.song.name} in {self.playlist.name}'
+    
+    class Meta:
+        ordering = ['order']
+        unique_together = ['playlist', 'song']
+

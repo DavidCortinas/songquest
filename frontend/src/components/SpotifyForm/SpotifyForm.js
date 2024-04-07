@@ -349,7 +349,6 @@ const SpotifyForm = ({
   };
   
   return (
-    <>
       <Box
         sx={{
           width: '100%',
@@ -449,7 +448,7 @@ const SpotifyForm = ({
                                           cursor: 'pointer',
                                         }}
                                       >
-                                        Saved Requests
+                                        {`Saved Requests`}
                                       </Typography>
                                     </Box>
                                   </Card>                               
@@ -813,7 +812,6 @@ const SpotifyForm = ({
           <br />
         </form>
       </Box>
-    </>
   )
 };
 

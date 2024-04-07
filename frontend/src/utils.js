@@ -260,3 +260,23 @@ export const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
+export const getTrackObjectsFromSpotifyIds = (spotifyIds, playlists) => {
+  const trackObjects = [];
+
+  // Iterate through each playlist
+  playlists.forEach(playlist => {
+    // Then iterate through each track in the playlist
+    playlist.tracks.forEach(track => {
+      // If the track's spotifyId is in the list of Spotify IDs we're looking for, add it to the result
+      if (spotifyIds.includes(track.spotifyId)) {
+        trackObjects.push(track);
+      }
+    });
+  });
+
+  console.log('get track objects: ', trackObjects)
+
+  return trackObjects;
+}
+
+
