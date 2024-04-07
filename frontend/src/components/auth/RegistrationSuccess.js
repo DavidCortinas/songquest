@@ -1,28 +1,51 @@
-import { Box, Button, CardHeader, Snackbar, Typography } from "@mui/material";
+import { Alert, Box, Button, CardHeader, Snackbar, Typography } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import useStyles from "classes/playlist";
 import { connect } from "react-redux";
 import { resendVerification } from "thunks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const RegistrationSuccess = ({ 
-    user, 
+    currentUser, 
     onResendVerification,
+    verificationError,
+    verificationLoading,
 }) => {
     const classes = useStyles();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [emailSent, setEmailSent] = useState(false);
 
-    const handleResendVerification = async () => {
-        try {
-            await onResendVerification(user?.user.id);
-            setSnackbarOpen(true);
-            setSnackbarMessage('Verification email resent successfully');
-        } catch (error) {
-            setSnackbarOpen(true);
+    useEffect(() => {
+        console.log('useEffect')
+        if (!verificationLoading && verificationError) {
+            console.log('if')
+            // Triggered when verification fails
             setSnackbarMessage('Failed to resend verification email');
+            setSnackbarOpen(true);
+        } else if (!verificationLoading && !verificationError && emailSent) {
+            console.log('else')
+            // Triggered when verification succeeds
+            setSnackbarMessage('Verification email resent successfully');
+            setSnackbarOpen(true);
         }
+    }, [verificationLoading, verificationError]);
+
+    const handleResendVerification = () => {
+        onResendVerification(currentUser?.user?.id);
+        setSnackbarMessage('The verification email is being resent to your email...');
+        setSnackbarOpen(true);
+        setEmailSent(true)
     };
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+        return;
+        }
+
+        setSnackbarOpen(false);
+    };
+
 
     return (
         <Box
@@ -39,9 +62,9 @@ const RegistrationSuccess = ({
                     textAlign: 'center' 
                 }}
             >
-                Welcome to SongQuest
+                {`Welcome to SongQuest`}
             </Typography>
-            {!user?.user.emailVerified ? (
+            {!currentUser?.user?.emailVerified ? (
                 <>
                     <Typography 
                         variant="body1" 
@@ -51,8 +74,8 @@ const RegistrationSuccess = ({
                             width: '60%' 
                         }}
                     >
-                        You are steps away from unearthing new gems for your musical 
-                        collection. Check your email to confirm your registration!
+                        {`You are steps away from unearthing new gems for your musical 
+                        collection. Check your email to confirm your registration!`}
                     </Typography>
                     <Typography 
                         variant="body1"
@@ -63,8 +86,8 @@ const RegistrationSuccess = ({
                             width: '60%' 
                         }}
                     >
-                        If the confirmation link does not appear in your inbox within a 
-                        a few minutes, please resend the link with the button below.
+                        {`If the confirmation link does not appear in your inbox within a 
+                        a few seconds, please resend the link with the button below.`}
                     </Typography>
                 </>
             ) : (
@@ -76,9 +99,9 @@ const RegistrationSuccess = ({
                         width: '60%' 
                     }}
                 >
-                    Your email is confirmed! Now watch the short demo to see how 
+                    {`Your email is confirmed! Now watch the short demo to see how 
                     SongQuest can help you dig deeper into your musical universe 
-                    than ever before!
+                    than ever before!`}
                 </Typography> 
             )}
             <Button 
@@ -89,19 +112,29 @@ const RegistrationSuccess = ({
                 Resend Link
                 <SendIcon sx={{ width: '16px', paddingLeft: '5px' }} />
             </Button>
-            <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={snackbarOpen}
-                onClose={() => setSnackbarOpen(false)}
-                message={snackbarMessage}
-                autoHideDuration={5000}
-            />
+            <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={!verificationLoading && verificationError ?
+                         "error" : 
+                         !verificationLoading && !verificationError && emailSent ?
+                         "success" :
+                         "info"
+                    }
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
 
 const mapStateToProps = (state) => ({
-    user: state.user.currentUser,
+    currentUser: state.user.currentUser,
+    verificationLoading: state.verification.loading,
+    verificationError: state.verificaition?.error,
 });
 
 const mapDispatchToProps = (dispatch) => ({

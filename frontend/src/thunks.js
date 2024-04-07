@@ -37,11 +37,15 @@ import {
   updateUserType,
   updateUserProfession,
   updateProfileImage,
-  removeFromSavedPlaylist
+  removeFromSavedPlaylist,
+  updatePlaylistOrderSuccess,
+  updatePlaylistOrderFailure,
+  updatePlaylistOrderRequest,
+  // updatePlaylistOrder
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice, song } from './reducers';
-import { transformResponseToQueryStructure } from 'utils';
+import { getTrackObjectsFromSpotifyIds, transformResponseToQueryStructure } from 'utils';
 
 // import { setAccount, setAuthTokens } from './actions/auth';
 
@@ -93,7 +97,7 @@ export const checkRegistration = (user) => async (dispatch) => {
     const response = await fetch('http://localhost:8000/user/', {
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+        'X-CSRFToken': csrfToken,
         'User-Email': user.email,
       },
       method: 'post',
@@ -154,10 +158,9 @@ export const login = (
     const response = await fetch(`http://localhost:8000/api/auth/login/`, {
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+        'X-CSRFToken': csrfToken,
       },
       method: 'post',
-      // credentials: 'include',
       body,
     });
 
@@ -249,10 +252,6 @@ export const SpotifyAuth = ({ children }) => {
   const [accessToken, setAccessToken] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
 
-  // if (expiresAt <= Date.now()) {
-  //   setExpired(true);
-  // };
-
   useEffect(() => {
     async function fetchAccessToken() {
       try {
@@ -275,21 +274,18 @@ export const SpotifyAuth = ({ children }) => {
 export const getSpotifyUserAuth = () => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
-    // Your asynchronous logic here, e.g., making a network request
     const response = await fetch('http://localhost:8000/request-authorization/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
       },
-      // credentials: 'include',
     });
 
       if (response.ok) {
           const data = await response.json();
           const authorizationUrl = data.authorization_url;
 
-          // Redirect the user to the Spotify authorization URL
           window.location.href = authorizationUrl;
       } else {
           console.error('Authorization request failed');
@@ -475,7 +471,7 @@ export const checkTokenExpiration = async (
 export const handleUpdateDisplayName = (userId, newDisplayName) => async (dispatch) => {
   try {
     const csrfToken = await getCSRFToken();
-    const data = { newDisplayName }; // Include the user ID and new display-name in an object
+    const data = { newDisplayName };
 
     const response = await axios.patch(`http://localhost:8000/update-display-name/`, data, {
       headers: {
@@ -642,16 +638,12 @@ export const resendVerification = (userId) => async (dispatch) => {
       },
     });
 
-    // Check if the request was successful (status code 200)
     if (response.ok) {
-      // Dispatch an action if the request was successful
       dispatch(resendVerificationSuccess());
     } else {
-      // Handle errors if the request was not successful
       throw new Error('Failed to resend verification email');
     }
   } catch (error) {
-    // Dispatch an action to handle errors
     dispatch(resendVerificationFailure(error.message));
   }
 };
@@ -682,9 +674,9 @@ export const createPlaylistRequest = (
 
     const res = await response.json();
 
-    const playlistData = res['playlist_data']
-    const userTokens = res['updated_tokens'];
-    const userXp = res['updated_xp'];
+    const playlistData = res['playlistData']
+    const userTokens = res['updatedTokens'];
+    const userXp = res['updatedXp'];
 
     dispatch(createPlaylist(playlistData));
     dispatch(getUserTokensSuccess(userTokens));
@@ -750,7 +742,7 @@ export const addToSavedPlaylistRequest = (
 
     const playlist = response.data['playlist'];
 
-    dispatch(addToSavedPlaylist(playlist.id, playlist.tracks));
+    dispatch(addToSavedPlaylist(playlist.id, playlist.tracks, playlist.snapshot));
     return playlist.tracks;
   } catch (error) {
     console.log('Error: ', error.message);
@@ -768,16 +760,16 @@ export const removeFromPlaylistRequest = (
     const headers = {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
-      'User-Id': userId, // Assuming your backend uses this header for identifying the user
+      'User-Id': userId,
     };
 
     // Note: Axios delete method does not natively support body as a second parameter, 
     // so we use the `data` field in the config parameter to send the body.
     const config = {
       method: 'delete',
-      url: `http://localhost:8000/remove-from-playlist/${playlistId}/`, // Note the URL change to match the Django view
+      url: `http://localhost:8000/remove-from-playlist/${playlistId}/`,
       headers: headers,
-      data: JSON.stringify({ // Body of the request is sent through the `data` attribute
+      data: JSON.stringify({
         id: playlistId,
         tracks: tracks,
       }),
@@ -785,11 +777,8 @@ export const removeFromPlaylistRequest = (
 
     const response = await axios(config);
 
-    // Assuming the backend response structure is similar to adding tracks
     const playlist = response.data['playlist'];
 
-    // Assuming there is an action creator `removeFromSavedPlaylist` that updates the state
-    console.log('response: ', playlist)
     dispatch(removeFromSavedPlaylist(playlist.id, playlist.tracks));
     return playlist.tracks;
   } catch (error) {
@@ -797,11 +786,50 @@ export const removeFromPlaylistRequest = (
   }
 };
 
+export const updatePlaylistItemsRequest = (userId, playlistId, updatedData) => async (dispatch) => {
+  try {
+    dispatch(updatePlaylistOrderRequest());
+    const csrfToken = await getCSRFToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'User-Id': userId,
+    };
+
+    // Directly return the Axios call, which returns a promise
+    return axios.put(`http://localhost:8000/update-playlist-items/${playlistId}/`, updatedData, { headers })
+      .then(response => {
+        // Success path
+        if (response.status === 200) {
+          const reorderedTracks = response.data['tracks'];
+          const snapshotId = response.data['snapshotId'];
+          dispatch(updatePlaylistOrderSuccess(playlistId, reorderedTracks, snapshotId));
+          console.log('Playlist updated successfully');
+          return Promise.resolve(reorderedTracks);
+        } else {
+          const error = new Error('Request failed with status ' + response.status);
+          dispatch(updatePlaylistOrderFailure(error.toString()));
+          return Promise.reject(error);
+        }
+      })
+      .catch(error => {
+        console.error('Error: ' + error.message);
+        dispatch(updatePlaylistOrderFailure(error.toString()));
+        return Promise.reject(error);
+      });
+  } catch (error) {
+    console.error('Setup Error: ' + error.message);
+    dispatch(updatePlaylistOrderFailure(error.toString()));
+    return Promise.reject(error);
+  }
+};
+
+
 export const getUserPlaylists = (userId) => async (dispatch) => {
   dispatch(getUserPlaylistsRequest());
 
   try {
-    const csrfToken = await getCSRFToken(); // Ensure you have a function like getCSRFToken
+    const csrfToken = await getCSRFToken();
     const headers = {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
@@ -847,7 +875,7 @@ export const getRequestParameters = (userId) => async (dispatch) => {
   dispatch(getRequestParametersRequest());
 
   try {
-    const csrfToken = await getCSRFToken(); // Ensure you have a function like getCSRFToken
+    const csrfToken = await getCSRFToken();
     const headers = {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,

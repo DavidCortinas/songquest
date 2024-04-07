@@ -43,7 +43,7 @@ const Recommendation = ({
               image: recommendation.album ? recommendation.album.images[2].url : recommendation.image,
             });
       }
-    }, [user?.user.spotifyConnected, navigate, recommendation, recommendationInPlaylist, onRemoveFromCurrentPlaylistById, onAddToCurrentPlaylist]);
+    }, [user?.user?.spotifyConnected, navigate, recommendation, recommendationInPlaylist, onRemoveFromCurrentPlaylistById, onAddToCurrentPlaylist]);
 
 
     const recommendationInSongsToAdd = songsToAdd.some(obj => obj.id === recommendation.id);
@@ -89,7 +89,7 @@ const Recommendation = ({
                 }}
               > 
                 <Typography variant='body2' letterSpacing='1px'>
-                  {user?.user.spotifyConnected && !recommendationInPlaylist ? 
+                  {user?.user?.spotifyConnected && !recommendationInPlaylist ? 
                   "Add to current playlist" :
                   recommendationInPlaylist ?
                   "Remove from current playlist" :

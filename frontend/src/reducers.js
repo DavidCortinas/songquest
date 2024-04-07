@@ -58,7 +58,10 @@ import {
   SET_PLAYLIST_TO_EDIT,
   SET_CREATE_PLAYLIST,
   REMOVE_FROM_SAVED_PLAYLIST,
-  SET_PLAYLIST,
+  STORE_PREVIOUS_PLAYLIST_STATE,
+  UPDATE_PLAYLIST_ORDER_REQUEST,
+  UPDATE_PLAYLIST_ORDER_SUCCESS,
+  UPDATE_PLAYLIST_ORDER_FAILURE,
 } from './actions';
 import { toCamelCase } from 'utils';
 
@@ -551,6 +554,35 @@ export const user = (state = { currentUser: null }, action) => {
   }
 };
 
+const initialVerificationState = {
+  loading: false,
+  error: null,
+};
+
+export const verification = (state = initialVerificationState, action) => {
+  switch (action.type) {
+    case RESEND_VERIFICATION_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case RESEND_VERIFICATION_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error,
+      };
+    case RESEND_VERIFICATION_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -650,7 +682,6 @@ export const playlist = (
     case SET_PLAYLIST_TO_EDIT:
       // Set a playlist as the editPlaylist within currentPlaylist
       const playlistToEdit = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
-      console.log(playlistToEdit)
       return {
         ...state,
         currentPlaylist: {
@@ -659,13 +690,13 @@ export const playlist = (
             id: playlistToEdit.id || null,
             name: playlistToEdit.name || null,
             tracks: playlistToEdit.tracks || [],
+            snapshotId: playlistToEdit.snapshotId,
           },
         },
       };
     case SET_SELECTED_PLAYLIST:
       // Set a playlist as the selectedPlaylist within currentPlaylist
       const selected = state.playlists.find(playlist => playlist.id === payload.playlistId) || {};
-      console.log(selected)
       return {
         ...state,
         currentPlaylist: {
@@ -719,25 +750,39 @@ export const playlist = (
           return playlist;
         })
       };
-    case SET_PLAYLIST:
+    case STORE_PREVIOUS_PLAYLIST_STATE:
       return {
         ...state,
+        previousPlaylists: {
+          ...state.previousPlaylists,
+          [payload.playlistId]: payload.prevState,
+        },
+      };
+    case UPDATE_PLAYLIST_ORDER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case UPDATE_PLAYLIST_ORDER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
         playlists: state.playlists.map(playlist => {
           if (playlist.id === payload.playlistId) {
-            // Assuming payload.tracks is an array of song objects
             return {
               ...playlist,
-              tracks: payload.tracks,
+              tracks: payload.orderedTracks,
+              snapshotId: payload.snapshotId,
             };
           }
           return playlist;
         }),
-        currentPlaylist: {
-          ...state.currentPlaylist,
-          editPlaylist: state.playlists.find(
-            playlist => playlist.id === payload.playlistId
-          ),
-        }
+      };
+    case UPDATE_PLAYLIST_ORDER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: payload.error,
       };
     case REMOVE_FROM_SAVED_PLAYLIST:
       return {
@@ -802,7 +847,7 @@ export const discovery = (state = initialDiscoveryState, action) => {
           dataLoaded: false,
         };
       case SET_QUERY_PARAMETER:
-        const { parameter, newValues } = action.payload;
+        const { parameter, newValues } = payload;
         return {
           ...state,
           query: {

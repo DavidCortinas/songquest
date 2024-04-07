@@ -2,6 +2,7 @@ import base64
 from django.utils import timezone
 import dateutil
 from django.conf import settings
+from django.db import transaction
 from django.shortcuts import redirect
 import json
 import concurrent.futures
@@ -52,7 +53,6 @@ def get_csrf_token(request):
     return JsonResponse(
         {'csrfToken': token},
         status=200,
-        headers={'Access-Control-Allow-Origin': '*'}
     )
 
 
@@ -113,7 +113,6 @@ def search_song(request):
     return JsonResponse(
         response_data,
         status=200,
-        headers={'Access-Control-Allow-Origin': '*'}
     )
 
 
@@ -128,11 +127,11 @@ def get_user(request):
             "username": user.display_name,
             "isRegistered": True,
         }
-        return JsonResponse(response_data, status=200, headers={'Access-Control-Allow-Origin': '*'})
+        return JsonResponse(response_data, status=200)
 
     except User.DoesNotExist:
         # Handling case where user does not exist
-        return JsonResponse({"error": "User does not exist", "isRegistered": False}, status=404, headers={'Access-Control-Allow-Origin': '*'}) 
+        return JsonResponse({"error": "User does not exist", "isRegistered": False}, status=404) 
 
 
 @csrf_exempt
@@ -142,6 +141,7 @@ def login_user():
 
 @csrf_exempt
 def update_display_name(request):
+    print('update')
     if request.method == 'PATCH':
         try:
             user_id = request.headers.get('User-Id')
@@ -201,7 +201,7 @@ def update_preferred_genres(request):
             user = User.objects.get(pk=user_id)
 
             data = json.loads(request.body.decode('utf-8'))
-            genre_names = data.get('genres') 
+            genre_names = [genre_name.lower() for genre_name in data.get('genres')] 
 
             for genre_name in genre_names:
                 Genre.objects.get_or_create(name=genre_name)
@@ -319,7 +319,7 @@ def discover_song(request):
                 return JsonResponse({'error': 'Invalid User-Id'}, status=404)
 
         # For unregistered users, recommendations are still provided without updating tokens or XP
-        return JsonResponse(response, status=200, headers={'Access-Control-Allow-Origin': '*'})
+        return JsonResponse(response, status=200)
 
     except KeyError:
         return JsonResponse({'error': 'Missing action parameter in request.'}, status=400)
@@ -812,23 +812,24 @@ def create_playlist(request):
                 id=playlist_id,
                 name=spotify_data['name'],
                 spotify_id=spotify_data['id'],
-                user=user
+                user=user,
+                snapshot_id=spotify_data['snapshot_id']
             )
 
-            print('user: ', user)
             user.use_tokens(action)
             user.update_xp(action)
 
             playlist_data = {
                 'id': playlist.id,
                 'name': playlist.name,
-                'songs': [],
+                'tracks': [],
+                'snapshotId': playlist.snapshot_id,
             }
 
             data = {
-                'playlist_data': playlist_data,
-                'updated_tokens': user.tokens,
-                'updated_xp': user.xp,
+                'playlistData': playlist_data,
+                'updatedTokens': user.tokens,
+                'updatedXp': user.xp,
             }
 
             return JsonResponse(data, status=200)
@@ -938,7 +939,8 @@ def add_to_playlist(request, playlist_id):
             'uris': [f'spotify:track:{track["spotifyId"]}' for track in tracks],
         })
 
-        # ADD TRACKS TO PLAYLIST INSTANCE IN DB
+        # ADD TRACKS TO PLAYLIST INSTANCE IN DB AND UPDATE ORDER
+        max_order = PlaylistSong.objects.filter(playlist=playlist).aggregate(Max('order'))['order__max'] or -1
         for track in tracks:
             name = track['name']
             artists = [artist for artist in track['artists']]
@@ -959,9 +961,14 @@ def add_to_playlist(request, playlist_id):
 
             playlist.songs.add(song)
 
-            PlaylistSong.objects.create(playlist=playlist, song=song, added_on=timezone.now())
+            max_order += 1
+            PlaylistSong.objects.create(playlist=playlist, song=song, order=max_order, added_on=timezone.now())
+
         
         response = requests.post(spotify_url, headers=headers, data=body)
+
+        playlist.snapshot_id = response['snapshot_id']
+        playlist.save()
 
         if response.status_code == 201 or response.status_code == 200:
             serialized_playlist = {
@@ -977,6 +984,7 @@ def add_to_playlist(request, playlist_id):
                     }
                     for song in playlist.songs.all()
                 ],
+                'snapshotId': playlist.snapshot_id
             }
             return JsonResponse({'playlist': serialized_playlist, 'message': 'Tracks successfully added to playlist'}, status=200)
         else:
@@ -1022,22 +1030,16 @@ def remove_from_playlist(request, playlist_id):
         }
 
         tracks = data['tracks']
-        print('remove:')
-        print(tracks)
         body = json.dumps({'tracks': [{'uri': f'spotify:track:{track["spotifyId"]}' for track in tracks}]})
 
         for track in tracks:
             spotify_id = track['spotifyId']
             song = get_object_or_404(Song, spotify_id=spotify_id)
-            print('song: ')
-            print(song)
             playlist.songs.remove(song)
 
             PlaylistSong.objects.filter(playlist=playlist, song=song, removed_on__isnull=True).update(removed_on=timezone.now())
         
         playlist.refresh_from_db()
-        print('playlist:')
-        print(playlist)
         
         response = requests.delete(spotify_url, headers=headers, data=body)
 
@@ -1058,7 +1060,7 @@ def remove_from_playlist(request, playlist_id):
             }
             return JsonResponse({
                 'message': 'Tracks successfully removed from playlist',
-                'snapshot_id': response.json().get('snapshot_id'),
+                'snapshotId': response.json().get('snapshot_id'),
                 'playlist': serialized_playlist,
             }, status=200)
         else:
@@ -1088,13 +1090,13 @@ def update_playlist_items(request, playlist_id):
             if token_info:
                 spotify_access = token_info['access_token']
                 user.spotify_access = spotify_access
-                expires_at = datetime.now(timezone.utc) + timedelta(seconds=token_info['expires_in'])
+                expires_at = time() + token_info['expires_in']
                 user.spotify_expires_at = expires_at
                 user.save()
             else:
                 return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
 
-        playlist = Playlist.objects.get(id=playlist_id)
+        playlist = Playlist.objects.get(id=int(playlist_id))
         spotify_id = playlist.spotify_id
         spotify_url = f"https://api.spotify.com/v1/playlists/{spotify_id}/tracks"
 
@@ -1123,12 +1125,31 @@ def update_playlist_items(request, playlist_id):
         response = method(spotify_url, headers=headers, data=body)
 
         if response.status_code in [200, 201]:
-            # Here you might want to update your Playlist model to reflect changes.
-            # This could involve reordering the Playlist's songs in your database 
-            # to match the new order on Spotify. The implementation will depend on 
-            # how your models are set up.
-            
-            return JsonResponse({'message': 'Playlist updated successfully', 'snapshot_id': response.json().get('snapshot_id')}, status=200)
+            snapshot_id = response.json().get('snapshot_id')
+
+            # Now, update the order in your database
+            # Assuming 'data' includes the ordered list of track Spotify IDs
+            with transaction.atomic():
+                for index, spotify_id in enumerate(data.get('ordered_spotify_ids', [])):
+                    try:
+                        song = Song.objects.get(spotify_id=spotify_id)
+                        PlaylistSong.objects.filter(playlist=playlist, song=song).update(order=index)
+                    except Song.DoesNotExist:
+                        print(f"Song with Spotify ID {spotify_id} does not exist.")
+
+            # After updating the database, retrieve the ordered tracks to return to the frontend
+            ordered_tracks = [
+                {
+                    'id': pt.song.id,
+                    'name': pt.song.name,
+                    'artists': pt.song.artists.split(', '),
+                    'spotifyId': pt.song.spotify_id,
+                    'image': pt.song.image,
+                    'isrc': pt.song.isrc,
+                } for pt in PlaylistSong.objects.filter(playlist=playlist).select_related('song').order_by('order')
+            ]
+
+            return JsonResponse({'message': 'Playlist updated successfully', 'snapshotId': snapshot_id, 'tracks': ordered_tracks}, status=200)
         else:
             return JsonResponse({'error': 'Failed to update playlist on Spotify', 'status_code': response.status_code}, status=response.status_code)
 
@@ -1168,11 +1189,53 @@ def get_user_playlists(request):
             } for song in songs
         ]
 
+        # LOGIC for getting snapshot_id
+        # Implemented for existing playlists
+        # Can delete after updating initial creation of playlist and any views
+        # that update the playlists to return the snapshot_id
+        # --------START--------------
+        spotify_access = user.spotify_access
+        spotify_refresh = user.spotify_refresh
+        expires_at = user.spotify_expires_at
+
+        if token_expired(expires_at):
+            token_info = refresh_spotify_access(spotify_refresh)
+            if token_info:
+                spotify_access = token_info['access_token']
+                user.spotify_access = spotify_access
+                expires_at = time() + token_info['expires_in']
+                user.spotify_expires_at = expires_at
+                user.save()
+            else:
+                return JsonResponse({'error': 'Failed to refresh access token'}, status=400)
+
+        playlist_spotify_id = playlist.spotify_id
+        if not playlist_spotify_id:
+            return JsonResponse({'error': 'Playlist ID is required'}, status=400)
+
+        headers = {
+            'Authorization': f'Bearer {spotify_access}',
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.get(
+            f'https://api.spotify.com/v1/playlists/{playlist_spotify_id}',
+            headers=headers
+        )
+
+        if response.status_code == 200:
+            playlist_spotify_data = response.json()
+            snapshot_id = playlist_spotify_data['snapshot_id']
+            playlist.snapshot_id = snapshot_id
+            playlist.save()
+        # --------END--------------
+
         serialized_playlist = {
             'id': playlist.id,
             'name': playlist.name,
             'spotifyId': playlist.spotify_id,
             'tracks': serialized_songs,
+            'snapshotId': snapshot_id,
         }
         serialized_playlists.append(serialized_playlist)
 

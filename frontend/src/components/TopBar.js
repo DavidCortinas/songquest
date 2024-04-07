@@ -12,8 +12,11 @@ import {
   ListItemIcon,
   Avatar,
 } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PaidIcon from '@mui/icons-material/Paid';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { deletePlaylist, removeFromCurrentPlaylistById, resetDataLoaded, setCurrentUser } from '../actions';
@@ -40,7 +43,16 @@ const useStyles = makeStyles(() => ({
     alignItems: 'center',
     justifyContent: 'center',
     height: '32px',
-  }
+  },
+  responsiveBox: {
+    [theme.breakpoints.up('md')]: {
+      width: '500px',
+    },
+    [theme.breakpoints.down('sm')]: {
+      flex: 1,
+      maxWidth: '50%',
+    },
+  },
 }))
 
 export const TopBar = ({ 
@@ -78,7 +90,7 @@ export const TopBar = ({
     onLogout();
     onSetCurrentUser(null);
     onDeletePlaylist(...userPlaylists.map(playlist => playlist.id));
-    onRemoveFromCurrentPlaylistById(...currentPlaylist.tracks.map(song => song));
+    onRemoveFromCurrentPlaylistById(...currentPlaylist?.tracks?.map(song => song));
     onResetDataLoaded();
     navigate('/');
   };
@@ -86,6 +98,16 @@ export const TopBar = ({
   const handleGetMoreTokens = () => {
     navigate('/pricing');
   };
+
+  const handleProfileClick = () => {
+    setAnchorEl(null);
+    navigate('/profile');
+  };
+
+  const handleHomeClick = () => {
+    setAnchorEl(null);
+    navigate('/');
+  }
 
   const xpPercentage = (currentUser?.user?.xp/1000)*100
 
@@ -115,7 +137,7 @@ export const TopBar = ({
             src={'static/images/sq-logo-2.png'}
             alt="Logo"
             style={{ 
-              width: (isXsScreen || isSmScreen) ? '10%' : '13%',
+              width: (isXsScreen || isSmScreen) ? '20%' : '13%',
               paddingRight: (isXsScreen || isSmScreen) ? '2%' : '15px',
             }}
           />
@@ -124,53 +146,9 @@ export const TopBar = ({
           </Typography>
         </Link>
       </Box>
-      <Box display='flex'>
-        {!user ? (
-              <Tooltip
-                  arrow
-                  title={
-                    <div
-                      style={{
-                        maxHeight: '25vh',
-                        overflowY: 'auto',
-                        padding: '8px',
-                        borderRadius: '8px',
-                      }}
-                    > 
-                      <Typography variant='body2' letterSpacing='1px'>
-                        {'Create account or login'}
-                      </Typography>
-                    </div>
-                  }
-              >
-              <IconButton
-                color="inherit"
-                component={Link}
-                to="/login"
-                style={{ 
-                  textDecoration: 'none', 
-                  color: 'white',
-                }}
-              >
-                {!isXsScreen && !isSmScreen && (
-                  <Typography variant='h6' letterSpacing='1px'>
-                    Login/Register
-                  </Typography>
-                )}
-                <LoginIcon />
-              </IconButton>             
-            </Tooltip>
-          ) : (
-            <Box 
-              display='flex' 
-              alignItems='center' 
-              width={'500px'} 
-              justifyContent='flex-end'
-            >
-              <Box className={classes.counterContainer}>
-                <TokenCounter tokens={currentUser?.user.tokens || 0} />
-              </Box>
-              <Tooltip
+      {!user ? (
+            <Tooltip
+                arrow
                 title={
                   <div
                     style={{
@@ -180,98 +158,188 @@ export const TopBar = ({
                       borderRadius: '8px',
                     }}
                   > 
-                    <Typography variant='caption' letterSpacing='1px'>
-                      {`Tokens: ${currentUser?.user.tokens}`}
-                    </Typography>
                     <Typography variant='body2' letterSpacing='1px'>
-                      {`Get More Tokens`}
+                      {'Create account or login'}
                     </Typography>
                   </div>
                 }
-              >
-                <Box display='flex'>
-                  <PaidIcon
-                    fontSize='medium' 
-                    sx={{ color: '#c4a537' }}
-                    onClick={handleGetMoreTokens} 
-                  />
-                  {currentUser?.user.tokens === 0 && (
-                    <PriorityHighIcon 
-                      color='warning'
-                        sx={{
-                          height: '15px',
-                          marginLeft: '-8px'
-                      }}
-                    />
-                  )}
-                </Box>                
-              </Tooltip>
-              <Box sx={{ width: '100px', height: '8px' }}>
-                <StyledLinearProgress 
-                  variant='determinate' 
-                  value={xpPercentage} 
-                  sx={{ borderRadius: '5px', height: '8px', marginRight: '10%' }}
-                />
-              </Box>
-              <Box className={classes.counterContainer}>
-                <XPCounter currentXp={currentUser?.user.xp} maxXp={1000} />
-              </Box>
-              <Tooltip
-                  arrow
-                  title={
-                    <div
-                      style={{
-                        maxHeight: '25vh',
-                        overflowY: 'auto',
-                        padding: '8px',
-                        borderRadius: '8px',
-                      }}
-                    > 
-                      <Typography variant='body2' letterSpacing='1px'>
-                        {`Account menu`}
-                      </Typography>
-                    </div>
-                  }
-              >  
-              <IconButton onClick={handleMenuClick} size="large">
-                <Avatar
-                  src={
-                    currentUser?.user.profileImage ? 
-                    currentUser?.user.profileImage : 
-                    "/path/to/nonexistent/image.jpg"
-                  }
-                  alt={currentUser?.user.displayName}
-                  sx={{
-                    width: 48,
-                    height: 48,
-                  }}
-                />
-              </IconButton>
-              </Tooltip>
-              <Menu
-                open={open}
-                onClose={handleClose}
-                anchorEl={anchorEl}
-              >
-                <MenuItem onClick={handleLogout}>
-                  <ListItemIcon
-                    color="inherit"
-                    component={Link}
-                    style={{ textDecoration: 'none', color: 'black' }}
-                    >
-                    <LogoutIcon fontSize='small'/>
-                  </ListItemIcon> 
-                  {!isXsScreen && !isSmScreen && (
-                    <Typography variant='body1' letterSpacing='1px'>
-                      Logout
-                    </Typography>
-                  )}
-                </MenuItem>
-              </Menu>
+            >
+            <IconButton
+              color="inherit"
+              component={Link}
+              to="/login"
+              style={{ 
+                textDecoration: 'none', 
+                color: 'white',
+              }}
+            >
+              {!isXsScreen && !isSmScreen && (
+                <Typography variant='h6' letterSpacing='1px'>
+                  Login/Register
+                </Typography>
+              )}
+              <LoginIcon />
+            </IconButton>             
+          </Tooltip>
+        ) : (
+          <Box 
+            display='flex' 
+            alignItems='center' 
+            className={classes.responsiveBox} 
+            justifyContent='flex-end'
+          >
+            <Box className={classes.counterContainer}>
+              <TokenCounter tokens={currentUser?.user?.tokens || 0} />
             </Box>
-          )
-        }
-      </Box>
+            <Tooltip
+              title={
+                <div
+                  style={{
+                    maxHeight: '25vh',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    borderRadius: '8px',
+                  }}
+                > 
+                  <Typography variant='caption' letterSpacing='1px'>
+                    {`Tokens: ${currentUser?.user?.tokens}`}
+                  </Typography>
+                  <Typography variant='body2' letterSpacing='1px'>
+                    {`Get More Tokens`}
+                  </Typography>
+                </div>
+              }
+            >
+              <Box display='flex'>
+                <PaidIcon
+                  fontSize='medium' 
+                  sx={{ color: '#c4a537' }}
+                  onClick={handleGetMoreTokens} 
+                />
+                {currentUser?.user?.tokens === 0 && (
+                  <PriorityHighIcon 
+                    color='warning'
+                      sx={{
+                        height: '15px',
+                        marginLeft: '-8px'
+                    }}
+                  />
+                )}
+              </Box>                
+            </Tooltip>
+            <Box sx={{ width: '100px', height: '8px' }}>
+              <StyledLinearProgress 
+                variant='determinate' 
+                value={xpPercentage} 
+                sx={{ borderRadius: '5px', height: '8px', marginRight: '10%' }}
+              />
+            </Box>
+            <Box className={classes.counterContainer}>
+              <XPCounter currentXp={currentUser?.user?.xp} maxXp={1000} />
+            </Box>
+            <Tooltip
+                arrow
+                title={
+                  <div
+                    style={{
+                      maxHeight: '25vh',
+                      overflowY: 'auto',
+                      padding: '8px',
+                      borderRadius: '8px',
+                    }}
+                  > 
+                    <Typography variant='body2' letterSpacing='1px'>
+                      {`Account menu`}
+                    </Typography>
+                  </div>
+                }
+            >  
+            <IconButton onClick={handleMenuClick} size="large">
+              <Avatar
+                src={
+                  currentUser?.user?.profileImage ? 
+                  currentUser?.user?.profileImage : 
+                  "/path/to/nonexistent/image.jpg"
+                }
+                alt={currentUser?.user?.displayName}
+                sx={{
+                  width: (isSmScreen || isXsScreen) ? 32 : 48,
+                  height: (isSmScreen || isXsScreen) ? 32 : 48,
+                }}
+              />
+            </IconButton>
+            </Tooltip>
+            <Menu
+              open={open}
+              onClose={handleClose}
+              anchorEl={anchorEl}
+              slotProps={{
+                paper: {
+                  style: {
+                    backgroundColor: '#282828',
+                    borderRadius: '8px',
+                  }
+                }
+              }}
+            >
+              <MenuItem onClick={handleProfileClick}>
+                <ListItemIcon
+                  color="inherit"
+                  component={Link}
+                  style={{ textDecoration: 'none', color: 'white' }}
+                >
+                  <AccountCircleIcon />
+                </ListItemIcon>
+                {!isXsScreen && !isSmScreen && (
+                  <Typography 
+                    variant='body1' 
+                    letterSpacing='1px' 
+                    color='white'
+                  >
+                    {`Profile`}
+                  </Typography>
+                )}
+              </MenuItem>
+              <MenuItem divider onClick={handleHomeClick}>
+                <ListItemIcon
+                  color="inherit"
+                  component={Link}
+                  style={{ textDecoration: 'none', color: 'white' }}
+                  >
+                  <HomeIcon />
+                </ListItemIcon>
+                {!isXsScreen && !isSmScreen && (
+                  <Typography 
+                    variant='body1' 
+                    letterSpacing='1px' 
+                    color='white'
+                  >
+                    {`Home`}
+                  </Typography>
+                )}
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon
+                  color="inherit"
+                  component={Link}
+                  style={{ textDecoration: 'none', color: 'white' }}
+                >
+                  <LogoutIcon fontSize='small'/>
+                </ListItemIcon> 
+                {!isXsScreen && !isSmScreen && (
+                  <Typography 
+                    variant='body1' 
+                    letterSpacing='1px' 
+                    color='white'
+                  >
+                    {`Logout`}
+                  </Typography>
+                )}
+              </MenuItem>
+            </Menu>
+          </Box>
+        )
+      }
     </Box>
   );
 };

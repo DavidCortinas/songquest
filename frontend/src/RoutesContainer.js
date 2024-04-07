@@ -12,6 +12,7 @@ import RegistrationSuccess from 'components/auth/RegistrationSuccess';
 import ErrorPage from 'components/ErrorPage';
 import CleanUrlAndHandlePaymentSuccess from 'components/checkout/utilities/CleanUrlAndHandlePaymentSuccess';
 import Onboard from 'components/auth/Onboard';
+import Profile from 'components/auth/Profile';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 
@@ -51,6 +52,12 @@ const RoutesContainer = () => {
               <Route 
                 path={'/onboard'} 
                 element={<Onboard />} 
+              />
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route 
+                path={'/profile'} 
+                element={<Profile />} 
               />
             </Route>
             <Route element={<ProtectedRoute />}>

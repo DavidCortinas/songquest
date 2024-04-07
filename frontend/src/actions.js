@@ -265,13 +265,27 @@ export const addToSavedPlaylist = (playlistId, songs) => ({
   },
 });
 
-export const SET_PLAYLIST = 'SET_PLAYLIST';
-export const setPlaylist = (playlistId, tracks) => ({
-  type: SET_PLAYLIST,
-  payload: {
-    playlistId,
-    tracks,
-  },
+export const STORE_PREVIOUS_PLAYLIST_STATE = 'STORE_PREVIOUS_PLAYLIST_STATE'
+export const storePreviousPlaylistState = (playlistId, prevState) => ({
+  type: STORE_PREVIOUS_PLAYLIST_STATE,
+  payload: { playlistId, prevState },
+});
+
+export const UPDATE_PLAYLIST_ORDER_REQUEST = 'UPDATE_PLAYLIST_ORDER_REQUEST';
+export const updatePlaylistOrderRequest = () => ({
+  type: UPDATE_PLAYLIST_ORDER_REQUEST,
+});
+
+export const UPDATE_PLAYLIST_ORDER_SUCCESS = 'UPDATE_PLAYLIST_ORDER_SUCCESS';
+export const updatePlaylistOrderSuccess = (playlistId, orderedTracks, snapshotId) => ({
+  type: UPDATE_PLAYLIST_ORDER_SUCCESS,
+  payload: { playlistId, orderedTracks, snapshotId },
+});
+
+export const UPDATE_PLAYLIST_ORDER_FAILURE = 'UPDATE_PLAYLIST_ORDER_FAILURE';
+export const updatePlaylistOrderFailure = (error) => ({
+  type: UPDATE_PLAYLIST_ORDER_FAILURE,
+  payload: { error },
 });
 
 export const REMOVE_FROM_SAVED_PLAYLIST = 'REMOVE_FROM_SAVED_PLAYLIST';

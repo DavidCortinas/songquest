@@ -60,13 +60,16 @@ const DisplayNameInput = ({
     };
 
     const onCreateDisplayName = async () => {
+        console.log('create')
         if (!displayNameValue) {
             setInvalidDisplayName(true);
             return;
         };
 
         const savedDisplayName = await onUpdateDisplayName(currentUser?.user.id, displayNameValue);
+        console.log(savedDisplayName)
         if (savedDisplayName) {
+            console.log('if')
             setCurrentStep('birthday');
         };
     };

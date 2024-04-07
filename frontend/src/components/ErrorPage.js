@@ -45,7 +45,7 @@ const ErrorPage = () => {
                 width='100%'
                 letterSpacing='2px'
             >
-                Looks like we ran into an issue with your request. Please try again.
+                {`Looks like we ran into an issue with your request. Please try again.`}
             </Typography>        
             <Typography
                 textAlign='center'
@@ -54,7 +54,7 @@ const ErrorPage = () => {
                 width='100%'
                 letterSpacing='2px'
             >
-                If the issue persists, please contact our support team
+                {`If the issue persists, please contact support@songquest.io`}
             </Typography>
             <Button
                 onClick={handleGoBack}
