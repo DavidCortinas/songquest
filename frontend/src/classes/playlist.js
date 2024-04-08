@@ -88,7 +88,7 @@ const useStyles = makeStyles(() => (
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
-            borderRadius: '8px',
+            borderRadius: '32px',
             backgroundColor: '#282828',
             boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
             opacity: '0.8',
