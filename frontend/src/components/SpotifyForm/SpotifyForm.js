@@ -468,21 +468,24 @@ const SpotifyForm = ({
                                 }}
                                 classes={{ paper: classes.paper }}
                               >
-                                {savedQueries.saved.length > 0 ? savedQueries.saved.map((savedQuery) => (
-                                  <MenuItem onClick={() => handleSelectSavedQuery(savedQuery)} sx={{ color: 'white' }}>
-                                    {savedQuery.name}
-                                  </MenuItem>
-                                )) : (
-                                    <>
+                                {savedQueries.saved.length > 0 ? (
+                                  savedQueries.saved.map((savedQuery) => (
+                                    <MenuItem key={savedQuery.name} onClick={() => handleSelectSavedQuery(savedQuery)} sx={{ color: 'white' }}>
+                                      {savedQuery.name}
+                                    </MenuItem>
+                                  ))
+                                ) : ([
                                     <Typography
+                                      key="no-saved-requests"
                                       color='whitesmoke'
                                       textAlign='center'
                                       variant='subtitle1'
                                       letterSpacing='1px'
                                     >
                                       {'No Saved Requests'}
-                                    </Typography>
+                                    </Typography>,
                                     <Typography
+                                      key="no-saved-description"
                                       color='rgb(210,220,225)'
                                       textAlign='center'
                                       variant='subtitle2'
@@ -495,8 +498,7 @@ const SpotifyForm = ({
                                         below`
                                       }
                                     </Typography>
-                                  </>
-                                )}
+                                ])}
                               </Menu>
                               </Box>
                               <Box

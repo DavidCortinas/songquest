@@ -51,7 +51,7 @@ const AutocompleteParameter = ({
     );
 
     if (selectedOption) {
-      const totalSelectedValues = Object.values(targetParamValues).reduce((total, array) => total + array.length, 0);
+      const totalSelectedValues = Object.values(targetParamValues).reduce((total, array) => total + array?.length, 0);
 
       if (totalSelectedValues < 5 && !Object.values(targetParamValues).flat().includes(selectedOption.label)) {
 
@@ -115,7 +115,7 @@ const AutocompleteParameter = ({
       tracks.items.map((item) => ({
         id: item.id,
         label: `${item.name} - ${item.artists[0].name}`,
-        image: item.album.images[2].url
+        image: item.album.images[2]?.url
       })) : parameter === 'performers' ? 
       artists.items.map((item) => ({
         id: item.id,
