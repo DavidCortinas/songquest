@@ -47,7 +47,7 @@ import {
   SET_CURRENT_USER,
   SET_QUERY_PARAMETER,
   UPDATE_EMAIL,
-  UPDATE_DISPLAY_NAME,
+  UPDATE_DISPLAY_NAME_SUCCESS,
   UPDATE_BIRTHDAY,
   UPDATE_PREFERRED_GENRES,
   UPDATE_USER_TYPE,
@@ -62,6 +62,14 @@ import {
   UPDATE_PLAYLIST_ORDER_REQUEST,
   UPDATE_PLAYLIST_ORDER_SUCCESS,
   UPDATE_PLAYLIST_ORDER_FAILURE,
+  UPDATE_DISPLAY_NAME_REQUEST,
+  UPDATE_DISPLAY_NAME_FAILURE,
+  UPDATE_USER_INFO_REQUEST,
+  UPDATE_USER_INFO_SUCCESS,
+  UPDATE_USER_INFO_FAILURE,
+  UPDATE_USER_PROFILE_REQUEST,
+  UPDATE_USER_PROFILE_FAILURE,
+  UPDATE_USER_PROFILE_SUCCESS,
 } from './actions';
 import { toCamelCase } from 'utils';
 
@@ -394,17 +402,56 @@ export const user = (state = { currentUser: null }, action) => {
           }
         }
       };
-    case UPDATE_DISPLAY_NAME:
+    case UPDATE_USER_PROFILE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_USER_PROFILE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        currentUser: {
+          ...state.currentUser,
+          user: {
+            ...state.currentUser.user,
+            ...payload.user, // Merge the updated user object into the current user state
+          },
+        },
+      };
+    case UPDATE_USER_PROFILE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: payload.error,
+      }
+    case UPDATE_DISPLAY_NAME_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      }
+    case UPDATE_DISPLAY_NAME_SUCCESS:
       return {
         ...state,
         currentUser: {
           ...state.currentUser,
-            user: {
-              ...state.currentUser.user,
-              displayName: payload.newDisplayName,
-            },
+          user: {
+            ...state.currentUser.user,
+            displayName: payload.newDisplayName,
           },
-        };
+        },
+        loading: false,
+        error: null,
+      };
+    case UPDATE_DISPLAY_NAME_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: payload.error,
+      }
     case UPDATE_BIRTHDAY:
       return {
         ...state,
@@ -827,7 +874,7 @@ export const discovery = (state = initialDiscoveryState, action) => {
         return {
           ...state,
           query: payload.query,
-          recommendations: payload.recommendations,
+          recommendations: null,
           dataLoaded: false,
         };
       case DISCOVER_SONG_SUCCESS:

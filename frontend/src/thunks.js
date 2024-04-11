@@ -12,7 +12,7 @@ import {
   receiveSpotifySeedGenres, 
   receiveSpotifyMarkets, 
   // refreshSpotifyAccess, 
-  updateDisplayName, 
+  updateDisplayNameSuccess, 
   receiveLyricResults,
   createPlaylist,
   addToSavedPlaylist,
@@ -41,6 +41,11 @@ import {
   updatePlaylistOrderSuccess,
   updatePlaylistOrderFailure,
   updatePlaylistOrderRequest,
+  updateDisplayNameRequest,
+  updateDisplayNameFailure,
+  updateUserProfileRequest,
+  updateUserProfileSuccess,
+  updateUserProfileFailure,
   // updatePlaylistOrder
 } from './actions';
 import getCSRFToken from './csrf';
@@ -196,6 +201,7 @@ export const handleUpload = (filelist) => async (filelist) => {
 }
 
 export const discoverSongRequest = (parameters, userId) => async (dispatch, getState) => {
+  dispatch(discoverSong(false, parameters));
   try {
     const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
     const body = JSON.stringify({ action: 'quest', parameters: parameters });
@@ -234,7 +240,6 @@ export const discoverSongRequest = (parameters, userId) => async (dispatch, getS
       dispatch(getUserXpSuccess(userXp));
     }
 
-    dispatch(discoverSong(discovery, false, parameters));
 
     const prevQuery = getState().discovery.query;
     dispatch(savePreviousQuery(prevQuery));
@@ -469,9 +474,11 @@ export const checkTokenExpiration = async (
 
 
 export const handleUpdateDisplayName = (userId, newDisplayName) => async (dispatch) => {
+  dispatch(updateDisplayNameRequest());
+
   try {
     const csrfToken = await getCSRFToken();
-    const data = { newDisplayName };
+    const data = { 'new_display_name': newDisplayName };
 
     const response = await axios.patch(`http://localhost:8000/update-display-name/`, data, {
       headers: {
@@ -483,14 +490,22 @@ export const handleUpdateDisplayName = (userId, newDisplayName) => async (dispat
 
     const { user } = response.data;
     if (user && user.display_name) {
-      dispatch(updateDisplayName(user.display_name)); 
+      dispatch(updateDisplayNameSuccess(user.display_name)); 
     }
 
     return response.data.user.display_name;
   } catch (error) {
-    console.error(`Error: ${error.response ? error.response.data : error.message}`);
-    // Handle error accordingly. You can dispatch a failure action here if you have one.
-  }
+    let errorMessage = 'An unexpected error occurred';
+
+    if (error.response && error.response.data && error.response.data.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    console.error(`Error: ${errorMessage}`);
+    dispatch(updateDisplayNameFailure(errorMessage));
+  };
 };
 
 export const handleUpdateBirthday = (userId, date) => async (dispatch) => {
@@ -559,10 +574,12 @@ export const handleUpdateUserType = (userId, userType) => async (dispatch) => {
       },
     });
 
-    const { user_type } = response.data;
+    const { user_type, profession } = response.data;
     if (user_type) {
       dispatch(updateUserType(user_type)); 
     };
+
+    dispatch(updateUserProfession(profession))
 
     console.log('User Type Saved Successfully');
     return user_type
@@ -624,6 +641,37 @@ export const handleUpdateProfileImage = (userId, imageFile) => async (dispatch) 
   }
 };
 
+export const handleUpdateUserProfile = (userId, userInfo) => async (dispatch) => {
+  dispatch(updateUserProfileRequest());
+  try {
+    const csrfToken = await getCSRFToken();
+    const data = userInfo;
+
+    const response = await axios.patch(`http://localhost:8000/update-user-profile/`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'User-Id': userId,
+      },
+    });
+
+    const { user } = response.data;
+    dispatch(updateUserProfileSuccess(user)); 
+
+    console.log('Successfully updated user: ', user)
+  } catch (error) {
+    let errorMessage = 'An unexpected error occurred';
+
+    if (error.response && error.response.data && error.response.data.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    console.error(`Error: ${errorMessage}`);
+    dispatch(updateUserProfileFailure(errorMessage));
+  }
+}
 
 export const resendVerification = (userId) => async (dispatch) => {
   dispatch(resendVerificationRequest());

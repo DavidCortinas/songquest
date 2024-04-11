@@ -41,7 +41,7 @@ const useStyles = makeStyles(() => (
                 height: '5%',
                 minWidth: '54px'
             },
-            },
+        },
         disabled: {
             color: 'grey',
             backgroundColor: 'rgb(44, 216, 207, 0.1)',
@@ -59,6 +59,18 @@ const useStyles = makeStyles(() => (
                 height: '5%',
                 minWidth: '54px'
             },
+        },
+        dropzone: {
+            borderRadius: '18px',
+            borderColor: 'rgb(210,220,225, 0.6)',
+            background: 'rgba(48, 130, 164, 0.15)',
+            marginBottom: '2%',
+            '& p': {
+            color: 'white'
+            },
+            '& .MuiDropzoneArea-active': {
+            borderColor: 'green'
+            }
         },
         actionButton: {
             display: 'flex', 
@@ -177,6 +189,24 @@ const useStyles = makeStyles(() => (
             '&:hover $deleteIcon': {
                 opacity: 1,
             },
+        },
+        dropzone: {
+            borderRadius: '18px',
+            borderColor: 'rgb(210,220,225, 0.6)',
+            background: 'rgba(48, 130, 164, 0.15)',
+            marginBottom: '2%',
+            '& p': {
+            color: 'white'
+            },
+            '& .MuiDropzoneArea-active': {
+                borderColor: 'green'
+            },
+        },
+        imagePreviewContainer: {
+            display: 'flex',        
+            justifyContent: 'center', 
+            alignItems: 'center',    
+            height: '100%',    
         },
     }
 ));

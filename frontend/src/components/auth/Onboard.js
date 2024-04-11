@@ -2,7 +2,20 @@ import { useForm } from "react-hook-form";
 import { useStyles } from "./classes";
 import { useEffect, useState } from "react";
 import theme from "theme";
-import { Autocomplete, Box, Button, CardHeader, Grid, Paper, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useMediaQuery } from "@mui/material";
+import { 
+    Alert,
+    Autocomplete, 
+    Box, 
+    Button, 
+    CardHeader, 
+    Grid,  
+    Snackbar,
+    TextField, 
+    ToggleButton, 
+    ToggleButtonGroup, 
+    Tooltip, 
+    Typography, 
+    useMediaQuery } from "@mui/material";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -14,6 +27,7 @@ import { toCapitalCase } from "utils";
 import { DropzoneArea, DropzoneAreaBase } from "mui-file-dropzone";
 import { useLocation, useNavigate } from "react-router-dom";
 import { emailVerificationFailure, emailVerificationSuccess } from "actions";
+import { LoadingState } from "components/LoadingState";
 
 const root = {
   "& .MuiAutocomplete-option[data-focus='true']": {
@@ -26,7 +40,7 @@ const root = {
   },
 };
 
-const AddImageIcon = () => (
+export const AddImageIcon = () => (
     <AddAPhotoIcon 
         style={{ 
             fontSize: 80,
@@ -214,7 +228,7 @@ const BirthdayInput = ({
                             color: 'white',
                             letterSpacing: '1px',
                         }}
-                        subheader="Please, enter your birthday to continue..."
+                        subheader="Please, enter your birth date to continue..."
                         subheaderTypographyProps={{ 
                             width: '100%', 
                             variant: isXlScreen || isLgScreen 
@@ -229,7 +243,7 @@ const BirthdayInput = ({
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateField
                                 autoFocus
-                                label="Birthday"
+                                label="Birth Date"
                                 value={date}
                                 onChange={(newDate) => setDate(newDate)}
                                 sx={{
@@ -881,7 +895,13 @@ export const Onboard = ({
     onUpdateProfileImage,
     currentUser,
     genres,
+    userError,
+    userLoading,
 }) => {
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
     const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -916,101 +936,142 @@ export const Onboard = ({
         }
     }, [currentStep])
 
-    return currentStep === 'displayName' ? (
-        <DisplayNameInput 
-            isXlScreen={isXlScreen}
-            isLgScreen={isLgScreen}
-            isMdScreen={isMdScreen}
-            isSmScreen={isSmScreen}
-            isXsScreen={isXsScreen}
-            classes={classes}
-            errors={errors}
-            register={register}
-            handleSubmit={handleSubmit}
-            onUpdateDisplayName={onUpdateDisplayName}
-            currentUser={currentUser}
-            setCurrentStep={setCurrentStep}
-        />
-    ) : currentStep === 'birthday' ? (
-        <BirthdayInput 
-            classes={classes}
-            isXsScreen={isXsScreen}
-            isSmScreen={isSmScreen}
-            isMdScreen={isMdScreen}
-            isLgScreen={isLgScreen}
-            isXlScreen={isXlScreen}
-            handleSubmit={handleSubmit}
-            currentUser={currentUser}
-            setCurrentStep={setCurrentStep}
-            onUpdateBirthday={onUpdateBirthday}
-        />
-    ) : currentStep === 'genres' ? (
-        <SpotifyAuth>
-            {(accessToken, expiresAt) => {
-                return (
-                    <GenresInput
-                        accessToken={accessToken}
-                        expiresAt={expiresAt} 
+    useEffect(() => {
+        if (userLoading) {
+            // Optionally handle loading state
+        } else if (userError) {
+            setSnackbarMessage(userError);
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        } else {
+            // Condition to determine if a request was successful, you may need to adjust this
+            if (currentStep !== 'displayName') { // Example condition, adjust based on your logic
+                setSnackbarMessage('Operation successful');
+                setSnackbarSeverity('success');
+                setSnackbarOpen(true);
+            }
+        }
+    }, [userLoading, userError, currentStep]);
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
+
+    if (userLoading) {
+        return <LoadingState />
+    }
+
+    return (
+        <>
+            {currentStep === 'displayName' ? 
+                (
+                    <DisplayNameInput 
+                        isXlScreen={isXlScreen}
+                        isLgScreen={isLgScreen}
+                        isMdScreen={isMdScreen}
+                        isSmScreen={isSmScreen}
+                        isXsScreen={isXsScreen}
+                        classes={classes}
+                        errors={errors}
+                        register={register}
+                        handleSubmit={handleSubmit}
+                        onUpdateDisplayName={onUpdateDisplayName}
+                        currentUser={currentUser}
+                        setCurrentStep={setCurrentStep}
+                    />
+                ) : currentStep === 'birthday' ? (
+                    <BirthdayInput 
                         classes={classes}
                         isXsScreen={isXsScreen}
                         isSmScreen={isSmScreen}
                         isMdScreen={isMdScreen}
                         isLgScreen={isLgScreen}
                         isXlScreen={isXlScreen}
-                        genres={genres}
-                        errors={errors}
+                        handleSubmit={handleSubmit}
                         currentUser={currentUser}
                         setCurrentStep={setCurrentStep}
+                        onUpdateBirthday={onUpdateBirthday}
+                    />
+                ) : currentStep === 'genres' ? (
+                    <SpotifyAuth>
+                        {(accessToken, expiresAt) => {
+                            return (
+                                <GenresInput
+                                    accessToken={accessToken}
+                                    expiresAt={expiresAt} 
+                                    classes={classes}
+                                    isXsScreen={isXsScreen}
+                                    isSmScreen={isSmScreen}
+                                    isMdScreen={isMdScreen}
+                                    isLgScreen={isLgScreen}
+                                    isXlScreen={isXlScreen}
+                                    genres={genres}
+                                    errors={errors}
+                                    currentUser={currentUser}
+                                    setCurrentStep={setCurrentStep}
+                                    register={register}
+                                    handleSubmit={handleSubmit}
+                                    onUpdatePreferredGenres={onUpdatePreferredGenres}
+                                />
+                            )
+                        }}
+                    </SpotifyAuth>
+                ) : currentStep === 'userType' ? (
+                    <UserTypeInput 
+                        classes={classes}
+                        isXsScreen={isXsScreen}
+                        isSmScreen={isSmScreen}
+                        isMdScreen={isMdScreen}
+                        isLgScreen={isLgScreen}
+                        isXlScreen={isXlScreen}
+                        errors={errors}
                         register={register}
                         handleSubmit={handleSubmit}
-                        onUpdatePreferredGenres={onUpdatePreferredGenres}
+                        currentUser={currentUser}
+                        setCurrentStep={setCurrentStep}
+                        onUpdateUserType={onUpdateUserType}
+                        onUpdateUserProfession={onUpdateUserProfession}
+                    />
+                ) : currentStep === 'image' ? (
+                    <ImageInput 
+                        isXsScreen={isXsScreen}
+                        isSmScreen={isSmScreen}
+                        isMdScreen={isMdScreen}
+                        isLgScreen={isLgScreen}
+                        isXlScreen={isXlScreen}
+                        classes={classes}
+                        handleSubmit={handleSubmit}
+                        setCurrentStep={setCurrentStep}
+                        currentUser={currentUser}
+                        onUpdateProfileImage={onUpdateProfileImage}
+                    />
+                ) : (
+                    <OnboardSpotify 
+                        isXsScreen={isXsScreen}
+                        isSmScreen={isSmScreen}
+                        isMdScreen={isMdScreen}
+                        isLgScreen={isLgScreen}
+                        isXlScreen={isXlScreen}
+                        classes={classes}
                     />
                 )
-            }}
-        </SpotifyAuth>
-    ) : currentStep === 'userType' ? (
-        <UserTypeInput 
-            classes={classes}
-            isXsScreen={isXsScreen}
-            isSmScreen={isSmScreen}
-            isMdScreen={isMdScreen}
-            isLgScreen={isLgScreen}
-            isXlScreen={isXlScreen}
-            errors={errors}
-            register={register}
-            handleSubmit={handleSubmit}
-            currentUser={currentUser}
-            setCurrentStep={setCurrentStep}
-            onUpdateUserType={onUpdateUserType}
-            onUpdateUserProfession={onUpdateUserProfession}
-        />
-    ) : currentStep === 'image' ? (
-        <ImageInput 
-            isXsScreen={isXsScreen}
-            isSmScreen={isSmScreen}
-            isMdScreen={isMdScreen}
-            isLgScreen={isLgScreen}
-            isXlScreen={isXlScreen}
-            classes={classes}
-            handleSubmit={handleSubmit}
-            setCurrentStep={setCurrentStep}
-            currentUser={currentUser}
-            onUpdateProfileImage={onUpdateProfileImage}
-        />
-    ) : (
-        <OnboardSpotify 
-            isXsScreen={isXsScreen}
-            isSmScreen={isSmScreen}
-            isMdScreen={isMdScreen}
-            isLgScreen={isLgScreen}
-            isXlScreen={isXlScreen}
-            classes={classes}
-        />
+            }
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </>
     )
 };
 
 const mapStateToProps = (state) => ({
     currentUser: state.user.currentUser,
+    userError: state.user.error,
+    userLoading: state.user.loading,
     genres: state.discovery.genres,
 });
 

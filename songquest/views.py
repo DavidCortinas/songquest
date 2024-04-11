@@ -141,17 +141,21 @@ def login_user():
 
 @csrf_exempt
 def update_display_name(request):
-    print('update')
     if request.method == 'PATCH':
         try:
             user_id = request.headers.get('User-Id')
             user = User.objects.get(pk=user_id)
 
             data = json.loads(request.body.decode('utf-8'))
-            new_display_name = data.get('newDisplayName')
+            new_display_name = data.get('new_display_name')
+
+            if User.objects.exclude(pk=user_id).filter(display_name=new_display_name).exists():
+                return JsonResponse(
+                    {'error': 'Display name already exists, please select another option'}, 
+                    status=400
+                )
 
             user.display_name = new_display_name
-
             user.save()
 
             user_data = {
@@ -230,8 +234,16 @@ def update_user_type(request):
             user_type = data.get('userType') 
 
             user.user_type = user_type
+            user.save()
 
-            return JsonResponse({'message': 'Preferred genres updated successfully', 'user_type': user.user_type})
+            if user.user_type == 'fan':
+                user.profession = None
+
+            return JsonResponse({
+                'message': 'Preferred genres updated successfully', 
+                'user_type': user.user_type,
+                'profession': user.profession,
+            })
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
     else:
@@ -249,6 +261,7 @@ def update_user_profession(request):
             profession = data.get('profession') 
 
             user.profession = profession
+            user.save()
 
             return JsonResponse({'message': 'Preferred genres updated successfully', 'saved_profession': user.profession})
         except User.DoesNotExist:
@@ -285,6 +298,68 @@ def update_profile_image(request):
         except Exception as e:
             # Catch other errors
             return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+@csrf_exempt
+def update_user_profile(request):
+    if request.method == 'PATCH':
+        try:
+            user_id = request.headers.get('User-Id')
+            user = User.objects.get(pk=user_id)
+
+            data = json.loads(request.body.decode('utf-8'))
+            print('data: ', data)
+
+            display_name = data.get('display_name')
+            print(display_name)
+            if display_name:
+                if User.objects.exclude(pk=user_id).filter(display_name=display_name).exists():
+                    return JsonResponse(
+                        {'error': 'Display name already exists, please select another option'}, 
+                        status=400
+                    )
+                user.display_name = display_name
+
+            birthday = data.get('birth_date')
+            print(birthday)
+            if birthday:
+                parsed_birthday = dateutil.parser.isoparse(birthday).date()
+                user.birthday = parsed_birthday
+
+            user_type = data.get('user_type')
+            if user_type:
+                user.user_type = user_type
+
+            profession = data.get('profession')
+            if profession:
+                user.profession = profession
+                
+            genre_names = [genre_name.lower() for genre_name in data.get('genres')]
+
+            for genre_name in genre_names:
+                Genre.objects.get_or_create(name=genre_name)
+
+            genre_objects = Genre.objects.filter(name__in=genre_names)
+
+            user.preferred_genres.set(genre_objects)
+
+            updated_genre_names = [genre.name for genre in genre_objects]
+
+            user.save()
+
+            user_data = {
+                'displayName': user.display_name,
+                'birthday': user.birthday.strftime('%Y-%m-%d') if user.birthday else None,
+                'userType': user.user_type,
+                'profession': user.profession,
+                'preferredGenres': updated_genre_names,
+            }
+
+            return JsonResponse({'message': 'User info updated successfully', 'user': user_data})
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'There was an issue with your request. If the issue persists, please contact support@songquest.io'}, status=404)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 

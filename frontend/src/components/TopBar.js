@@ -86,13 +86,13 @@ export const TopBar = ({
   };
 
   const handleLogout = () => {
+    navigate('/');
     setAnchorEl(null);
     onLogout();
-    onSetCurrentUser(null);
     onDeletePlaylist(...userPlaylists.map(playlist => playlist.id));
     onRemoveFromCurrentPlaylistById(...currentPlaylist?.tracks?.map(song => song));
+    onSetCurrentUser(null);
     onResetDataLoaded();
-    navigate('/');
   };
 
   const handleGetMoreTokens = () => {
@@ -256,6 +256,9 @@ export const TopBar = ({
             >  
             <IconButton onClick={handleMenuClick} size="large">
               <Avatar
+                slotProps={{
+                  
+                }}
                 src={
                   currentUser?.user?.profileImage ? 
                   currentUser?.user?.profileImage : 

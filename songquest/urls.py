@@ -27,6 +27,8 @@ urlpatterns = [
           views.update_user_profession, name='update-user-profession'),
      path('update-profile-image/',
           views.update_profile_image, name='update-profile-image'),
+     path('update-user-profile/',
+          views.update_user_profile, name='update-user-profile'),
      path('get-csrf-token/', views.get_csrf_token, name='get-csrf-token'),
      path('accounts/', include('django.contrib.auth.urls')),
      path('api/upload/', SongUploadView.as_view(), name='song-upload'),
