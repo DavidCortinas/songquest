@@ -23,21 +23,7 @@ function App() {
   if (csrfToken === null) {
     // You can show a loading state or spinner until the CSRF token is retrieved
     return (
-      <>
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="50vh"
-        >
-          <CardHeader
-            title="Loading..."
-            titleTypographyProps={{ color: 'white' }}
-            subheaderTypographyProps={{ color: 'white' }}
-          />
-        </Box>
         <LoadingState />
-      </>
     );
   }
 

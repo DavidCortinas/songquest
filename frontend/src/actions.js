@@ -55,10 +55,38 @@ export const confirmSpotifyAccess = (spotifyConnected) => (
   payload: { spotifyConnected },
 });
 
-export const UPDATE_DISPLAY_NAME = 'UPDATE_DISPLAY_NAME';
-export const updateDisplayName = (newDisplayName) => ({
-  type: UPDATE_DISPLAY_NAME,
+export const UPDATE_USER_PROFILE_REQUEST = 'UPDATE_USER_PROFILE_REQUEST';
+export const updateUserProfileRequest = () => ({
+  type: UPDATE_USER_PROFILE_REQUEST,
+});
+
+export const UPDATE_USER_PROFILE_SUCCESS = 'UPDATE_USER_PROFILE_SUCCESS';
+export const updateUserProfileSuccess = (user) => ({
+  type: UPDATE_USER_PROFILE_SUCCESS,
+  payload: { user },
+});
+
+export const UPDATE_USER_PROFILE_FAILURE = 'UPDATE_USER_PROFILE_FAILURE';
+export const updateUserProfileFailure = (error) => ({
+  type: UPDATE_USER_PROFILE_FAILURE,
+  payload: { error },
+});
+
+export const UPDATE_DISPLAY_NAME_REQUEST = 'UPDATE_DISPLAY_NAME_REQUEST';
+export const updateDisplayNameRequest = () => ({
+  type: UPDATE_DISPLAY_NAME_REQUEST,
+});
+
+export const UPDATE_DISPLAY_NAME_SUCCESS = 'UPDATE_DISPLAY_NAME_SUCCESS';
+export const updateDisplayNameSuccess = (newDisplayName) => ({
+  type: UPDATE_DISPLAY_NAME_SUCCESS,
   payload: { newDisplayName },
+});
+
+export const UPDATE_DISPLAY_NAME_FAILURE = 'UPDATE_DISPLAY_NAME_FAILURE';
+export const updateDisplayNameFailure = (error) => ({
+  type: UPDATE_DISPLAY_NAME_FAILURE,
+  payload: { error },
 });
 
 export const UPDATE_BIRTHDAY = 'UPDATE_BIRTHDAY';
@@ -126,10 +154,10 @@ export const emailVerificationFailure = (emailVerified, error) => ({
 });
 
 export const DISCOVER_SONG= 'DISCOVER_SONG';
-export const discoverSong = (recommendations, dataLoaded, query) => {
+export const discoverSong = (dataLoaded, query) => {
   return {
     type: DISCOVER_SONG,
-    payload: { recommendations, dataLoaded, query },
+    payload: { dataLoaded, query },
   };
 };
 

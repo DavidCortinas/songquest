@@ -1,9 +1,11 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import {
+  Alert,
   Box,
   Button,
   CardHeader,
+  Snackbar,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -21,7 +23,7 @@ import LeftPanel from './sidePanels/LeftPanel';
 import RightPanel from './sidePanels/RightPanel';
 import { initialDiscoveryState } from 'reducers';
 import { getUserTokens, saveRequestParameters } from 'thunks';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Recommendations = lazy(() => import('./Recommendations'))
 const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'))
@@ -347,7 +349,7 @@ const MobileResults = ({
         </Box>
         {isLoading && (
           <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
-            <Box
+            {/* <Box
               display="flex"
               justifyContent="center"
               alignItems="center"
@@ -358,13 +360,13 @@ const MobileResults = ({
                 titleTypographyProps={{ color: 'white' }}
                 subheaderTypographyProps={{ color: '#3d3d3d' }}
               />
-            </Box>
+            </Box> */}
             <LoadingState />
           </Box>
         )}
         {showTracks ? (
           <Box  width='100%' justifyContent='space-between'>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<LoadingState />}>
               <Recommendations 
                 classes={classes} 
                 recommendations={discoveryRecommendations}
@@ -465,6 +467,29 @@ export const SongDiscovery = ({
     onSaveQuery,
     playlists,
  }) => {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.profileUpdated) {
+      setSnackbarMessage('User profile updated successfully');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
+
+  const handleCloseSnackbar = (event, reason) => {
+      if (reason === 'clickaway') {
+          return;
+      }
+      setSnackbarOpen(false);
+  };
+
   const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -645,7 +670,7 @@ const handleExploreMoreClick = (activatesModal) => {
             )}
             {isLoading && (
               <Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
-                <Box
+                {/* <Box
                   display="flex"
                   justifyContent="center"
                   alignItems="center"
@@ -656,7 +681,7 @@ const handleExploreMoreClick = (activatesModal) => {
                     titleTypographyProps={{ color: 'white' }}
                     subheaderTypographyProps={{ color: '#3d3d3d' }}
                   />
-                </Box>
+                </Box> */}
                 <LoadingState />
               </Box>
             )}
@@ -793,6 +818,11 @@ const handleExploreMoreClick = (activatesModal) => {
         classes={classes}
         parameters={parameters}
       />
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+          <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+              {snackbarMessage}
+          </Alert>
+      </Snackbar>
     </>
   );
 };

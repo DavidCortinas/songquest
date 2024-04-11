@@ -1,27 +1,38 @@
 import { connect } from "react-redux";
 import { 
+    Alert,
     Autocomplete,
     Avatar, 
     Box,
     Button, 
     Card,
     Chip,
+    IconButton,
+    Snackbar,
     TextField, 
     Tooltip,
     Typography,
     keyframes,
     useMediaQuery 
 } from "@mui/material";
-import AddAPhotoIcon from '@mui/icons-material/AddAPhoto'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import SyncIcon from '@mui/icons-material/Sync';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateField } from '@mui/x-date-pickers/DateField';
+import { DropzoneDialog } from 'mui-file-dropzone';
 import { useNavigate } from "react-router-dom";
+import dayjs from 'dayjs';
 import useStyles from "classes/playlist";
 import theme from "theme";
 import { toCapitalCase } from "utils";
 import { useEffect, useRef, useState } from "react";
-import { handleUpdateBirthday, handleUpdateDisplayName, handleUpdatePreferredGenres, handleUpdateProfileImage, handleUpdateUserProfession, handleUpdateUserType } from "thunks";
+import { SpotifyAuth, getSpotifyGenres, handleUpdateBirthday, handleUpdateDisplayName, handleUpdatePreferredGenres, handleUpdateProfileImage, handleUpdateUserProfile, handleUpdateUserProfession, handleUpdateUserType } from "thunks";
+import { useDispatch } from "react-redux";
+import { AddImageIcon } from "./Onboard";
 
 const root = {
   "& .MuiAutocomplete-option[data-focus='true']": {
@@ -43,14 +54,75 @@ const rotate = keyframes`
   }
 `;
 
-const AddImageIcon = () => (
-    <AddAPhotoIcon 
-        style={{ 
-            fontSize: 80,
-            color: 'rgb(210,220,225, 0.6)' 
-        }} 
-    />
-);
+const overrideTheme = createTheme({
+  components: {
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: 'rgba(13, 27, 38, 0.9)',
+          borderRadius: '18px'
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+            color: 'white',
+            transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+            '&:hover, &:active, &.MuiFocusVisible': {
+                backgroundColor: 'transparent'
+            },
+            [theme.breakpoints.down('md')]: {
+                padding: '0',
+                height: '5%',
+                minWidth: '54px'
+            },
+        },
+        containedPrimary: {
+            backgroundColor: 'rgb(44, 216, 207, 0.3)',
+            border: '2px solid rgba(89, 149, 192, 0.5)',
+            borderRadius: '18px',
+            boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+            '&:hover, &:active, &.MuiFocusVisible': {
+                border: '2px solid rgba(89, 149, 192, 0.5)',
+                backgroundColor: 'rgb(44, 216, 207, 0.5)',
+                boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+            },
+            '&.Mui-disabled': {
+                backgroundColor: 'rgba(44, 216, 207, 0.3)', // Adjust color for disabled state as needed
+                color: 'rgba(0, 0, 0, 0.5)', // Adjust text color for disabled state as needed
+                border: '2px solid transparent', 
+                boxShadow: 'none',
+            },
+        }
+      },
+    },
+  },
+});
+
+const UserAvatar = ({ currentUser, isSmScreen, isXsScreen }) => {
+    const avatarSize = (isSmScreen || isXsScreen) ? 32 : 48;
+    const hasImage = Boolean(currentUser?.user?.profileImage);
+
+    return (
+        <Avatar
+            src={hasImage ? currentUser.user.profileImage : undefined}
+            alt={hasImage ? currentUser.user.displayName : "User Avatar"}
+            sx={{
+                width: hasImage ? 200 : avatarSize,
+                height: hasImage ? 200 : avatarSize,
+                backgroundColor: !hasImage ? theme.palette.primary.triadic1 : undefined,
+                opacity: !hasImage ? '0.7' : undefined
+            }}
+        >
+            {!hasImage && (
+                <Typography variant="h6" style={{ color: 'white' }}>
+                    {currentUser?.user?.displayName?.[0]}
+                </Typography>
+            )}
+        </Avatar>
+    );
+};
 
 const UserInfo = ({
     fieldLabel,
@@ -74,129 +146,194 @@ const UserInfo = ({
         }
     }
     }, [fieldDisabled]);
+    
 
     return (
         <Box
             display='flex'
             alignItems='center'
         >
-            <TextField
-                ref={textFieldRef}
-                label={fieldLabel}
-                variant="standard"
-                disabled={fieldDisabled}
-                value={fieldValue}
-                onChange={handleValueChange}
-                onBlur={() => setFieldDisabled(true)}
-                sx={{
-                    maxHeight: '35px',
-                    width: '25vw',
-                    [theme.breakpoints.down('sm')]: {
-                        width: '80%',
-                    },
-                    backgroundColor: '#30313d',
-                    color: 'white',
-                    borderRadius: '18px',
-                    boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
-                    '.MuiInputBase-input.Mui-disabled': {
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        WebkitTextFillColor: 'rgba(255, 255, 255, 0.7)',
-                    },
-                    ...(hasValue ? {
-                    input: {
-                        color: 'white',
-                    },
-                    } : {
-                    '.MuiInputBase-input': {
-                        padding: '8px 0', // Specific style for when there is no value
-                    },
-                    }),
-                }}
-                InputLabelProps={{
-                    ...(hasValue ? {
-                    style: {
-                        margin: '2px 3%',
-                        color: 'white',
-                    },
-                    } : {
-                    sx: {
-                        color: 'white',
-                        transform: 'translate(14px, 10px) scale(1)',
-                        '&.Mui-focused': {
-                        transform: 'translate(14px, -6px) scale(0.75)',
-                        },
-                        '&.MuiInputLabel-shrink': {
-                        transform: 'translate(14px, -6px) scale(0.75)',
+            {fieldLabel === 'Birth Date' ? (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateField
+                        ref={textFieldRef}
+                        autoFocus
+                        disabled={fieldDisabled}
+                        label={fieldLabel}
+                        value={fieldValue ? dayjs(fieldValue) : undefined}
+                        variant="standard"
+                        onChange={handleValueChange}
+                        onBlur={() => setFieldDisabled(true)}
+                        sx={{
+                            width: '25vw',
+                            '& .MuiInputLabel-root': {
+                                top: 4,
+                                left: '12px',
+                                zIndex: 1,
+                                transform: hasValue ? 'translate(0, -30%) scale(0.75)' : 'translate(0, 4px)',
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                '&.Mui-focused': {
+                                    transform: 'translate(0, -30%) scale(0.75)',
+                                    color: theme.palette.primary.main
+                                }
+                            },
+                            '& .MuiInputBase-root': {
+                                color: 'white',
+                                backgroundColor: '#30313d',
+                                borderRadius: '18px',
+                                boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+                                height: '35px',
+                                mt: 0
+                            },
+                            '& .MuiInputBase-input': {
+                                color: 'white',
+                                fontSize: '1rem',
+                                padding: '3% 4% 0'
+                            },
+                            '& .MuiInputBase-input.Mui-disabled': {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                WebkitTextFillColor: 'rgba(255, 255, 255, 0.7)',
+                            },
+                            '& .MuiInput-underline:before': {
+                                borderBottomColor: 'transparent',
+                            },
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: 'transparent',
+                            },
+                            '& .MuiInputLabel-outlined[data-shrink="false"]': {
+                                transform: fieldValue ? 'translate(14px, -6px) scale(0.75)' : 'translate(10px, 12px) scale(1)',
+                            },
+                            '& .MuiInput-underline:after': {
+                                // Removes the underline
+                                borderBottom: 'none',
+                            },
+                        }}
+                    />
+                </LocalizationProvider>
+            ) : (
+                <TextField
+                    ref={textFieldRef}
+                    label={fieldLabel}
+                    variant="standard"
+                    disabled={fieldDisabled}
+                    value={fieldValue}
+                    onChange={handleValueChange}
+                    onBlur={() => setFieldDisabled(true)}
+                    sx={{
+                        maxHeight: '35px',
+                        width: '25vw',
+                        [theme.breakpoints.down('sm')]: {
+                            width: '80%',
                         },
                         backgroundColor: '#30313d',
-                        letterSpacing: '1px',
-                        maxWidth: 'calc(100% - 24px)',
-                    },
-                    })
-                }}
-                InputProps={{
-                    disableUnderline: true,
-                    ...(hasValue ? {
-                    style: {
-                        margin: '2px 3%',
-                        padding: '2% 0',
-                        fill: 'white',
-                    },
-                    sx: {
                         color: 'white',
-                        letterSpacing: '1px',
-                    },
-                    } : {
-                    sx: {
-                        paddingLeft: '14px',
-                    },
-                    }),
-                }}
-            />
-            {fieldLabel !== 'Email' && <Tooltip
-                title={
-                    <div
-                        style={{
-                            maxHeight: '25vh',
-                            overflowY: 'auto',
-                            padding: '8px',
-                            borderRadius: '18px',
-                        }}
-                    > 
-                        <Typography variant='body2' letterSpacing='1px'>
-                            {fieldValue ? `Edit ${fieldLabel}` : `Add ${fieldLabel}`}
-                        </Typography>
-                    </div>
-                }
-            >
-                {fieldValue? (
-                    <EditIcon
-                        onClick={handleEditClick} 
-                        sx={{
-                            paddingLeft: '1%',
+                        borderRadius: '18px',
+                        boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+                        '.MuiInputBase-input.Mui-disabled': {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            WebkitTextFillColor: 'rgba(255, 255, 255, 0.7)',
+                        },    
+                        ...(hasValue ? {
+                            input: {
+                                color: 'white',
+                            },
+                            } : {
+                            '.MuiInputBase-input': {
+                                padding: '8px 0',
+                            },
+                            '& .Mui-focused .MuiInputBase-input': {
+                                padding: '0',
+                            },
+                        })
+                    }}
+                    InputLabelProps={{
+                        ...(hasValue ? {
+                            style: {
+                                margin: '0 3%',
+                                color: fieldDisabled ? 'rgba(255, 255, 255, 0.7)' : theme.palette.primary.main,
+                        },
+                        } : {
+                            sx: {
+                                color: 'white',
+                                transform: 'translate(14px, 10px) scale(1)',
+                                '&.Mui-focused': {
+                                    transform: 'translate(14px, 0) scale(0.75)',
+                                },
+                                '&.MuiInputLabel-shrink': {
+                                    transform: 'translate(14px, 0) scale(0.75)',
+                                },
+                                backgroundColor: '#30313d',
+                                letterSpacing: '1px',
+                                maxWidth: 'calc(100% - 24px)',
+                            },
+                        })
+                    }}
+                    InputProps={{
+                        disableUnderline: true,
+                        ...(hasValue ? {
+                        style: {
+                            margin: '2px 3%',
+                            padding: '2% 0',
+                            fill: 'white',
+                        },
+                        sx: {
                             color: 'white',
-                            opacity: '0.7',
-                            cursor: 'pointer',
-                            '&:hover': {
-                                opacity: '1',
-                            }
-                        }}
-                    />
-                ) : (
-                    <AddCircleIcon
-                        // onClick={handleAddTokens} 
-                        sx={{
-                            paddingLeft: '1%',
-                            color: 'white',
-                            opacity: '0.7',
-                            cursor: 'pointer',
-                            '&:hover': {
-                                opacity: '1',
-                            }
-                        }}
-                    />
-                )}
-            </Tooltip>}
+                            letterSpacing: '1px',
+                        },
+                        } : {
+                        sx: {
+                            paddingLeft: '14px',
+                        },
+                        }),
+                    }}
+                />
+            )}
+            {fieldLabel !== 'Email' && 
+                (<Tooltip
+                    title={
+                        <div
+                            style={{
+                                maxHeight: '25vh',
+                                overflowY: 'auto',
+                                padding: '8px',
+                                borderRadius: '18px',
+                            }}
+                        > 
+                            <Typography variant='body2' letterSpacing='1px'>
+                                {fieldValue ? `Edit ${fieldLabel}` : `Add ${fieldLabel}`}
+                            </Typography>
+                        </div>
+                    }
+                >
+                    {fieldValue? (
+                        <EditIcon
+                            onClick={handleEditClick} 
+                            sx={{
+                                paddingLeft: '1%',
+                                color: 'white',
+                                opacity: '0.7',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    opacity: '1',
+                                }
+                            }}
+                        />
+                    ) : (
+                        <AddCircleIcon
+                            onClick={handleEditClick} 
+                            sx={{
+                                paddingLeft: '1%',
+                                color: theme.palette.primary.main,
+                                opacity: '0.7',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    opacity: '1',
+                                }
+                            }}
+                        />
+                    )}
+                </Tooltip>)
+            }
         </Box>
     )
 };
@@ -225,7 +362,7 @@ const UserDetailsField = ({
             ref={textFieldRef}
             label={label}
             variant="standard"
-            value={value}
+            value={value ||''}
             disabled={fieldDisabled}
             onChange={handleValueChange}
             onBlur={() => setFieldDisabled(true)}
@@ -247,24 +384,27 @@ const UserDetailsField = ({
                     '.MuiInputBase-input': {
                         padding: '8px 0',
                     },
+                    '& .Mui-focused .MuiInputBase-input': {
+                        padding: '0',
+                    },
                 }),
                 color: 'white',
             }}
             InputLabelProps={{ 
                 ...(hasValue ? {
                 style: {
-                    margin: '2px 3%',
-                    color: 'white', 
+                    margin: '0 3%',
+                    color: fieldDisabled ? 'rgba(255, 255, 255, 0.7)' : theme.palette.primary.main,
                 },
                 } : {
                 sx: {
                     color: 'white',
                     transform: 'translate(14px, 10px) scale(1)',
                     '&.Mui-focused': {
-                    transform: 'translate(14px, -6px) scale(0.75)',
+                        transform: 'translate(14px, 0) scale(0.75)',
                     },
                     '&.MuiInputLabel-shrink': {
-                    transform: 'translate(14px, -6px) scale(0.75)',
+                        transform: 'translate(14px, 0) scale(0.75)',
                     },
                     backgroundColor: '#30313d',
                     letterSpacing: '1px',
@@ -298,7 +438,7 @@ const UserDetails = ({
     fieldLabel,
     fieldValue,
     handleValueChange,
-    handleClick,
+    handleAddClick,
     userType
 }) => {
     const hasValue = Boolean(fieldValue);
@@ -308,6 +448,17 @@ const UserDetails = ({
     const handleEditClick = () => {
         setFieldDisabled(!fieldDisabled)
     };
+
+    const textFieldRef = useRef(null);
+
+    useEffect(() => {
+        if (!fieldDisabled && textFieldRef.current) {
+            const input = textFieldRef.current.querySelector('input');
+            if (input) {
+            input.focus();
+            }
+        }
+    }, [fieldDisabled]);
 
     const userTypeOptions = ['Fan', 'Professional']
 
@@ -319,13 +470,14 @@ const UserDetails = ({
             {fieldLabel === 'User Type' ? 
                 (
                     <Autocomplete 
-                        freeSolo
                         selectOnFocus
                         clearOnBlur
                         handleHomeEndKeys
+                        ref={textFieldRef}
                         value={fieldValue}
                         disabled={fieldDisabled}
-                        // onChange={handleChange}
+                        onChange={handleValueChange}
+                        onBlur={() => setFieldDisabled(true)}
                         options={userTypeOptions}
                         ListboxProps={{
                             sx: {
@@ -347,7 +499,8 @@ const UserDetails = ({
                             borderRadius: '18px',
                             boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
                         }}
-                        renderOption={(props, option) => (
+                        renderOption={(props, option) => {
+                            return (
                             <Box
                                 component="li"
                                 sx={{
@@ -359,33 +512,38 @@ const UserDetails = ({
                             >
                                 {option}
                             </Box>
-                        )}
-                        ChipProps={{
-                            sx: {
-                                color: 'white',
-                                backgroundColor: '#006f96',
-                                '& .MuiChip-deleteIcon': {
-                                    color: 'white',
-                                },
-                                '& .MuiChip-deleteIcon:hover': {
-                                    color: '#00435a',
-                                },
-                            }       
-                        }}
+                        )}}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
                                 label="Select User Type"
                                 variant="standard"
-                                InputLabelProps={{
-                                    sx: {
-                                        paddingLeft: '1em',
-                                        // backgroundColor: '#30313d',
-                                        color: 'white',
+                                sx={{
+                                    '& .MuiInput-underline:before': {
+                                    borderBottom: 'none',
                                     },
+                                    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                        borderBottom: 'none',
+                                    },
+                                    '& .MuiInput-underline:after': {
+                                        borderBottom: 'none',
+                                    },
+                                }}
+                                InputLabelProps={{
+                                    ...(hasValue ? {
+                                        style: {
+                                            margin: '2px 3%',
+                                            color: fieldDisabled ? 'rgba(255, 255, 255, 0.7)' : theme.palette.primary.main,
+                                    },
+                                    } : {sx: {
+                                            paddingLeft: '1em',
+                                            color: 'white',
+                                        },
+                                    })
                                 }}
                                 InputProps={{
                                     ...params.InputProps,
+                                    endAdornment: null,
                                     style: { 
                                         margin: '5px 0', 
                                         padding: '5px 10px', 
@@ -403,6 +561,10 @@ const UserDetails = ({
                                         },
                                         '&:hover:not(.Mui-disabled):before': {
                                             borderBottom: 'none',
+                                        },
+                                        '.MuiInputBase-input.Mui-disabled': {
+                                            color: 'rgba(255, 255, 255, 0.7)',
+                                            WebkitTextFillColor: 'rgba(255, 255, 255, 0.7)',
                                         },
                                     },
                                 }}
@@ -458,7 +620,11 @@ const UserDetails = ({
                     />
                 ) : (
                     <AddCircleIcon
-                        onClick={handleClick} 
+                        onClick={
+                            fieldLabel === 'Tokens' ? 
+                            handleAddClick : 
+                            handleEditClick
+                        } 
                         sx={{
                             paddingLeft: '1%',
                             color: fieldLabel === 'Profession' && userType === 'Fan' ? 
@@ -477,11 +643,226 @@ const UserDetails = ({
     )
 };
 
+export const PreferredGenres = ({
+    accessToken,
+    expiresAt,
+    classes,
+    selectedGenres,
+    handleGenreChange,
+    genreOptions,
+}) => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (accessToken) {
+            dispatch(getSpotifyGenres(accessToken, expiresAt));
+        };
+    }, [dispatch, accessToken, expiresAt]);
+
+    const hasValue = Boolean(selectedGenres.length > 0);
+    const [fieldDisabled, setFieldDisabled] = useState(true);
+
+    const handleEditClick = () => {
+        setFieldDisabled(!fieldDisabled)
+    };
+
+    const textFieldRef = useRef(null);
+
+    useEffect(() => {
+    if (!fieldDisabled && textFieldRef.current) {
+        const input = textFieldRef.current.querySelector('input');
+        if (input) {
+        input.focus();
+        }
+    }
+    }, [fieldDisabled]);
+
+    return (
+        <Box
+            display='flex'
+            alignItems='center'
+            width='100%'
+        >
+            <Autocomplete 
+                freeSolo
+                multiple
+                disabled={fieldDisabled}
+                filterSelectedOptions
+                selectOnFocus
+                clearOnBlur
+                handleHomeEndKeys
+                ref={textFieldRef}
+                onBlur={() => setFieldDisabled(true)}
+                value={selectedGenres.map(genre => {
+                    if (typeof genre === 'string') {
+                        return toCapitalCase(genre);
+                    } else if (typeof genre === 'object' && genre !== null && genre.name) {
+                        return toCapitalCase(genre.name);
+                    } else {
+                        return null;
+                    }
+                })}
+                onChange={handleGenreChange}
+                options={genreOptions || []}
+                ListboxProps={{
+                    sx: {
+                        ...root,
+                        padding: 0,
+                    }
+                }}
+                className={classes.textField}
+                sx={{ 
+                    maxHeight: '85%' 
+                }}
+                renderOption={(props, option) => (
+                    <Box
+                        component="li"
+                        sx={{
+                            justifyContent: 'space-between',
+                            background: '#30313d',
+                            color: 'white',
+                        }}
+                        {...props}
+                    >
+                        {option}
+                    </Box>
+                )}
+                ChipProps={{
+                    sx: {
+                        color: 'white',
+                        backgroundColor: '#006f96',
+                        '& .MuiChip-deleteIcon': {
+                            color: 'white',
+                        },
+                        '& .MuiChip-deleteIcon:hover': {
+                            color: '#00435a',
+                        },
+                    }       
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label={"Select Genres"}
+                        variant="standard"
+                        InputLabelProps={{
+                            sx: {
+                                paddingLeft: '1em',
+                                // backgroundColor: '#30313d',
+                                color: 'white',
+                                letterSpacing: '1px'
+                            },
+                        }}
+                        InputProps={{
+                            ...params.InputProps,
+                            style: { 
+                                margin: '5px 0', 
+                                padding: '5px 10px', 
+                                fill: 'white',
+                            },
+                            sx: {
+                                ...params.InputProps.sx,
+                                color: 'white',
+                                '& .MuiInputBase-input': {
+                                    color: 'white',
+                                    fontSize: '1.25rem',
+                                },
+                                '&:before': { 
+                                    borderBottom: 'none',
+                                },
+                                '&:hover:not(.Mui-disabled):before': {
+                                    borderBottom: 'none',
+                                },
+                            },
+                        }}
+                    />
+                )}
+                renderTags={(value, getTagProps) =>
+                    <Box 
+                        sx={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap', 
+                            overflow: 'auto', 
+                            maxHeight: '12em' 
+                        }}>
+                        {value.map((option, index) => (
+                            <Chip
+                                label={option}
+                                {...getTagProps({ index })}
+                                sx={{
+                                    color: 'white',
+                                    backgroundColor: '#006f96',
+                                    '& .MuiChip-deleteIcon': {
+                                        color: 'white',
+                                    },
+                                    '& .MuiChip-deleteIcon:hover': {
+                                        color: '#00435a',
+                                    },
+                                }}
+                            />
+                        ))}
+                    </Box>
+                }
+            />
+                <Tooltip
+                    title={
+                        <div
+                            style={{
+                                maxHeight: '25vh',
+                                overflowY: 'auto',
+                                padding: '8px',
+                                borderRadius: '18px',
+                            }}
+                        > 
+                            <Typography variant='body2' letterSpacing='1px'>
+                                {hasValue ? `Edit genres` : `Add genres`}
+                            </Typography>
+                        </div>
+                    }
+                >
+                    {hasValue ? (
+                        <EditIcon
+                            onClick={handleEditClick} 
+                            sx={{
+                                paddingLeft: '1%',
+                                color: 'white',
+                                opacity: '0.7',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    opacity: '1',
+                                }
+                            }}
+                        />
+                    ) : (
+                        <AddCircleIcon
+                            onClick={handleEditClick}  
+                            sx={{
+                                paddingLeft: '1%',
+                                color: theme.palette.primary.main,
+                                opacity: '0.7',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    opacity: '1',
+                                }
+                            }}
+                        />
+                    )}
+                </Tooltip>
+        </Box>
+    )
+};
+
 export const Profile = ({
     currentUser,
     genres,
-    onUpdateDisplayName
+    userError,
+    userLoading,
+    onUpdateProfileImage,
+    onSaveUserProfile,
 }) => {
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+
     const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
     const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -491,13 +872,13 @@ export const Profile = ({
     const classes = useStyles();
     const navigate = useNavigate();
 
-    const [selectedGenres, setSelectedGenres] = useState([]);
+    const [displayNameValue, setDisplayNameValue] = useState(currentUser?.user?.displayName);
+    const [birthDateValue, setBirthDateValue] = useState(currentUser?.user?.birthday);
     
-    const [displayNameValue, setDisplayNameValue] = useState(null);
-    const [birthDateValue, setBirthDateValue] = useState(null);
+    const [userTypeValue, setUserTypeValue] = useState('Fan');
+    const [professionValue, setProfessionValue] = useState(currentUser?.user?.professionValue);
 
-    const [userTypeValue, setUserTypeValue] = useState(null);
-    const [professionValue, setProfessionValue] = useState(null);
+    const [selectedGenres, setSelectedGenres] = useState([]);
 
     useEffect(() => {
         if (currentUser?.user?.displayName) {
@@ -518,24 +899,33 @@ export const Profile = ({
     }, [currentUser?.user?.userType]);
 
     useEffect(() => {
-        if (currentUser?.user?.professionValue) {
-            setProfessionValue(currentUser?.user?.professionValue); 
+        if (currentUser?.user?.profession) {
+            setProfessionValue(currentUser?.user?.profession); 
         }
-    }, [currentUser?.user?.professionValue]);
+    }, [currentUser?.user?.profession]);
+
+    useEffect(() => {
+        if (currentUser?.user?.preferredGenres) {
+            setSelectedGenres(currentUser?.user?.preferredGenres)
+        }
+    }, [currentUser?.user?.preferredGenres])
 
     const handleDisplayNameChange = (e) => {
         setDisplayNameValue(e.target.value);
     };
 
-    const handleBirthDateChange = (e) => {
-        setBirthDateValue(e.target.value);
+    const handleBirthDateChange = (newValue) => {
+        setBirthDateValue(newValue);
     };
 
-    const handleUserTypeChange = (e) => {
-        setUserTypeValue(e.target.value);
+    const handleUserTypeChange = (e, newValue) => {
+        setUserTypeValue(newValue);
     };
+
     const handleProfessionChange = (e) => {
-        setProfessionValue(e.target.value);
+        if (userTypeValue === 'Professional') {
+            setProfessionValue(e.target.value);
+        };
     };
 
     const handleGenreChange = (event, newValue) => {
@@ -554,7 +944,67 @@ export const Profile = ({
         navigate('/pricing');
     };
 
+    const [openDropzone, setOpenDropzone] = useState(false);
+    const handleOpenDropzone = () => {
+        setOpenDropzone(!openDropzone);
+    };
+
+    // const [imageFile, setImageFile] = useState(null);
+    // const handleImageChange = (files) => {
+    //     const file = files[0] ? files[0] : null;
+    //     setImageFile(file);
+    // };
+
+    const maxFileSize = 5 * 1048576;
+
+    const onSubmitImage = async (imageFile) => {
+        const image = await onUpdateProfileImage(currentUser?.user.id, imageFile);
+    };
+
+    const handleSave = async () => {
+        try {
+            const userInfo = {
+                'display_name': displayNameValue,
+                'birth_date': birthDateValue,
+                'user_type': userTypeValue,
+                'profession': professionValue,
+                'genres': selectedGenres,
+            };
+            
+            await onSaveUserProfile(currentUser?.user?.id, userInfo);
+            
+            navigate('/', { state: { profileUpdated: true } });
+        } catch (error) {
+            console.error("Failed to save user profile:", error);
+            setSnackbarMessage("Failed to save user profile.");
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
+    };
+
+    useEffect(() => {
+        if (userError) {
+            setDisplayNameValue(currentUser?.user?.displayName);
+            setBirthDateValue(currentUser?.user?.birthday);
+            setUserTypeValue(currentUser?.user?.userType);
+            setProfessionValue(currentUser?.user?.profession);
+            setSelectedGenres(currentUser?.user?.preferredGenres);
+
+
+            setSnackbarMessage(userError);
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
+    }, [userLoading, userError]);
+
     const genreOptions = genres.map(genre => toCapitalCase(genre));
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
 
     return (
       <Box
@@ -636,18 +1086,102 @@ export const Profile = ({
                     },
                 }}
             >
-                <Avatar
-                    src={
-                        currentUser?.user?.profileImage ? 
-                        currentUser?.user?.profileImage : 
-                        "/path/to/nonexistent/image.jpg"
-                    }
-                    alt={currentUser?.user?.displayName}
-                    sx={{
-                        width: 200,
-                        height: 200,
-                    }}
+                <UserAvatar 
+                    currentUser={currentUser}
+                    isSmScreen={isSmScreen}
+                    isXsScreen={isXsScreen}
                 />
+                    <Tooltip
+                        title={
+                            <div
+                                style={{
+                                    maxHeight: '25vh',
+                                    overflowY: 'auto',
+                                    padding: '8px',
+                                    borderRadius: '18px',
+                                }}
+                            > 
+                                <Typography variant='body2' letterSpacing='1px'>
+                                    {
+                                        !currentUser?.user?.profileImage ? 
+                                        `Add a profile image` :
+                                        'Update profile image'
+                                    }
+                                </Typography>
+                            </div>
+                        }
+                    >
+                        <IconButton
+                            onClick={handleOpenDropzone}
+                            sx={{
+                                position: 'absolute',
+                                // Position the icon to the bottom right of the Avatar
+                                bottom: 0,
+                                left: 90,
+                                // Adjust these values as necessary to position the icon correctly over the Avatar
+                                transform: !currentUser?.user?.profileImage ? 'translate(0%, -85%)' : 'translate(10%, -30%)', // Adjust if necessary
+                                borderRadius: '50%',
+                                // Styles for the icon button (you can adjust size, border, etc.)
+                                width: '48px', // Example size
+                                height: '48px', // Example size
+                                '.MuiIconButton-root': {
+                                    '&:hover': {
+                                        backgroundColor: 'white', // Change as desired
+                                    },
+                                },
+                            }}
+                        >
+                            {!currentUser?.user?.profileImage ? (
+                                <AddCircleOutlineIcon 
+                                    sx={{
+                                        fontSize: '3rem',
+                                        color: 'rgb(210,220,225, 0.6)',
+                                        '&:hover': {
+                                            color: 'rgb(210,220,225, 1)'
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <EditIcon 
+                                    sx={{
+                                        fontSize: '3rem',
+                                        color: 'white',
+                                        opacity: '0.8',
+                                        '&:hover': {
+                                            opacity: '1',
+                                        }
+                                    }}
+                                />
+                            )}
+                        </IconButton>
+                    </Tooltip>
+                    <ThemeProvider theme={overrideTheme}>
+                        <DropzoneDialog 
+                            acceptedFiles={['image/*']}
+                            cancelButtonText={"cancel"}
+                            submitButtonText={"submit"}
+                            filesLimit={1}
+                            maxFileSize={maxFileSize}
+                            open={openDropzone}
+                            onClose={() => setOpenDropzone(false)}
+                            dropzoneClass={classes.dropzone}
+                            Icon={AddImageIcon}
+                            dialogTitle={
+                                <span style={{ color: 'whitesmoke' }}>
+                                    Upload file
+                                </span>
+                            }
+                            onSave={(fileArray) => {
+                                onSubmitImage(fileArray[0])
+                                setOpenDropzone(false);
+                            }}
+                            showPreviews={false}
+                            showPreviewsInDropzone={true}
+                            previewGridClasses={{
+                                container: classes.imagePreviewContainer,
+                            }}
+                        />
+                    </ThemeProvider>
             </Box>
             <Box
                 display='flex'
@@ -671,7 +1205,7 @@ export const Profile = ({
                     handleValueChange={handleDisplayNameChange}
                 />
                 <UserInfo 
-                    fieldLabelabel={'Birth Date'}
+                    fieldLabel={'Birth Date'}
                     fieldValue={birthDateValue}
                     handleValueChange={handleBirthDateChange}
                 />
@@ -718,21 +1252,21 @@ export const Profile = ({
                             fieldValue={userTypeValue}
                             userType={userTypeValue}
                             handleValueChange={handleUserTypeChange}
-                            handleClick={null}
+                            handleAddClick={null}
                         /> 
                         <UserDetails
                             fieldLabel={'Profession'}
                             fieldValue={professionValue}
                             userType={userTypeValue}
                             handleValueChange={handleProfessionChange}
-                            handleClick={null}
+                            handleAddClick={null}
                         />           
                         <UserDetails
                             fieldLabel={'Tokens'}
                             fieldValue={currentUser?.user?.tokens}
                             userType={userTypeValue}
                             handleValueChange={null}
-                            handleClick={handleAddTokens}
+                            handleAddClick={handleAddTokens}
                         />           
                         <UserDetailsField 
                             label={'XP'}
@@ -757,130 +1291,26 @@ export const Profile = ({
                         variant='h6'
                         sx={{ 
                             mt: 2, 
-                            mb: 1,
-                            letterSpacing: '2px'
+                            lineHeight: '1.2',
+                            letterSpacing: '2px',
                         }}
                     >
                         {`Preferred Genres:`}
                     </Typography>
-                    {currentUser.user && (<Autocomplete 
-                        freeSolo
-                        multiple
-                        disabled
-                        filterSelectedOptions
-                        selectOnFocus
-                        clearOnBlur
-                        handleHomeEndKeys
-                        value={currentUser?.user?.preferredGenres?.map(genre => {
-                            if (typeof genre === 'string') {
-                                return toCapitalCase(genre);
-                            } else if (typeof genre === 'object' && genre !== null && genre.name) {
-                                return toCapitalCase(genre.name);
-                            } else {
-                                return null;
-                            }
-                        })}
-                        onChange={handleGenreChange}
-                        options={genreOptions || []}
-                        ListboxProps={{
-                            sx: {
-                                ...root,
-                                padding: 0,
-                            }
+                    <SpotifyAuth>
+                        {(accessToken, expiresAt) => {
+                            return (
+                                <PreferredGenres 
+                                    accessToken={accessToken}
+                                    expiresAt={expiresAt}
+                                    classes={classes}
+                                    selectedGenres={selectedGenres}
+                                    genreOptions={genreOptions}
+                                    handleGenreChange={handleGenreChange}
+                                />
+                            )
                         }}
-                        className={classes.textField}
-                        sx={{ 
-                            maxHeight: '68%' 
-                        }}
-                        renderOption={(props, option) => (
-                            <Box
-                                component="li"
-                                sx={{
-                                    justifyContent: 'space-between',
-                                    background: '#30313d',
-                                    color: 'white',
-                                }}
-                                {...props}
-                            >
-                                {option}
-                            </Box>
-                        )}
-                        ChipProps={{
-                            sx: {
-                                color: 'white',
-                                backgroundColor: '#006f96',
-                                '& .MuiChip-deleteIcon': {
-                                    color: 'white',
-                                },
-                                '& .MuiChip-deleteIcon:hover': {
-                                    color: '#00435a',
-                                },
-                            }       
-                        }}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label={"Select Genres"}
-                                variant="standard"
-                                InputLabelProps={{
-                                    sx: {
-                                        paddingLeft: '1em',
-                                        // backgroundColor: '#30313d',
-                                        color: 'white',
-                                        letterSpacing: '1px'
-                                    },
-                                }}
-                                InputProps={{
-                                    ...params.InputProps,
-                                    style: { 
-                                        margin: '5px 0', 
-                                        padding: '5px 10px', 
-                                        fill: 'white',
-                                    },
-                                    sx: {
-                                        ...params.InputProps.sx,
-                                        color: 'white',
-                                        '& .MuiInputBase-input': {
-                                            color: 'white',
-                                            fontSize: '1.25rem',
-                                        },
-                                        '&:before': { 
-                                            borderBottom: 'none',
-                                        },
-                                        '&:hover:not(.Mui-disabled):before': {
-                                            borderBottom: 'none',
-                                        },
-                                    },
-                                }}
-                            />
-                        )}
-                        renderTags={(value, getTagProps) =>
-                            <Box 
-                                sx={{ 
-                                    display: 'flex', 
-                                    flexWrap: 'wrap', 
-                                    overflow: 'auto', 
-                                    maxHeight: '12em' 
-                                }}>
-                                {value.map((option, index) => (
-                                    <Chip
-                                        label={option}
-                                        {...getTagProps({ index })}
-                                        sx={{
-                                            color: 'white',
-                                            backgroundColor: '#006f96',
-                                            '& .MuiChip-deleteIcon': {
-                                                color: 'white',
-                                            },
-                                            '& .MuiChip-deleteIcon:hover': {
-                                                color: '#00435a',
-                                            },
-                                        }}
-                                    />
-                                ))}
-                            </Box>
-                        }
-                    />)}
+                    </SpotifyAuth>
                 </Box>
             </Box>
             <Box
@@ -959,57 +1389,96 @@ export const Profile = ({
                             color='rgb(210,220,225, 0.8)'
                             textAlign='center'
                         >
-                            {'You are not connected to Spotify'}
+                            {'*You are not connected to Spotify'}
                         </Typography>
-                        <Card
-                        onClick={handleConnectThroughSpotify}
-                        className={classes.panelCard}
-                        style={{
-                            display: 'flex',
-                            margin: '0 auto',
-                        }}
+                        <Tooltip
+                            title={
+                                <div
+                                    style={{
+                                    maxHeight: '25vh',
+                                    overflowY: 'auto',
+                                    padding: '8px',
+                                    borderRadius: '18px',
+                                    }}
+                                > 
+                                    <Typography variant='body2' letterSpacing='1px'>
+                                        {'Connect to Spotify'}
+                                    </Typography>
+                                </div>
+                            }
                         >
-                        <Box padding='0 5% 0'>
-                            <Typography 
-                            variant='subtitle1' 
-                            textAlign='center' 
-                            letterSpacing='2px'
-                            color='white'
-                            sx={{
-                                fontWeight: 'bold',
-                                maxHeight: '30%',
-                                maxWidth: '100%',
-                                overflowY: 'auto',
-                                cursor: 'pointer',
-                            }}
+                            <Card
+                                onClick={handleConnectThroughSpotify}
+                                className={classes.panelCard}
+                                style={{
+                                    display: 'flex',
+                                    margin: '0 auto',
+                                }}
                             >
-                            {'Connect to Spotify'}
-                            </Typography>
-                        </Box> 
-                        <img 
-                            src='/static/images/Spotify_Icon_RGB_White.png' 
-                            style={{ 
-                            maxWidth: '8%', 
-                            height: 'auto',
-                            }}
-                        />
-                        </Card>
+                                <Box padding='0 5% 0'>
+                                    <Typography 
+                                        variant='subtitle1' 
+                                        textAlign='center' 
+                                        letterSpacing='2px'
+                                        color='white'
+                                        sx={{
+                                            fontWeight: 'bold',
+                                            maxHeight: '30%',
+                                            maxWidth: '100%',
+                                            overflowY: 'auto',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                    {'Connect to Spotify'}
+                                    </Typography>
+                                </Box> 
+                                <img 
+                                    src='/static/images/Spotify_Icon_RGB_White.png' 
+                                    style={{ 
+                                        maxWidth: '8%', 
+                                        height: 'auto',
+                                    }}
+                                />
+                            </Card>
+                        </Tooltip>
                     </Box>
                 )}
             </Box>
-            <Button
-                type="submit"
-                variant='contained'
-                // onClick={handleSubmit(onSubmit)}
-                className={classes.button}
-                sx={(isSmScreen || isXsScreen) && {
-                typography: {
-                    fontSize: '12px'
+            <Tooltip
+                title={
+                    <div
+                        style={{
+                        maxHeight: '25vh',
+                        overflowY: 'auto',
+                        padding: '8px',
+                        borderRadius: '18px',
+                        }}
+                    > 
+                        <Typography variant='body2' letterSpacing='1px'>
+                            {'Save updates to your profile'}
+                        </Typography>
+                    </div>
                 }
-                }}
             >
-                {'Save Updates'}
-            </Button>
+                <Button
+                    type="submit"
+                    variant='contained'
+                    onClick={handleSave}
+                    className={classes.button}
+                    sx={(isSmScreen || isXsScreen) ? {
+                        typography: {
+                            fontSize: '12px'
+                        }
+                    } : {}}
+                >
+                    {'Save Updates'}
+                </Button>
+            </Tooltip>
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     )
 };
@@ -1018,16 +1487,14 @@ const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
     genres: state.discovery.genres,
+    userError: state.user.error,
+    userLoading: state.user.loading,
   };
 };
 
 const mapDispatchToProps= (dispatch) => ({
-    onUpdateDisplayName: (userId, displayName) => dispatch(handleUpdateDisplayName(userId, displayName)),
-    onUpdateBirthday: (userId, date) => dispatch(handleUpdateBirthday(userId, date)),
-    onUpdatePreferredGenres: (userId, genres) => dispatch(handleUpdatePreferredGenres(userId, genres)),
-    onUpdateUserType: (userId, userType) => dispatch(handleUpdateUserType(userId, userType)),
-    onUpdateUserProfession: (userId, profession) => dispatch(handleUpdateUserProfession(userId, profession)),
     onUpdateProfileImage: (userId, imageFile) => dispatch(handleUpdateProfileImage(userId, imageFile)),
+    onSaveUserProfile: (userId, userInfo) => dispatch(handleUpdateUserProfile(userId, userInfo))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);
