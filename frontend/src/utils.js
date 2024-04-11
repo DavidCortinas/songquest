@@ -50,31 +50,31 @@ export const TokenCounter = ({ tokens }) => {
   );
 };
 
-export const XPCounter = ({ currentXp, maxXp }) => {
-  const [displayXp, setDisplayXp] = useState(currentXp);
-  const [addedXp, setAddedXp] = useState(0);
+export const KarmaCounter = ({ currentKarma }) => {
+  const [displayKarma, setDisplayKarma] = useState(currentKarma);
+  const [addedKarma, setAddedKarma] = useState(0);
 
   useEffect(() => {
-    if (displayXp === undefined) {
-      setDisplayXp(currentXp);
+    if (displayKarma === undefined) {
+      setDisplayKarma(currentKarma);
       return;
     };
 
-    const xpDifference = currentXp - displayXp;
-    if (xpDifference > 0) {
-      setAddedXp(xpDifference);
-      let currentDisplay = displayXp;
+    const karmaDifference = currentKarma - displayKarma;
+    if (karmaDifference > 0) {
+      setAddedKarma(karmaDifference);
+      let currentDisplay = displayKarma;
       
       const intervalId = setInterval(() => {
         currentDisplay++;
-        setDisplayXp(currentDisplay);
-        if (currentDisplay >= currentXp) {
+        setDisplayKarma(currentDisplay);
+        if (currentDisplay >= currentKarma) {
           clearInterval(intervalId);
-          setTimeout(() => setAddedXp(0), 2000);
+          setTimeout(() => setAddedKarma(0), 2000);
         }
       }, 50);
     }
-  }, [currentXp, displayXp]);
+  }, [currentKarma, displayKarma]);
 
   return (
     <Typography
@@ -82,10 +82,10 @@ export const XPCounter = ({ currentXp, maxXp }) => {
       paddingRight='1%'
       letterSpacing='1px'
     >
-      {addedXp > 0 && (
-        <div className="added-xp-animation">+{addedXp}</div>
+      {addedKarma > 0 && (
+        <div className="added-karma-animation">+{addedKarma}</div>
       )}
-        {`${displayXp}/${maxXp}xp`}
+        {`${displayKarma}%`}
     </Typography>
   );
 };

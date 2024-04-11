@@ -22,9 +22,9 @@ import {
   GET_USER_TOKENS_FAILURE,
   GET_USER_TOKENS_REQUEST,
   GET_USER_TOKENS_SUCCESS,
-  GET_USER_XP_FAILURE,
-  GET_USER_XP_REQUEST,
-  GET_USER_XP_SUCCESS,
+  GET_USER_KARMA_FAILURE,
+  GET_USER_KARMA_REQUEST,
+  GET_USER_KARMA_SUCCESS,
   RECEIVE_LYRIC_RESULTS,
   RECEIVE_SPOTIFY_MARKETS,
   RECEIVE_SPOTIFY_PERFORMER_RESULTS,
@@ -574,24 +574,24 @@ export const user = (state = { currentUser: null }, action) => {
         ...state,
         error: payload.error,
       };  
-    case GET_USER_XP_REQUEST:
+    case GET_USER_KARMA_REQUEST:
       return {
         ...state,
         loading: true,
         error: null
       };
-    case GET_USER_XP_SUCCESS:
+    case GET_USER_KARMA_SUCCESS:
       return {
         ...state,
         currentUser: {
           ...state.currentUser,
           user: {
             ...state.currentUser.user,
-            xp: payload.userXp,
+            karma: payload.userKarma,
           }
         },
       };
-    case GET_USER_XP_FAILURE:
+    case GET_USER_KARMA_FAILURE:
       return {
         ...state,
         error: payload.error,

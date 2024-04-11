@@ -906,9 +906,13 @@ export const Profile = ({
 
     useEffect(() => {
         if (currentUser?.user?.preferredGenres) {
-            setSelectedGenres(currentUser?.user?.preferredGenres)
-        }
-    }, [currentUser?.user?.preferredGenres])
+            setSelectedGenres(
+                currentUser?.user?.preferredGenres.map(genre => genre.name)
+            );
+        };
+    }, [currentUser?.user?.preferredGenres]);
+
+    console.log(selectedGenres)
 
     const handleDisplayNameChange = (e) => {
         setDisplayNameValue(e.target.value);
@@ -988,7 +992,7 @@ export const Profile = ({
             setBirthDateValue(currentUser?.user?.birthday);
             setUserTypeValue(currentUser?.user?.userType);
             setProfessionValue(currentUser?.user?.profession);
-            setSelectedGenres(currentUser?.user?.preferredGenres);
+            setSelectedGenres(currentUser?.user?.preferredGenres.map(genre => genre.name));
 
 
             setSnackbarMessage(userError);
@@ -1270,7 +1274,7 @@ export const Profile = ({
                         />           
                         <UserDetailsField 
                             label={'XP'}
-                            value={`${currentUser?.user?.xp}/1000`}
+                            value={`${currentUser?.user?.karma}/1000`}
                             hasValue={true}
                             handleValueChange={null}
                             fieldDisabled={true}

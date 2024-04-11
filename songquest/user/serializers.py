@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'email', 'spotify_connected', 'tokens', 'xp', 'profile_image', 'display_name',
+            'id', 'email', 'spotify_connected', 'tokens', 'karma', 'profile_image', 'display_name',
             'birthday', 'profession', 'user_type', 'preferred_genres'
         ]
 

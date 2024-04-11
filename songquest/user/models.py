@@ -31,6 +31,11 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    USER_TYPES = (
+        ('fan', 'Fan'),
+        ('pro_user', 'Pro User'),
+    )
+
     display_name = models.CharField(
         db_index=True, max_length=255, unique=True, null=True, blank=True)
     email = models.EmailField(db_index=True, unique=True)
@@ -43,16 +48,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
     email_verification_token = models.CharField(max_length=255, blank=True, null=True)
     email_verified = models.BooleanField(default=False)
-    xp = models.IntegerField(default=0)
+    karma = models.IntegerField(default=0)
     tokens = models.IntegerField(default=15)
     stripe_customer_id = models.CharField(max_length=255, null=True, blank=True)
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
     profession = models.CharField(max_length=255, null=True, blank=True)
-    USER_TYPES = (
-        ('fan', 'Fan'),
-        ('pro_user', 'Pro User'),
-    )
     user_type = models.CharField(max_length=20, choices=USER_TYPES, default='fan')
     preferred_genres = models.ManyToManyField('Genre', related_name='users', blank=True)
 
@@ -79,24 +80,26 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    def update_xp(self, action):
+    def update_karma(self, action):
         """Update user's XP based on the action"""
-        xp_values = {
-            'quest': 15,
-            'collect': 15,
-            'share': 35,
-            'excavate': 35,
+        karma_values = {
+            'quest': 1,
+            'like': 2,
+            'follow': 2,
+            'collect': 3,
+            'share': 5,
+            'excavate': 10,
         }
 
-        if action not in xp_values:
+        if action not in karma_values:
             raise ValueError(f"Invalid action: {action}")
         
-        xp_to_add = xp_values[action]
-        self.xp += xp_to_add
+        karma_to_add = karma_values[action]
+        self.karma += karma_to_add
 
-        if self.xp >= 1000:
+        if self.karma >= 100:
             self.tokens += 5
-            self.xp = (self.xp - 1000) % 1000
+            self.karma = (self.karma - 100) % 100
 
         self.save()
 
@@ -120,6 +123,28 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.tokens -= tokens_to_use
         self.save()
 
+    def is_onboarding_complete(self):
+        required_fields = [
+            self.display_name, 
+            self.birthday, 
+            self.user_type,
+            self.preferred_genres.exists(),
+            self.spotify_access,
+        ]
+        return all(required_fields)
+
+    def complete_onboarding(self):
+        print('complete onboarding')
+        """Award the onboarding achievement and badge if onboarding is complete."""
+        if self.is_onboarding_complete() and not self.achievements.filter(name='Onboarding Completed').exists():
+            print('if complete')
+            self.is_active = True
+            self.save(update_fields=['is_active'])
+            profile, created = UserProfile.objects.get_or_create(user=self)
+            onboarding_achievement = Achievement.objects.get(name='Onboarding Completed')
+            profile.achievements.add(onboarding_achievement)
+            profile.badges.add(onboarding_achievement.badge_reward)
+
     def __str__(self):
         return self.email
     
@@ -137,6 +162,34 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Badge(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    image = models.ImageField(upload_to='badges/')
+
+    def __str__(self):
+        return self.name
+    
+
+class Achievement(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    karma_reward = models.IntegerField(default=0)
+    token_reward = models.IntegerField(default=0)
+    badge_reward = models.ForeignKey(Badge, on_delete=models.CASCADE, related_name='achievements')
+
+    def __str__(self):
+        return self.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    achievements = models.ManyToManyField(Achievement, blank=True)
+    badges = models.ManyToManyField(Badge, blank=True)
+
+    def __str__(self):
+        return self.user.username
 
 
 class UserAdmin(admin.ModelAdmin):
