@@ -25,7 +25,7 @@ import '../App.css';
 import theme from 'theme';
 import { authSlice } from '../reducers';
 import { makeStyles, withStyles } from '@mui/styles';
-import { TokenCounter, XPCounter } from 'utils';
+import { TokenCounter, KarmaCounter } from 'utils';
 
 const StyledLinearProgress = withStyles({
   colorPrimary: {
@@ -109,7 +109,7 @@ export const TopBar = ({
     navigate('/');
   }
 
-  const xpPercentage = (currentUser?.user?.xp/1000)*100
+  const xpPercentage = currentUser?.user?.karma
 
   return (
     <Box
@@ -227,15 +227,34 @@ export const TopBar = ({
                 )}
               </Box>                
             </Tooltip>
-            <Box sx={{ width: '100px', height: '8px' }}>
+            <Box 
+              display='flex'
+              flexDirection='column'
+              justifyContent='flex-end'
+              sx={{ 
+                height: '40%',
+                width: '100px',
+                pl: '3%', 
+              }}
+            >
               <StyledLinearProgress 
                 variant='determinate' 
                 value={xpPercentage} 
-                sx={{ borderRadius: '5px', height: '8px', marginRight: '10%' }}
+                sx={{ borderRadius: '5px', height: '8px', marginRight: '5%' }}
               />
+              <Typography
+                color='white'
+                textAlign='center'
+                letterSpacing='8px'
+                sx={{
+                  fontSize: '.5rem'
+                }}
+              >
+                {'KARMA'}
+              </Typography>
             </Box>
             <Box className={classes.counterContainer}>
-              <XPCounter currentXp={currentUser?.user?.xp} maxXp={1000} />
+              <KarmaCounter currentKarma={currentUser?.user?.karma} />
             </Box>
             <Tooltip
                 arrow

@@ -387,20 +387,20 @@ export const getUserTokensFailure = (error) => ({
   payload: { error },
 }); 
 
-export const GET_USER_XP_REQUEST = 'GET_USER_XP_REQUEST';
-export const getUserXpRequest = () => ({
-  type: GET_USER_XP_REQUEST,
+export const GET_USER_KARMA_REQUEST = 'GET_USER_KARMA_REQUEST';
+export const getUserKarmaRequest = () => ({
+  type: GET_USER_KARMA_REQUEST,
 });
 
-export const GET_USER_XP_SUCCESS = 'GET_USER_XP_SUCCESS';
-export const getUserXpSuccess = (userXp) => ({
-  type: GET_USER_XP_SUCCESS,
-  payload: { userXp },
+export const GET_USER_KARMA_SUCCESS = 'GET_USER_KARMA_SUCCESS';
+export const getUserKarmaSuccess = (userKarma) => ({
+  type: GET_USER_KARMA_SUCCESS,
+  payload: { userKarma },
 });
 
-export const GET_USER_XP_FAILURE = 'GET_USER_XP_FAILURE';
-export const getUserXpFailure = (error) => ({
-  type: GET_USER_XP_FAILURE,
+export const GET_USER_KARMA_FAILURE = 'GET_USER_KARMA_FAILURE';
+export const getUserKarmaFailure = (error) => ({
+  type: GET_USER_KARMA_FAILURE,
   payload: { error },
 }); 
 

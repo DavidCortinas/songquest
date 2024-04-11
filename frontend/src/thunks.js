@@ -30,7 +30,7 @@ import {
   getUserTokensRequest,
   getUserTokensFailure,
   getUserTokensSuccess,
-  getUserXpSuccess,
+  getUserKarmaSuccess,
   deletePlaylist,
   updateBirthday,
   updatePreferredGenres,
@@ -230,14 +230,14 @@ export const discoverSongRequest = (parameters, userId) => async (dispatch, getS
 
     const discovery = res['recommendations'];
     const userTokens = res['updated_tokens'];
-    const userXp = res['updated_xp'];
+    const userKarma = res['updated_karma'];
 
     if (typeof userTokens === 'number') {
       dispatch(getUserTokensSuccess(userTokens));
     }
 
-    if (typeof userXp === 'number') {
-      dispatch(getUserXpSuccess(userXp));
+    if (typeof userKarma === 'number') {
+      dispatch(getUserKarmaSuccess(userKarma));
     }
 
 
@@ -724,11 +724,11 @@ export const createPlaylistRequest = (
 
     const playlistData = res['playlistData']
     const userTokens = res['updatedTokens'];
-    const userXp = res['updatedXp'];
+    const userKarma = res['updatedKarma'];
 
     dispatch(createPlaylist(playlistData));
     dispatch(getUserTokensSuccess(userTokens));
-    dispatch(getUserXpSuccess(userXp));
+    dispatch(getUserKarmaSuccess(userKarma));
 
     return playlistData
   } catch (error) {

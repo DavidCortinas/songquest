@@ -158,13 +158,16 @@ def update_display_name(request):
             user.display_name = new_display_name
             user.save()
 
+            with transaction.atomic():
+                user.complete_onboarding()
+
             user_data = {
                 'id': user.id,
                 'email': user.email,
                 'display_name': user.display_name,
                 'spotifyConnected': user.spotify_connected,
                 'tokens': user.tokens,
-                'xp': user.xp,
+                'karma': user.karma,
             }
 
             return JsonResponse({'message': 'Display name updated successfully', 'user': user_data})
@@ -190,6 +193,9 @@ def update_birthday(request):
             user.birthday = formatted_birthday
             user.save()
 
+            with transaction.atomic():
+                user.complete_onboarding()
+
             return JsonResponse({'message': 'Birthday updated successfully', 'birthday': user.birthday})
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
@@ -214,6 +220,9 @@ def update_preferred_genres(request):
 
             user.preferred_genres.set(genre_objects)
 
+            with transaction.atomic():
+                user.complete_onboarding()
+
             updated_genre_names = [genre.name for genre in genre_objects]
 
             return JsonResponse({'message': 'Preferred genres updated successfully', 'preferred_genres': updated_genre_names})
@@ -235,6 +244,9 @@ def update_user_type(request):
 
             user.user_type = user_type
             user.save()
+
+            with transaction.atomic():
+                user.complete_onboarding()
 
             if user.user_type == 'fan':
                 user.profession = None
@@ -285,6 +297,9 @@ def update_profile_image(request):
 
             user.profile_image.save(resized_image.name, resized_image)
 
+            with transaction.atomic():
+                user.complete_onboarding()
+
             profile_image_url = settings.BASE_URL + user.profile_image.url if user.profile_image else None
 
             return JsonResponse(
@@ -321,6 +336,7 @@ def update_user_profile(request):
                         status=400
                     )
                 user.display_name = display_name
+                print(user.display_name)
 
             birthday = data.get('birth_date')
             print(birthday)
@@ -335,6 +351,8 @@ def update_user_profile(request):
             profession = data.get('profession')
             if profession:
                 user.profession = profession
+
+            print(data.get('genres'))
                 
             genre_names = [genre_name.lower() for genre_name in data.get('genres')]
 
@@ -348,6 +366,9 @@ def update_user_profile(request):
             updated_genre_names = [genre.name for genre in genre_objects]
 
             user.save()
+
+            with transaction.atomic():
+                user.complete_onboarding()
 
             user_data = {
                 'displayName': user.display_name,
@@ -374,7 +395,7 @@ def discover_song(request):
         # Initialize the response
         response = {
             'updated_tokens': 'User not authenticated',
-            'updated_xp': 'User not authenticated',
+            'updated_karma': 'User not authenticated',
             'recommendations': get_recommendations(parameters)
         }
 
@@ -384,10 +405,10 @@ def discover_song(request):
             try:
                 user = get_user_model().objects.get(id=user_id)
                 user.use_tokens(action)
-                user.update_xp(action)
+                user.update_karma(action)
                 
                 response['updated_tokens'] = user.tokens
-                response['updated_xp'] = user.xp
+                response['updated_karma'] = user.karma
                 
             except get_user_model().DoesNotExist:
                 # If user_id is provided but invalid, return an error
@@ -892,7 +913,7 @@ def create_playlist(request):
             )
 
             user.use_tokens(action)
-            user.update_xp(action)
+            user.update_karma(action)
 
             playlist_data = {
                 'id': playlist.id,
@@ -904,7 +925,7 @@ def create_playlist(request):
             data = {
                 'playlistData': playlist_data,
                 'updatedTokens': user.tokens,
-                'updatedXp': user.xp,
+                'updatedKarma': user.karma,
             }
 
             return JsonResponse(data, status=200)
