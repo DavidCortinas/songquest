@@ -1,19 +1,20 @@
+import React from "react";
 import { 
-  Backdrop,
-  Box, 
-  Button, 
-  Card, 
-  CardHeader, 
-  Chip, 
-  FormControl, 
-  Grid, 
-  InputLabel, 
-  Menu, 
-  MenuItem,  
-  Select,  
-  Tooltip, 
-  Typography, 
-  useMediaQuery
+	Backdrop,
+	Box, 
+	Button, 
+	Card, 
+	CardHeader, 
+	Chip, 
+	FormControl, 
+	Grid, 
+	InputLabel, 
+	Menu, 
+	MenuItem,  
+	Select,  
+	Tooltip, 
+	Typography, 
+	useMediaQuery
 } from "@mui/material";
 import CancelIcon from '@mui/icons-material/Cancel';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
@@ -38,805 +39,812 @@ const AutocompleteParameter = lazy(() => import('./AutocompleteParameter'));
 export const autocompleteParam = ['songs', 'performers', 'genres', 'market']
 
 const labelMapping = {
-  acousticness: 'acousticness',
-  danceability: 'danceability',
-  duration_ms: 'length',
-  energy: 'energy',
-  instrumentalness: 'instrumentalness',
-  key: 'key',
-  liveness: 'liveness',
-  loudness: 'loudness',
-  mode: 'modality',
-  popularity: 'popularity',
-  speechiness: 'speechiness',
-  tempo: 'tempo',
-  time_signature: 'time-signature',
-  valence: 'positiveness',
-  // Add more mappings as needed
+	acousticness: 'acousticness',
+	danceability: 'danceability',
+	duration_ms: 'length',
+	energy: 'energy',
+	instrumentalness: 'instrumentalness',
+	key: 'key',
+	liveness: 'liveness',
+	loudness: 'loudness',
+	mode: 'modality',
+	popularity: 'popularity',
+	speechiness: 'speechiness',
+	tempo: 'tempo',
+	time_signature: 'time-signature',
+	valence: 'positiveness',
+	// Add more mappings as needed
 };
 
 const SpotifyForm = ({
-  classes,
-  parameters,
-  setIsLoading,
-  setToggleValue,
-  tracks,
-  artists,
-  genres,
-  markets,
-  setParameters,
-  query,
-  savedQueries,
-  currentUser,
-  openDemoModal,
-  setOpenDemoModal,
-  onSearchPressed,
-  onClearSeedsArray,
-  onSetQueryParameter,
-  onResetDataLoaded,
-  onResetQueryParameter,
-  onGetRequestParameters,
+	classes,
+	parameters,
+	setIsLoading,
+	setToggleValue,
+	tracks,
+	artists,
+	genres,
+	markets,
+	setParameters,
+	query,
+	savedQueries,
+	currentUser,
+	openDemoModal,
+	setOpenDemoModal,
+	onSearchPressed,
+	onClearSeedsArray,
+	onSetQueryParameter,
+	onResetDataLoaded,
+	onResetQueryParameter,
+	onGetRequestParameters,
 }) => {
-  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+	const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+	const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+	const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
-  const [openModal, setOpenModal] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+	const [openModal, setOpenModal] = useState(false);
+	const [anchorEl, setAnchorEl] = useState(null);
+	const open = Boolean(anchorEl);
 
-  const [selectOpen, setSelectOpen] = useState(false);
-  const [invalidSearch, setInvalidSearch] = useState(false);
-  const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
-  const [targetParamValues, setTargetParamValues] = useState({
-    songs: [],
-    performers: [],
-    genres: [],
-  });
-  const [targetParamLabels, setTargetParamLabels] = useState({
-    songs: [],
-    performers: [],
-    genres: [],
-  });
-  const [selectedOptions, setSelectedOptions] = useState({
-    songs: [],
-    performers: [],
-    genres: [],
-    markets: [],
-  });
-  const [localSelectedOptions, setLocalSelectedOptions] = useState(selectedOptions);
+	const [selectOpen, setSelectOpen] = useState(false);
+	const [invalidSearch, setInvalidSearch] = useState(false);
+	const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
+	const [targetParamValues, setTargetParamValues] = useState({
+		songs: [],
+		performers: [],
+		genres: [],
+	});
+
+	// eslint-disable-next-line no-unused-vars
+	const [targetParamLabels, setTargetParamLabels] = useState({
+		songs: [],
+		performers: [],
+		genres: [],
+	});
+
+	const [selectedOptions, setSelectedOptions] = useState({
+		songs: [],
+		performers: [],
+		genres: [],
+		markets: [],
+	});
+	const [localSelectedOptions, setLocalSelectedOptions] = useState(selectedOptions);
 
 
-  const handleTargetParamChange = (e) => {
-    setSelectOpen(!selectOpen);
-    setTargetParams(e.target.value);
-  };
+	const handleTargetParamChange = (e) => {
+		setSelectOpen(!selectOpen);
+		setTargetParams(e.target.value);
+	};
 
-  const handleTargetParamDelete = (value) => {
-    setTargetParams((prevTargetParam) =>
-      prevTargetParam.filter((param) => param !== value)
-    )
-  };
+	const handleTargetParamDelete = (value) => {
+		setTargetParams((prevTargetParam) =>
+			prevTargetParam.filter((param) => param !== value)
+		)
+	};
 
-  const handleSelectedOptions = (parameter, selectedOptions) => {
-    setTargetParamLabels(prevLabels => ({
-      ...prevLabels,
-      [parameter]: selectedOptions,
-    }));
+	const handleSelectedOptions = (parameter, selectedOptions) => {
+		setTargetParamLabels(prevLabels => ({
+			...prevLabels,
+			[parameter]: selectedOptions,
+		}));
 
-    setSelectedOptions((prevSelectedOptions) => ({
-      ...prevSelectedOptions,
-      [parameter]: selectedOptions,
-    }));
-  };
+		setSelectedOptions((prevSelectedOptions) => ({
+			...prevSelectedOptions,
+			[parameter]: selectedOptions,
+		}));
+	};
 
-  const handleChange = (param, value) => {
+	const handleChange = (param, value) => {
 
-    const sliderParam = value?.hasOwnProperty('min') 
-    || value?.hasOwnProperty('max') 
-    ||value?.hasOwnProperty('target')
+		const sliderParam = Object.prototype.hasOwnProperty.call(value, 'min')
+    || Object.prototype.hasOwnProperty.call(value, 'max')
+    || Object.prototype.hasOwnProperty.call(value, 'target');
+
     
-    setInvalidSearch(false);
+		setInvalidSearch(false);
 
-    if (!sliderParam) {
-      setParameters(prevParameters => {
-        if (param === 'market' || param === 'limit') {
-            return {
-                ...prevParameters,
-                [param]: value
-            };
-        } else {
-            if (!prevParameters[param].includes(value) 
-              && Object.values(targetParamValues).reduce((total, array) => 
-              total + array.length, 0) < 5) {
-              return {
-                ...prevParameters,
-                [param]: [...prevParameters[param], value]
-              };
-            } else {
-                return prevParameters;
-            }
-          }
-      })} 
-  };
+		if (!sliderParam) {
+			setParameters(prevParameters => {
+				if (param === 'market' || param === 'limit') {
+					return {
+						...prevParameters,
+						[param]: value
+					};
+				} else {
+					if (!prevParameters[param].includes(value) &&
+           Object.values(targetParamValues).reduce((total, array) => total + array.length, 0) < 5) {
+						return {
+							...prevParameters,
+							[param]: [...prevParameters[param], value]
+						};
+					} else {
+						return prevParameters;
+					}
+				}
+			})} 
+	};
 
-  const handleReset = () => {
-    setInvalidSearch(false);
-    setParameters(initialDiscoveryState.query);
-    setTargetParams([]);
-    setTargetParamLabels({
-        songs: [],
-        performers: [],
-        genres: [],
-    });
-    setTargetParamValues({
-        songs: [],
-        performers: [],
-        genres: [],
-    });
-    onResetDataLoaded();
-    onResetQueryParameter(); 
-  };
+	const handleReset = () => {
+		setInvalidSearch(false);
+		setParameters(initialDiscoveryState.query);
+		setTargetParams([]);
+		setTargetParamLabels({
+			songs: [],
+			performers: [],
+			genres: [],
+		});
+		setTargetParamValues({
+			songs: [],
+			performers: [],
+			genres: [],
+		});
+		onResetDataLoaded();
+		onResetQueryParameter(); 
+	};
 
-  const { handleSubmit } = useForm();
+	const { handleSubmit } = useForm();
   
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const onSubmit = () => {
-    setToggleValue('Discovery Results');
-    setIsLoading(true);
-    if (!currentUser?.user) {
-      setOpenDemoModal(false);
-    } else if (!currentUser?.user.tokens) {
-      navigate('/pricing');
-    } else {
-      setLocalSelectedOptions({
-        songs: [],
-        performers: [],
-        genres: [],
-        markets: [],
-      });
-    };
-    startTransition(() => {
-      onSearchPressed(parameters, currentUser?.user.id)
-      .then(() => {
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.log('Error: ', error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setParameters(initialDiscoveryState.query);
-        onResetQueryParameter();
-        onClearSeedsArray();
-      })
-    })
-  };
+	const onSubmit = () => {
+		setToggleValue('Discovery Results');
+		setIsLoading(true);
+		if (!currentUser?.user) {
+			setOpenDemoModal(false);
+		} else if (!currentUser?.user.tokens) {
+			navigate('/pricing');
+		} else {
+			setLocalSelectedOptions({
+				songs: [],
+				performers: [],
+				genres: [],
+				markets: [],
+			});
+		}
+		startTransition(() => {
+			onSearchPressed(parameters, currentUser?.user.id)
+				.then(() => {
+					setIsLoading(false);
+				})
+				.catch((error) => {
+					console.log('Error: ', error);
+				})
+				.finally(() => {
+					setIsLoading(false);
+					setParameters(initialDiscoveryState.query);
+					onResetQueryParameter();
+					onClearSeedsArray();
+				})
+		})
+	};
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault(); 
-    onSubmit();
-  };
+	const handleFormSubmit = (e) => {
+		e.preventDefault(); 
+		onSubmit();
+	};
 
-  const handleViewSavedRequests = (e) => {
-    onGetRequestParameters(currentUser?.user.id);
-    setAnchorEl(e.currentTarget);
-  };
+	const handleViewSavedRequests = (e) => {
+		onGetRequestParameters(currentUser?.user.id);
+		setAnchorEl(e.currentTarget);
+	};
 
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
+	const handleCloseMenu = () => {
+		setAnchorEl(null);
+	};
 
-  const dispatch = useDispatch();
+	const dispatch = useDispatch();
 
-  const fetchData = async (ids, actionCreator) => {
-    try {
-      const data = await dispatch(actionCreator(currentUser?.user.id, ids));
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching Spotify data:', error.message);
-      return [];
-    }
-  };
+	const fetchData = async (ids, actionCreator) => {
+		try {
+			const data = await dispatch(actionCreator(currentUser?.user.id, ids));
+			return data || [];
+		} catch (error) {
+			console.error('Error fetching Spotify data:', error.message);
+			return [];
+		}
+	};
 
   
-  useEffect(() => {
-    if (!currentUser?.user) {
-      setLocalSelectedOptions({
-        limit: savedQueries.initialQuery.limit,
-        songs: savedQueries.initialQuery.songs.map(song => song.label),
-        performers: savedQueries.initialQuery.performers.map(performer => performer.label),
-        genres: savedQueries.initialQuery.genres,
-        market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
-      });
+	useEffect(() => {
+		if (!currentUser?.user) {
+			setLocalSelectedOptions({
+				limit: savedQueries.initialQuery.limit,
+				songs: savedQueries.initialQuery.songs.map(song => song.label),
+				performers: savedQueries.initialQuery.performers.map(performer => performer.label),
+				genres: savedQueries.initialQuery.genres,
+				market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
+			});
 
-      setTargetParamValues({
-        limit: savedQueries.initialQuery.limit,
-        songs: savedQueries.initialQuery.songs.map(song => song.label),
-        performers: savedQueries.initialQuery.performers.map(performer => performer.label),
-        genres: savedQueries.initialQuery.genres,
-        market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
-      });
+			setTargetParamValues({
+				limit: savedQueries.initialQuery.limit,
+				songs: savedQueries.initialQuery.songs.map(song => song.label),
+				performers: savedQueries.initialQuery.performers.map(performer => performer.label),
+				genres: savedQueries.initialQuery.genres,
+				market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
+			});
 
-      setParameters((prevParameters) => ({
-        ...prevParameters,
-        limit: savedQueries.initialQuery.limit,
-        songs: savedQueries.initialQuery.songs.map(song => song.id),
-        performers: savedQueries.initialQuery.performers.map(performer => performer.id),
-        genres: savedQueries.initialQuery.genres,
-        market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
-      }));
+			setParameters((prevParameters) => ({
+				...prevParameters,
+				limit: savedQueries.initialQuery.limit,
+				songs: savedQueries.initialQuery.songs.map(song => song.id),
+				performers: savedQueries.initialQuery.performers.map(performer => performer.id),
+				genres: savedQueries.initialQuery.genres,
+				market: savedQueries.initialQuery.market && [getCode(savedQueries.initialQuery.market)],
+			}));
 
-      Object.keys(savedQueries.initialQuery).forEach((param) => {
-        const paramValue = savedQueries.initialQuery[param];
+			Object.keys(savedQueries.initialQuery).forEach((param) => {
+				const paramValue = savedQueries.initialQuery[param];
 
-        if (paramValue && typeof paramValue === 'object' && 'min' in paramValue) {
-          const { min, target, max, label } = paramValue;
-          const mappedLabel = labelMapping[param] || param;
+				if (paramValue && typeof paramValue === 'object' && 'min' in paramValue) {
+					// eslint-disable-next-line no-unused-vars
+					const { min, target, max, label } = paramValue;
+					const mappedLabel = labelMapping[param] || param;
 
-          setParameters((prevParameters) => ({
-            ...prevParameters,
-            [param]: {
-              min: min,
-              target: target,
-              max: max,
-              label: mappedLabel,
-            },
-          }));
+					setParameters((prevParameters) => ({
+						...prevParameters,
+						[param]: {
+							min: min,
+							target: target,
+							max: max,
+							label: mappedLabel,
+						},
+					}));
 
-          onSetQueryParameter(savedQueries.initialQuery, param, [min, target, max]);
-        }
-      });
-    }
-  }, []);
+					onSetQueryParameter(savedQueries.initialQuery, param, [min, target, max]);
+				}
+			});
+		}
+	}, [currentUser?.user, onSetQueryParameter, savedQueries.initialQuery, setParameters]);
 
-  const handleSelectSavedQuery = async (savedQuery) => {
-    handleCloseMenu();
+	const handleSelectSavedQuery = async (savedQuery) => {
+		handleCloseMenu();
 
-    const fetchedTracks = await fetchData(savedQuery.query.songs, getSpotifyTracks);
-    const formattedTracks = fetchedTracks.map(track => `${track.name} - ${track.artists[0].name}`);
+		const fetchedTracks = await fetchData(savedQuery.query.songs, getSpotifyTracks);
+		const formattedTracks = fetchedTracks.map(track => `${track.name} - ${track.artists[0].name}`);
 
-    const fetchedArtists = await fetchData(savedQuery.query.performers, getSpotifyArtists);
-    const formattedArtists = fetchedArtists.map(artist => artist.name);
+		const fetchedArtists = await fetchData(savedQuery.query.performers, getSpotifyArtists);
+		const formattedArtists = fetchedArtists.map(artist => artist.name);
 
-    setLocalSelectedOptions({
-      songs: formattedTracks || [],
-      performers: formattedArtists || [],
-      genres: savedQuery.query.genres || [],
-      market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
-    });
+		setLocalSelectedOptions({
+			songs: formattedTracks || [],
+			performers: formattedArtists || [],
+			genres: savedQuery.query.genres || [],
+			market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
+		});
 
-    setTargetParamValues({
-      songs: formattedTracks || [],
-      performers: formattedArtists || [],
-      genres: savedQuery.query.genres || [],
-      market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
-    });
+		setTargetParamValues({
+			songs: formattedTracks || [],
+			performers: formattedArtists || [],
+			genres: savedQuery.query.genres || [],
+			market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
+		});
 
-    setParameters((prevParameters) => ({
-      ...prevParameters,
-      songs: savedQuery.query.songs || [],
-      performers: savedQuery.query.performers || [],
-      genres: savedQuery.query.genres || [],
-      market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
-      limit: savedQuery.query.limit || 10,
-    }));
+		setParameters((prevParameters) => ({
+			...prevParameters,
+			songs: savedQuery.query.songs || [],
+			performers: savedQuery.query.performers || [],
+			genres: savedQuery.query.genres || [],
+			market: savedQuery.query.market ? [getCode(savedQuery.query.market)] : [],
+			limit: savedQuery.query.limit || 10,
+		}));
 
-    Object.keys(savedQuery.query).forEach((param) => {
-      const paramValue = savedQuery.query[param];
+		Object.keys(savedQuery.query).forEach((param) => {
+			const paramValue = savedQuery.query[param];
 
-      if (paramValue && typeof paramValue === 'object' && 'min' in paramValue) {
-        const { min, target, max, label } = paramValue;
-        const mappedLabel = labelMapping[param] || param;
+			if (paramValue && typeof paramValue === 'object' && 'min' in paramValue) {
+				// eslint-disable-next-line no-unused-vars
+				const { min, target, max, label } = paramValue;
+				const mappedLabel = labelMapping[param] || param;
 
-        setParameters((prevParameters) => ({
-          ...prevParameters,
-          [param]: {
-            min: min,
-            target: target,
-            max: max,
-            label: mappedLabel,
-          },
-        }));
+				setParameters((prevParameters) => ({
+					...prevParameters,
+					[param]: {
+						min: min,
+						target: target,
+						max: max,
+						label: mappedLabel,
+					},
+				}));
 
-        onSetQueryParameter(savedQuery.query, param, [min, target, max]);
-      }
-    });
+				onSetQueryParameter(savedQuery.query, param, [min, target, max]);
+			}
+		});
 
-  };
+	};
   
-  return (
-      <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <form className={classes.form} onSubmit={handleFormSubmit}>
-          <CardHeader
-            title={"Unearth New Music, Find Hidden Gems, and Build Your Collection"}
-            // title={"🎵 Discover New Music, Customize Playlists, and Share Unique Finds 🎶"}
-            titleTypographyProps={{
-              width: '100%',
-              variant: isXsScreen ?
-                'subtitle1' :
-                isSmScreen ? 
-                'h6' : 
-                'h5',
-              textAlign: 'center',
-              color: 'white',
-              letterSpacing: '1px',
-            }}
-            // subheader={!isXsScreen &&
-            //   "Begin your journey by selecting the AI model you would like to copilot your quest"}
-            subheaderTypographyProps={{
-              width: '100%',
-              variant: isXsScreen ?
-                'caption' :
-                isSmScreen ? 
-                'body2' :
-                'body1',
-              textAlign: 'center',
-              color: theme.palette.primary.triadic2,
-            }} 
-            classes={{
-              root: classes.root
-            }}
-          />
-          <SpotifyAuth>
-            {(accessToken, expiresAt) => {
-              return (
-                <>
-                  {Object.keys(parameters).map((parameter, index) => {
-                    return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
-                      <Box key={index}>
-                        <Box>
-                          {parameter === 'limit' ? (
-                            <>
-                              <Typography
-                                paddingBottom='3px'
-                                variant='subtitle2'
-                                textAlign='center' 
-                                color={'whitesmoke'}
-                                letterSpacing='1px'
-                              >
-                                Choose the songs, artists, and genres you'd like to shape your recommendations.
-                              </Typography>
-                              <Box display='flex' justifyContent='center'>
-                              {currentUser?.user && (
-                                <Tooltip
-                                  arrow
-                                  placement="top"
-                                  title={
-                                    <div
-                                      style={{
-                                        maxHeight: '25vh',
-                                        overflowY: 'auto',
-                                        padding: '8px',
-                                        borderRadius: '8px',
-                                      }}
-                                    > 
-                                      <Typography variant='body2' letterSpacing='1px'>
-                                        {'View your saved requests'}
-                                      </Typography>
-                                    </div>
-                                  }
-                                >
-                                  <Card 
-                                    className={classes.panelCard}
-                                    onClick={handleViewSavedRequests}
-                                  >
-                                    <Box display='flex'>
-                                      <BookmarkIcon 
-                                        style={{ 
-                                          color: theme.palette.primary.analogous1
-                                        }} 
-                                        fontSize='small' 
-                                      />
-                                      <Typography  
-                                        variant={isXsScreen ? 'body2' : 'subtitle2' }
-                                        color='white'
-                                        letterSpacing='1px'
-                                        sx={{
-                                          fontWeight: isXsScreen ? 'normal' : 'bold',
-                                          cursor: 'pointer',
-                                        }}
-                                      >
-                                        {`Saved Requests`}
-                                      </Typography>
-                                    </Box>
-                                  </Card>                               
-                                </Tooltip>
-                              )}
-                              <Menu
-                                open={open}
-                                anchorEl={anchorEl}
-                                onClose={handleCloseMenu}
-                                anchorOrigin={{
-                                  vertical: 'bottom',
-                                  horizontal: 'center',
-                                }}
-                                transformOrigin={{
-                                  vertical: 'top',
-                                  horizontal: 'center',
-                                }}
-                                classes={{ paper: classes.paper }}
-                              >
-                                {savedQueries.saved.length > 0 ? (
-                                  savedQueries.saved.map((savedQuery) => (
-                                    <MenuItem key={savedQuery.name} onClick={() => handleSelectSavedQuery(savedQuery)} sx={{ color: 'white' }}>
-                                      {savedQuery.name}
-                                    </MenuItem>
-                                  ))
-                                ) : ([
-                                    <Typography
-                                      key="no-saved-requests"
-                                      color='whitesmoke'
-                                      textAlign='center'
-                                      variant='subtitle1'
-                                      letterSpacing='1px'
-                                    >
-                                      {'No Saved Requests'}
-                                    </Typography>,
-                                    <Typography
-                                      key="no-saved-description"
-                                      color='rgb(210,220,225)'
-                                      textAlign='center'
-                                      variant='subtitle2'
-                                      letterSpacing='1px'
-                                      margin='2%'
-                                    >
-                                      {
-                                        `Requests that yield quality finds can be 
-                                        saved for later review in the results section
-                                        below`
-                                      }
-                                    </Typography>
-                                ])}
-                              </Menu>
-                              </Box>
-                              <Box
-                                display="flex"
-                                flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
-                                justifyContent='center'
-                                alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
-                                style={{ marginBottom: '1%' }}
-                              >
-                                <FormControl className={classes.primaryField}>
-                                  <InputLabel 
-                                    className={classes.inputLabel} 
-                                    variant='standard'
-                                  >
-                                    Set Recommendation Sources (Songs, Artists, or Genres)
-                                  </InputLabel>
-                                  <Select
-                                    multiple
-                                    open={selectOpen}
-                                    onOpen={() => setSelectOpen(true)}
-                                    onClose={() => setSelectOpen(false)}
-                                    label="Set Recommendation Sources (Songs, Artists, or Genres)"
-                                    value={targetParams}
-                                    onChange={handleTargetParamChange}
-                                    variant="standard"
-                                    MenuProps={{
-                                      sx: {
-                                        '.MuiPaper-root': {
-                                          backgroundColor: '#30313d',
-                                          color: 'white',
-                                        },
-                                      },
-                                    }}
-                                    renderValue={(selected) => (
-                                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {selected.map((value, index) => (
-                                          <Chip
-                                            key={value}
-                                            sx={{
-                                              backgroundColor: '#006f96',
-                                              color: 'white',
-                                              '& .MuiChip-deleteIcon': {
-                                                color: 'white',
-                                              },
-                                              height: isXsScreen ? '24px' : null,
-                                              fontSize: isXsScreen ? '0.75rem' : null,
-                                              padding: isXsScreen ? '0' : null,
-                                              marginLeft: index === 0 ? '8px' : '0px',
-                                            }}
-                                            label={toCapitalCase(value)}
-                                            deleteIcon={<CancelIcon
-                                              onMouseDown={(event) => event.stopPropagation()} />}
-                                            onDelete={() => handleTargetParamDelete(value)} />
-                                        ))}
-                                      </Box>
-                                    )}
-                                  >
-                                    <MenuItem value={'songs'}>Songs</MenuItem>
-                                    <MenuItem value={'performers'}>Performers</MenuItem>
-                                    <MenuItem value={'genres'}>Genres</MenuItem>
-                                  </Select>
-                                </FormControl>
-                                <SearchParameter
-                                  parameter={parameter}
-                                  handleChange={handleChange}
-                                  invalidSearch={invalidSearch}
-                                  classes={classes} 
-                                />
-                              </Box>
-                              <Typography
-                                textAlign='center'
-                                color='whitesmoke'
-                                letterSpacing='1px'
-                                variant={
-                                  isXsScreen || isSmScreen ?
-                                  "body2" :
-                                  "body1"
-                                }
-                              >
-                                {!currentUser?.user ?
-                                  'Register to Unlock the Ability to Customize Your Quest and More!' : Object.values(targetParamValues).every(arr => arr.length === 0)
-                                  ? `Choose Up to 5 Recommendation Sources`
-                                  : Object.values(targetParamValues).every(arr => arr.length < 5)
-                                    ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
-                                      .length} More Recommendation Sources`
-                                    : `You Have Run Out Of Target Parameters To Set`}
-                              </Typography>
-                            </>
-                          ) : autocompleteParam.includes(parameter) && 
-                            targetParams.includes(parameter) && (
-                              <Box 
-                                display="flex" 
-                                flexDirection='column' 
-                                justifyContent="center" 
-                                alignItems='center' 
-                                style={{ marginBottom: '1%' }}
-                              >
-                                <AutocompleteParameter
-                                  parameter={parameter}
-                                  handleChange={(parameter, value) => {
-                                    handleChange(parameter, value);
-                                  } }
-                                  classes={classes}
-                                  invalidSearch={invalidSearch}
-                                  accessToken={accessToken}
-                                  expiresAt={expiresAt}
-                                  tracks={tracks}
-                                  artists={artists}
-                                  genres={genres}
-                                  markets={markets}
-                                  setTargetParamValues={setTargetParamValues}
-                                  targetParamValues={targetParamValues}
-                                  onSelectedOptions={handleSelectedOptions}
-                                  localSelectedOptions={localSelectedOptions}
-                                  setLocalSelectedOptions={setLocalSelectedOptions}
-                                  user={currentUser}
-                                />
-                              </Box>
-                            )}
-                        </Box>
-                      </Box>
-                    ) : null;
-                  })}
-                  <Tooltip
-                      arrow
-                      title={
-                        <div
-                          style={{
-                            maxHeight: '25vh',
-                            overflowY: 'auto',
-                            padding: '8px',
-                            borderRadius: '8px',
-                          }}
-                        > 
-                          <Typography variant='body2' letterSpacing='1px'>
-                            {'Adjust your discovery settings'}
-                          </Typography>
-                        </div>
-                      }
-                  >
-                    <Button 
-                      sx={{
-                          alignSelf: 'center', 
-                          color: 'white', 
-                          borderRadius: '18px',
-                          background: `rgb(121, 44, 216, 0.3)`,
-                          height: isXsScreen ? '50px' : '55px',
-                          border: `2px solid ${theme.palette.primary.triadic1}`,
-                          boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-                          textTransform: 'none',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          padding: '2%',
-                          width: (isLgScreen || isXlScreen) ? '66%' : '100%',
-                          '&:hover, &:active, &.MuiFocusVisible': {
-                            border: `2px solid ${theme.palette.primary.triadic1}`,
-                            background: `rgb(121, 44, 216, 0.5)`,
-                            boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-                          },
-                      }} 
-                      // fullWidth
-                      variant='outlined'
-                      onClick={() => setOpenModal(true)}
-                      disableRipple
-                    >
-                      <Typography letterSpacing='1px' variant={isXsScreen ? 'body2' : "body1"}>
-                        Fine Tune Your Recommendations
-                      </Typography>
-                      <Typography 
-                        color={'#f6f8fc'} 
-                        variant='caption' 
-                        textAlign='end'
-                        letterSpacing='1px'
-                        sx={{
-                          ...(isXsScreen && {
-                            fontSize: '0.675rem', // Example of making the font size smaller for xs screens
-                            // Add any other style adjustments here
-                          })
-                        }}
-                      >
-                        {
-                          isXsScreen || isSmScreen ? 
-                          "* activate parameters and set the min, target, and max values" : 
-                          "* activate additional parameters and set the min, target, and max values to refine your recommendations"
-                        }
-                      </Typography>
-                      <SettingsSuggestIcon />
-                    </Button>
-                  </Tooltip>
-                  <Box className={classes.modal}>
-                    <SliderModal
-                      autocompleteParam={autocompleteParam}
-                      parameters={parameters}
-                      setParameters={setParameters}
-                      query={query}
-                      onSetQueryParameter={onSetQueryParameter}
-                      openModal={openModal}
-                      setOpenModal={setOpenModal}
-                      isXsScreen={isXsScreen}
-                      isSmScreen={isSmScreen}
-                      isMdScreen={isMdScreen}
-                      isLgScreen={isLgScreen}
-                      isXlScreen={isXlScreen}
-                      classes={classes}
-                    />
-                  </Box>
-                </>
-              )
-            }}
-          </SpotifyAuth>
-          <Grid className={classes.buttonsContainer}>
-            <Backdrop 
-              open={openDemoModal}
-              onClick={() => setOpenDemoModal(false)}
-            />
-            <div style={{ position: 'relative' }}>
-              <Tooltip
-                title={
-                  <div
-                    style={{
-                      maxHeight: '25vh',
-                      overflowY: 'auto',
-                      padding: '8px',
-                      borderRadius: '8px',
-                    }}
-                  > 
-                    <Typography variant='body2' letterSpacing='1px'>
-                      {!currentUser?.user?.tokens ? "Get more tokens to complete request" : 'Discover New Music'}
-                    </Typography>
-                  </div>
-                }
-                arrow
-              >
-                <Button
-                  type="submit"
-                  variant='contained'
-                  onClick={handleSubmit(onSubmit)}
-                  className={`${currentUser?.user && !currentUser?.user.tokens ? classes.disabled : classes.button} ${openDemoModal ? classes.highlightedButton : ''}`}
-                  sx={(isSmScreen || isXsScreen) && {
-                    typography: {
-                      fontSize: '12px'
-                    }
-                  }}
-                >
-                  {currentUser?.user ? 'Discover' : 'Test Search'}
-                </Button>         
-              </Tooltip>
-              {openDemoModal && (
-                <Box
-                    style={{ 
-                      position: 'absolute', 
-                      top: '80%', right: '70%' 
-                    }}
-                    width='100%'
-                    display='flex'
-                    flexDirection='column'
-                    alignItems='flex-start'
-                >
-                  <Box
-                    display='flex'
-                    alignItems='flex-end'
-                  >
-                    <Typography 
-                      color={theme.palette.primary.white}
-                      variant="caption1"
-                    >
-                      Click Here!
-                    </Typography>
-                    <NorthEastIcon 
-                      sx={{ 
-                        color: theme.palette.primary.white,
-                        paddingBottom: '3%', 
-                      }}
-                    />
-                  </Box>
-                    <Typography 
-                      color={theme.palette.primary.whitesmoke}
-                      variant="caption"
-                      paddingTop='5%'
-                    >
-                      Or anywhere else on the screen to exit...
-                    </Typography>                  
-                </Box>
-              )}
-            </div>
-            {currentUser?.user && (
-              <Tooltip
-                title={
-                  <div
-                    style={{
-                      maxHeight: '25vh',
-                      overflowY: 'auto',
-                      padding: '8px',
-                      borderRadius: '8px',
-                    }}
-                  > 
-                    <Typography variant='body2' letterSpacing='1px'>
-                      {'Reset discovery parameters'}
-                    </Typography>
-                  </div>
-                }
-                arrow
-              >
-                <Button
-                  onClick={handleReset}
-                  style={{ color: 'white', backgroundColor: 'transparent' }}
-                >
-                  Reset
-                </Button>
-              </Tooltip>
-            )}
-          </Grid>
-          <br />
-        </form>
-      </Box>
-  )
+	return (
+		<Box
+			sx={{
+				width: '100%',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<form className={classes.form} onSubmit={handleFormSubmit}>
+				<CardHeader
+					title={"Unearth New Music, Find Hidden Gems, and Build Your Collection"}
+					// title={"🎵 Discover New Music, Customize Playlists, and Share Unique Finds 🎶"}
+					titleTypographyProps={{
+						width: '100%',
+						variant: isXsScreen ?
+							'subtitle1' :
+							isSmScreen ? 
+								'h6' : 
+								'h5',
+						textAlign: 'center',
+						color: 'white',
+						letterSpacing: '1px',
+					}}
+					// subheader={!isXsScreen &&
+					//   "Begin your journey by selecting the AI model you would like to copilot your quest"}
+					subheaderTypographyProps={{
+						width: '100%',
+						variant: isXsScreen ?
+							'caption' :
+							isSmScreen ? 
+								'body2' :
+								'body1',
+						textAlign: 'center',
+						color: theme.palette.primary.triadic2,
+					}} 
+					classes={{
+						root: classes.root
+					}}
+				/>
+				<SpotifyAuth>
+					{(accessToken, expiresAt) => {
+						return (
+							<>
+								{Object.keys(parameters).map((parameter, index) => {
+									return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
+										<Box key={index}>
+											<Box>
+												{parameter === 'limit' ? (
+													<>
+														<Typography
+															paddingBottom='3px'
+															variant='subtitle2'
+															textAlign='center' 
+															color={'whitesmoke'}
+															letterSpacing='1px'
+														>
+															{"Choose the songs, artists, and genres you'd like to shape your recommendations."}
+														</Typography>
+														<Box display='flex' justifyContent='center'>
+															{currentUser?.user && (
+																<Tooltip
+																	arrow
+																	placement="top"
+																	title={
+																		<div
+																			style={{
+																				maxHeight: '25vh',
+																				overflowY: 'auto',
+																				padding: '8px',
+																				borderRadius: '8px',
+																			}}
+																		> 
+																			<Typography variant='body2' letterSpacing='1px'>
+																				{'View your saved requests'}
+																			</Typography>
+																		</div>
+																	}
+																>
+																	<Card 
+																		className={classes.panelCard}
+																		onClick={handleViewSavedRequests}
+																	>
+																		<Box display='flex'>
+																			<BookmarkIcon 
+																				style={{ 
+																					color: theme.palette.primary.analogous1
+																				}} 
+																				fontSize='small' 
+																			/>
+																			<Typography  
+																				variant={isXsScreen ? 'body2' : 'subtitle2' }
+																				color='white'
+																				letterSpacing='1px'
+																				sx={{
+																					fontWeight: isXsScreen ? 'normal' : 'bold',
+																					cursor: 'pointer',
+																				}}
+																			>
+																				{`Saved Requests`}
+																			</Typography>
+																		</Box>
+																	</Card>                               
+																</Tooltip>
+															)}
+															<Menu
+																open={open}
+																anchorEl={anchorEl}
+																onClose={handleCloseMenu}
+																anchorOrigin={{
+																	vertical: 'bottom',
+																	horizontal: 'center',
+																}}
+																transformOrigin={{
+																	vertical: 'top',
+																	horizontal: 'center',
+																}}
+																classes={{ paper: classes.paper }}
+															>
+																{savedQueries.saved.length ? (
+																	savedQueries.saved.map((savedQuery) => (
+																		<MenuItem key={savedQuery.name} onClick={() => handleSelectSavedQuery(savedQuery)} sx={{ color: 'white' }}>
+																			{savedQuery.name}
+																		</MenuItem>
+																	))
+																) : ([
+																	<Typography
+																		key="no-saved-requests"
+																		color='whitesmoke'
+																		textAlign='center'
+																		variant='subtitle1'
+																		letterSpacing='1px'
+																	>
+																		{'No Saved Requests'}
+																	</Typography>,
+																	<Typography
+																		key="no-saved-description"
+																		color='rgb(210,220,225)'
+																		textAlign='center'
+																		variant='subtitle2'
+																		letterSpacing='1px'
+																		margin='2%'
+																	>
+																		{
+																			`Requests that yield quality finds can be 
+                                      saved for later review in the results section
+                                      below`
+																		}
+																	</Typography>
+																])}
+															</Menu>
+														</Box>
+														<Box
+															display="flex"
+															flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
+															justifyContent='center'
+															alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
+															style={{ marginBottom: '1%' }}
+														>
+															<FormControl className={classes.primaryField}>
+																<InputLabel 
+																	className={classes.inputLabel} 
+																	variant='standard'
+																>
+                                  Set Recommendation Sources (Songs, Artists, or Genres)
+																</InputLabel>
+																<Select
+																	multiple
+																	open={selectOpen}
+																	onOpen={() => setSelectOpen(true)}
+																	onClose={() => setSelectOpen(false)}
+																	label="Set Recommendation Sources (Songs, Artists, or Genres)"
+																	value={targetParams}
+																	onChange={handleTargetParamChange}
+																	variant="standard"
+																	MenuProps={{
+																		sx: {
+																			'.MuiPaper-root': {
+																				backgroundColor: '#30313d',
+																				color: 'white',
+																			},
+																		},
+																	}}
+																	renderValue={(selected) => (
+																		<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+																			{selected.map((value, index) => (
+																				<Chip
+																					key={value}
+																					sx={{
+																						backgroundColor: '#006f96',
+																						color: 'white',
+																						'& .MuiChip-deleteIcon': {
+																							color: 'white',
+																						},
+																						height: isXsScreen ? '24px' : null,
+																						fontSize: isXsScreen ? '0.75rem' : '1rem',
+																						padding: isXsScreen ? '0' : null,
+																						marginLeft: index === 0 ? '8px' : '0px',
+																					}}
+																					label={toCapitalCase(value)}
+																					deleteIcon={<CancelIcon
+																						onMouseDown={(event) => event.stopPropagation()} />}
+																					onDelete={() => handleTargetParamDelete(value)} />
+																			))}
+																		</Box>
+																	)}
+																>
+																	<MenuItem value={'songs'}>Songs</MenuItem>
+																	<MenuItem value={'performers'}>Performers</MenuItem>
+																	<MenuItem value={'genres'}>Genres</MenuItem>
+																</Select>
+															</FormControl>
+															<SearchParameter
+																parameter={parameter}
+																handleChange={handleChange}
+																invalidSearch={invalidSearch}
+																classes={classes} 
+															/>
+														</Box>
+														<Typography
+															textAlign='center'
+															color='whitesmoke'
+															letterSpacing='1px'
+															variant={
+																isXsScreen || isSmScreen ?
+																	"body2" :
+																	"body1"
+															}
+														>
+															{!currentUser?.user ?
+																'Register to Unlock the Ability to Customize Your Quest and More!' : Object.values(targetParamValues).every(arr => arr.length === 0)
+																	? `Choose Up to 5 Recommendation Sources`
+																	: Object.values(targetParamValues).every(arr => arr.length < 5)
+																		? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
+																			.length} More Recommendation Sources`
+																		: `You Have Run Out Of Target Parameters To Set`}
+														</Typography>
+													</>
+												) : autocompleteParam.includes(parameter) && 
+                          targetParams.includes(parameter) && (
+													<Box 
+														display="flex" 
+														flexDirection='column' 
+														justifyContent="center" 
+														alignItems='center' 
+														style={{ marginBottom: '1%' }}
+													>
+														<AutocompleteParameter
+															parameter={parameter}
+															handleChange={(parameter, value) => {
+																handleChange(parameter, value);
+															} }
+															classes={classes}
+															invalidSearch={invalidSearch}
+															accessToken={accessToken}
+															expiresAt={expiresAt}
+															tracks={tracks}
+															artists={artists}
+															genres={genres}
+															markets={markets}
+															setTargetParamValues={setTargetParamValues}
+															targetParamValues={targetParamValues}
+															onSelectedOptions={handleSelectedOptions}
+															localSelectedOptions={localSelectedOptions}
+															setLocalSelectedOptions={setLocalSelectedOptions}
+															currentUser={currentUser}
+														/>
+													</Box>
+												)}
+											</Box>
+										</Box>
+									) : null;
+								})}
+								<Tooltip
+									arrow
+									title={
+										<div
+											style={{
+												maxHeight: '25vh',
+												overflowY: 'auto',
+												padding: '8px',
+												borderRadius: '8px',
+											}}
+										> 
+											<Typography variant='body2' letterSpacing='1px'>
+												{'Adjust your discovery settings'}
+											</Typography>
+										</div>
+									}
+								>
+									<Button 
+										sx={{
+											alignSelf: 'center', 
+											color: 'white', 
+											borderRadius: '18px',
+											background: `rgb(121, 44, 216, 0.3)`,
+											height: isXsScreen ? '50px' : '55px',
+											border: `2px solid ${theme.palette.primary.triadic1}`,
+											boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+											textTransform: 'none',
+											display: 'flex',
+											justifyContent: 'space-between',
+											padding: '2%',
+											width: (isLgScreen || isXlScreen) ? '66%' : '100%',
+											'&:hover, &:active, &.MuiFocusVisible': {
+												border: `2px solid ${theme.palette.primary.triadic1}`,
+												background: `rgb(121, 44, 216, 0.5)`,
+												boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+											},
+										}} 
+										// fullWidth
+										variant='outlined'
+										onClick={() => setOpenModal(true)}
+										disableRipple
+									>
+										<Typography letterSpacing='1px' variant={isXsScreen ? 'body2' : "body1"}>
+                      Fine Tune Your Recommendations
+										</Typography>
+										<Typography 
+											color={'#f6f8fc'} 
+											variant='caption' 
+											textAlign='end'
+											letterSpacing='1px'
+											sx={{
+												...(isXsScreen && {
+													fontSize: '0.675rem', // Example of making the font size smaller for xs screens
+													// Add any other style adjustments here
+												})
+											}}
+										>
+											{
+												isXsScreen || isSmScreen ? 
+													"* activate parameters and set the min, target, and max values" : 
+													"* activate additional parameters and set the min, target, and max values to refine your recommendations"
+											}
+										</Typography>
+										<SettingsSuggestIcon />
+									</Button>
+								</Tooltip>
+								<Box className={classes.modal}>
+									<SliderModal
+										autocompleteParam={autocompleteParam}
+										parameters={parameters}
+										setParameters={setParameters}
+										query={query}
+										onSetQueryParameter={onSetQueryParameter}
+										openModal={openModal}
+										setOpenModal={setOpenModal}
+										isXsScreen={isXsScreen}
+										isSmScreen={isSmScreen}
+										isMdScreen={isMdScreen}
+										isLgScreen={isLgScreen}
+										isXlScreen={isXlScreen}
+										classes={classes}
+									/>
+								</Box>
+							</>
+						)
+					}}
+				</SpotifyAuth>
+				<Grid className={classes.buttonsContainer}>
+					<Backdrop 
+						open={openDemoModal}
+						onClick={() => setOpenDemoModal(false)}
+					/>
+					<div style={{ position: 'relative' }}>
+						<Tooltip
+							title={
+								<div
+									style={{
+										maxHeight: '25vh',
+										overflowY: 'auto',
+										padding: '8px',
+										borderRadius: '8px',
+									}}
+								> 
+									<Typography variant='body2' letterSpacing='1px'>
+										{!currentUser?.user?.tokens ? "Get more tokens to complete request" : 'Discover New Music'}
+									</Typography>
+								</div>
+							}
+							arrow
+						>
+							<Button
+								type="submit"
+								variant='contained'
+								onClick={handleSubmit(onSubmit)}
+								className={`${currentUser?.user && !currentUser?.user.tokens ? classes.disabled : classes.button} ${openDemoModal ? classes.highlightedButton : ''}`}
+								// eslint-disable-next-line no-unused-vars
+								sx={(theme) => ({
+									...(isSmScreen || isXsScreen) && {
+										typography: {
+											fontSize: '12px'
+										}
+									}})}
+							>
+								{currentUser?.user ? 'Discover' : 'Test Search'}
+							</Button>         
+						</Tooltip>
+						{openDemoModal && (
+							<Box
+								style={{ 
+									position: 'absolute', 
+									top: '80%', right: '70%' 
+								}}
+								width='100%'
+								display='flex'
+								flexDirection='column'
+								alignItems='flex-start'
+							>
+								<Box
+									display='flex'
+									alignItems='flex-end'
+								>
+									<Typography 
+										color={theme.palette.primary.white}
+										variant="caption1"
+									>
+                    Click Here!
+									</Typography>
+									<NorthEastIcon 
+										sx={{ 
+											color: theme.palette.primary.white,
+											paddingBottom: '3%', 
+										}}
+									/>
+								</Box>
+								<Typography 
+									color={theme.palette.primary.whitesmoke}
+									variant="caption"
+									paddingTop='5%'
+								>
+                    Or anywhere else on the screen to exit...
+								</Typography>                  
+							</Box>
+						)}
+					</div>
+					{currentUser?.user && (
+						<Tooltip
+							title={
+								<div
+									style={{
+										maxHeight: '25vh',
+										overflowY: 'auto',
+										padding: '8px',
+										borderRadius: '8px',
+									}}
+								> 
+									<Typography variant='body2' letterSpacing='1px'>
+										{'Reset discovery parameters'}
+									</Typography>
+								</div>
+							}
+							arrow
+						>
+							<Button
+								onClick={handleReset}
+								style={{ color: 'white', backgroundColor: 'transparent' }}
+							>
+                Reset
+							</Button>
+						</Tooltip>
+					)}
+				</Grid>
+				<br />
+			</form>
+		</Box>
+	)
 };
 
 const mapStateToProps = (state) => {
-  return {
-    tracks: state.discovery.tracks,
-    artists: state.discovery.artists,
-    markets: state.discovery.markets,
-    genres: state.discovery.genres,
-    query: state.discovery.query,
-    savedQueries: state.discovery.savedQueries,
-  };
+	return {
+		tracks: state.discovery.tracks,
+		artists: state.discovery.artists,
+		markets: state.discovery.markets,
+		genres: state.discovery.genres,
+		query: state.discovery.query,
+		savedQueries: state.discovery.savedQueries,
+	};
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  onSearchPressed: (query, userId) => dispatch(discoverSongRequest(query, userId)),
-  onClearSeedsArray: () => dispatch(clearSeedsArray()),
-  onResetQueryParameter: () =>
-    dispatch(resetQueryParameter()),
-  onResetDataLoaded: () =>
-    dispatch(resetDataLoaded()),
-  onSetQueryParameter: (query, parameter, newValues) => dispatch(setQueryParameter(query, parameter, newValues)),
-  onGetRequestParameters: (userId) => dispatch(getRequestParameters(userId)),
+	onSearchPressed: (query, userId) => dispatch(discoverSongRequest(query, userId)),
+	onClearSeedsArray: () => dispatch(clearSeedsArray()),
+	onResetQueryParameter: () =>
+		dispatch(resetQueryParameter()),
+	onResetDataLoaded: () =>
+		dispatch(resetDataLoaded()),
+	onSetQueryParameter: (query, parameter, newValues) => dispatch(setQueryParameter(query, parameter, newValues)),
+	onGetRequestParameters: (userId) => dispatch(getRequestParameters(userId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SpotifyForm);

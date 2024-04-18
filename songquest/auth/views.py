@@ -28,6 +28,7 @@ class ResendVerificationEmail(APIView):
             return Response({"error": "Verification token not found"}, status=status.HTTP_400_BAD_REQUEST)
 
         send_verification_email(user.email, verification_token)
+
         return Response({"message": "Verification email resent successfully"}, status=status.HTTP_200_OK)
 
 def verify_email(request, token):
@@ -44,7 +45,7 @@ def verify_email(request, token):
         user.save()
     
     # Construct the redirect URL with the email_verified status as a query parameter
-    redirect_url = f"http://localhost:3000/onboard?email_verified={user.email_verified}"
+    redirect_url = f"http://localhost:3000/onboard?email_verified={user.email_verified}&token={token}"
     
     # Redirect the user to the frontend URL
     return HttpResponseRedirect(redirect_url)

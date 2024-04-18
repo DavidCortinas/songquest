@@ -72,17 +72,17 @@ def get_all_pricing_packages(request):
     pricing_packages = [
         {
             'id': 1,
-            'name': '3 Tokens',
-            'price': 300,
+            'name': '8 Tokens',
+            'price': 200,
         },
         {
             'id': 2,
-            'name': '20 Tokens',
+            'name': '80 Tokens',
             'price': 1250,
         },
         {
             'id': 3,
-            'name': '10 Tokens',
+            'name': '40 Tokens',
             'price': 800,
         },
     ]
@@ -152,9 +152,9 @@ def calculate_tokens(amount_paid):
     """
     # Define the price to token mapping
     price_to_token = {
-        300: 3,   # $3 for 3 tokens
-        700: 10,  # $7 for 10 tokens
-        1000: 20  # $10 for 20 tokens
+        200: 8,   # $2 for 8 tokens
+        800: 40,  # $8 for 40 tokens
+        1250: 80  # $12.50 for 80 tokens
     }
     
     # Calculate tokens based on the amount paid

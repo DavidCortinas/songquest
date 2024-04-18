@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -83,12 +84,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def update_karma(self, action):
         """Update user's XP based on the action"""
         karma_values = {
-            'quest': 1,
-            'like': 2,
-            'follow': 2,
-            'collect': 3,
-            'share': 5,
-            'excavate': 10,
+            'quest': 5,
+            'like': 10,
+            'follow': 10,
+            'collect': 15,
+            'share': 25,
+            'excavate': 50,
         }
 
         if action not in karma_values:
@@ -107,7 +108,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         """Update user's tokens based on the action"""
         tokens_price = {
             'quest': 1,
-            'collect': 3,
+            'collect': 2,
         }
 
         if action not in tokens_price:
@@ -136,21 +137,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     def complete_onboarding(self):
         print('complete onboarding')
         """Award the onboarding achievement and badge if onboarding is complete."""
-        if self.is_onboarding_complete() and not self.achievements.filter(name='Onboarding Completed').exists():
+        profile, profile_created = Profile.objects.get_or_create(user=self)
+        if self.is_onboarding_complete() and not profile.achievements.filter(name='Onboarding Completed').exists():
             print('if complete')
             self.is_active = True
             self.save(update_fields=['is_active'])
-            profile, created = UserProfile.objects.get_or_create(user=self)
             onboarding_achievement = Achievement.objects.get(name='Onboarding Completed')
             profile.achievements.add(onboarding_achievement)
             profile.badges.add(onboarding_achievement.badge_reward)
+            print('achievement and badge added to profile')
 
     def __str__(self):
         return self.email
     
 
 class Dealer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='dealer_profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='dealer_profile')
     # Add other fields specific to dealers if needed
 
     def __str__(self):
@@ -183,13 +185,71 @@ class Achievement(models.Model):
         return self.name
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     achievements = models.ManyToManyField(Achievement, blank=True)
     badges = models.ManyToManyField(Badge, blank=True)
 
     def __str__(self):
-        return self.user.username
+        return self.user.email
+    
+
+class AchievementInline(admin.TabularInline):
+    model = Profile.achievements.through
+    extra = 0  # Removes the extra blank fields
+    verbose_name = 'Achievement'
+    verbose_name_plural = 'Achievements'
+    can_delete = True  # Allows removing an achievement from a user
+
+
+class BadgeInline(admin.TabularInline):
+    model = Profile.badges.through
+    extra = 0  # Removes the extra blank fields
+    verbose_name = 'Badge'
+    verbose_name_plural = 'Badges'
+    can_delete = True  # Allows removing a badge from a user
+
+
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('get_email', 'get_display_name', 'get_user_type', 'get_profession', 'get_badges', 'get_achievements')
+    search_fields = ('user__email', 'user__display_name')
+    list_filter = ('user__is_active', 'user__is_staff', 'user__user_type')
+    inlines = [AchievementInline, BadgeInline]
+    
+    def get_email(self, obj):
+        return obj.user.email
+    get_email.admin_order_field = 'user__email'  # Allows column order sorting
+    get_email.short_description = 'Email'  # Renames column head
+
+    def get_display_name(self, obj):
+        return obj.user.display_name
+    get_display_name.admin_order_field = 'user__display_name'
+    get_display_name.short_description = 'Display Name'
+
+    def get_user_type(self, obj):
+        return obj.user.user_type
+    get_user_type.admin_order_field = 'user__user_type'
+    get_user_type.short_description = 'User Type'
+
+    def get_profession(self, obj):
+        return obj.user.profession
+    get_profession.admin_order_field = 'user__profession'
+    get_profession.short_description = 'Profession'
+
+    def get_badges(self, obj):
+        badges = obj.badges.all()
+        if badges:
+            return ", ".join([badge.name for badge in badges])
+        return "None"
+    get_badges.short_description = 'Badges'
+
+    def get_achievements(self, obj):
+        achievements = obj.achievements.all()
+        if achievements:
+            return ", ".join([achievement.name for achievement in achievements])
+        return "None"
+    get_achievements.short_description = 'Achievements'
+
 
 
 class UserAdmin(admin.ModelAdmin):

@@ -4,34 +4,34 @@ import { connect } from 'react-redux';
 import { getUserTokens } from 'thunks';
 
 const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) => {
-  const location = useLocation();
+	const location = useLocation();
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const paymentSuccess = params.get('payment');
+	useEffect(() => {
+		const params = new URLSearchParams(location.search);
+		const paymentSuccess = params.get('payment');
     
-    if (paymentSuccess === 'success' && userId) {
-      onGetUserTokens(userId);
-    }
+		if (paymentSuccess === 'success' && userId) {
+			onGetUserTokens(userId);
+		}
 
-    if (paymentSuccess) {
-      params.delete('payment');
-      params.delete('payment_intent');
-      params.delete('payment_intent_client_secret');
-      params.delete('redirect_status');
-      window.history.replaceState(null, '', '?' + params.toString());
-    }
-  }, [location.search, onGetUserTokens, userId]);
+		if (paymentSuccess) {
+			params.delete('payment');
+			params.delete('payment_intent');
+			params.delete('payment_intent_client_secret');
+			params.delete('redirect_status');
+			window.history.replaceState(null, '', '?' + params.toString());
+		}
+	}, [location.search, onGetUserTokens, userId]);
 
-  return <>{children}</>;
+	return <>{children}</>;
 };
 
 const mapStateToProps = (state) => ({
-  userId: state.user.currentUser?.user?.id, 
+	userId: state.user.currentUser?.user?.id, 
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onGetUserTokens: (userId) => dispatch(getUserTokens(userId)),
+	onGetUserTokens: (userId) => dispatch(getUserTokens(userId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CleanUrlAndHandlePaymentSuccess);
