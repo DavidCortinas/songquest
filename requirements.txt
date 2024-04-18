@@ -28,7 +28,7 @@ ffmpeg==1.4
 ffprobe==0.5
 ffprobe-python==1.0.3
 filelock==3.11.0
-gunicorn==20.1.0
+gunicorn==22.0.0
 h11==0.14.0
 hyperlink==21.0.0
 idna==3.4
