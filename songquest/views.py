@@ -1,8 +1,10 @@
 import base64
+from urllib.parse import urlencode
 from django.utils import timezone
 import dateutil
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Max
 from django.shortcuts import redirect
 import json
 import concurrent.futures
@@ -10,7 +12,7 @@ import os
 from django.contrib.auth import get_user_model
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.http import JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
 from time import time
@@ -20,7 +22,7 @@ from songquest.recommendations.models import RecommendationRequest
 
 import requests
 
-from songquest.user.models import Genre, User
+from songquest.user.models import Genre, User, Profile
 from songquest.utilities.image_utlities import resize_image
 from .spotify_discovery import get_access_token, get_recommendations
 from . import spotify_api
@@ -383,6 +385,25 @@ def update_user_profile(request):
             return JsonResponse({'error': 'There was an issue with your request. If the issue persists, please contact support@songquest.io'}, status=404)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+@csrf_exempt
+def get_user_profile(request):
+    user_id = request.headers.get('User-Id')
+    if not user_id:
+        return JsonResponse({'error': 'User-Id not found in headers'}, status=400)
+
+    try:
+        user = get_user_model().objects.get(id=user_id)
+    except get_user_model().DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+
+    try:
+        user_profile = Profile.objects.get(user=user)
+        profile_data = serialize_profile(user_profile, request)
+        return JsonResponse({'profile': profile_data}, status=200)
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'Profile does not exist for the user.'}, status=404)
 
 
 @csrf_exempt
@@ -447,17 +468,17 @@ redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
 
 
 @csrf_exempt
-def request_authorization(request):
+def request_authorization(request, source='default'):
     current_user = request.user
-    # Generate a state and store it in the session for later verification
-    state = generate_random_string(16)
-    request.session['spotify_state'] = state
+    state = generate_random_string(16) + '|' + source
+    encoded_state = base64.urlsafe_b64encode(state.encode()).decode('utf-8')  # encode the state to ensure URL safety
+    request.session['spotify_state'] = state  # store the original state for verification later
 
     # Spotify API authorization URL
     authorization_url = (
         'https://accounts.spotify.com/authorize/?'
-        'client_id={}&response_type=code&redirect_uri={}&scope=user-library-read%20user-library-modify%20user-read-email%20playlist-modify-public%20playlist-modify-private&state={}'
-    ).format(client_id, redirect_uri, state)
+        'client_id={}&response_type=code&redirect_uri={}&scope=user-library-read user-library-modify user-read-email playlist-modify-public playlist-modify-private&state={}'
+    ).format(client_id, redirect_uri, encoded_state)
 
     return redirect(authorization_url)
 
@@ -714,13 +735,44 @@ def get_spotify_token_info(code):
         return None
 
 
+def serialize_profile(profile, request):
+    # Prepare data for achievements including linked badge details
+    achievements_data = [{
+        'name': achievement.name,
+        'karma_reward': achievement.karma_reward,
+        'token_reward': achievement.token_reward,
+        'badge': {
+            'name': achievement.badge_reward.name,
+            'description': achievement.badge_reward.description,
+            'image_url': request.build_absolute_uri(achievement.badge_reward.image.url) if achievement.badge_reward.image else None,
+        } if achievement.badge_reward else None,
+    } for achievement in profile.achievements.all()]
+
+    return {
+        'email': profile.user.email,
+        'achievements': achievements_data,
+    }
+
+
 @csrf_exempt
 def handle_spotify_callback(request):
-    # Extract the body of the POST request
-    body_unicode = request.body.decode('utf-8')
-    body_data = json.loads(body_unicode)
-    code = body_data.get('code')
-    user_id = body_data.get('userId')
+    # Extract the query parameters
+    code = request.GET.get('code', '')
+    encoded_state = request.GET.get('state', '')
+    
+    # Decode and split the state into its components
+    try:
+        decoded_state = base64.urlsafe_b64decode(encoded_state.encode()).decode('utf-8')
+        state, source = decoded_state.split('|')
+    except Exception as e:
+        logging.error(f"Error decoding state: {str(e)}")
+        return HttpResponseForbidden("Invalid state parameter")
+
+    # Verify state matches what was stored in the session
+    if not state == request.session.pop('spotify_state', '').split('|')[0]:
+        return HttpResponseForbidden("Invalid state parameter")
+
+    user_id = request.session.get('user_id')  # Assuming you store user_id in session during authorization
     User = get_user_model()
     user = User.objects.get(id=user_id)
 
@@ -729,30 +781,34 @@ def handle_spotify_callback(request):
 
         if token_info and 'access_token' in token_info:
             access_token = token_info['access_token']
-            refresh_token = token_info.get('refresh_token')
-            expires_at = time() + token_info.get('expires_in', 0)
+            refresh_token = token_info.get('refresh_token', '')
+            expires_at = time() + token_info.get('expires_in', 3600)  # Default to 1 hour if not specified
 
-            # Associate token info with the current user
+            # Update user model with Spotify access credentials
             user.spotify_access = access_token
             user.spotify_refresh = refresh_token
             user.spotify_expires_at = expires_at
             user.save()
 
             spotify_connected = user.spotify_refresh is not None
+            # Assuming 'serialize_profile' is a function that prepares user profile data
+            user_profile_data = serialize_profile(user.profile)
 
-            # Define the target URL where you want to redirect
-            target_url = f'http://localhost:3000/pricing?spotify-connected={spotify_connected}'
+            return JsonResponse({
+                'spotify_connected': spotify_connected,
+                'user_profile': user_profile_data,
+                'source': source  # Include the source to allow specific frontend behavior
+            })
 
-            # Redirect the user's browser to the target URL
-            return JsonResponse({'spotify_connected': spotify_connected})
         else:
-            # Handle error: token not in response or token_info is None
-            logging.error("Error retrieving access token from Spotify or token_info is None")
-            return redirect('/error')
+            # Log and handle the case where Spotify tokens were not retrieved
+            logging.error("Failed to retrieve access tokens from Spotify.")
+            return JsonResponse({'error': 'Failed to retrieve access tokens'}, status=500)
+
     else:
-        # No code in request, handle accordingly
-        logging.error("No authorization code provided")
-        return redirect('/error')
+        # Log and handle the case where no authorization code was provided
+        logging.error("No authorization code provided in the request.")
+        return JsonResponse({'error': 'No authorization code provided'}, status=400)
 
 
 def token_expired(expiration_time):
@@ -1030,6 +1086,7 @@ def add_to_playlist(request, playlist_id):
         }
 
         tracks = data['tracks']
+        print(tracks)
 
         body = json.dumps({
             'uris': [f'spotify:track:{track["spotifyId"]}' for track in tracks],
@@ -1063,7 +1120,14 @@ def add_to_playlist(request, playlist_id):
         
         response = requests.post(spotify_url, headers=headers, data=body)
 
-        playlist.snapshot_id = response['snapshot_id']
+        try:
+            response_data = response.json()  # Try to parse response as JSON
+            snapshot_id = response_data['snapshot_id']
+        except (json.JSONDecodeError, KeyError):
+            print('Error parsing or accessing snapshot_id from response:', response.text)
+            return JsonResponse({'error': 'Failed to add to playlist'}, status=500)
+
+        playlist.snapshot_id = snapshot_id
         playlist.save()
 
         if response.status_code == 201 or response.status_code == 200:
@@ -1212,7 +1276,7 @@ def update_playlist_items(request, playlist_id):
                 'range_start': data['range_start'],
                 'insert_before': data['insert_before'],
                 'range_length': data.get('range_length', 1),
-                'snapshot_id': data.get('snapshot_id')
+                # 'snapshot_id': data.get('snapshot_id')
             })
             method = requests.put
         else:

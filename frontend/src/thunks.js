@@ -1,989 +1,1017 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { 
-  searchSongSuccess, 
-  searchSong, 
-  searchSongFailure, 
-  confirmUser, 
-  discoverSong, 
-  discoverSongSuccess, 
-  receiveSongResults, 
-  receivePerformerResults, 
-  receiveSpotifySeedGenres, 
-  receiveSpotifyMarkets, 
-  // refreshSpotifyAccess, 
-  updateDisplayNameSuccess, 
-  receiveLyricResults,
-  createPlaylist,
-  addToSavedPlaylist,
-  getUserPlaylistsRequest,
-  getUserPlaylistsSuccess,
-  getUserPlaylistsFailure,
-  savePreviousQuery,
-  saveQuery,
-  getRequestParametersRequest,
-  getRequestParametersSuccess,
-  getRequestParametersFailure,
-  resendVerificationSuccess,
-  resendVerificationFailure,
-  resendVerificationRequest,
-  getUserTokensRequest,
-  getUserTokensFailure,
-  getUserTokensSuccess,
-  getUserKarmaSuccess,
-  deletePlaylist,
-  updateBirthday,
-  updatePreferredGenres,
-  updateUserType,
-  updateUserProfession,
-  updateProfileImage,
-  removeFromSavedPlaylist,
-  updatePlaylistOrderSuccess,
-  updatePlaylistOrderFailure,
-  updatePlaylistOrderRequest,
-  updateDisplayNameRequest,
-  updateDisplayNameFailure,
-  updateUserProfileRequest,
-  updateUserProfileSuccess,
-  updateUserProfileFailure,
-  // updatePlaylistOrder
+	searchSongSuccess, 
+	searchSong, 
+	searchSongFailure, 
+	confirmUser, 
+	discoverSong, 
+	discoverSongSuccess, 
+	receiveSongResults, 
+	receivePerformerResults, 
+	receiveSpotifySeedGenres, 
+	receiveSpotifyMarkets, 
+	updateDisplayNameSuccess, 
+	receiveLyricResults,
+	createPlaylist,
+	addToSavedPlaylist,
+	getUserPlaylistsRequest,
+	getUserPlaylistsSuccess,
+	getUserPlaylistsFailure,
+	savePreviousQuery,
+	saveQuery,
+	getRequestParametersRequest,
+	getRequestParametersSuccess,
+	getRequestParametersFailure,
+	resendVerificationSuccess,
+	resendVerificationFailure,
+	resendVerificationRequest,
+	getUserTokensRequest,
+	getUserTokensFailure,
+	getUserTokensSuccess,
+	getUserKarmaSuccess,
+	deletePlaylist,
+	updateBirthday,
+	updatePreferredGenres,
+	updateUserType,
+	updateUserProfession,
+	updateProfileImage,
+	removeFromSavedPlaylist,
+	updatePlaylistOrderSuccess,
+	updatePlaylistOrderFailure,
+	updatePlaylistOrderRequest,
+	updateDisplayNameRequest,
+	updateDisplayNameFailure,
+	updateUserProfileRequest,
+	updateUserProfileSuccess,
+	updateUserProfileFailure,
+	getUserProfileRequest,
+	getUserProfileSuccess,
+	getUserProfileFailure,
+	addToSavedPlaylistSuccess,
+	addToSavedPlaylistFailure,
 } from './actions';
 import getCSRFToken from './csrf';
-import { authSlice, song } from './reducers';
-import { getTrackObjectsFromSpotifyIds, transformResponseToQueryStructure } from 'utils';
-
-// import { setAccount, setAuthTokens } from './actions/auth';
+import { authSlice } from './reducers';
+import { transformResponseToQueryStructure } from 'utils';
 
 export const searchSongRequest = (query) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
-    const body = JSON.stringify({
-      song: query.song,
-      performer: query.performer,
-    });
-    const response = await fetch('/search/', {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
-      },
-      method: 'post',
-      // credentials: 'include',
-      body,
-    });
+	try {
+		const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
+		const body = JSON.stringify({
+			song: query.song,
+			performer: query.performer,
+		});
+		const response = await fetch('/search/', {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+			},
+			method: 'post',
+			// credentials: 'include',
+			body,
+		});
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
+		if (!response.ok) {
+			throw new Error('Request failed with status ' + response.status);
+		}
 
-    const songData = await response.json();
+		const songData = await response.json();
 
-    // Update the front end with the received data
-    // Dispatch both searchSong and searchSongSuccess actions
-    dispatch(searchSong(songData, query, false));
-    // Dispatch searchSong action
-    dispatch(searchSongSuccess(songData, query)); // Dispatch searchSongSuccess action with the query
-    return songData;
-  } catch (error) {
-    console.log('Error: ' + error.message);
-    dispatch(searchSongFailure(error.message));
-    // alert('We had trouble finding that song. Please make sure you are spelling the song correctly and enter the performer for the quickest and most accurate search result')
-    dispatch(
-      searchSongSuccess(
-        { ascap_results: {}, bmi_results: {} },
-        { song: '', performer: '' }
-      )
-    );
-  }
+		// Update the front end with the received data
+		// Dispatch both searchSong and searchSongSuccess actions
+		dispatch(searchSong(songData, query, false));
+		// Dispatch searchSong action
+		dispatch(searchSongSuccess(songData, query)); // Dispatch searchSongSuccess action with the query
+		return songData;
+	} catch (error) {
+		console.log('Error: ' + error.message);
+		dispatch(searchSongFailure(error.message));
+		// alert('We had trouble finding that song. Please make sure you are spelling the song correctly and enter the performer for the quickest and most accurate search result')
+		dispatch(
+			searchSongSuccess(
+				{ ascap_results: {}, bmi_results: {} },
+				{ song: '', performer: '' }
+			)
+		);
+	}
 };
 
 export const checkRegistration = (user) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const response = await fetch('http://localhost:8000/user/', {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Email': user.email,
-      },
-      method: 'post',
-    });
+	try {
+		const csrfToken = await getCSRFToken();
+		const response = await fetch('http://localhost:8000/user/', {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Email': user.email,
+			},
+			method: 'post',
+		});
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
+		if (!response.ok) {
+			throw new Error('Request failed with status ' + response.status);
+		}
 
-    const currentUser = await response.json();
+		const currentUser = await response.json();
 
-    dispatch(confirmUser(currentUser));
+		dispatch(confirmUser(currentUser));
 
-    return currentUser;
-  } catch (error) {
-    console.log('Error: ' + error.message);
-  }
+		return currentUser;
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
 }
 
-export const registerUser = (email, password) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const body = JSON.stringify({
-      email: email,
-      password: password,
-    });
-    const response = await fetch(`http://localhost:8000/api/auth/register/`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-      },
-      method: 'post',
-      body,
-    });
+export const registerUser = (email, password) => async () => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const body = JSON.stringify({
+			email: email,
+			password: password,
+		});
+		const response = await fetch(`http://localhost:8000/api/auth/register/`, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+			},
+			method: 'post',
+			body,
+		});
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
+		if (!response.ok) {
+			throw new Error('Request failed with status ' + response.status);
+		}
 
-    const res = await response.json();
+		const res = await response.json();
     
-    return res
-  } catch (error) {
-    console.log('Error: ' + error.message)
-  }
+		return res
+	} catch (error) {
+		console.log('Error: ' + error.message)
+	}
 }
 
 export const login = (
-  email,
-  password,  
+	email,
+	password,  
 ) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const body = JSON.stringify({
-      email: email,
-      password: password,
-    });
-    const response = await fetch(`http://localhost:8000/api/auth/login/`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-      },
-      method: 'post',
-      body,
-    });
+	try {
+		const csrfToken = await getCSRFToken();
+		const body = JSON.stringify({
+			email: email,
+			password: password,
+		});
+		const response = await fetch(`http://localhost:8000/api/auth/login/`, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+			},
+			method: 'post',
+			body,
+		});
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
+		if (!response.ok) {
+			throw new Error('Request failed with status ' + response.status);
+		}
 
-    const res = await response.json();
+		const res = await response.json();
 
-    dispatch(
-      authSlice.actions.setAuthTokens({
-        token: res.access,
-        refreshToken: res.refresh,
-      })
-    );
+		dispatch(
+			authSlice.actions.setAuthTokens({
+				token: res.access,
+				refreshToken: res.refresh,
+			})
+		);
 
-    dispatch(authSlice.actions.setAccount(res.user));
+		dispatch(authSlice.actions.setAccount(res.user));
     
 
-    return res
-  } catch (error) {
-    console.log('Error: ' + error.message);
-  }
+		return res
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
 };
 
-export const handleUpload = (filelist) => async (filelist) => {
-  const UPLOAD_URL = "/api/upload";
-  const data =new FormData();
-  for (let file of filelist) {
-    data.append(file.name, file);
-  }
-  fetch(UPLOAD_URL, data)
-}
+// export const handleUpload = (filelist) => async (filelist) => {
+//   const UPLOAD_URL = "/api/upload";
+//   const data =new FormData();
+//   for (let file of filelist) {
+//     data.append(file.name, file);
+//   }
+//   fetch(UPLOAD_URL, data)
+// }
 
 export const discoverSongRequest = (parameters, userId) => async (dispatch, getState) => {
-  dispatch(discoverSong(false, parameters));
-  try {
-    const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
-    const body = JSON.stringify({ action: 'quest', parameters: parameters });
+	dispatch(discoverSong(false, parameters));
+	try {
+		const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
+		const body = JSON.stringify({ action: 'quest', parameters: parameters });
 
-    let headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-    };
+		let headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+		};
 
-    // Conditionally add the 'User-Id' header if 'userId' is present
-    if (userId) {
-      headers['User-Id'] = userId;
-    }
+		// Conditionally add the 'User-Id' header if 'userId' is present
+		if (userId) {
+			headers['User-Id'] = userId;
+		}
 
-    const response = await fetch('http://localhost:8000/api/discover/', {
-      headers: headers,
-      method: 'post',
-      body: body,
-    });
+		const response = await fetch('http://localhost:8000/api/discover/', {
+			headers: headers,
+			method: 'post',
+			body: body,
+		});
 
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
-    }
+		if (!response.ok) {
+			throw new Error(`Request failed with status ${response.status}`);
+		}
 
-    const res = await response.json();
+		const res = await response.json();
 
-    const discovery = res['recommendations'];
-    const userTokens = res['updated_tokens'];
-    const userKarma = res['updated_karma'];
+		const discovery = res['recommendations'];
+		const userTokens = res['updated_tokens'];
+		const userKarma = res['updated_karma'];
 
-    if (typeof userTokens === 'number') {
-      dispatch(getUserTokensSuccess(userTokens));
-    }
+		if (typeof userTokens === 'number') {
+			dispatch(getUserTokensSuccess(userTokens));
+		}
 
-    if (typeof userKarma === 'number') {
-      dispatch(getUserKarmaSuccess(userKarma));
-    }
+		if (typeof userKarma === 'number') {
+			dispatch(getUserKarmaSuccess(userKarma));
+		}
 
 
-    const prevQuery = getState().discovery.query;
-    dispatch(savePreviousQuery(prevQuery));
+		const prevQuery = getState().discovery.query;
+		dispatch(savePreviousQuery(prevQuery));
 
-    dispatch(discoverSongSuccess(discovery, true));
-    return discovery;
+		dispatch(discoverSongSuccess(discovery, true));
+		return discovery;
 
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-  }
+	} catch (error) {
+		console.error(`Error: ${error.message}`);
+	}
 };
 
 
 export const SpotifyAuth = ({ children }) => {
-  const [accessToken, setAccessToken] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
+	const [accessToken, setAccessToken] = useState('');
+	const [expiresAt, setExpiresAt] = useState('');
 
-  useEffect(() => {
-    async function fetchAccessToken() {
-      try {
-        const response = await fetch('http://localhost:8000/api/get-access-token/');
-        const data = await response.json();
-        const { access_token, expires_at } = data;
-        setAccessToken(access_token);
-        setExpiresAt(expires_at);
-      } catch (error) {
-        console.error('Error fetching access token: ', error);
-      }
-    }
+	useEffect(() => {
+		async function fetchAccessToken() {
+			try {
+				const response = await fetch('http://localhost:8000/api/get-access-token/');
+				const data = await response.json();
+				const { access_token, expires_at } = data;
+				setAccessToken(access_token);
+				setExpiresAt(expires_at);
+			} catch (error) {
+				console.error('Error fetching access token: ', error);
+			}
+		}
 
-    fetchAccessToken();
-  }, []);
+		fetchAccessToken();
+	}, []);
 
-  return <>{children(accessToken, expiresAt)}</>
+	return <>{children(accessToken, expiresAt)}</>
 };
 
-export const getSpotifyUserAuth = () => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const response = await fetch('http://localhost:8000/request-authorization/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-      },
-    });
+export const getSpotifyUserAuth = () => async () => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const response = await fetch('http://localhost:8000/request-authorization/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+			},
+		});
 
-      if (response.ok) {
-          const data = await response.json();
-          const authorizationUrl = data.authorization_url;
+		if (response.ok) {
+			const data = await response.json();
+			const authorizationUrl = data.authorization_url;
 
-          window.location.href = authorizationUrl;
-      } else {
-          console.error('Authorization request failed');
-      }
-  } catch (error) {
-      console.error('Error:', error);
-  }
+			window.location.href = authorizationUrl;
+		} else {
+			console.error('Authorization request failed');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
 };
 
 
 export const getSpotifySearchResult = (
-  value, 
-  parameter, 
-  accessToken, 
-  expiresAt
+	value, 
+	parameter, 
+	accessToken, 
+	expiresAt
 ) => async (dispatch) => {
-  const type = (parameter === 'songs' || parameter === 'lyrics') ? 'track' : 'artist';
-  const lyricsQuery = parameter === 'lyrics' ? `track:${value.track_name} artist:${value.artist_name}` : null;
+	const type = (parameter === 'songs' || parameter === 'lyrics') ? 'track' : 'artist';
+	const lyricsQuery = parameter === 'lyrics' ? `track:${value.track_name} artist:${value.artist_name}` : null;
 
-  const token = await checkTokenExpiration(accessToken, expiresAt);
+	const token = await checkTokenExpiration(accessToken, expiresAt);
 
-  try {
-    const API_URL = `https://api.spotify.com/v1/search?q=${
-      parameter === 'lyrics' ? 
-      encodeURIComponent(lyricsQuery) : 
-      encodeURIComponent(value)
-    }&type=${type}&include_external=audio`;
+	try {
+		const API_URL = `https://api.spotify.com/v1/search?q=${
+			parameter === 'lyrics' ? 
+				encodeURIComponent(lyricsQuery) : 
+				encodeURIComponent(value)
+		}&type=${type}&include_external=audio`;
 
-    const response = await axios.get(API_URL, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+		const response = await axios.get(API_URL, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
 
-    const result = response.data;
+		const result = response.data;
 
-    if (parameter === 'songs') {
-      dispatch(receiveSongResults(result.tracks));
-    }
-    if (parameter === 'performers') {
-      dispatch(receivePerformerResults(result.artists));
-    }
-    if (parameter === 'lyrics') {
-      dispatch(receiveLyricResults(result.tracks));
-    }
-  } catch (error) {
-    console.log('Error: ', error);
-  }
+		if (parameter === 'songs') {
+			dispatch(receiveSongResults(result.tracks));
+		}
+		if (parameter === 'performers') {
+			dispatch(receivePerformerResults(result.artists));
+		}
+		if (parameter === 'lyrics') {
+			dispatch(receiveLyricResults(result.tracks));
+		}
+	} catch (error) {
+		console.log('Error: ', error);
+	}
 };
 
 export const getSpotifyGenres = (
-  accessToken, 
-  expiresAt
-) => async (dispatch) => {
-  try {
-    const API_URL = 'https://api.spotify.com/v1/recommendations/available-genre-seeds';
-    const response = await axios.get(API_URL, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+	accessToken) => async (dispatch) => {
+	try {
+		const API_URL = 'https://api.spotify.com/v1/recommendations/available-genre-seeds';
+		const response = await axios.get(API_URL, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
 
-    const result = response.data;
-    dispatch(receiveSpotifySeedGenres(result.genres));
-    return result.genres
-  } catch (error) {
-    console.log('Error: ', error);
-  }
+		const result = response.data;
+		dispatch(receiveSpotifySeedGenres(result.genres));
+		return result.genres
+	} catch (error) {
+		console.log('Error: ', error);
+	}
 };
 
 export const getSpotifyMarkets = (
-  accessToken,
-  expiresAt,
+	accessToken,
 ) => async (dispatch) => {
-  try {
-    const API_URL = 'https://api.spotify.com/v1/markets';
-    const response = await axios.get(API_URL, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+	try {
+		const API_URL = 'https://api.spotify.com/v1/markets';
+		const response = await axios.get(API_URL, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
 
-    const result = response.data;
-    dispatch(receiveSpotifyMarkets(result.markets));
-  } catch (error) {
-    console.log('Error: ', error);
-  }
+		const result = response.data;
+		dispatch(receiveSpotifyMarkets(result.markets));
+	} catch (error) {
+		console.log('Error: ', error);
+	}
 };
 
 
-export const getSpotifyTracks = (userId, trackIds) => async (dispatch) => {
+export const getSpotifyTracks = (userId, trackIds) => async () => {
 
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    const data = {
-      spotifyIds: trackIds,
-    };
+		const data = {
+			spotifyIds: trackIds,
+		};
 
-    const response = await axios.post('http://localhost:8000/get-spotify-tracks/', data, { headers });
+		const response = await axios.post('http://localhost:8000/get-spotify-tracks/', data, { headers });
 
-    if (response.status === 200) {
-      return response.data['tracks'];
-    } else {
-      throw new Error('Request failed with status ' + response.status);
-    }
-  } catch (error) {
-    console.error('Error fetching Spotify tracks:', error.message);
-  }
+		if (response.status === 200) {
+			return response.data['tracks'];
+		} else {
+			throw new Error('Request failed with status ' + response.status);
+		}
+	} catch (error) {
+		console.error('Error fetching Spotify tracks:', error.message);
+	}
 };
 
-export const getSpotifyArtists = (userId, artistIds) => async (dispatch) => {
+export const getSpotifyArtists = (userId, artistIds) => async () => {
 
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    const data = {
-      artistIds: artistIds,
-    };
+		const data = {
+			artistIds: artistIds,
+		};
 
-    const response = await axios.post('http://localhost:8000/get-spotify-artists/', data, { headers });
+		const response = await axios.post('http://localhost:8000/get-spotify-artists/', data, { headers });
 
-    if (response.status === 200) {
-      return response.data['artists'];
-    } else {
-      throw new Error('Request failed with status ' + response.status);
-    }
-  } catch (error) {
-    console.error('Error fetching Spotify tracks:', error.message);
-  }
+		if (response.status === 200) {
+			return response.data['artists'];
+		} else {
+			throw new Error('Request failed with status ' + response.status);
+		}
+	} catch (error) {
+		console.error('Error fetching Spotify tracks:', error.message);
+	}
 };
 
 export const checkTokenExpiration = async (
-  accessToken,
-  refreshToken,
-  expiresAt
+	accessToken,
+	refreshToken,
+	expiresAt
 ) => {
-  // Check if the token has expired
-  const currentTime = Math.floor(Date.now() / 1000);
-  if (currentTime >= expiresAt) {
-    try {
-      const response = await fetch('http://localhost:8000/refresh-token/', {
-        method: 'POST',
-        body: JSON.stringify({ refresh_token: refreshToken }),
-        headers: {
-          'Content-Type': 'application/json',
-          // Add any other necessary headers here
-        },
-        credentials: 'include',
-      });
+	// Check if the token has expired
+	const currentTime = Math.floor(Date.now() / 1000);
+	if (currentTime >= expiresAt) {
+		try {
+			const response = await fetch('http://localhost:8000/refresh-token/', {
+				method: 'POST',
+				body: JSON.stringify({ refresh_token: refreshToken }),
+				headers: {
+					'Content-Type': 'application/json',
+					// Add any other necessary headers here
+				},
+				credentials: 'include',
+			});
 
-      if (response.status === 200) {
-        const tokenInfo = await response.json();
-        const newAccessToken = tokenInfo.access_token;
+			if (response.status === 200) {
+				const tokenInfo = await response.json();
+				const newAccessToken = tokenInfo.access_token;
 
-        return newAccessToken;
-      } else {
-        console.error('Error refreshing access token');
-        // Handle the error or throw an exception if needed
-        throw new Error('Error refreshing access token');
-      }
-    } catch (error) {
-      console.error('Error during token refresh:', error);
-      // Handle the error or throw an exception if needed
-      throw error;
-    }
-  }
+				return newAccessToken;
+			} else {
+				console.error('Error refreshing access token');
+				// Handle the error or throw an exception if needed
+				throw new Error('Error refreshing access token');
+			}
+		} catch (error) {
+			console.error('Error during token refresh:', error);
+			// Handle the error or throw an exception if needed
+			throw error;
+		}
+	}
 
-  return accessToken;
+	return accessToken;
 };
 
 
 export const handleUpdateDisplayName = (userId, newDisplayName) => async (dispatch) => {
-  dispatch(updateDisplayNameRequest());
+	dispatch(updateDisplayNameRequest());
 
-  try {
-    const csrfToken = await getCSRFToken();
-    const data = { 'new_display_name': newDisplayName };
+	try {
+		const csrfToken = await getCSRFToken();
+		const data = { 'new_display_name': newDisplayName };
 
-    const response = await axios.patch(`http://localhost:8000/update-display-name/`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.patch(`http://localhost:8000/update-display-name/`, data, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const { user } = response.data;
-    if (user && user.display_name) {
-      dispatch(updateDisplayNameSuccess(user.display_name)); 
-    }
+		const { user } = response.data;
+		if (user && user.display_name) {
+			dispatch(updateDisplayNameSuccess(user.display_name)); 
+		}
 
-    return response.data.user.display_name;
-  } catch (error) {
-    let errorMessage = 'An unexpected error occurred';
+		return response.data.user.display_name;
+	} catch (error) {
+		let errorMessage = 'An unexpected error occurred';
 
-    if (error.response && error.response.data && error.response.data.error) {
-      errorMessage = error.response.data.error;
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
 
-    console.error(`Error: ${errorMessage}`);
-    dispatch(updateDisplayNameFailure(errorMessage));
-  };
+		console.error(`Error: ${errorMessage}`);
+		dispatch(updateDisplayNameFailure(errorMessage));
+	}
 };
 
 export const handleUpdateBirthday = (userId, date) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const data = { date };
+	try {
+		const csrfToken = await getCSRFToken();
+		const data = { date };
 
-    const response = await axios.patch(`http://localhost:8000/update-birthday/`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.patch(`http://localhost:8000/update-birthday/`, data, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const { birthday } = response.data;
-    if (birthday) {
-      dispatch(updateBirthday(birthday)); 
-    };
+		const { birthday } = response.data;
+		if (birthday) {
+			dispatch(updateBirthday(birthday)); 
+		}
 
-    console.log('Birthday Saved Successfully');
-    return birthday
-  } catch (error) {
-    console.error(`Error: ${error.response ? error.response.data : error.message}`);
-    // Handle error accordingly. You can dispatch a failure action here if you have one.
-  }
+		console.log('Birthday Saved Successfully');
+		return birthday
+	} catch (error) {
+		console.error(`Error: ${error.response ? error.response.data : error.message}`);
+		// Handle error accordingly. You can dispatch a failure action here if you have one.
+	}
 };
 
 
 export const handleUpdatePreferredGenres = (userId, genres) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const data = { genres };
+	try {
+		const csrfToken = await getCSRFToken();
+		const data = { genres };
 
-    const response = await axios.patch(`http://localhost:8000/update-preferred-genres/`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.patch(`http://localhost:8000/update-preferred-genres/`, data, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const { preferred_genres } = response.data;
-    if (preferred_genres) {
-      dispatch(updatePreferredGenres(preferred_genres)); 
-    };
+		const { preferred_genres } = response.data;
+		if (preferred_genres) {
+			dispatch(updatePreferredGenres(preferred_genres)); 
+		}
 
-    console.log('Preferred Genres Saved Successfully');
-    return preferred_genres
-  } catch (error) {
-    console.error(`Error: ${error.response ? error.response.data : error.message}`);
-    // Handle error accordingly. You can dispatch a failure action here if you have one.
-  }
+		console.log('Preferred Genres Saved Successfully');
+		return preferred_genres
+	} catch (error) {
+		console.error(`Error: ${error.response ? error.response.data : error.message}`);
+		// Handle error accordingly. You can dispatch a failure action here if you have one.
+	}
 };
 
 export const handleUpdateUserType = (userId, userType) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const data = { userType };
+	try {
+		const csrfToken = await getCSRFToken();
+		const data = { userType };
 
-    const response = await axios.patch(`http://localhost:8000/update-user-type/`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.patch(`http://localhost:8000/update-user-type/`, data, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const { user_type, profession } = response.data;
-    if (user_type) {
-      dispatch(updateUserType(user_type)); 
-    };
+		const { user_type, profession } = response.data;
+		if (user_type) {
+			dispatch(updateUserType(user_type)); 
+		}
 
-    dispatch(updateUserProfession(profession))
+		dispatch(updateUserProfession(profession))
 
-    console.log('User Type Saved Successfully');
-    return user_type
-  } catch (error) {
-    console.error(`Error: ${error.response ? error.response.data : error.message}`);
-    // Handle error accordingly. You can dispatch a failure action here if you have one.
-  }
+		console.log('User Type Saved Successfully');
+		return user_type
+	} catch (error) {
+		console.error(`Error: ${error.response ? error.response.data : error.message}`);
+		// Handle error accordingly. You can dispatch a failure action here if you have one.
+	}
 };
 
 export const handleUpdateUserProfession = (userId, profession) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const data = { profession };
+	try {
+		const csrfToken = await getCSRFToken();
+		const data = { profession };
 
-    const response = await axios.patch(`http://localhost:8000/update-user-profession/`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.patch(`http://localhost:8000/update-user-profession/`, data, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const { saved_profession } = response.data;
-    if (saved_profession) {
-      dispatch(updateUserProfession(saved_profession)); 
-    };
+		const { saved_profession } = response.data;
+		if (saved_profession) {
+			dispatch(updateUserProfession(saved_profession)); 
+		}
 
-    console.log('User Profession Saved Successfully');
-    return saved_profession
-  } catch (error) {
-    console.error(`Error: ${error.response ? error.response.data : error.message}`);
-    // Handle error accordingly. You can dispatch a failure action here if you have one.
-  }
+		console.log('User Profession Saved Successfully');
+		return saved_profession
+	} catch (error) {
+		console.error(`Error: ${error.response ? error.response.data : error.message}`);
+		// Handle error accordingly. You can dispatch a failure action here if you have one.
+	}
 };
 
 export const handleUpdateProfileImage = (userId, imageFile) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const formData = new FormData();
-    formData.append('imageFile', imageFile);
+	try {
+		const csrfToken = await getCSRFToken();
+		const formData = new FormData();
+		formData.append('imageFile', imageFile);
 
-    const response = await axios.post(`http://localhost:8000/update-profile-image/`, formData, {
-      headers: {
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.post(`http://localhost:8000/update-profile-image/`, formData, {
+			headers: {
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const { profile_image } = response.data;
-    if (profile_image) {
-      dispatch(updateProfileImage(profile_image)); 
-    };
+		const { profile_image } = response.data;
+		if (profile_image) {
+			dispatch(updateProfileImage(profile_image)); 
+		}
 
-    console.log('Profile Image Saved Successfully');
-    return profile_image
-  } catch (error) {
-    console.error(`Error: ${error.response ? error.response.data : error.message}`);
-    // Handle error accordingly. You can dispatch a failure action here if you have one.
-  }
+		console.log('Profile Image Saved Successfully');
+		return profile_image
+	} catch (error) {
+		console.error(`Error: ${error.response ? error.response.data : error.message}`);
+		// Handle error accordingly. You can dispatch a failure action here if you have one.
+	}
+};
+
+export const getUserProfile = (userId) => async (dispatch) => {
+	dispatch(getUserProfileRequest());
+	try {
+		const response = await axios.get(`http://localhost:8000/get-user-profile/`, {
+			headers: {
+				'User-Id': userId,
+			},
+		});
+
+		const { profile } = response.data;
+		dispatch(getUserProfileSuccess(profile));
+		console.log('Successfully retrieved user profile: ', profile);
+		return profile
+	} catch (error) {
+		let errorMessage = 'An unexpected error occurred';
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
+
+		console.error(`Error: ${errorMessage}`);
+		dispatch(getUserProfileFailure(errorMessage));
+	}
 };
 
 export const handleUpdateUserProfile = (userId, userInfo) => async (dispatch) => {
-  dispatch(updateUserProfileRequest());
-  try {
-    const csrfToken = await getCSRFToken();
-    const data = userInfo;
+	dispatch(updateUserProfileRequest());
+	try {
+		const csrfToken = await getCSRFToken();
+		const data = userInfo;
 
-    const response = await axios.patch(`http://localhost:8000/update-user-profile/`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.patch(`http://localhost:8000/update-user-profile/`, data, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const { user } = response.data;
-    dispatch(updateUserProfileSuccess(user)); 
+		const { user } = response.data;
+		dispatch(updateUserProfileSuccess(user)); 
 
-    console.log('Successfully updated user: ', user)
-  } catch (error) {
-    let errorMessage = 'An unexpected error occurred';
+		console.log('Successfully updated user: ', user)
+	} catch (error) {
+		let errorMessage = 'An unexpected error occurred';
 
-    if (error.response && error.response.data && error.response.data.error) {
-      errorMessage = error.response.data.error;
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
 
-    console.error(`Error: ${errorMessage}`);
-    dispatch(updateUserProfileFailure(errorMessage));
-  }
-}
+		console.error(`Error: ${errorMessage}`);
+		dispatch(updateUserProfileFailure(errorMessage));
+	}
+};
 
 export const resendVerification = (userId) => async (dispatch) => {
-  dispatch(resendVerificationRequest());
-  try {
-    const csrfToken = await getCSRFToken();
-    const response = await fetch('http://localhost:8000/resend-verification-email/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+	dispatch(resendVerificationRequest());
+	try {
+		const csrfToken = await getCSRFToken();
+		const response = await fetch('http://localhost:8000/resend-verification-email/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    if (response.ok) {
-      dispatch(resendVerificationSuccess());
-    } else {
-      throw new Error('Failed to resend verification email');
-    }
-  } catch (error) {
-    dispatch(resendVerificationFailure(error.message));
-  }
+		if (response.ok) {
+			dispatch(resendVerificationSuccess());
+		} else {
+			throw new Error('Failed to resend verification email');
+		}
+	} catch (error) {
+		dispatch(resendVerificationFailure(error.message));
+	}
 };
 
 export const createPlaylistRequest = (
-  userId, 
-  playlist, 
+	userId, 
+	playlist, 
 ) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId, 
-    }
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId, 
+		}
 
-    const body = JSON.stringify({playlist: playlist, action: 'collect'});
+		const body = JSON.stringify({playlist: playlist, action: 'collect'});
 
-    const response = await fetch(`http://localhost:8000/create-playlist/`, {
-      headers: headers,
-      method: 'POST', 
-      body,
-    });
+		const response = await fetch(`http://localhost:8000/create-playlist/`, {
+			headers: headers,
+			method: 'POST', 
+			body,
+		});
 
-    if (!response.ok) {
-      throw new Error('Request failed with status ' + response.status);
-    }
+		if (!response.ok) {
+			throw new Error('Request failed with status ' + response.status);
+		}
 
-    const res = await response.json();
+		const res = await response.json();
 
-    const playlistData = res['playlistData']
-    const userTokens = res['updatedTokens'];
-    const userKarma = res['updatedKarma'];
+		const playlistData = res['playlistData']
+		const userTokens = res['updatedTokens'];
+		const userKarma = res['updatedKarma'];
 
-    dispatch(createPlaylist(playlistData));
-    dispatch(getUserTokensSuccess(userTokens));
-    dispatch(getUserKarmaSuccess(userKarma));
+		dispatch(createPlaylist(playlistData));
+		dispatch(getUserTokensSuccess(userTokens));
+		dispatch(getUserKarmaSuccess(userKarma));
 
-    return playlistData
-  } catch (error) {
-    console.log('Error: ' + error.message);
-  };
+		return playlistData
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
 };
 
 export const deletePlaylistRequest = (playlistIds, userId, onSuccess) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    const body = { playlist_ids: playlistIds };
+		const body = { playlist_ids: playlistIds };
 
-    const response = await axios.post('http://localhost:8000/delete-playlist/', body, { headers });
+		const response = await axios.post('http://localhost:8000/delete-playlist/', body, { headers });
 
-    if (response.status === 200) {
-      const res = response.data;
+		if (response.status === 200) {
+			// const res = response.data;
 
-      if (onSuccess) {
-        onSuccess();
-      }
+			if (onSuccess) {
+				onSuccess();
+			}
 
-      dispatch(deletePlaylist(...playlistIds));
+			dispatch(deletePlaylist(...playlistIds));
 
-      console.log('Playlists successfully deleted');
-    } else {
-      throw new Error('Request failed with status ' + response.status);
-    }
-  } catch (error) {
-    console.log('Error: ' + error.message);
-  }
+			console.log('Playlists successfully deleted');
+		} else {
+			throw new Error('Request failed with status ' + response.status);
+		}
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
 };
 
 
 export const addToSavedPlaylistRequest = (
-  playlistId,
-  userId,
-  tracks,
+	playlistId,
+	userId,
+	tracks,
 ) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
 
-    const body = {
-      id: playlistId,
-      tracks: tracks,
-    };
+	dispatch(addToSavedPlaylist());
 
-    const response = await axios.post(`http://localhost:8000/add-to-playlist/${playlistId}/`, body, { headers });
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    const playlist = response.data['playlist'];
+		const body = {
+			id: playlistId,
+			tracks: tracks,
+		};
 
-    dispatch(addToSavedPlaylist(playlist.id, playlist.tracks, playlist.snapshot));
-    return playlist.tracks;
-  } catch (error) {
-    console.log('Error: ', error.message);
-  }
+		const response = await axios.post(`http://localhost:8000/add-to-playlist/${playlistId}/`, body, { headers });
+
+		const playlist = response.data['playlist'];
+
+		dispatch(addToSavedPlaylistSuccess(playlist.id, playlist.tracks, playlist.snapshot));
+		return playlist.tracks;
+	} catch (error) {
+		dispatch(addToSavedPlaylistFailure(error.message))
+		console.error('Error: ', error.message);
+	}
 };
 
 export const removeFromPlaylistRequest = (
-  playlistId,
-  userId,
-  tracks,
+	playlistId,
+	userId,
+	tracks,
 ) => async (dispatch) => {
-    console.log('remove: ', tracks)
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    // Note: Axios delete method does not natively support body as a second parameter, 
-    // so we use the `data` field in the config parameter to send the body.
-    const config = {
-      method: 'delete',
-      url: `http://localhost:8000/remove-from-playlist/${playlistId}/`,
-      headers: headers,
-      data: JSON.stringify({
-        id: playlistId,
-        tracks: tracks,
-      }),
-    };
+		// Note: Axios delete method does not natively support body as a second parameter, 
+		// so we use the `data` field in the config parameter to send the body.
+		const config = {
+			method: 'delete',
+			url: `http://localhost:8000/remove-from-playlist/${playlistId}/`,
+			headers: headers,
+			data: JSON.stringify({
+				id: playlistId,
+				tracks: tracks,
+			}),
+		};
 
-    const response = await axios(config);
+		const response = await axios(config);
 
-    const playlist = response.data['playlist'];
+		const playlist = response.data['playlist'];
 
-    dispatch(removeFromSavedPlaylist(playlist.id, playlist.tracks));
-    return playlist.tracks;
-  } catch (error) {
-    console.error('Error: ', error.message);
-  }
+		dispatch(removeFromSavedPlaylist(playlist.id, playlist.tracks));
+		return playlist.tracks;
+	} catch (error) {
+		console.error('Error: ', error.message);
+	}
 };
 
 export const updatePlaylistItemsRequest = (userId, playlistId, updatedData) => async (dispatch) => {
-  try {
-    dispatch(updatePlaylistOrderRequest());
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try {
+		dispatch(updatePlaylistOrderRequest());
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    // Directly return the Axios call, which returns a promise
-    return axios.put(`http://localhost:8000/update-playlist-items/${playlistId}/`, updatedData, { headers })
-      .then(response => {
-        // Success path
-        if (response.status === 200) {
-          const reorderedTracks = response.data['tracks'];
-          const snapshotId = response.data['snapshotId'];
-          dispatch(updatePlaylistOrderSuccess(playlistId, reorderedTracks, snapshotId));
-          console.log('Playlist updated successfully');
-          return Promise.resolve(reorderedTracks);
-        } else {
-          const error = new Error('Request failed with status ' + response.status);
-          dispatch(updatePlaylistOrderFailure(error.toString()));
-          return Promise.reject(error);
-        }
-      })
-      .catch(error => {
-        console.error('Error: ' + error.message);
-        dispatch(updatePlaylistOrderFailure(error.toString()));
-        return Promise.reject(error);
-      });
-  } catch (error) {
-    console.error('Setup Error: ' + error.message);
-    dispatch(updatePlaylistOrderFailure(error.toString()));
-    return Promise.reject(error);
-  }
+		// Directly return the Axios call, which returns a promise
+		return axios.put(`http://localhost:8000/update-playlist-items/${playlistId}/`, updatedData, { headers })
+			.then(response => {
+				// Success path
+				if (response.status === 200) {
+					const reorderedTracks = response.data['tracks'];
+					const snapshotId = response.data['snapshotId'];
+					dispatch(updatePlaylistOrderSuccess(playlistId, reorderedTracks, snapshotId));
+					console.log('Playlist updated successfully');
+					return Promise.resolve(reorderedTracks);
+				} else {
+					const error = new Error('Request failed with status ' + response.status);
+					dispatch(updatePlaylistOrderFailure(error.toString()));
+					return Promise.reject(error);
+				}
+			})
+			.catch(error => {
+				console.error('Error: ' + error.message);
+				dispatch(updatePlaylistOrderFailure(error.toString()));
+				return Promise.reject(error);
+			});
+	} catch (error) {
+		console.error('Setup Error: ' + error.message);
+		dispatch(updatePlaylistOrderFailure(error.toString()));
+		return Promise.reject(error);
+	}
 };
 
 
 export const getUserPlaylists = (userId) => async (dispatch) => {
-  dispatch(getUserPlaylistsRequest());
+	dispatch(getUserPlaylistsRequest());
 
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    const response = await axios.get(`http://localhost:8000/get-user-playlists/`, {
-      headers,
-    });
+		const response = await axios.get(`http://localhost:8000/get-user-playlists/`, {
+			headers,
+		});
 
-    const userPlaylists = response.data['playlists']
+		const userPlaylists = response.data['playlists']
 
-    dispatch(getUserPlaylistsSuccess(userPlaylists));
-  } catch (error) {
-    console.error('Error fetching user playlists:', error);
-    dispatch(getUserPlaylistsFailure(error.message));
-  }
+		dispatch(getUserPlaylistsSuccess(userPlaylists));
+	} catch (error) {
+		console.error('Error fetching user playlists:', error);
+		dispatch(getUserPlaylistsFailure(error.message));
+	}
 };
 
 export const saveRequestParameters = (userId, query) => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
+	try {
+		const csrfToken = await getCSRFToken();
 
-    const response = await axios.post('http://localhost:8000/save-request-parameters/', query, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-        'User-Id': userId,
-      },
-    });
+		const response = await axios.post('http://localhost:8000/save-request-parameters/', query, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId,
+			},
+		});
 
-    const res = response.data;
+		const res = response.data;
 
-    const transformedQuery = transformResponseToQueryStructure(res['recommendation_request']);
+		const transformedQuery = transformResponseToQueryStructure(res['recommendation_request']);
 
-    dispatch(saveQuery(transformedQuery));
-  } catch (error) {
-    console.log('Error: ' + error.message);
-  }
+		dispatch(saveQuery(transformedQuery));
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
 };
 
 export const getRequestParameters = (userId) => async (dispatch) => {
-  dispatch(getRequestParametersRequest());
+	dispatch(getRequestParametersRequest());
 
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    const response = await axios.get(`http://localhost:8000/get-user-requests/`, {
-      headers,
-    });
+		const response = await axios.get(`http://localhost:8000/get-user-requests/`, {
+			headers,
+		});
 
-    const userRequestParameters = response.data['requests'];
-    const transformedUserRequestParameters = userRequestParameters.map((request) => {
-      return transformResponseToQueryStructure(request);
-    });
-    dispatch(getRequestParametersSuccess(transformedUserRequestParameters));
-  } catch (error) {
-    console.error('Error fetching user request parameters:', error);
-    dispatch(getRequestParametersFailure(error.message));
-  }
+		const userRequestParameters = response.data['requests'];
+		const transformedUserRequestParameters = userRequestParameters.map((request) => {
+			return transformResponseToQueryStructure(request);
+		});
+		dispatch(getRequestParametersSuccess(transformedUserRequestParameters));
+	} catch (error) {
+		console.error('Error fetching user request parameters:', error);
+		dispatch(getRequestParametersFailure(error.message));
+	}
 };
 
-export const getPricing = () => async (dispatch) => {
-  try {
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-    };
+export const getPricing = () => async () => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+		};
 
-    const response = await axios.get(`http://localhost:8000/get-pricing/`, {
-      headers,
-    });
+		const response = await axios.get(`http://localhost:8000/get-pricing/`, {
+			headers,
+		});
 
-    return response.data['pricing_packages']
-  } catch (error) {
-    console.error('Error getting pricing packages: ', error);
-  };
+		return response.data['pricing_packages']
+	} catch (error) {
+		console.error('Error getting pricing packages: ', error);
+	}
 };
 
 export const getUserTokens = (userId) => async (dispatch) => {
-  dispatch(getUserTokensRequest());
+	dispatch(getUserTokensRequest());
 
-  try{
-    const csrfToken = await getCSRFToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken,
-      'User-Id': userId,
-    };
+	try{
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId,
+		};
 
-    const response = await axios.get('http://localhost:8000/get-user-tokens/', {
-      headers,
-    });
+		const response = await axios.get('http://localhost:8000/get-user-tokens/', {
+			headers,
+		});
 
-    const tokens = response.data['tokens']
-    dispatch(getUserTokensSuccess(tokens));
-  } catch (error) {
-    console.error('Error fetching users tokens: ', error);
-    dispatch(getUserTokensFailure(error));
-  };
+		const tokens = response.data['tokens']
+		dispatch(getUserTokensSuccess(tokens));
+	} catch (error) {
+		console.error('Error fetching users tokens: ', error);
+		dispatch(getUserTokensFailure(error));
+	}
 };
 
 

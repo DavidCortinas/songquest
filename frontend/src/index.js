@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import './index.css';
 import App from './App';
+import { SnackbarProvider } from 'contexts/snackbar/SnackbarContext';
 // import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -15,13 +16,15 @@ const persistor = persistStore(store);
 window.React = React
 
 root.render(
-  <Provider store={store}>
-    <PersistGate persistor={persistor}>
-      <Router>
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      </Router>
-    </PersistGate>
-  </Provider>
+	<Provider store={store}>
+		<PersistGate persistor={persistor}>
+			<SnackbarProvider> 
+				<Router>
+					<React.StrictMode>
+						<App />
+					</React.StrictMode>
+				</Router>
+			</SnackbarProvider>
+		</PersistGate>
+	</Provider>
 );

@@ -5,35 +5,34 @@ import getCSRFToken from './csrf';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { LoadingState } from './components/LoadingState';
-import { Box, CardHeader } from '@mui/material';
 
 function App() {
-  const [csrfToken, setCsrfToken] = useState(null);
+	const [csrfToken, setCsrfToken] = useState(null);
 
-  useEffect(() => {
-    // Retrieve the CSRF token
-    async function initialize() {
-      const token = await getCSRFToken();
-      setCsrfToken(token); // Store the CSRF token in state
-    }
+	useEffect(() => {
+		// Retrieve the CSRF token
+		async function initialize() {
+			const token = await getCSRFToken();
+			setCsrfToken(token); // Store the CSRF token in state
+		}
 
-    initialize();
-  }, []);
+		initialize();
+	}, []);
 
-  if (csrfToken === null) {
-    // You can show a loading state or spinner until the CSRF token is retrieved
-    return (
-        <LoadingState />
-    );
-  }
+	if (csrfToken === null) {
+		// You can show a loading state or spinner until the CSRF token is retrieved
+		return (
+			<LoadingState />
+		);
+	}
 
-  return (
-    <ThemeProvider theme={theme}>
-      <div >
-          <RoutesContainer />
-      </div>
-    </ThemeProvider>
-  );
+	return (
+		<ThemeProvider theme={theme}>
+			<div >
+				<RoutesContainer />
+			</div>
+		</ThemeProvider>
+	);
 }
 
 export default App;
