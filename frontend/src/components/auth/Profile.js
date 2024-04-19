@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from "react-redux";
 import { 
 	Alert,
@@ -27,11 +27,10 @@ import { DateField } from '@mui/x-date-pickers/DateField';
 import { DropzoneDialog } from 'mui-file-dropzone';
 import { useNavigate } from "react-router-dom";
 import dayjs from 'dayjs';
-import useStyles from "classes/playlist";
-import theme from "theme";
-import { toCapitalCase } from "utils";
-import { useEffect, useRef, useState } from "react";
-import { SpotifyAuth, getSpotifyGenres, handleUpdateProfileImage, handleUpdateUserProfile, getUserProfile } from "thunks";
+import useStyles from "../../classes/playlist";
+import theme from "../../theme";
+import { toCapitalCase } from "../../utils";
+import { SpotifyAuth, getSpotifyGenres, handleUpdateProfileImage, handleUpdateUserProfile, getUserProfile } from "../../thunks";
 import { useDispatch } from "react-redux";
 import { AddImageIcon } from "./Onboard";
 

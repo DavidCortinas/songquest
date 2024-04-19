@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { 
 	searchSongSuccess, 
@@ -54,7 +53,7 @@ import {
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice } from './reducers';
-import { transformResponseToQueryStructure } from 'utils';
+import { transformResponseToQueryStructure } from './utils';
 
 export const searchSongRequest = (query) => async (dispatch) => {
 	try {

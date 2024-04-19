@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, useMediaQuery } from "@mui/material";
-import theme from "theme";
+import spotifyLogo from '../../public/images/spotifyLogo.png';
+import theme from "../theme";
 
 export const BottomContainer = () => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -40,7 +41,7 @@ export const BottomContainer = () => {
 				</Typography>
 				<img
 					width='100px'
-					src={'/static/images/spotifyLogo.png'}
+					src={spotifyLogo}
 				/>
 			</Box>
 			<Box sx={{ textAlign: 'left', paddingTop: '2%' }}>

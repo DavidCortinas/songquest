@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
 	Box, 
 	Button, 
@@ -13,13 +13,12 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import getPlaylistItems from "utils/playlist";
-import useStyles from "classes/playlist";
+import getPlaylistItems from "../../utils/playlist";
+import useStyles from "../../classes/playlist";
 import { connect } from "react-redux";
-import { resetCurrentPlaylist, setSelectedPlaylist } from "actions";
-import theme from "theme";
-import { useState } from "react";
-import { deletePlaylistRequest } from "thunks";
+import { resetCurrentPlaylist, setSelectedPlaylist } from "../../actions";
+import theme from "../../theme";
+import { deletePlaylistRequest } from "../../thunks";
 
 const PlaylistCard = ({
 	classes,

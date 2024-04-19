@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 import { useStyles } from "./classes";
 import { useEffect, useState } from "react";
-import theme from "theme";
+import theme from "../../theme";
 import { 
 	Alert,
 	Autocomplete, 
@@ -23,12 +23,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
 import { connect, useDispatch } from "react-redux";
-import { SpotifyAuth, getSpotifyGenres, handleUpdateBirthday, handleUpdateDisplayName, handleUpdatePreferredGenres, handleUpdateProfileImage, handleUpdateUserProfession, handleUpdateUserType } from "thunks";
-import { toCapitalCase } from "utils";
+import { SpotifyAuth, getSpotifyGenres, handleUpdateBirthday, handleUpdateDisplayName, handleUpdatePreferredGenres, handleUpdateProfileImage, handleUpdateUserProfession, handleUpdateUserType } from "../../thunks";
+import { toCapitalCase } from "../../utils";
 import { DropzoneArea } from "mui-file-dropzone";
 import { useLocation, useNavigate } from "react-router-dom";
-import { emailVerificationFailure, emailVerificationSuccess } from "actions";
-import { LoadingState } from "components/LoadingState";
+import { emailVerificationFailure, emailVerificationSuccess } from "../../actions";
+import { LoadingState } from "../../components/LoadingState";
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {

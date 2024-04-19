@@ -1,46 +1,109 @@
+require('dotenv').config();
+
 const path = require("path");
 const webpack = require("webpack");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+console.log(process.env.REACT_APP_STRIPE_KEY);
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production';
+	const isProduction = argv.mode === 'production';
 
-  return {
-    entry: "./src/index.js",
-    output: {
-      path: path.resolve(__dirname, "./static/js"),
-      filename: "[name].js"
-    },
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          use: {
-            loader: "babel-loader"
-          }
-        },
-        {
-          test: /\.css$/i,
-          use: ["style-loader", "css-loader"],
-        },
-        {
-          test: /\.(png|jpe?g|svg|gif)$/i, // Add this rule for image files
-          use: [
-            {
-              loader: 'file-loader',
-            },
-          ],
-        },
-      ]
-    },
-    optimization: {
-      minimize: true
-    },
-    // Set environment variables based on build mode
-    plugins: [
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
-      }),
-    ],
-  };
+	return {
+		entry: "./src/index.js",
+		output: {
+			path: isProduction ? path.resolve(__dirname, "../backend/static") : path.resolve(__dirname, "dist"),
+			filename: "js/[name].[contenthash:8].js",
+			publicPath: isProduction ? '/static/' : '/',
+		},
+		module: {
+			rules: [
+				{
+					test: /\.js$/,
+					exclude: /node_modules/,
+					use: {
+						loader: "babel-loader",
+						options: {
+							presets: ['@babel/preset-env', '@babel/preset-react'],
+							plugins: ['@babel/plugin-transform-runtime']
+						}
+					}
+				},
+				{
+					test: /\.css$/,
+					use: [
+						isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+						"css-loader"
+					],
+				},
+				{
+					test: /\.(png|jpg|jpeg|gif|svg|ico)$/i,
+					type: 'asset/resource',
+					generator: {
+						filename: 'media/[name].[hash:8][ext]'
+					}
+				},
+			]
+		},
+		plugins: [
+			new webpack.DefinePlugin({
+				'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
+				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(process.env.REACT_APP_STRIPE_KEY),
+			}),
+			new HtmlWebpackPlugin({
+				template: './public/index.html',
+				filename: isProduction ? '../templates/index.html' : 'index.html',
+				inject: true,
+				minify: isProduction && {
+					removeComments: true,
+					collapseWhitespace: true,
+					removeRedundantAttributes: true,
+					useShortDoctype: true,
+					removeEmptyAttributes: true,
+					removeStyleLinkTypeAttributes: true,
+					keepClosingSlash: true,
+					minifyJS: true,
+					minifyCSS: true,
+					minifyURLs: true,
+				},
+			}),
+			new MiniCssExtractPlugin({
+				filename: 'css/[name].[contenthash:8].css',
+				chunkFilename: 'css/[id].[contenthash:8].css',
+			}),
+			new CleanWebpackPlugin(),
+		],
+		optimization: {
+			minimize: isProduction,
+			minimizer: [new TerserPlugin({
+				terserOptions: {
+					format: {
+						comments: false,
+					},
+				},
+				extractComments: false,
+			})],
+		},
+		devServer: {
+			static: {
+				directory: path.join(__dirname, 'public'),
+				publicPath: '/',
+			},
+			historyApiFallback: true,
+			hot: true,
+			open: true,
+			port: 3000,
+			proxy: [{
+				context: ['/api'],
+				target: 'http://localhost:8000',
+				changeOrigin: true,
+				secure: false,
+			}],
+		},
+		devtool: isProduction ? false : 'eval-source-map',
+	};
 };
+

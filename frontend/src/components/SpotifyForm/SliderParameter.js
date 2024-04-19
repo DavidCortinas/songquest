@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, FormControlLabel, Slider, Switch, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { toCapitalCase } from "utils";
+import { toCapitalCase } from "../../utils";
 
 export const SliderParameter = ({ 
 	parameter, 

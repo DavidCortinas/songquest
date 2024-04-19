@@ -2,11 +2,11 @@ import React from "react";
 import { Box, Button, Modal, TextField, Tooltip, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { getSpotifyArtists, getSpotifyTracks } from "thunks";
-import { toCapitalCase } from "utils";
+import { getSpotifyArtists, getSpotifyTracks } from "../thunks";
+import { toCapitalCase } from "../utils";
 import { autocompleteParam } from "./spotifyForm/SpotifyForm";
 import CloseIcon from '@mui/icons-material/Close';
-import theme from "theme";
+import theme from "../theme";
 
 const SaveQueryModal = ({ 
 	isModalOpen, 

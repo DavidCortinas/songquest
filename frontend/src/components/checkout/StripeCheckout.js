@@ -6,7 +6,7 @@ import getCSRFToken from '../../csrf';
 import { makeStyles } from '@mui/styles';
 import { Box, Button, Typography } from '@mui/material';
 import { connect } from 'react-redux';
-import 'App.css';
+import '../../App.css';
 import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
