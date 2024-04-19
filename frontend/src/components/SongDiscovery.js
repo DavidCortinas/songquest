@@ -983,6 +983,7 @@ export const SongDiscovery = ({
 								{`You have earned a new badge:`}
 							</Typography>
 							<img
+								loading='lazy'
 								src={currentUserProfile?.achievements[0]?.badge.image_url}
 								alt={currentUserProfile?.achievements[0]?.badge.name}
 								style={{ 

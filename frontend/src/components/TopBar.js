@@ -134,6 +134,7 @@ export const TopBar = ({
 					onClick={handleNavigate}
 				>
 					<img
+						loading='lazy'
 						src={logoIcon}
 						alt="Logo"
 						style={{ 

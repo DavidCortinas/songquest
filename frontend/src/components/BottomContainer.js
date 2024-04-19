@@ -40,6 +40,7 @@ export const BottomContainer = () => {
           Powered by:
 				</Typography>
 				<img
+					loading="lazy"
 					width='100px'
 					src={spotifyLogo}
 				/>

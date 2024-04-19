@@ -32,6 +32,7 @@ const ErrorPage = () => {
                 Houston, we have a problem...
 			</Typography>
 			<img
+				loading='lazy'
 				src={errorGif}
 				alt="Error"
 				style={{ 

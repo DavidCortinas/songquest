@@ -19,6 +19,7 @@ import { connect } from "react-redux";
 import { resetCurrentPlaylist, setSelectedPlaylist } from "../../actions";
 import theme from "../../theme";
 import { deletePlaylistRequest } from "../../thunks";
+import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
 
 const PlaylistCard = ({
 	classes,
@@ -111,7 +112,8 @@ const PlaylistCard = ({
 					{playlistName}
 				</Typography>
 				<img
-					src='/static/images/Spotify_Icon_RGB_White.png'
+					loading='lazy'
+					src={spotifyIcon}
 					style={{
 						maxWidth: '8%',
 						height: 'auto',

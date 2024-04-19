@@ -33,6 +33,8 @@ import { toCapitalCase } from "../../utils";
 import { SpotifyAuth, getSpotifyGenres, handleUpdateProfileImage, handleUpdateUserProfile, getUserProfile } from "../../thunks";
 import { useDispatch } from "react-redux";
 import { AddImageIcon } from "./Onboard";
+import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
+import spotifyGreenIcon from '../../../public/images/Spotify_Icon_RGB_Green.png';
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {
@@ -1293,6 +1295,7 @@ export const Profile = ({
 								}
 							>
 								<img
+									loading='lazy'
 									src={achievement.badge.image_url}
 									alt={achievement.badge.name}
 									style={{ 
@@ -1433,7 +1436,8 @@ export const Profile = ({
 							}}
 						>
 							<img
-								src='/static/images/Spotify_Icon_RGB_Green.png'
+								loading='lazy'
+								src={spotifyGreenIcon}
 								style={{
 									width: '100%', // Makes the image fill the container
 									height: 'auto', // Maintains aspect ratio
@@ -1527,8 +1531,9 @@ export const Profile = ({
 										{'Connect to Spotify'}
 									</Typography>
 								</Box> 
-								<img 
-									src='/static/images/Spotify_Icon_RGB_White.png' 
+								<img
+									loading='lazy' 
+									src={spotifyIcon}
 									style={{ 
 										maxWidth: '8%', 
 										height: 'auto',

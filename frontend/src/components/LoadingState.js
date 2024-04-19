@@ -60,6 +60,7 @@ export const LoadingSpinner = () => {
 			}}
 		>
 			<img
+				loading='lazy'
 				src={logoIcon}
 				alt="Spinning-Logo"
 				className='spin'
@@ -132,6 +133,7 @@ export const LoadingState = () => {
 				}}
 			>
 				<img
+					loading='lazy'
 					src={logoIcon}
 					alt="Spinning-Logo"
 					className='spin'
