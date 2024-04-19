@@ -79,6 +79,7 @@ export const VerificationError = () => {
 				}}
 			>
 				<img
+					loading='lazy'
 					src={logoIcon}
 					alt="Logo"
 					style={{ 

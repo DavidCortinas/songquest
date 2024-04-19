@@ -366,7 +366,7 @@ export const song = (state = initialSongState, action) => {
 };
 
 export const user = (state = { currentUser: null }, action) => {
-	const { type, payload } = action;
+	const { type, payload = {} } = action;
 	const userWithCamelCase = payload && toCamelCase(payload.user?.user);
 	switch (type) {
 	case CONFIRM_USER:
@@ -716,7 +716,7 @@ export const playlist = (
 	}, 
 	action
 ) => {
-	const { type, payload } = action;
+	const { type, payload = {} } = action;
   
 	const editPlaylistIndex = state.playlists.findIndex(playlist => playlist.id === state.currentPlaylist.editPlaylist.id);
 	const editPlaylistIndexRemove = state.playlists.findIndex(playlist => playlist.id === state.currentPlaylist.editPlaylist.id);

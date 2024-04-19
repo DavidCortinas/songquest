@@ -5,6 +5,9 @@ import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import theme from "../../theme";
 import { getPricing } from "../../thunks";
+import eightTokens from '../../../public/images/eightTokens.png';
+import eightyTokens from '../../../public/images/eightyTokens.png';
+import fortyTokens from '../../../public/images/fortyTokens.png';
 
 const useStyles = makeStyles((theme) => ({
 	containerBox: {
@@ -271,23 +274,27 @@ export const Pricing = ({ onGetPricing }) => {
 							</Typography>
 							{price.name === '80 Tokens' ? (
 								<img 
-									src={'/static/images/twentyTokens.png'} 
+									loading='lazy'
+									src={eightyTokens} 
 									style={{
-										width: '20em'
+										width: '15em',
+										marginTop: '-1em'
 									}}
 								/>
 							) : price.name === '40 Tokens' ? (
 								<img 
-									src={'/static/images/tenTokens.png'}
+									loading='lazy'
+									src={fortyTokens}
 									style={{
-										width: '10em'
+										width: '15em'
 									}} 
 								/>
 							) : (
 								<img 
-									src={'/static/images/threeTokens.png'}
+									loading='lazy'
+									src={eightTokens}
 									style={{
-										width: '10em'
+										width: '15em'
 									}} 
 								/>
 							)}

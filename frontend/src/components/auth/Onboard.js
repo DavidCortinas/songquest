@@ -29,6 +29,7 @@ import { DropzoneArea } from "mui-file-dropzone";
 import { useLocation, useNavigate } from "react-router-dom";
 import { emailVerificationFailure, emailVerificationSuccess } from "../../actions";
 import { LoadingState } from "../../components/LoadingState";
+import spotifyLogo from '../../../public/images/spotifyLogo.png'
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {
@@ -847,12 +848,13 @@ const OnboardSpotify = ({
 						onClick={(e) => handleConnectThroughSpotify(e, 'onboard')}
 					>
 						<img
+							loading='lazy'
 							width='300em'
 							style={{
 								margin: '0 auto',
 								display: 'block', 
 							}}
-							src={'/static/images/spotifyLogo.png'}
+							src={spotifyLogo}
 						/>
 					</Button>
 					<Typography

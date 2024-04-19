@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import theme from "../../theme";
 import { removeFromCurrentPlaylistById, removeFromPlaylistToEdit, setCreatePlaylist, setEditPlaylist, setPlaylistToEdit, setSelectedPlaylist } from "../../actions";
+import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {
@@ -103,6 +104,7 @@ const PlaylistItemCard = ({
 			</Tooltip>
 			{!(isXsScreen || isSmScreen) && (
 				<img 
+					loading='lazy'
 					alt={item.name}
 					src={imgUrl} 
 					style={{
@@ -150,8 +152,9 @@ const PlaylistItemCard = ({
 				}}
 			/>
 			<img 
+				loading='lazy'
 				alt='spotify-icon'
-				src='/static/images/Spotify_Icon_RGB_White.png' 
+				src={spotifyIcon}
 				style={{ 
 					maxWidth: '8%', 
 					height: 'auto',
@@ -730,8 +733,9 @@ const CreateOrEditPlaylist = ({
 															</Typography>
 														</Box> 
 														<img 
+															loading='lazy'
 															alt='spotify-icon'
-															src='/static/images/Spotify_Icon_RGB_White.png' 
+															src={spotifyIcon} 
 															style={{ 
 																maxWidth: '8%', 
 																height: 'auto',

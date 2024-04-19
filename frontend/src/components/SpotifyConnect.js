@@ -5,6 +5,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useNavigate } from 'react-router-dom';
 import theme from '../theme';
 import { connect } from 'react-redux';
+import spotifyLogo from '../../public/images/spotifyLogo.png'
 
 const useStyles = makeStyles(() => (
 	{
@@ -117,12 +118,13 @@ const SpotifyConnect = ({
 						onClick={(e) => handleConnectThroughSpotify(e, 'connect')}
 					>
 						<img
+							loading='lazy'
 							width='150em'
 							style={{
 								margin: '0 auto',
 								display: 'block', 
 							}}
-							src={'/static/images/spotifyLogo.png'}
+							src={spotifyLogo}
 						/>
 					</Button>
 					<br />
