@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import errorGif from '../../public/images/error.gif';
 
 const ErrorPage = () => {
 	const navigate = useNavigate();
@@ -31,7 +32,7 @@ const ErrorPage = () => {
                 Houston, we have a problem...
 			</Typography>
 			<img
-				src={'/static/images/error.gif'}
+				src={errorGif}
 				alt="Error"
 				style={{ 
 					width: '25%',

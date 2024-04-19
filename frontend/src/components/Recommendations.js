@@ -9,10 +9,10 @@ import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrow
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useNavigate } from "react-router-dom";
 import { useCallback, useRef, useState } from "react";
-import theme from "theme";
+import theme from "../theme";
 import { connect } from "react-redux";
-import { addToCurrentPlaylist, addToPlaylistToEdit } from "actions";
-import { addToSavedPlaylistRequest } from "thunks";
+import { addToCurrentPlaylist, addToPlaylistToEdit } from "../actions";
+import { addToSavedPlaylistRequest } from "../thunks";
 
 const Recommendation = ({
 	classes,

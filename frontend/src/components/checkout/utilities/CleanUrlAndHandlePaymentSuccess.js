@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { getUserTokens } from 'thunks';
+import { getUserTokens } from '../../../thunks';
 
 const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) => {
 	const location = useLocation();

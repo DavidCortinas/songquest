@@ -5,7 +5,7 @@ import {
 	MenuItem, 
 	Select 
 } from "@mui/material";
-import theme from "theme";
+import theme from "../../theme";
 
 export const SearchParameter = ({ 
 	parameter, 

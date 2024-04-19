@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Button, CardHeader, Grid, Typography } from "@mui/material";
-import theme from "theme";
+import theme from "../theme";
 
 export const Body = ({ 
 	isSmScreen, 

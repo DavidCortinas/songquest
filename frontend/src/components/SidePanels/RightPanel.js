@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
 	Alert,
 	Autocomplete,
@@ -22,14 +22,13 @@ import DragHandleIcon from '@mui/icons-material/DragHandle';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
-import useStyles from "classes/playlist";
-import { useEffect, useState } from "react";
+import useStyles from "../../classes/playlist";
 import { connect } from "react-redux";
-import { addToSavedPlaylistRequest, createPlaylistRequest, removeFromPlaylistRequest, updatePlaylistItemsRequest } from "thunks";
+import { addToSavedPlaylistRequest, createPlaylistRequest, removeFromPlaylistRequest, updatePlaylistItemsRequest } from "../../thunks";
 import { useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import theme from "theme";
-import { removeFromCurrentPlaylistById, removeFromPlaylistToEdit, setCreatePlaylist, setEditPlaylist, setPlaylistToEdit, setSelectedPlaylist } from "actions";
+import theme from "../../theme";
+import { removeFromCurrentPlaylistById, removeFromPlaylistToEdit, setCreatePlaylist, setEditPlaylist, setPlaylistToEdit, setSelectedPlaylist } from "../../actions";
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {

@@ -25,6 +25,7 @@ function App() {
 			<LoadingState />
 		);
 	}
+	console.log('APP')
 
 	return (
 		<ThemeProvider theme={theme}>

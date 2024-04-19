@@ -19,7 +19,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { checkRegistration, getUserPlaylists, login, registerUser } from "../../thunks";
 import { resetDataLoaded, setCurrentUser } from "../../actions";
 import { useStyles } from "./classes";
-import { LoadingState } from "components/LoadingState";
+import { LoadingState } from "../../components/LoadingState";
 
 export const Login = ({ 
 	onResetDataLoaded,

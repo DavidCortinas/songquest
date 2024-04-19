@@ -74,7 +74,7 @@ import {
 	ADD_TO_SAVED_PLAYLIST_SUCCESS,
 	ADD_TO_SAVED_PLAYLIST_FAILURE,
 } from './actions';
-import { toCamelCase } from 'utils';
+import { toCamelCase } from './utils';
 
 const initialSongState = {
 	query: { song: '', performer: '' },
@@ -367,7 +367,7 @@ export const song = (state = initialSongState, action) => {
 
 export const user = (state = { currentUser: null }, action) => {
 	const { type, payload } = action;
-	const userWithCamelCase = toCamelCase(payload.user?.user);
+	const userWithCamelCase = payload && toCamelCase(payload.user?.user);
 	switch (type) {
 	case CONFIRM_USER:
 		return {
@@ -550,7 +550,7 @@ export const user = (state = { currentUser: null }, action) => {
 			currentUser: {
 				...state.currentUser,
 				user: {
-					...state.currentUser.user,
+					...state.currentUser?.user,
 					emailVerified: payload.emailVerified,
 				}
 			},
@@ -969,7 +969,7 @@ export const playlist = (
 };
 
 export const discovery = (state = initialDiscoveryState, action) => {
-	const { type, payload } = action;
+	const { type, payload = {} } = action;
 	const { parameter, newValues } = payload;
 	switch (type) {
 	case DISCOVER_SONG:

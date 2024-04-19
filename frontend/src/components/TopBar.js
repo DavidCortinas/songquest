@@ -21,10 +21,11 @@ import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { deletePlaylist, removeFromCurrentPlaylistById, resetDataLoaded, setCurrentUser } from '../actions';
 import { connect } from 'react-redux';
 import '../App.css';
-import theme from 'theme';
+import theme from '../theme';
 import { authSlice } from '../reducers';
 import { makeStyles, withStyles } from '@mui/styles';
-import { TokenCounter, KarmaCounter } from 'utils';
+import { TokenCounter, KarmaCounter } from '../utils';
+import logoIcon from '../../public/images/sq-logo-2.ico';
 
 const StyledLinearProgress = withStyles({
 	colorPrimary: {
@@ -133,7 +134,7 @@ export const TopBar = ({
 					onClick={handleNavigate}
 				>
 					<img
-						src={'static/images/sq-logo-2.png'}
+						src={logoIcon}
 						alt="Logo"
 						style={{ 
 							width: (isXsScreen || isSmScreen) ? '20%' : '13%',

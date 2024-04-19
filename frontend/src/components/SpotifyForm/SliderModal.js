@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Grid, Modal, Typography } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { SliderParameter } from "./SliderParameter";
-import theme from "theme";
+import theme from "../../theme";
 
 const SliderModal = ({ 
 	autocompleteParam,

@@ -7,13 +7,13 @@ import { BottomContainer } from './components/BottomContainer';
 import SpotifyConnect from './components/SpotifyConnect';
 import StripeCheckout from './components/checkout/StripeCheckout';
 import ProtectedRoute from './ProtectedRoute';
-import Pricing from 'components/checkout/Pricing';
-import RegistrationSuccess from 'components/auth/RegistrationSuccess';
-import ErrorPage from 'components/ErrorPage';
-import CleanUrlAndHandlePaymentSuccess from 'components/checkout/utilities/CleanUrlAndHandlePaymentSuccess';
-import Onboard from 'components/auth/Onboard';
-import Profile from 'components/auth/Profile';
-import { VerificationError } from 'components/VerificationError';
+import Pricing from './components/checkout/Pricing';
+import RegistrationSuccess from './components/auth/RegistrationSuccess';
+import ErrorPage from './components/ErrorPage';
+import CleanUrlAndHandlePaymentSuccess from './components/checkout/utilities/CleanUrlAndHandlePaymentSuccess';
+import Onboard from './components/auth/Onboard';
+import Profile from './components/auth/Profile';
+import { VerificationError } from './components/VerificationError';
 
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
 

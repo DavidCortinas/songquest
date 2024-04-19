@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, keyframes, Typography } from "@mui/material";
+import logoIcon from '../../public/images/sq-logo-2.ico';
 import '../App.css';
 
 export const rotate = keyframes`
@@ -59,7 +60,7 @@ export const LoadingSpinner = () => {
 			}}
 		>
 			<img
-				src={'static/images/sq-logo-2.png'}
+				src={logoIcon}
 				alt="Spinning-Logo"
 				className='spin'
 				style={{ 
@@ -131,7 +132,7 @@ export const LoadingState = () => {
 				}}
 			>
 				<img
-					src={'static/images/sq-logo-2.png'}
+					src={logoIcon}
 					alt="Spinning-Logo"
 					className='spin'
 					style={{ 

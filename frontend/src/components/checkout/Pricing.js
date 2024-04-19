@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Card, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import theme from "theme";
-import { getPricing } from "thunks";
+import theme from "../../theme";
+import { getPricing } from "../../thunks";
 
 const useStyles = makeStyles((theme) => ({
 	containerBox: {

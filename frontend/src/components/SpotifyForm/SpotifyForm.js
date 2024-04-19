@@ -1,4 +1,4 @@
-import React from "react";
+import React, { startTransition, lazy, useEffect, useState } from "react";
 import { 
 	Backdrop,
 	Box, 
@@ -21,15 +21,13 @@ import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { SpotifyAuth, discoverSongRequest, getRequestParameters, getSpotifyArtists, getSpotifyTracks } from "../../thunks";
-import theme from "theme";
+import theme from "../../theme";
 import { SearchParameter } from "./SearchParameter";
-import { lazy, useEffect, useState } from "react";
 import { connect, useDispatch } from "react-redux";
-import { clearSeedsArray, resetDataLoaded, resetQueryParameter, setQueryParameter } from "actions";
-import { startTransition } from "react";
+import { clearSeedsArray, resetDataLoaded, resetQueryParameter, setQueryParameter } from "../../actions";
 import { useForm } from "react-hook-form";
-import { initialDiscoveryState } from "reducers";
-import { toCapitalCase } from "utils";
+import { initialDiscoveryState } from "../../reducers";
+import { toCapitalCase } from "../../utils";
 import { getCode } from "iso-3166-1-alpha-2";
 import { useNavigate } from "react-router-dom";
 

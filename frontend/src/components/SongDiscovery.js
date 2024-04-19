@@ -26,8 +26,8 @@ import { LoadingState } from './LoadingState';
 import { Body } from './Body';
 import LeftPanel from './sidePanels/LeftPanel';
 import RightPanel from './sidePanels/RightPanel';
-import { initialDiscoveryState } from 'reducers';
-import { saveRequestParameters } from 'thunks';
+import { initialDiscoveryState } from '../reducers';
+import { saveRequestParameters } from '../thunks';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const Recommendations = lazy(() => import('./Recommendations'))

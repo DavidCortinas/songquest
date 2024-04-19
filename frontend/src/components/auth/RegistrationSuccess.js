@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Box, Button, Snackbar, Typography } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
-import useStyles from "classes/playlist";
+import useStyles from "../../classes/playlist";
 import { connect } from "react-redux";
-import { resendVerification } from "thunks";
-import { useEffect, useState } from "react";
+import { resendVerification } from "../../thunks";
 
 const RegistrationSuccess = ({ 
 	currentUser, 

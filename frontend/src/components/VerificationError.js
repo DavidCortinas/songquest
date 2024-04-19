@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import logoIcon from '../../public/images/sq-logo-2.ico';
 import { rotate } from "./LoadingState";
 
 export const VerificationError = () => {
@@ -78,7 +79,7 @@ export const VerificationError = () => {
 				}}
 			>
 				<img
-					src={'static/images/sq-logo-2.png'}
+					src={logoIcon}
 					alt="Logo"
 					style={{ 
 						// width: (isXsScreen || isSmScreen) ? '20%' : '13%',

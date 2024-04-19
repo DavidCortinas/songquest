@@ -4,11 +4,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Base URL
 BASE_URL = 'http://localhost:8000'
 # BASE_URL = 'https://songquest.com'
 
-DEFAULT_FROM_EMAIL =  os.getenv('EMAIL_HOST_USER')
-
+# Email settings
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = 587  
@@ -16,17 +18,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')   
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# SECURITY WARNING: keep the secret key used in production secret!
+# Security settings
+DEBUG = True  # Set to False in production
 SECRET_KEY = os.environ.get('SECRET_KEY')
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249',
-                 'songquest.io', 'www.songquest.io']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '216.128.141.249', 'songquest.io', 'www.songquest.io']
 
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
+# Database settings
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -37,17 +34,8 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'songquest',
-#         'USER': 'cortinas',
-#         'PASSWORD': 'mQ!%jqV9e~$4=due',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
 
+# Installed apps
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -62,35 +50,35 @@ INSTALLED_APPS = [
     'songquest.songs.apps.SongsConfig',
     'songquest.playlists.apps.PlaylistsConfig',
     'songquest.recommendations.apps.RecommendationsConfig',
-    # 'audiofield',
     'frontend',
 ]
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'audiofield.middleware.threadlocals.ThreadLocals',
+    # Remove 'django.middleware.clickjacking.XFrameOptionsMiddleware' if not needed
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
+# Cache settings
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  
+        'LOCATION': 'redis://127.0.0.1:6379/1',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
-
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
+# CORS settings
 CORS_ALLOW_HEADERS = [
     "X-CSRFToken", 
     'Content-Type', 
@@ -116,16 +104,14 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_COOKIE_DOMAIN = None
-CSRF_COOKIE_SAMESITE = None
-CSRF_COOKIE_SECURE = False
-
+# Authentication settings
 AUTH_USER_MODEL = 'user.User'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'songquest.auth.backends.EmailOrUsernameBackend',
 ]
 
+# Rest Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -135,6 +121,7 @@ REST_FRAMEWORK = {
     )
 }
 
+# Logging settings
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -166,23 +153,21 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Frontend widget values
-# 0-Keep original, 1-Mono, 2-Stereo
 CHANNEL_TYPE_VALUE = 0
-
-# 0-Keep original, 8000-8000Hz, 16000-16000Hz, 22050-22050Hz,
-# 44100-44100Hz, 48000-48000Hz, 96000-96000Hz
 FREQ_TYPE_VALUE = 8000
-
-# 0-Keep original, 1-Convert to MP3, 2-Convert to WAV, 3-Convert to OGG
 CONVERT_TYPE_VALUE = 0
 
+# URL Configuration
 ROOT_URLCONF = 'songquest.urls'
 
+# Template settings
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend', 'public')],
-        'APP_DIRS': True,
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend', 'public'),
+        ],
+        'APP_DIRS': True,  # Disable loading templates from installed apps
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -194,10 +179,10 @@ TEMPLATES = [
     },
 ]
 
+# WSGI application
 WSGI_APPLICATION = 'songquest.wsgi.application'
 
 # Password validation
-# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -214,26 +199,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
+# Static files settings
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend', 'public'),
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+# Media settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
