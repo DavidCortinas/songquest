@@ -12,8 +12,6 @@ const SnackbarContext = createContext();
 export const useSnackbar = () => useContext(SnackbarContext);
 
 export const SnackbarProvider = ({ children }) => {
-	console.log('provider')
-	console.log(children)
 	const [openSnackbar, setOpenSnackbar] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
 	const [snackbarSeverity, setSnackbarSeverity] = useState('info');

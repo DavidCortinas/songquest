@@ -7,17 +7,20 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-console.log(process.env.REACT_APP_STRIPE_KEY);
-
 module.exports = (env, argv) => {
 	const isProduction = argv.mode === 'production';
+	console.log("Mode:", argv.mode);
+	console.log("Is Production:", isProduction);
+	console.log("NODE_ENV:", process.env.NODE_ENV);
+	console.log("Public Path:", isProduction ? '/static/' : '/');
 
 	return {
 		entry: "./src/index.js",
 		output: {
 			path: isProduction ? path.resolve(__dirname, "../backend/static") : path.resolve(__dirname, "dist"),
 			filename: "js/[name].[contenthash:8].js",
-			publicPath: isProduction ? '/static/' : '/',
+			publicPath: '/',
+			// publicPath: isProduction ? '/static/' : '/',
 		},
 		module: {
 			rules: [
@@ -89,7 +92,7 @@ module.exports = (env, argv) => {
 		},
 		devServer: {
 			static: {
-				directory: path.join(__dirname, 'public'),
+				directory: path.join(__dirname, 'dist'),
 				publicPath: '/',
 			},
 			historyApiFallback: true,
