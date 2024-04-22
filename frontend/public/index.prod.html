@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <!-- Entry Point for Django -->
+{THIS MESSAGE APPEARS IN THE BROWSER!}
 <html lang="en">
   <head>
-    <!-- {% load static %} -->
+    {% load static %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>SongQuest</title>
-    <!-- Update the path to the favicon.ico file -->
-    <link rel="icon" href="./public/images/favicon.ico" />
-    <!-- Make sure this path is also correct -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" />
     <script>
       window.SPOTIFY_CLIENT_ID = "{{ SPOTIFY_CLIENT_ID }}";
     </script>

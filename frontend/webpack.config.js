@@ -9,18 +9,14 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
 	const isProduction = argv.mode === 'production';
-	console.log("Mode:", argv.mode);
-	console.log("Is Production:", isProduction);
-	console.log("NODE_ENV:", process.env.NODE_ENV);
-	console.log("Public Path:", isProduction ? '/static/' : '/');
+	const buildPath = isProduction ? path.resolve(__dirname, "../build/static") : path.resolve(__dirname, "dist");
 
 	return {
 		entry: "./src/index.js",
 		output: {
-			path: isProduction ? path.resolve(__dirname, "../backend/static") : path.resolve(__dirname, "dist"),
+			path: buildPath,
 			filename: "js/[name].[contenthash:8].js",
-			publicPath: '/',
-			// publicPath: isProduction ? '/static/' : '/',
+			publicPath: isProduction ? '/static/' : '/',
 		},
 		module: {
 			rules: [
@@ -57,8 +53,8 @@ module.exports = (env, argv) => {
 				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(process.env.REACT_APP_STRIPE_KEY),
 			}),
 			new HtmlWebpackPlugin({
-				template: './public/index.html',
-				filename: isProduction ? '../templates/index.html' : 'index.html',
+				template: isProduction ? './public/index.prod.html' : './public/index.html',
+				filename: isProduction ? path.resolve(__dirname, 'templates', 'index.html') : 'index.html',
 				inject: true,
 				minify: isProduction && {
 					removeComments: true,
