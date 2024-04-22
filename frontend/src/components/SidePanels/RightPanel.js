@@ -322,7 +322,6 @@ const CreateOrEditPlaylist = ({
 		onUpdatePlaylistOrder(currentUser?.user.id, playlist.id, updatedData)
 			.then(() => {
 				setIsOptimisticUpdate(false);
-				console.log("Order updated successfully.");
 			})
 			.catch(error => {
 				// Handle error
@@ -786,14 +785,10 @@ export const RightPanel = ({
 	const [snackbarSeverity, setSnackbarSeverity] = useState('info');
 
 	useEffect(() => {
-		console.log('effect')
 		const updatedEditPlaylist = playlists.find(p => p?.id === editPlaylist?.id);
-		console.log(updatedEditPlaylist)
 		if (updatedEditPlaylist) {
-			console.log('if')
 			setLocalEditPlaylist(updatedEditPlaylist);
 		} else {
-			console.log('else')
 			setLocalEditPlaylist(editPlaylist);
 		}
 	}, [playlists, editPlaylist]);
@@ -827,7 +822,6 @@ export const RightPanel = ({
 				name: playlistName,
 				tracks: playlist.tracks,
 			};
-			console.log(playlist)
 
 			// Create playlist
 			const createdPlaylist = await onCreatePlaylist(currentUser?.user.id, newPlaylist);
@@ -840,7 +834,6 @@ export const RightPanel = ({
 				isrc: track.isrc,
 				image: track.image,
 			}));
-			console.log(playlistTracks)
 			const addedTracks = await onAddToSavedPlaylist(createdPlaylist.id, currentUser?.user.id, playlistTracks);
 
 			await onRemoveFromCurrentPlaylistById(...addedTracks.map(song => song.spotifyId));

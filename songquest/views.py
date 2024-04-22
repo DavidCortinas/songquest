@@ -425,7 +425,6 @@ def discover_song(request):
         if user_id and user_id != 'undefined':
             try:
                 user = get_user_model().objects.get(id=user_id)
-                user.use_tokens(action)
                 user.update_karma(action)
                 
                 response['updated_tokens'] = user.tokens

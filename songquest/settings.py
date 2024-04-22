@@ -51,7 +51,19 @@ INSTALLED_APPS = [
     'songquest.playlists.apps.PlaylistsConfig',
     'songquest.recommendations.apps.RecommendationsConfig',
     'frontend',
+    'webpack_loader',
 ]
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'dist/',  # must end with slash
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
+    }
+}
 
 # Middleware
 MIDDLEWARE = [
@@ -164,9 +176,7 @@ ROOT_URLCONF = 'songquest.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'frontend', 'public'),
-        ],
+        'DIRS': [os.path.join(BASE_DIR, 'frontend/dist')],
         'APP_DIRS': True,  # Disable loading templates from installed apps
         'OPTIONS': {
             'context_processors': [
@@ -209,7 +219,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend', 'public'),
+    os.path.join(BASE_DIR, 'frontend/dist'),
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
