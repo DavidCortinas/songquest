@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import Login from './components/auth/Login';
 import { Route, Routes } from 'react-router-dom';
 import TopBar from './components/TopBar';
@@ -14,78 +14,81 @@ import CleanUrlAndHandlePaymentSuccess from './components/checkout/utilities/Cle
 import Onboard from './components/auth/Onboard';
 import Profile from './components/auth/Profile';
 import { VerificationError } from './components/VerificationError';
+import { LoadingState } from './components/LoadingState';
 
-const SongDiscovery = lazy(() => import('./components/SongDiscovery'))
+const SongDiscovery = lazy(() => import('./components/SongDiscovery'));
 
 const RoutesContainer = () => {
 
 	return (
 		<Box>
 			<TopBar collapse={true}/>
-			<Routes>
-				<Route
-					path={'/'}
-					element={
-						<CleanUrlAndHandlePaymentSuccess>
-							<SongDiscovery />
-						</CleanUrlAndHandlePaymentSuccess>
-					}
-				/>
-				<Route 
-					path={'/login'}
-					element={
-						<Login />
-					}
-				/>
-				<Route 
-					path={'/error'}
-					element={
-						<ErrorPage />
-					}
-				/>
-				<Route element={<ProtectedRoute />}>
-					<Route 
-						path={'/registration-success'} 
-						element={<RegistrationSuccess />} 
+			<Suspense fallback={<LoadingState />}>
+				<Routes>
+					<Route
+						path={'/'}
+						element={
+							<CleanUrlAndHandlePaymentSuccess>
+								<SongDiscovery />
+							</CleanUrlAndHandlePaymentSuccess>
+						}
 					/>
-				</Route>
-				<Route element={<ProtectedRoute />}>
 					<Route 
-						path={'/onboard'} 
-						element={<Onboard />} 
+						path={'/login'}
+						element={
+							<Login />
+						}
 					/>
-				</Route>
-				<Route element={<ProtectedRoute />}>
 					<Route 
-						path={'/verification-error'} 
-						element={<VerificationError />} 
+						path={'/error'}
+						element={
+							<ErrorPage />
+						}
 					/>
-				</Route>
-				<Route element={<ProtectedRoute />}>
-					<Route 
-						path={'/profile'} 
-						element={<Profile />} 
-					/>
-				</Route>
-				<Route element={<ProtectedRoute />}>
-					<Route 
-						path={'/spotify-connect'} 
-						element={<SpotifyConnect />} 
-					/>
-				</Route>
-				<Route element={<ProtectedRoute />}>
-					<Route 
-						path={'/pricing'} 
-						element={<Pricing />} 
-					/>
-				</Route>
-				<Route element={<ProtectedRoute />}>
-					<Route 
-						path={'/checkout'} 
-						element={<StripeCheckout />} 
-					/>
-				</Route>
-			</Routes>
+					<Route element={<ProtectedRoute />}>
+						<Route 
+							path={'/registration-success'} 
+							element={<RegistrationSuccess />} 
+						/>
+					</Route>
+					<Route element={<ProtectedRoute />}>
+						<Route 
+							path={'/onboard'} 
+							element={<Onboard />} 
+						/>
+					</Route>
+					<Route element={<ProtectedRoute />}>
+						<Route 
+							path={'/verification-error'} 
+							element={<VerificationError />} 
+						/>
+					</Route>
+					<Route element={<ProtectedRoute />}>
+						<Route 
+							path={'/profile'} 
+							element={<Profile />} 
+						/>
+					</Route>
+					<Route element={<ProtectedRoute />}>
+						<Route 
+							path={'/spotify-connect'} 
+							element={<SpotifyConnect />} 
+						/>
+					</Route>
+					<Route element={<ProtectedRoute />}>
+						<Route 
+							path={'/pricing'} 
+							element={<Pricing />} 
+						/>
+					</Route>
+					<Route element={<ProtectedRoute />}>
+						<Route 
+							path={'/checkout'} 
+							element={<StripeCheckout />} 
+						/>
+					</Route>
+				</Routes>
+			</Suspense>
 			<BottomContainer />
 		</Box>
 	);

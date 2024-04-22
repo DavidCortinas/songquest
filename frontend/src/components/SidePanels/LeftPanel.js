@@ -33,7 +33,6 @@ const PlaylistCard = ({
 	setShowPlaylists,
 	setToggleValue,
 }) => {
-	console.log(userPlaylist)
 	const [showOuterTooltip, setShowOuterTooltip] = useState(false);
 	const [isCardHovered, setIsCardHovered] = useState(false);
 

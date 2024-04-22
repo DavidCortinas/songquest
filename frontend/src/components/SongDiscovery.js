@@ -792,7 +792,7 @@ export const SongDiscovery = ({
 						)}
 						{showTracks ? (
 							<Box  width='100%' justifyContent='space-between'>
-								<Suspense fallback={<div>Loading...</div>}>
+								<Suspense fallback={<LoadingState />}>
 									<Recommendations 
 										classes={classes} 
 										recommendations={toggleValue === 'Selected Playlist' ? selectedPlaylist.tracks : discoveryRecommendations}

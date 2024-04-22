@@ -1,5 +1,5 @@
 import React from "react";
-import { getCode, getCountry } from "iso-3166-1-alpha-2";
+import { getCode } from "iso-3166-1-alpha-2";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -87,50 +87,52 @@ const AutocompleteParameter = ({
 		onSelectedOptions(parameter, prevValues => ([...prevValues, selectedOption?.label]));
 	}, [options, setLocalSelectedOptions, onSelectedOptions, parameter, targetParamValues, setTargetParamValues, handleChange]);
 
-	const debouncedSearch = debounce((searchTerm) => {
-		dispatch(getSpotifySearchResult(searchTerm, parameter, accessToken, expiresAt))
-	}, 150);
+	const [inputValue, setInputValue] = useState('');
+	useEffect(() => {
+		const debouncedSearch = debounce(() => {
+			if (inputValue) {
+				dispatch(getSpotifySearchResult(inputValue, parameter, accessToken, expiresAt));
+			}
+		}, 150);
+
+		debouncedSearch();
+		return () => debouncedSearch.cancel();
+	}, [inputValue, parameter, accessToken, expiresAt, dispatch]);
 
 	useEffect(() => {
-		// Clear current options before making a new search
-		setOptions([]);
-
-		if (song) {
-			debouncedSearch(song);
-		}
-		if (performer) {
-			debouncedSearch(performer);
-		}
-		if (genre) {
+		if (parameter === 'genres') {
 			dispatch(getSpotifyGenres(accessToken, expiresAt));
-		}
-		if (market) {
+		} else if (parameter === 'markets') {
 			dispatch(getSpotifyMarkets(accessToken, expiresAt));
 		}
-	}, [song, performer, genre, market, debouncedSearch, dispatch, accessToken, expiresAt]);
+	}, [parameter, accessToken, expiresAt, dispatch]);
 
 	useEffect(() => {
-		// Update options when the relevant data changes
-		setOptions(parameter === 'songs' ? 
-			tracks.items.map((item) => ({
+		const newOptions = parameter === 'songs' ?
+			tracks.items.map(item => ({
 				id: item.id,
 				label: `${item.name} - ${item.artists[0].name}`,
 				image: item.album.images[2]?.url
-			})) : parameter === 'performers' ? 
-				artists.items.map((item) => ({
+			})) : parameter === 'performers' ?
+				artists.items.map(item => ({
 					id: item.id,
 					label: item.name,
 					image: item.images[2]?.url
-				})) : parameter === 'genres' ? 
+				})) : parameter === 'genres' ?
 					genres.map((genre, index) => ({
 						id: `genre_${index}`,
 						label: genre,
 					})) : markets.map((market, index) => ({
 						id: `markets_${index}`,
-						label: getCountry(market),
-					}))
-		);
-	}, [parameter, tracks.items, artists.items, genres, markets]);
+						label: market,
+					}));
+
+		setOptions(newOptions);
+	}, [tracks, artists, genres, markets, parameter]);
+
+	const handleInputChange = (event) => {
+		setInputValue(event.target.value);
+	};
 
 	const filteredOptions = options.filter(option =>
 		!Object.values(targetParamValues).flat().includes(option.label)
@@ -239,15 +241,7 @@ const AutocompleteParameter = ({
 									? genre
 									: market
 						}
-						onChange={
-							parameter === 'songs'
-								? (e) => setSong(e.target.value)
-								: parameter === 'performers'
-									? (e) => setPerformer(e.target.value)
-									: parameter === 'genres'
-										? (e) => setGenre(e.target.value)
-										: (e) => setMarket(e.target.value)
-						}
+						onChange={handleInputChange}
 						variant='standard'
 						InputLabelProps={{
 							sx: {

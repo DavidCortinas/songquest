@@ -9,12 +9,11 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
 	const isProduction = argv.mode === 'production';
-	const buildPath = isProduction ? path.resolve(__dirname, "../build/static") : path.resolve(__dirname, "dist");
 
 	return {
 		entry: "./src/index.js",
 		output: {
-			path: buildPath,
+			path: path.resolve(__dirname, "dist"),
 			filename: "js/[name].[contenthash:8].js",
 			publicPath: isProduction ? '/static/' : '/',
 		},
@@ -39,7 +38,7 @@ module.exports = (env, argv) => {
 					],
 				},
 				{
-					test: /\.(png|jpg|jpeg|gif|svg|ico)$/i,
+					test: /\.(png|jpg|jpeg|gif|svg|ico|webp)$/i,
 					type: 'asset/resource',
 					generator: {
 						filename: 'media/[name].[hash:8][ext]'
@@ -48,13 +47,14 @@ module.exports = (env, argv) => {
 			]
 		},
 		plugins: [
+			new webpack.HotModuleReplacementPlugin(),
 			new webpack.DefinePlugin({
 				'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
 				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(process.env.REACT_APP_STRIPE_KEY),
 			}),
 			new HtmlWebpackPlugin({
 				template: isProduction ? './public/index.prod.html' : './public/index.html',
-				filename: isProduction ? path.resolve(__dirname, 'templates', 'index.html') : 'index.html',
+				// filename: isProduction ? path.resolve(__dirname, 'templates', 'index.html') : 'index.html',
 				inject: true,
 				minify: isProduction && {
 					removeComments: true,
