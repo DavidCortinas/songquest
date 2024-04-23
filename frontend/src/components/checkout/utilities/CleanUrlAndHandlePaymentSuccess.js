@@ -9,7 +9,7 @@ const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) 
 	useEffect(() => {
 		const params = new URLSearchParams(location.search);
 		const paymentSuccess = params.get('payment');
-    
+
 		if (paymentSuccess === 'success' && userId) {
 			onGetUserTokens(userId);
 		}
@@ -26,12 +26,12 @@ const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) 
 	return <>{children}</>;
 };
 
-const mapStateToProps = (state) => ({
-	userId: state.user.currentUser?.user?.id, 
+const mapStateToProps = state => ({
+	userId: state.user.currentUser?.user?.id
 });
 
-const mapDispatchToProps = (dispatch) => ({
-	onGetUserTokens: (userId) => dispatch(getUserTokens(userId)),
+const mapDispatchToProps = dispatch => ({
+	onGetUserTokens: userId => dispatch(getUserTokens(userId))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CleanUrlAndHandlePaymentSuccess);

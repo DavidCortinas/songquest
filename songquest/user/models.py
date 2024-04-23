@@ -84,7 +84,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def update_karma(self, action):
         """Update user's XP based on the action"""
         karma_values = {
-            'quest': 1,
+            'dig': 1,
+            'add': 3,
             'like': 5,
             'follow': 10,
             'collect': 15,
@@ -107,7 +108,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def use_tokens(self, action):
         """Update user's tokens based on the action"""
         tokens_price = {
-            'collect': 2,
+          'add': 1,
+          'collect': 2,
         }
 
         if action not in tokens_price:

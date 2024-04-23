@@ -1,6 +1,6 @@
 import React from 'react';
-import {PaymentElement, Elements, useElements, useStripe} from '@stripe/react-stripe-js';
-import {loadStripe} from "@stripe/stripe-js/pure";
+import { PaymentElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js/pure';
 import { useEffect, useState } from 'react';
 import getCSRFToken from '../../csrf';
 import { makeStyles } from '@mui/styles';
@@ -19,13 +19,13 @@ const useStyles = makeStyles(() => ({
 		border: '2px solid rgba(89, 149, 192, 0.5)',
 		borderRadius: '18px',
 		background: 'rgba(48, 130, 164, 0.15)',
-		boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+		boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
 	},
 	inputLabel: {
-		overflow: 'hidden',   
+		overflow: 'hidden',
 		whiteSpace: 'nowrap',
 		textOverflow: 'ellipsis',
-		margin: '10px', 
+		margin: '10px',
 		background: 'white',
 		height: '50px'
 	},
@@ -39,10 +39,10 @@ const useStyles = makeStyles(() => ({
 		'&:hover, &:active, &.MuiFocusVisible': {
 			border: '2px solid rgba(89, 149, 192, 0.5)',
 			backgroundColor: 'rgb(44, 216, 207, 0.5)',
-			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-		},
-	},
-}))
+			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+		}
+	}
+}));
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
@@ -56,7 +56,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 	const [message, setMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = async (event) => {
+	const handleSubmit = async event => {
 		event.preventDefault();
 
 		if (!stripe || !elements) {
@@ -68,8 +68,8 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 		const { error } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: 'http://localhost:3000/?payment=success',
-			},
+				return_url: 'http://localhost:3000/?payment=success'
+			}
 		});
 
 		// Handle errors from Stripe
@@ -86,7 +86,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 				<PaymentElement id='payment-element' />
 				<Button
 					disabled={isLoading || !stripe || !elements}
-					type="submit"
+					type='submit'
 					variant='contained'
 					color='primary'
 					className={classes.button}
@@ -95,16 +95,13 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 				</Button>
 				{message && (
 					<Box marginTop={2}>
-						<Typography color='error'>
-							{message}
-						</Typography>
+						<Typography color='error'>{message}</Typography>
 					</Box>
 				)}
 			</form>
 		</Box>
 	);
 };
-
 
 export const StripeCheckout = ({ user }) => {
 	const [clientSecret, setClientSecret] = useState('');
@@ -116,22 +113,22 @@ export const StripeCheckout = ({ user }) => {
 		const fetchData = async () => {
 			const csrfToken = await getCSRFToken();
 
-			const body = JSON.stringify(selectedPrice)
+			const body = JSON.stringify(selectedPrice);
 
 			const response = await fetch('http://localhost:8000/create-payment-intent/', {
 				method: 'POST',
-				headers: { 
+				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRFToken': csrfToken,
-					'User-Id': user?.id,
+					'User-Id': user?.id
 				},
-				body: body,
+				body: body
 			});
 
 			if (!response.ok) {
 				throw new Error('Request failed with status ' + response.status);
 			}
-            
+
 			const data = await response.json();
 
 			setClientSecret(data.clientSecret);
@@ -141,28 +138,30 @@ export const StripeCheckout = ({ user }) => {
 	}, []);
 
 	const appearance = {
-		theme: 'night',
+		theme: 'night'
 	};
 
 	const options = {
 		clientSecret,
-		appearance,
+		appearance
 	};
 
-	return clientSecret && (
-		<Elements options={options} stripe={stripePromise}>
-			<CheckoutForm 
-				user={user} 
-				clientSecret={clientSecret} 
-				selectedPrice={selectedPrice}
-			/>
-		</Elements>
+	return (
+		clientSecret && (
+			<Elements options={options} stripe={stripePromise}>
+				<CheckoutForm
+					user={user}
+					clientSecret={clientSecret}
+					selectedPrice={selectedPrice}
+				/>
+			</Elements>
+		)
 	);
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
 	return {
-		user: state.user?.currentUser?.user,
+		user: state.user?.currentUser?.user
 	};
 };
 

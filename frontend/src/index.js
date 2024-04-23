@@ -13,13 +13,13 @@ import { SnackbarProvider } from './contexts/snackbar/SnackbarContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const persistor = persistStore(store);
-window.React = React
-console.log("Running in environment:", process.env.NODE_ENV);
+window.React = React;
+console.log('Running in environment:', process.env.NODE_ENV);
 
 root.render(
 	<Provider store={store}>
 		<PersistGate persistor={persistor}>
-			<SnackbarProvider> 
+			<SnackbarProvider>
 				<Router>
 					<React.StrictMode>
 						<App />

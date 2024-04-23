@@ -1,31 +1,28 @@
 import React from 'react';
-import { 
+import {
 	Alert,
-	Box, 
-	Button, 
-	CardHeader, 
-	Grid, 
+	Box,
+	Button,
+	CardHeader,
+	Grid,
 	Snackbar,
-	TextField, 
-	Tooltip, 
-	Typography, 
-	useMediaQuery } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { connect, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import theme from '../../theme'
+	TextField,
+	Tooltip,
+	Typography,
+	useMediaQuery
+} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { connect, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import theme from '../../theme';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { checkRegistration, getUserPlaylists, login, registerUser } from "../../thunks";
-import { resetDataLoaded, setCurrentUser } from "../../actions";
-import { useStyles } from "./classes";
-import { LoadingState } from "../../components/LoadingState";
+import { checkRegistration, getUserPlaylists, login, registerUser } from '../../thunks';
+import { resetDataLoaded, setCurrentUser } from '../../actions';
+import { useStyles } from './classes';
+import { LoadingState } from '../../components/LoadingState';
 
-export const Login = ({ 
-	onResetDataLoaded,
-	onGetUserPlaylists,
-	user 
-}) => {
+export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 	const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -34,8 +31,12 @@ export const Login = ({
 
 	const classes = useStyles();
 
-	const { handleSubmit, register, formState: { errors } } = useForm();
-    
+	const {
+		handleSubmit,
+		register,
+		formState: { errors }
+	} = useForm();
+
 	const [emailValue, setEmailValue] = useState('');
 	const [passwordValue, setPasswordValue] = useState('');
 	const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
@@ -48,13 +49,12 @@ export const Login = ({
 
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
-	const [snackbarSeverity, setSnackbarSeverity] = useState("info")
-    
+	const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
 	useEffect(() => {
-
 		if (user?.user?.id) {
 			onGetUserPlaylists(user?.user?.id);
 		}
@@ -69,10 +69,12 @@ export const Login = ({
 
 		try {
 			// setDisplayNameCreated(true);
-			const currentUser = await dispatch(checkRegistration({
-				email: emailValue,
-			}));
-            
+			const currentUser = await dispatch(
+				checkRegistration({
+					email: emailValue
+				})
+			);
+
 			if (currentUser?.isRegistered) {
 				setUserRegistered(true);
 			} else {
@@ -96,22 +98,22 @@ export const Login = ({
 			const currentUser = await dispatch(login(emailValue, passwordValue));
 
 			dispatch(setCurrentUser(currentUser));
-            
+
 			if (currentUser && !currentUser.user.spotify_connected) {
 				navigate('/spotify-connect');
 			} else if (currentUser) {
-				navigate('/')
+				navigate('/');
 			}
 
 			onResetDataLoaded();
 		} catch (error) {
 			console.log('Error: ', error);
 		}
-	}
+	};
 
 	const onCreatePassword = async () => {
-		setSnackbarMessage('One moment while we register your account...')
-		setSnackbarOpen(true)
+		setSnackbarMessage('One moment while we register your account...');
+		setSnackbarOpen(true);
 		if (!passwordValue) {
 			setInvalidPassword(true);
 			return;
@@ -120,47 +122,47 @@ export const Login = ({
 			setInvalidConfirmPassword(true);
 			return;
 		}
-        
+
 		try {
 			await dispatch(registerUser(emailValue, passwordValue));
 			const currentUser = await dispatch(login(emailValue, passwordValue));
 			dispatch(setCurrentUser(currentUser));
 			navigate('/registration-success');
 		} catch (error) {
-			setSnackbarSeverity('error')
+			setSnackbarSeverity('error');
 			setSnackbarMessage(
 				`There was an issue registering your account. 
                 Please try again. If the issue persists, please contact 
                 support@songquest.io`
-			)
-			setSnackbarOpen(true)
+			);
+			setSnackbarOpen(true);
 			console.log('Error: ', error);
 		}
-	}
+	};
 
-	const handleEmailChange = (e) => {
+	const handleEmailChange = e => {
 		setInvalidEmail(false);
 		setEmailValue(e.target.value);
 	};
 
-	const handlePasswordChange = (e) => {
+	const handlePasswordChange = e => {
 		setInvalidPassword(false);
 		setPasswordValue(e.target.value);
 	};
 
-	const handleConfirmPasswordChange = (e) => {
+	const handleConfirmPasswordChange = e => {
 		setInvalidConfirmPassword(false);
 		setConfirmPasswordValue(e.target.value);
 	};
 
-	const handlePasswordSubmit = (e) => {
-		e.preventDefault(); 
-		onPasswordSubmit(); 
+	const handlePasswordSubmit = e => {
+		e.preventDefault();
+		onPasswordSubmit();
 	};
 
-	const handleCreatePassword = (e) => {
-		e.preventDefault(); 
-		onCreatePassword(); 
+	const handleCreatePassword = e => {
+		e.preventDefault();
+		onCreatePassword();
 	};
 
 	const handleClose = (event, reason) => {
@@ -184,63 +186,61 @@ export const Login = ({
 									title='Login/Register'
 									titleTypographyProps={{
 										width: '100%',
-										variant: isSmScreen || isXsScreen
-											? 'h6'
-											: 'h5',
+										variant: isSmScreen || isXsScreen ? 'h6' : 'h5',
 										textAlign: 'center',
 										color: 'white',
 										paddingTop: '1rem'
 									}}
 									subheader='Enter an email to get started!'
-									subheaderTypographyProps={{ 
-										width: '100%', 
-										variant: isXlScreen || isLgScreen 
-											? 'body1'
-											: 'body2',
+									subheaderTypographyProps={{
+										width: '100%',
+										variant: isXlScreen || isLgScreen ? 'body1' : 'body2',
 										textAlign: 'center',
 										color: 'whitesmoke',
-										paddingTop: '5px',
+										paddingTop: '5px'
 									}}
 								/>
-								<Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-									<TextField 
-										autoComplete="off"
+								<Box
+									display='flex'
+									justifyContent='center'
+									style={{ marginBottom: '4%' }}
+								>
+									<TextField
+										autoComplete='off'
 										autoFocus
-										variant="standard"
-										InputLabelProps={{ 
-											style: { 
+										variant='standard'
+										InputLabelProps={{
+											style: {
 												margin: '2px 5px',
-												color: 'white', 
+												color: 'white'
 											},
 											sx: {
 												color: 'white',
-												backgroundColor: '#30313d',
-											},
+												backgroundColor: '#30313d'
+											}
 										}}
-										InputProps={{ 
-											disableUnderline: true, 
-											style: { 
-												margin: '5px', 
-												padding: '5px 0', 
-												fill: 'white',
+										InputProps={{
+											disableUnderline: true,
+											style: {
+												margin: '5px',
+												padding: '5px 0',
+												fill: 'white'
 											},
 											sx: {
 												color: 'white'
-											},
+											}
 										}}
 										error={errors.email}
 										required
 										className={`${classes.textField} ${classes.emailField}`}
 										value={emailValue}
-										label={errors.email ? "Invalid Email" : "email"}
-										{...register('email', 
-											{ 
-												required: true, 
-												pattern: /^\S+@\S+$/i, 
-												onChange: (e) => handleEmailChange(e),
-												error: invalidEmail,
-											})
-										}
+										label={errors.email ? 'Invalid Email' : 'email'}
+										{...register('email', {
+											required: true,
+											pattern: /^\S+@\S+$/i,
+											onChange: e => handleEmailChange(e),
+											error: invalidEmail
+										})}
 									/>
 								</Box>
 								<br />
@@ -254,9 +254,9 @@ export const Login = ({
 													maxHeight: '25vh',
 													overflowY: 'auto',
 													padding: '8px',
-													borderRadius: '8px',
+													borderRadius: '8px'
 												}}
-											> 
+											>
 												<Typography variant='body2' letterSpacing='1px'>
 													{'Continue to next step'}
 												</Typography>
@@ -264,11 +264,11 @@ export const Login = ({
 										}
 									>
 										<Button
-											type="submit"
+											type='submit'
 											className={classes.button}
 											onClick={handleSubmit(onEmailSubmit)}
 										>
-                                                Next
+											Next
 											<NavigateNextIcon />
 										</Button>
 									</Tooltip>
@@ -287,60 +287,58 @@ export const Login = ({
 									title='Welcome Back!'
 									titleTypographyProps={{
 										width: '100%',
-										variant: isSmScreen || isXsScreen
-											? 'h6'
-											: 'h5',
+										variant: isSmScreen || isXsScreen ? 'h6' : 'h5',
 										textAlign: 'center',
-										color: 'white',
+										color: 'white'
 									}}
-									subheader={"Enter password to sign in and continue"}
-									subheaderTypographyProps={{ 
-										width: '100%', 
-										variant: isXlScreen || isLgScreen 
-											? 'body1'
-											: 'body2',
+									subheader={'Enter password to sign in and continue'}
+									subheaderTypographyProps={{
+										width: '100%',
+										variant: isXlScreen || isLgScreen ? 'body1' : 'body2',
 										textAlign: 'center',
-										color: 'white',
+										color: 'white'
 									}}
 								/>
-								<Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-									<TextField 
+								<Box
+									display='flex'
+									justifyContent='center'
+									style={{ marginBottom: '4%' }}
+								>
+									<TextField
 										autoFocus
-										variant="standard"
-										InputLabelProps={{ 
-											style: { 
+										variant='standard'
+										InputLabelProps={{
+											style: {
 												margin: '2px 5px',
-												color: 'white', 
+												color: 'white'
 											},
 											sx: {
 												color: 'white',
-												backgroundColor: '#30313d',
-											},
+												backgroundColor: '#30313d'
+											}
 										}}
-										InputProps={{ 
-											disableUnderline: true, 
-											style: { 
-												margin: '5px', 
-												padding: '5px 0', 
-												fill: 'white',
+										InputProps={{
+											disableUnderline: true,
+											style: {
+												margin: '5px',
+												padding: '5px 0',
+												fill: 'white'
 											},
 											sx: {
 												color: 'white'
-											},
+											}
 										}}
 										error={errors.password}
 										required
 										className={classes.textField}
 										value={passwordValue}
-										label={errors.password ? "Invalid Password" : "password"}
-										type="password"
-										{...register('password', 
-											{ 
-												required: true, 
-												onChange: (e) => handlePasswordChange(e),
-												error: invalidPassword,
-											})
-										}
+										label={errors.password ? 'Invalid Password' : 'password'}
+										type='password'
+										{...register('password', {
+											required: true,
+											onChange: e => handlePasswordChange(e),
+											error: invalidPassword
+										})}
 									/>
 								</Box>
 								<br />
@@ -354,9 +352,9 @@ export const Login = ({
 													maxHeight: '25vh',
 													overflowY: 'auto',
 													padding: '8px',
-													borderRadius: '8px',
+													borderRadius: '8px'
 												}}
-											> 
+											>
 												<Typography variant='body2' letterSpacing='1px'>
 													{`Sign in as ${user?.user.display_name}`}
 												</Typography>
@@ -364,11 +362,11 @@ export const Login = ({
 										}
 									>
 										<Button
-											type="submit"
+											type='submit'
 											className={classes.button}
 											onClick={handleSubmit(onPasswordSubmit)}
 										>
-                                                Login
+											Login
 											<NavigateNextIcon />
 										</Button>
 									</Tooltip>
@@ -377,109 +375,113 @@ export const Login = ({
 							</form>
 						</Box>
 					</Box>
-				</>     
+				</>
 			) : (
 				<>
 					<Box display='flex' justifyContent='center' paddingTop='1rem'>
 						<Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
 							<form className={classes.form} onSubmit={handleCreatePassword}>
 								<CardHeader
-									title="Looks like your new here..."
+									title='Looks like your new here...'
 									titleTypographyProps={{
 										width: '100%',
-										variant: isSmScreen || isXsScreen
-											? 'h6'
-											: 'h5',
+										variant: isSmScreen || isXsScreen ? 'h6' : 'h5',
 										textAlign: 'center',
-										color: 'white',
+										color: 'white'
 									}}
-									subheader="Enter and confirm your password to register"
+									subheader='Enter and confirm your password to register'
 									subheaderTypographyProps={{
 										width: '100%',
-										variant: isSmScreen || isXsScreen
-											? 'body2'
-											: 'body1',
+										variant: isSmScreen || isXsScreen ? 'body2' : 'body1',
 										textAlign: 'center',
-										color: 'white',
+										color: 'white'
 									}}
 								/>
-								<Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-									<TextField 
+								<Box
+									display='flex'
+									justifyContent='center'
+									style={{ marginBottom: '4%' }}
+								>
+									<TextField
 										autoFocus
-										variant="standard"
-										InputLabelProps={{ 
-											style: { 
+										variant='standard'
+										InputLabelProps={{
+											style: {
 												margin: '2px 5px',
-												color: 'white', 
+												color: 'white'
 											},
 											sx: {
 												color: 'white',
-												backgroundColor: '#30313d',
-											},
+												backgroundColor: '#30313d'
+											}
 										}}
-										InputProps={{ 
-											disableUnderline: true, 
-											style: { 
-												margin: '5px', 
-												padding: '5px 0', 
-												fill: 'white',
+										InputProps={{
+											disableUnderline: true,
+											style: {
+												margin: '5px',
+												padding: '5px 0',
+												fill: 'white'
 											},
 											sx: {
 												color: 'white'
-											},
+											}
 										}}
 										error={errors.password}
 										required
 										className={classes.textField}
 										value={passwordValue}
-										label={errors.password ? "Invalid Password" : "password"}
-										type="password"
-										{...register('password', 
-											{ 
-												required: true, 
-												onChange: (e) => handlePasswordChange(e),
-												error: invalidPassword,
-											})
-										}
+										label={errors.password ? 'Invalid Password' : 'password'}
+										type='password'
+										{...register('password', {
+											required: true,
+											onChange: e => handlePasswordChange(e),
+											error: invalidPassword
+										})}
 									/>
 								</Box>
-								<Box display="flex" justifyContent="center" style={{ marginBottom: '4%' }}>
-									<TextField 
-										variant="standard"
-										InputLabelProps={{ 
-											style: { 
+								<Box
+									display='flex'
+									justifyContent='center'
+									style={{ marginBottom: '4%' }}
+								>
+									<TextField
+										variant='standard'
+										InputLabelProps={{
+											style: {
 												margin: '2px 5px',
-												color: 'white', 
+												color: 'white'
 											},
 											sx: {
 												color: 'white',
-												backgroundColor: '#30313d',
-											},
+												backgroundColor: '#30313d'
+											}
 										}}
-										InputProps={{ 
-											disableUnderline: true, 
-											style: { 
-												margin: '5px', 
-												padding: '5px 0', 
-												fill: 'white',
+										InputProps={{
+											disableUnderline: true,
+											style: {
+												margin: '5px',
+												padding: '5px 0',
+												fill: 'white'
 											},
 											sx: {
 												color: 'white'
-											},
+											}
 										}}
 										error={errors.reenterPassword}
 										required
 										className={classes.textField}
 										value={confirmPasswordValue}
-										label={errors.password ? "Invalid Password" : "re-enter password"}
-										type="password"
-										{...register('reenterPassword', 
-											{ 
-												required: true, 
-												onChange: (e) => handleConfirmPasswordChange(e),
-												error: invalidConfirmPassword,
-											})
+										label={
+											errors.password
+												? 'Invalid Password'
+												: 're-enter password'
 										}
+										type='password'
+										{...register('reenterPassword', {
+											required: true,
+											onChange: e => handleConfirmPasswordChange(e),
+											error: invalidConfirmPassword
+										})}
 									/>
 								</Box>
 								<br />
@@ -493,9 +495,9 @@ export const Login = ({
 													maxHeight: '25vh',
 													overflowY: 'auto',
 													padding: '8px',
-													borderRadius: '8px',
+													borderRadius: '8px'
 												}}
-											> 
+											>
 												<Typography variant='body2' letterSpacing='1px'>
 													{'Create your account'}
 												</Typography>
@@ -503,11 +505,11 @@ export const Login = ({
 										}
 									>
 										<Button
-											type="submit"
+											type='submit'
 											className={classes.button}
 											onClick={handleSubmit(onCreatePassword)}
 										>
-                                                Next
+											Next
 											<NavigateNextIcon />
 										</Button>
 									</Tooltip>
@@ -516,29 +518,29 @@ export const Login = ({
 							</form>
 						</Box>
 					</Box>
-				</>     
+				</>
 			)}
 			<Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleClose}>
 				<Alert
 					onClose={handleClose}
 					severity={snackbarSeverity}
-					variant="filled"
+					variant='filled'
 					sx={{ width: '100%' }}
 				>
 					{snackbarMessage}
 				</Alert>
 			</Snackbar>
 		</>
-	)
+	);
 };
 
-const mapStateToProps = (state) => ({
-	user: state.user.currentUser,
+const mapStateToProps = state => ({
+	user: state.user.currentUser
 });
 
-const mapDispatchToProps= (dispatch) => ({
-	onGetUserPlaylists: (userId) => dispatch(getUserPlaylists(userId)),
-	onResetDataLoaded: () => dispatch(resetDataLoaded()),
+const mapDispatchToProps = dispatch => ({
+	onGetUserPlaylists: userId => dispatch(getUserPlaylists(userId)),
+	onResetDataLoaded: () => dispatch(resetDataLoaded())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

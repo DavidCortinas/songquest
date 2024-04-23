@@ -1,40 +1,33 @@
-import React from "react";
-import { 
-	FormControl, 
-	InputLabel, 
-	MenuItem, 
-	Select 
-} from "@mui/material";
-import theme from "../../theme";
+import React from 'react';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import theme from '../../theme';
 
-export const SearchParameter = ({ 
-	parameter, 
-	handleChange, 
-	classes,  
-}) => (
+export const SearchParameter = ({ parameter, handleChange, classes }) => (
 	<>
 		<FormControl className={classes.resultsField}>
-			<InputLabel className={classes.inputLabel} variant='standard' >Results</InputLabel>
-			<Select 
+			<InputLabel className={classes.inputLabel} variant='standard'>
+				Results
+			</InputLabel>
+			<Select
 				label='Results'
-				onChange={(e) => handleChange(parameter, e.target.value)}
-				variant="filled"
+				onChange={e => handleChange(parameter, e.target.value)}
+				variant='filled'
 				sx={{
-					'.MuiInputBase-input': { 
+					'.MuiInputBase-input': {
 						color: 'white',
 						fontSize: '1rem',
 						[theme.breakpoints.down('sm')]: {
-							padding: '3% 2%',
+							padding: '3% 2%'
 						}
-					},
+					}
 				}}
 				MenuProps={{
 					sx: {
 						'.MuiPaper-root': {
-							backgroundColor: '#30313d', 
-							color: 'white',
-						},
-					},
+							backgroundColor: '#30313d',
+							color: 'white'
+						}
+					}
 				}}
 			>
 				{Array.from({ length: 100 }, (_, index) => (
@@ -45,4 +38,4 @@ export const SearchParameter = ({
 			</Select>
 		</FormControl>
 	</>
-); 
+);

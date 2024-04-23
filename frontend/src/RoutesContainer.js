@@ -1,28 +1,30 @@
 import React, { Suspense, lazy } from 'react';
-import Login from './components/auth/Login';
 import { Route, Routes } from 'react-router-dom';
-import TopBar from './components/TopBar';
 import { Box } from '@mui/material';
+import TopBar from './components/TopBar';
 import { BottomContainer } from './components/BottomContainer';
-import SpotifyConnect from './components/SpotifyConnect';
-import StripeCheckout from './components/checkout/StripeCheckout';
 import ProtectedRoute from './ProtectedRoute';
-import Pricing from './components/checkout/Pricing';
-import RegistrationSuccess from './components/auth/RegistrationSuccess';
-import ErrorPage from './components/ErrorPage';
-import CleanUrlAndHandlePaymentSuccess from './components/checkout/utilities/CleanUrlAndHandlePaymentSuccess';
-import Onboard from './components/auth/Onboard';
-import Profile from './components/auth/Profile';
-import { VerificationError } from './components/VerificationError';
 import { LoadingState } from './components/LoadingState';
 
+// Lazy loaded components
+const Login = lazy(() => import('./components/auth/Login'));
+const ErrorPage = lazy(() => import('./components/ErrorPage'));
 const SongDiscovery = lazy(() => import('./components/SongDiscovery'));
+const SpotifyConnect = lazy(() => import('./components/SpotifyConnect'));
+const StripeCheckout = lazy(() => import('./components/checkout/StripeCheckout'));
+const Pricing = lazy(() => import('./components/checkout/Pricing'));
+const RegistrationSuccess = lazy(() => import('./components/auth/RegistrationSuccess'));
+const Onboard = lazy(() => import('./components/auth/Onboard'));
+const Profile = lazy(() => import('./components/auth/Profile'));
+const VerificationError = lazy(() => import('./components/VerificationError'));
+const CleanUrlAndHandlePaymentSuccess = lazy(() =>
+	import('./components/checkout/utilities/CleanUrlAndHandlePaymentSuccess')
+);
 
 const RoutesContainer = () => {
-
 	return (
 		<Box>
-			<TopBar collapse={true}/>
+			<TopBar collapse={true} />
 			<Suspense fallback={<LoadingState />}>
 				<Routes>
 					<Route
@@ -33,59 +35,16 @@ const RoutesContainer = () => {
 							</CleanUrlAndHandlePaymentSuccess>
 						}
 					/>
-					<Route 
-						path={'/login'}
-						element={
-							<Login />
-						}
-					/>
-					<Route 
-						path={'/error'}
-						element={
-							<ErrorPage />
-						}
-					/>
+					<Route path={'/login'} element={<Login />} />
+					<Route path={'/error'} element={<ErrorPage />} />
 					<Route element={<ProtectedRoute />}>
-						<Route 
-							path={'/registration-success'} 
-							element={<RegistrationSuccess />} 
-						/>
-					</Route>
-					<Route element={<ProtectedRoute />}>
-						<Route 
-							path={'/onboard'} 
-							element={<Onboard />} 
-						/>
-					</Route>
-					<Route element={<ProtectedRoute />}>
-						<Route 
-							path={'/verification-error'} 
-							element={<VerificationError />} 
-						/>
-					</Route>
-					<Route element={<ProtectedRoute />}>
-						<Route 
-							path={'/profile'} 
-							element={<Profile />} 
-						/>
-					</Route>
-					<Route element={<ProtectedRoute />}>
-						<Route 
-							path={'/spotify-connect'} 
-							element={<SpotifyConnect />} 
-						/>
-					</Route>
-					<Route element={<ProtectedRoute />}>
-						<Route 
-							path={'/pricing'} 
-							element={<Pricing />} 
-						/>
-					</Route>
-					<Route element={<ProtectedRoute />}>
-						<Route 
-							path={'/checkout'} 
-							element={<StripeCheckout />} 
-						/>
+						<Route path={'/registration-success'} element={<RegistrationSuccess />} />
+						<Route path={'/onboard'} element={<Onboard />} />
+						<Route path={'/verification-error'} element={<VerificationError />} />
+						<Route path={'/profile'} element={<Profile />} />
+						<Route path={'/spotify-connect'} element={<SpotifyConnect />} />
+						<Route path={'/pricing'} element={<Pricing />} />
+						<Route path={'/checkout'} element={<StripeCheckout />} />
 					</Route>
 				</Routes>
 			</Suspense>
@@ -94,4 +53,4 @@ const RoutesContainer = () => {
 	);
 };
 
-export default RoutesContainer
+export default RoutesContainer;

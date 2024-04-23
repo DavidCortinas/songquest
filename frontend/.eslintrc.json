@@ -13,14 +13,12 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:prettier/recommended"
   ],
   "rules": {
-    "react/prop-types": 0,
-    "indent": [
-      "error",
-      "tab"
-    ]
+    "react/prop-types": "off",
+    "prettier/prettier": "error"
   },
   "env": {
     "browser": true,

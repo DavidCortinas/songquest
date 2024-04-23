@@ -1,14 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
-import { 
-	FLUSH, 
-	PAUSE, 
-	PERSIST, 
-	PURGE, 
-	REGISTER, 
-	REHYDRATE, 
-	persistReducer 
-} from 'redux-persist';
+import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/es/stateReconciler/autoMergeLevel2';
 import { song, user, discovery, playlist, verification, userProfile } from './reducers';
@@ -21,23 +13,23 @@ const rootReducer = combineReducers({
 	verification,
 	discovery,
 	playlist,
-	auth: authSlice.reducer,
+	auth: authSlice.reducer
 });
 
 const persistConfig = {
 	key: 'root',
 	storage,
-	stateReconciler: autoMergeLevel2,
+	stateReconciler: autoMergeLevel2
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
 	reducer: persistedReducer,
-	middleware: (getDefaultMiddleware) =>
+	middleware: getDefaultMiddleware =>
 		getDefaultMiddleware({
 			serializableCheck: {
-				ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-			},
-		}),
+				ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+			}
+		})
 });

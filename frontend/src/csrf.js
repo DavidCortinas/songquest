@@ -1,10 +1,10 @@
 async function getCSRFToken() {
 	try {
 		console.log('Fetching CSRF token...');
-    
+
 		// Attempt to fetch the CSRF token
 		const response = await fetch('http://localhost:8000/get-csrf-token/', {
-			method: 'GET',
+			method: 'GET'
 			// credentials: 'include', // Add this line
 		});
 
@@ -14,8 +14,8 @@ async function getCSRFToken() {
 		}
 
 		const data = await response.json();
-		console.log('csrfData: ', data.csrfToken)
-    
+		console.log('csrfData: ', data.csrfToken);
+
 		if (data.csrfToken) {
 			// If the CSRF token is present in the response, return it
 			return data.csrfToken;
@@ -38,4 +38,3 @@ async function getCSRFToken() {
 }
 
 export default getCSRFToken;
-

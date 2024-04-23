@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Card, Typography } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import theme from "../../theme";
-import { getPricing } from "../../thunks";
+import { Box, Button, Card, Typography } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import theme from '../../theme';
+import { getPricing } from '../../thunks';
 import eightTokens from '../../../public/images/eightTokens.png';
 import eightyTokens from '../../../public/images/eightyTokens.png';
 import fortyTokens from '../../../public/images/fortyTokens.png';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
 	containerBox: {
-		display: "flex",
-		justifyContent: "center",
-		alignItems: "center",
-		height: '600px',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		height: '600px'
 	},
 	button: {
 		color: 'white',
@@ -28,8 +28,8 @@ const useStyles = makeStyles((theme) => ({
 		'&:hover, &:active, &.MuiFocusVisible': {
 			border: `2px solid ${theme.palette.primary.triadic1}`,
 			background: `rgb(121, 44, 216, 0.5)`,
-			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
-		},
+			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+		}
 	},
 	focusedCard: {
 		display: 'flex',
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 		backgroundColor: '#282828',
 		boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
 		opacity: '0.8',
-		transition: 'width 0.3s, height 0.3s',
+		transition: 'width 0.3s, height 0.3s'
 	},
 	unfocusedCard: {
 		display: 'flex',
@@ -57,29 +57,29 @@ const useStyles = makeStyles((theme) => ({
 		backgroundColor: '#282828',
 		boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
 		opacity: '0.8',
-		transition: 'width 0.3s, height 0.3s',
+		transition: 'width 0.3s, height 0.3s'
 	},
 	unfocusedTitleTypography: {
 		color: 'white',
 		letterSpacing: '2px',
 		paddingBottom: '5%',
 		height: 'auto',
-		fontSize: '1.5rem', 
-		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out', 
+		fontSize: '1.5rem',
+		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out'
 	},
 	unfocusedPriceTypography: {
 		color: '#2c8bd8',
 		letterSpacing: '2px',
 		height: 'auto',
 		fontSize: '2rem',
-		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out',
+		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out'
 	},
 	unfocusedDetailTypography: {
 		color: 'white',
 		letterSpacing: '2px',
 		height: 'auto',
 		fontSize: '1rem',
-		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out',
+		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out'
 	},
 	focusedTitleTypography: {
 		color: '#d82c8b',
@@ -87,38 +87,37 @@ const useStyles = makeStyles((theme) => ({
 		paddingBottom: '5%',
 		height: 'auto',
 		fontSize: '2rem',
-		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out',
+		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out'
 	},
 	focusedPriceTypography: {
 		color: '#d82c8b',
 		letterSpacing: '2px',
 		height: 'auto',
 		fontSize: '3rem',
-		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out',
+		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out'
 	},
 	focusedDetailTypography: {
 		color: 'white',
 		letterSpacing: '2px',
 		height: 'auto',
 		fontSize: '1.5rem',
-		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out',
+		transition: 'height 0.3s ease-in-out, font-size 0.3s ease-in-out'
 	},
 	detailBox: {
 		display: 'flex',
 		flexDirection: 'column',
-		width: '90%',
-	},
+		width: '90%'
+	}
 }));
 
 export const Pricing = ({ onGetPricing }) => {
-
 	const classes = useStyles(theme);
 	const [focusedIndex, setFocusedIndex] = useState(1);
 	const [pricing, setPricing] = useState(null);
 
 	const navigate = useNavigate();
 
-	const handleCardFocus = (index) => {
+	const handleCardFocus = index => {
 		setFocusedIndex(index);
 	};
 
@@ -132,14 +131,14 @@ export const Pricing = ({ onGetPricing }) => {
 				const newPricing = await onGetPricing();
 				setPricing(newPricing);
 			} catch (error) {
-				console.error("Error fetching pricing:", error);
+				console.error('Error fetching pricing:', error);
 			}
 		};
 
 		fetchPricing();
 	}, [onGetPricing]);
 
-	const handleSelectPricing = (price) => {
+	const handleSelectPricing = price => {
 		navigate('/checkout', { state: { selectedPrice: price } });
 	};
 
@@ -152,7 +151,7 @@ export const Pricing = ({ onGetPricing }) => {
 	//     async function fetchData() {
 	//       const authorizationCode = newSearchParams.get('code');
 	//       const authorizationState = newSearchParams.get('state')
-        
+
 	//         if (authorizationCode) {
 	//           newSearchParams.delete('code');
 	//           newSearchParams.delete('state');
@@ -196,33 +195,14 @@ export const Pricing = ({ onGetPricing }) => {
 
 	return (
 		<>
-			<Typography 
-				textAlign='center'
-				variant="h4"
-				color='whitesmoke'
-				letterSpacing='1px'
-			>
-				{'Use Tokens To Uncover Hidden Gems and More'}
+			<Typography textAlign='center' variant='h4' color='whitesmoke' letterSpacing='1px'>
+				{'Use Tokens To Build Your Collections and More'}
 			</Typography>
-			<Typography 
-				textAlign='center'
-				variant="h6"
-				color='whitesmoke'
-				letterSpacing='1px'
-			>
-				{
-					`Tokens are required to discover new songs and build your collections.` 
-				}
+			<Typography textAlign='center' variant='h6' color='whitesmoke' letterSpacing='1px'>
+				{`Tokens are required to build your collections.`}
 			</Typography>
-			<Typography 
-				textAlign='center'
-				variant="h6"
-				color='whitesmoke'
-				letterSpacing='1px'
-			>
-				{
-					`You can earn tokens through in-app achievements or you can purchase more here.`
-				}
+			<Typography textAlign='center' variant='h6' color='whitesmoke' letterSpacing='1px'>
+				{`You can earn tokens through in-app achievements or you can purchase more here.`}
 			</Typography>
 			{/* <CardHeader
           title="Use Tokens To Uncover Hidden Gems and More"
@@ -247,63 +227,78 @@ export const Pricing = ({ onGetPricing }) => {
           }}
         /> */}
 			<Box className={classes.containerBox}>
-				{pricing && Object.values(pricing).map((price, outerIndex) => (
-					<Card
-						key={outerIndex}
-						className={outerIndex === focusedIndex ? classes.focusedCard : classes.unfocusedCard}
-						onMouseOver={() => handleCardFocus(outerIndex)}
-						onMouseOut={handleCardBlur}
-						onFocus={() => handleCardFocus(outerIndex)}
-						onBlur={handleCardBlur}
-						tabIndex={0}
-					>
-						<Box 
-							display='flex' 
-							flexDirection='column' 
-							alignItems='center' 
-							height='80%'
-							justifyContent='space-around'
+				{pricing &&
+					Object.values(pricing).map((price, outerIndex) => (
+						<Card
+							key={outerIndex}
+							className={
+								outerIndex === focusedIndex
+									? classes.focusedCard
+									: classes.unfocusedCard
+							}
+							onMouseOver={() => handleCardFocus(outerIndex)}
+							onMouseOut={handleCardBlur}
+							onFocus={() => handleCardFocus(outerIndex)}
+							onBlur={handleCardBlur}
+							tabIndex={0}
 						>
-							{price.name === '80 Tokens' && (
-								<Typography color='white' variant='subtitle2'>* Best Value</Typography>
-							)}
-							<Typography
-								className={outerIndex === focusedIndex ? classes.focusedTitleTypography : classes.unfocusedTitleTypography}
+							<Box
+								display='flex'
+								flexDirection='column'
+								alignItems='center'
+								height='80%'
+								justifyContent='space-around'
 							>
-								{price.name.toUpperCase()}
-							</Typography>
-							{price.name === '80 Tokens' ? (
-								<img 
-									loading='lazy'
-									src={eightyTokens} 
-									style={{
-										width: '15em',
-										marginTop: '-1em'
-									}}
-								/>
-							) : price.name === '40 Tokens' ? (
-								<img 
-									loading='lazy'
-									src={fortyTokens}
-									style={{
-										width: '15em'
-									}} 
-								/>
-							) : (
-								<img 
-									loading='lazy'
-									src={eightTokens}
-									style={{
-										width: '15em'
-									}} 
-								/>
-							)}
-							<Typography
-								className={outerIndex === focusedIndex ? classes.focusedPriceTypography : classes.unfocusedPriceTypography}
-							>
-								{`$${(price.price / 100).toFixed(2)}`}
-							</Typography>
-							{/* <Box className={classes.detailBox}>
+								{price.name === '80 Tokens' && (
+									<Typography color='white' variant='subtitle2'>
+										* Best Value
+									</Typography>
+								)}
+								<Typography
+									className={
+										outerIndex === focusedIndex
+											? classes.focusedTitleTypography
+											: classes.unfocusedTitleTypography
+									}
+								>
+									{price.name.toUpperCase()}
+								</Typography>
+								{price.name === '80 Tokens' ? (
+									<img
+										loading='lazy'
+										src={eightyTokens}
+										style={{
+											width: '15em',
+											marginTop: '-1em'
+										}}
+									/>
+								) : price.name === '40 Tokens' ? (
+									<img
+										loading='lazy'
+										src={fortyTokens}
+										style={{
+											width: '15em'
+										}}
+									/>
+								) : (
+									<img
+										loading='lazy'
+										src={eightTokens}
+										style={{
+											width: '15em'
+										}}
+									/>
+								)}
+								<Typography
+									className={
+										outerIndex === focusedIndex
+											? classes.focusedPriceTypography
+											: classes.unfocusedPriceTypography
+									}
+								>
+									{`$${(price.price / 100).toFixed(2)}`}
+								</Typography>
+								{/* <Box className={classes.detailBox}>
                   <ul>
                   {price.details.map((detail, innerIndex) => (
                       <li key={innerIndex}>
@@ -320,35 +315,31 @@ export const Pricing = ({ onGetPricing }) => {
                   ))}
                   </ul>
               </Box> */}
-							{outerIndex === focusedIndex && (
-								<Button 
-									className={classes.button} 
-									variant='contained'
-									onClick={() => handleSelectPricing(price)}
-								>
-									{
-										price.name === '80 Tokens' ? 'Get 1/2 Off' :
-											price.name === '40 Tokens' ? 'Get 30% Savings' :
-												'Buy'
-									}
-								</Button>
-							)}
-						</Box>
-					</Card>
-				))}
+								{outerIndex === focusedIndex && (
+									<Button
+										className={classes.button}
+										variant='contained'
+										onClick={() => handleSelectPricing(price)}
+									>
+										{'Get Tokens'}
+									</Button>
+								)}
+							</Box>
+						</Card>
+					))}
 			</Box>
 		</>
 	);
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
 	return {
-		user: state.user.currentUser,
+		user: state.user.currentUser
 	};
 };
 
-const mapDispatchToProps = (dispatch) => ({
-	onGetPricing: () => dispatch(getPricing()),
+const mapDispatchToProps = dispatch => ({
+	onGetPricing: () => dispatch(getPricing())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Pricing);

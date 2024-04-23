@@ -1,24 +1,17 @@
-import React, { useState } from "react";
-import { 
-	Box, 
-	Button, 
-	Card, 
-	Checkbox, 
-	Tooltip, 
-	Typography 
-} from "@mui/material";
+import React, { useState } from 'react';
+import { Box, Button, Card, Checkbox, Tooltip, Typography } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import getPlaylistItems from "../../utils/playlist";
-import useStyles from "../../classes/playlist";
-import { connect } from "react-redux";
-import { resetCurrentPlaylist, setSelectedPlaylist } from "../../actions";
-import theme from "../../theme";
-import { deletePlaylistRequest } from "../../thunks";
+import getPlaylistItems from '../../utils/playlist';
+import useStyles from '../../classes/playlist';
+import { connect } from 'react-redux';
+import { resetCurrentPlaylist, setSelectedPlaylist } from '../../actions';
+import theme from '../../theme';
+import { deletePlaylistRequest } from '../../thunks';
 import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
 
 const PlaylistCard = ({
@@ -31,7 +24,7 @@ const PlaylistCard = ({
 	isXsScreen,
 	isSmScreen,
 	setShowPlaylists,
-	setToggleValue,
+	setToggleValue
 }) => {
 	const [showOuterTooltip, setShowOuterTooltip] = useState(false);
 	const [isCardHovered, setIsCardHovered] = useState(false);
@@ -47,7 +40,7 @@ const PlaylistCard = ({
 		}
 	};
 
-	const selected = Boolean(selectedPlaylist === userPlaylist);
+	const selected = Boolean(selectedPlaylist.id === userPlaylist.id);
 
 	const handleCardMouseEnter = () => {
 		setIsCardHovered(true);
@@ -60,17 +53,20 @@ const PlaylistCard = ({
 	};
 
 	const handleDeletePlaylist = () => {
-		onDeletePlaylist(
-			[userPlaylist.id],
-			currentUser?.user.id,
-			null
-		);
+		onDeletePlaylist([userPlaylist.id], currentUser?.user.id, null);
 	};
 
 	return (
 		<Tooltip
 			title={
-				<div style={{ maxHeight: '25vh', overflowY: 'auto', padding: '8px', borderRadius: '8px' }}>
+				<div
+					style={{
+						maxHeight: '25vh',
+						overflowY: 'auto',
+						padding: '8px',
+						borderRadius: '8px'
+					}}
+				>
 					<Box display='flex' alignItems='center'>
 						<EditNoteIcon />
 						<Typography variant='body2' letterSpacing='1px' paddingLeft='2%'>
@@ -85,14 +81,16 @@ const PlaylistCard = ({
 				</div>
 			}
 			arrow
-			placement="right-start"
+			placement='right-start'
 			open={showOuterTooltip && isCardHovered}
 		>
 			<Card
 				onClick={handlePlaylistClick}
 				onMouseEnter={handleCardMouseEnter}
 				onMouseLeave={handleCardMouseLeave}
-				className={`${classes.panelCard} ${selected && classes.panelCardSelected} ${classes.cardHovered}`}
+				className={`${classes.panelCard} ${selected && classes.panelCardSelected} ${
+					classes.cardHovered
+				}`}
 			>
 				<Typography
 					noWrap
@@ -105,7 +103,7 @@ const PlaylistCard = ({
 						maxHeight: '30%',
 						maxWidth: '65%',
 						overflowY: 'hidden',
-						cursor: 'pointer',
+						cursor: 'pointer'
 					}}
 				>
 					{playlistName}
@@ -117,8 +115,8 @@ const PlaylistCard = ({
 						maxWidth: '8%',
 						height: 'auto',
 						position: 'absolute',
-						right: '5%',
-						bottom: '24%',
+						right: selected || isCardHovered ? '5.55%' : '5%',
+						bottom: selected || isCardHovered ? '30%' : '28%'
 					}}
 				/>
 				<Tooltip
@@ -132,8 +130,8 @@ const PlaylistCard = ({
 					onMouseEnter={() => setShowOuterTooltip(false)}
 					onMouseLeave={() => setShowOuterTooltip(isCardHovered)}
 				>
-					<DeleteIcon 
-						fontSize='small' 
+					<DeleteIcon
+						fontSize='small'
 						className={classes.deleteIcon}
 						onClick={handleDeletePlaylist}
 					/>
@@ -154,32 +152,32 @@ export const LeftPanel = ({
 	isXsScreen,
 	setShowPlaylists,
 	setToggleValue,
-	currentUser,
+	currentUser
 }) => {
 	const classes = useStyles();
 
 	const [playlistsToRemove, setPlaylistsToRemove] = useState([]);
 
-	const isPlaylistItemChecked = (item) => {
+	const isPlaylistItemChecked = item => {
 		return playlistsToRemove.some(playlist => playlist === item.id);
 	};
 
-	const handleCheckPlaylist = (item) => {
+	const handleCheckPlaylist = item => {
 		if (isPlaylistItemChecked(item)) {
 			setPlaylistsToRemove(playlistsToRemove.filter(playlist => playlist !== item.id));
 		} else {
-			setPlaylistsToRemove([...playlistsToRemove, item.id])
+			setPlaylistsToRemove([...playlistsToRemove, item.id]);
 		}
 	};
 
 	const handleSelectAllPlaylists = () => {
 		if (playlistsToRemove.length !== userPlaylists.length) {
-			setPlaylistsToRemove(userPlaylists.map(playlist => playlist.id))
+			setPlaylistsToRemove(userPlaylists.map(playlist => playlist.id));
 		} else {
 			setPlaylistsToRemove([]);
 		}
-	}
-  
+	};
+
 	const handleBulkRemove = () => {
 		onDeletePlaylist(
 			playlistsToRemove.map(playlistId => playlistId),
@@ -194,16 +192,16 @@ export const LeftPanel = ({
 			setShowPlaylists(false);
 		}
 	};
-  
+
 	return (
-		<Box 
-			display='flex' 
+		<Box
+			display='flex'
 			flexDirection='column'
 			alignItems='center'
 			paddingBottom='5%'
 			position='relative'
-			width={(isXsScreen || isSmScreen || isMdScreen) ? '30%' : null}
-		> 
+			width={isXsScreen || isSmScreen || isMdScreen ? '30%' : null}
+		>
 			<Tooltip
 				title={
 					<div
@@ -211,7 +209,7 @@ export const LeftPanel = ({
 							maxHeight: '25vh',
 							overflowY: 'auto',
 							padding: '8px',
-							borderRadius: '8px',
+							borderRadius: '8px'
 						}}
 					>
 						<Typography variant='body2' letterSpacing='1px'>
@@ -231,7 +229,7 @@ export const LeftPanel = ({
 						transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
 						'&:hover, &:active, &.Mui-focusVisible': {
 							background: `rgb(121, 44, 216, 0.5)`,
-							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
 						},
 						display: 'flex',
 						flexDirection: 'column',
@@ -249,15 +247,15 @@ export const LeftPanel = ({
 							color='white'
 							letterSpacing='1px'
 							sx={{
-								cursor: 'pointer',
+								cursor: 'pointer'
 							}}
 						>
 							{isXsScreen ? 'New' : 'New Playlist'}
 						</Typography>
 						<AutoAwesomeIcon
-							style={{ 
+							style={{
 								color: theme.palette.primary.complementary,
-								paddingLeft: '2%', 
+								paddingLeft: '2%'
 							}}
 							fontSize={isXsScreen ? 'small' : 'medium'}
 						/>
@@ -267,15 +265,15 @@ export const LeftPanel = ({
 			{/* </li> */}
 			<Card className={classes.sidePanel}>
 				<ul
-					style={{ 
-						padding: '0px', 
-						display: 'flex', 
-						flexDirection: 'column', 
+					style={{
+						padding: '0px',
+						display: 'flex',
+						flexDirection: 'column'
 					}}
-				> 
-					<Box 
-						display='flex' 
-						alignItems='center' 
+				>
+					<Box
+						display='flex'
+						alignItems='center'
 						justifyContent='space-around'
 						padding={isXsScreen ? '5% 0 5% 15%' : '5% 0 5% 6%'}
 					>
@@ -286,9 +284,9 @@ export const LeftPanel = ({
 										maxHeight: '25vh',
 										overflowY: 'auto',
 										padding: '8px',
-										borderRadius: '8px',
+										borderRadius: '8px'
 									}}
-								> 
+								>
 									<Typography variant='body2' letterSpacing='1px'>
 										{'Select all playlists'}
 									</Typography>
@@ -296,23 +294,23 @@ export const LeftPanel = ({
 							}
 						>
 							<Checkbox
-								onClick={handleSelectAllPlaylists} 
-								sx={{ 
-									padding: '0px', 
+								onClick={handleSelectAllPlaylists}
+								sx={{
+									padding: '0px',
 									color: theme.palette.primary.white,
-									'& .MuiSvgIcon-root': { 
-										fontSize: isXsScreen ? '1.25rem' : '2rem', 
-										transform: 'scale(0.75)', 
+									'& .MuiSvgIcon-root': {
+										fontSize: isXsScreen ? '1.25rem' : '2rem',
+										transform: 'scale(0.75)'
 									}
 								}}
 							/>
 						</Tooltip>
-						<Typography 
-							variant={isXsScreen ? 'caption' : 'caption1' }
+						<Typography
+							variant={isXsScreen ? 'caption' : 'caption1'}
 							textAlign='center'
-							width='100%' 
+							width='100%'
 							letterSpacing={isXsScreen ? '1px' : '2px'}
-							sx={{  marginLeft: isXsScreen ? 1 : 2 }}
+							sx={{ marginLeft: isXsScreen ? 1 : 2 }}
 						>
 							{isXsScreen ? 'Saved' : 'Edit Playlists'}
 						</Typography>
@@ -323,66 +321,70 @@ export const LeftPanel = ({
 										maxHeight: '25vh',
 										overflowY: 'auto',
 										padding: '8px',
-										borderRadius: '8px',
+										borderRadius: '8px'
 									}}
-								> 
+								>
 									<Typography variant='body2' letterSpacing='1px'>
 										{'Delete selected playlists'}
 									</Typography>
 								</div>
 							}
 						>
-							<Button
-								sx={{ padding: '0'}}
-							>
-								<PlaylistRemoveIcon 
-									style={{ color: theme.palette.primary.white }}
-									fontSize={isXsScreen ? 'small' : 'medium'} 
+							<Button sx={{ padding: '0' }}>
+								<PlaylistRemoveIcon
+									style={{
+										color: theme.palette.primary.white
+									}}
+									fontSize={isXsScreen ? 'small' : 'medium'}
 									onClick={handleBulkRemove}
 								/>
 							</Button>
 						</Tooltip>
-					</Box>            
-					{
-						userPlaylists.length == 0 ? (
-							<Typography 
-								variant='subtitle1' 
-								textAlign='center' 
-								padding='10%'
-								letterSpacing='2px'
-							>
-								{
-									currentUser?.user ? 
-										'You have not created any playlists' : 
-										`Register to unearth new gems and add them to your collection`
-								} 
-							</Typography>
-						) : userPlaylists?.map((userPlaylist, index) => {
+					</Box>
+					{userPlaylists.length == 0 ? (
+						<Typography
+							variant='subtitle1'
+							textAlign='center'
+							padding='10%'
+							letterSpacing='2px'
+						>
+							{currentUser?.user
+								? 'You have not created any playlists'
+								: `Register to unearth new gems and add them to your collection`}
+						</Typography>
+					) : (
+						userPlaylists?.map((userPlaylist, index) => {
 							return (
-								<Box 
+								<Box
 									key={`${userPlaylist.name}`}
-									display='flex' 
+									display='flex'
 									flexDirection='column'
 									alignItems='center'
 									paddingBottom='10px'
 								>
-									<li 
-										key={index} 
-										style={{ listStyle: 'none', position: 'relative' }}
+									<li
+										key={index}
+										style={{
+											listStyle: 'none',
+											position: 'relative'
+										}}
 									>
 										<Checkbox
 											icon={
-												<CircleIcon 
+												<CircleIcon
 													fontSize={isXsScreen ? 'small' : 'medium'}
-													sx={{ color: '#d2dce1', opacity: '0.5' }} 
+													sx={{
+														color: '#d2dce1',
+														opacity: '0.5'
+													}}
 												/>
 											}
 											checkedIcon={
 												<CheckCircleIcon
-													fontSize={isXsScreen ? 'small' : 'medium'} 
-													color='info' 
+													fontSize={isXsScreen ? 'small' : 'medium'}
+													color='info'
 												/>
-											}                       
+											}
 											onClick={() => handleCheckPlaylist(userPlaylist)}
 											checked={isPlaylistItemChecked(userPlaylist)}
 											sx={{
@@ -392,10 +394,10 @@ export const LeftPanel = ({
 												left: !isXsScreen && '5%',
 												bottom: isXsScreen && '-10%',
 												zIndex: '2',
-												paddingLeft: '0px',
+												paddingLeft: '0px'
 											}}
 										/>
-										<PlaylistCard 
+										<PlaylistCard
 											currentUser={currentUser}
 											userPlaylist={userPlaylist}
 											onSetSelectedPlaylist={onSetSelectedPlaylist}
@@ -410,26 +412,27 @@ export const LeftPanel = ({
 										/>
 									</li>
 								</Box>
-							)
-						}
-						)}
+							);
+						})
+					)}
 				</ul>
 			</Card>
 		</Box>
-	)
+	);
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
 	return {
 		userPlaylists: state.playlist.playlists,
-		selectedPlaylist: state.playlist.currentPlaylist.selectedPlaylist,
+		selectedPlaylist: state.playlist.currentPlaylist.selectedPlaylist
 	};
 };
 
-const mapDispatchToProps = (dispatch) => ({
-	onSetSelectedPlaylist: (playlistId) => dispatch(setSelectedPlaylist(playlistId)),
-	onDeletePlaylist: (playlistIds, userId, onSuccess) => dispatch(deletePlaylistRequest(playlistIds, userId, onSuccess)),
-	onResetCurrentPlaylist: () => dispatch(resetCurrentPlaylist()),
+const mapDispatchToProps = dispatch => ({
+	onSetSelectedPlaylist: playlistId => dispatch(setSelectedPlaylist(playlistId)),
+	onDeletePlaylist: (playlistIds, userId, onSuccess) =>
+		dispatch(deletePlaylistRequest(playlistIds, userId, onSuccess)),
+	onResetCurrentPlaylist: () => dispatch(resetCurrentPlaylist())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LeftPanel);
