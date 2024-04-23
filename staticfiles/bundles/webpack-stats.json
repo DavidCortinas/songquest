@@ -1,0 +1,126 @@
+{
+  "status": "done",
+  "assets": {
+    "css/main.6212c901.css": {
+      "name": "css/main.6212c901.css",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/css/main.6212c901.css",
+      "publicPath": "/static/css/main.6212c901.css"
+    },
+    "index.html": {
+      "name": "index.html",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/index.html",
+      "publicPath": "/static/index.html"
+    },
+    "js/14.f38e6208.chunk.js": {
+      "name": "js/14.f38e6208.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/14.f38e6208.chunk.js",
+      "publicPath": "/static/js/14.f38e6208.chunk.js"
+    },
+    "js/159.f69e84ae.chunk.js": {
+      "name": "js/159.f69e84ae.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/159.f69e84ae.chunk.js",
+      "publicPath": "/static/js/159.f69e84ae.chunk.js"
+    },
+    "js/253.c72edf93.chunk.js": {
+      "name": "js/253.c72edf93.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/253.c72edf93.chunk.js",
+      "publicPath": "/static/js/253.c72edf93.chunk.js"
+    },
+    "js/3.92e927f3.chunk.js": {
+      "name": "js/3.92e927f3.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/3.92e927f3.chunk.js",
+      "publicPath": "/static/js/3.92e927f3.chunk.js"
+    },
+    "js/447.b90cd353.chunk.js": {
+      "name": "js/447.b90cd353.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/447.b90cd353.chunk.js",
+      "publicPath": "/static/js/447.b90cd353.chunk.js"
+    },
+    "js/51.93bcaa0f.chunk.js": {
+      "name": "js/51.93bcaa0f.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/51.93bcaa0f.chunk.js",
+      "publicPath": "/static/js/51.93bcaa0f.chunk.js"
+    },
+    "js/543.f2f50209.chunk.js": {
+      "name": "js/543.f2f50209.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/543.f2f50209.chunk.js",
+      "publicPath": "/static/js/543.f2f50209.chunk.js"
+    },
+    "js/652.1096cca5.chunk.js": {
+      "name": "js/652.1096cca5.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/652.1096cca5.chunk.js",
+      "publicPath": "/static/js/652.1096cca5.chunk.js"
+    },
+    "js/811.06982a2c.chunk.js": {
+      "name": "js/811.06982a2c.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/811.06982a2c.chunk.js",
+      "publicPath": "/static/js/811.06982a2c.chunk.js"
+    },
+    "js/main.8cb4afdd.js": {
+      "name": "js/main.8cb4afdd.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/main.8cb4afdd.js",
+      "publicPath": "/static/js/main.8cb4afdd.js"
+    },
+    "media/14960493_5532919.c3bda62c.jpg": {
+      "name": "media/14960493_5532919.c3bda62c.jpg",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/14960493_5532919.c3bda62c.jpg",
+      "publicPath": "/static/media/14960493_5532919.c3bda62c.jpg",
+      "sourceFilename": "public/images/backgrounds/14960493_5532919.jpg"
+    },
+    "media/eightTokens.c0284762.png": {
+      "name": "media/eightTokens.c0284762.png",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/eightTokens.c0284762.png",
+      "publicPath": "/static/media/eightTokens.c0284762.png",
+      "sourceFilename": "public/images/eightTokens.png"
+    },
+    "media/eightyTokens.ab79584d.png": {
+      "name": "media/eightyTokens.ab79584d.png",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/eightyTokens.ab79584d.png",
+      "publicPath": "/static/media/eightyTokens.ab79584d.png",
+      "sourceFilename": "public/images/eightyTokens.png"
+    },
+    "media/error.db86a0c2.webp": {
+      "name": "media/error.db86a0c2.webp",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/error.db86a0c2.webp",
+      "publicPath": "/static/media/error.db86a0c2.webp",
+      "sourceFilename": "public/images/error.webp"
+    },
+    "media/fortyTokens.948809c9.png": {
+      "name": "media/fortyTokens.948809c9.png",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/fortyTokens.948809c9.png",
+      "publicPath": "/static/media/fortyTokens.948809c9.png",
+      "sourceFilename": "public/images/fortyTokens.png"
+    },
+    "media/Spotify_Icon_RGB_Green.cd66b8f6.png": {
+      "name": "media/Spotify_Icon_RGB_Green.cd66b8f6.png",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/Spotify_Icon_RGB_Green.cd66b8f6.png",
+      "publicPath": "/static/media/Spotify_Icon_RGB_Green.cd66b8f6.png",
+      "sourceFilename": "public/images/Spotify_Icon_RGB_Green.png"
+    },
+    "media/Spotify_Icon_RGB_White.ecd54051.png": {
+      "name": "media/Spotify_Icon_RGB_White.ecd54051.png",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/Spotify_Icon_RGB_White.ecd54051.png",
+      "publicPath": "/static/media/Spotify_Icon_RGB_White.ecd54051.png",
+      "sourceFilename": "public/images/Spotify_Icon_RGB_White.png"
+    },
+    "media/spotifyLogo.78486558.png": {
+      "name": "media/spotifyLogo.78486558.png",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/spotifyLogo.78486558.png",
+      "publicPath": "/static/media/spotifyLogo.78486558.png",
+      "sourceFilename": "public/images/spotifyLogo.png"
+    },
+    "media/sq-logo-2.c3cc33ee.ico": {
+      "name": "media/sq-logo-2.c3cc33ee.ico",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/media/sq-logo-2.c3cc33ee.ico",
+      "publicPath": "/static/media/sq-logo-2.c3cc33ee.ico",
+      "sourceFilename": "public/images/sq-logo-2.ico"
+    }
+  },
+  "chunks": {
+    "main": [
+      "css/main.6212c901.css",
+      "js/main.8cb4afdd.js"
+    ]
+  },
+  "publicPath": "/static/"
+}

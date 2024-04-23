@@ -50,20 +50,9 @@ INSTALLED_APPS = [
     'songquest.songs.apps.SongsConfig',
     'songquest.playlists.apps.PlaylistsConfig',
     'songquest.recommendations.apps.RecommendationsConfig',
+    'songquest.payments.apps.PaymentsConfig',
     'frontend',
-    'webpack_loader',
 ]
-
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': 'dist/',  # must end with slash
-        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
-        'POLL_INTERVAL': 0.1,
-        'TIMEOUT': None,
-        'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
-    }
-}
 
 # Middleware
 MIDDLEWARE = [

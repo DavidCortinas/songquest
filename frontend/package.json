@@ -7,8 +7,8 @@
     "start": "NODE_ENV=development && open -na \"Google Chrome\" --args --incognito http://localhost:3000 && webpack serve --mode=development --config webpack.config.js",
     "build": "NODE_ENV=production webpack --mode=production --config webpack.config.js",
     "relocate": "npm run build && rm -rf ../backend/build && mv build ../backend",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
+    "lint": "eslint src/ && prettier --check src/",
+    "lint:fix": "eslint --fix src/ && prettier --write src/",
     "clear-cache": "rimraf ./node_modules/.cache && rimraf ./.temp_cache"
   },
   "keywords": [],

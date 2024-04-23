@@ -1,20 +1,17 @@
-import React from "react";
-import { 
-	Box} from "@mui/material"
+import React from 'react';
+import { Box } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import SongDiscovery from "./SongDiscovery";
+import SongDiscovery from './SongDiscovery';
 
-const useStyles = makeStyles(() => (
-	{
-		introBox: {
-			display: 'flex',
-			flexDirection: 'column',
-			justifyContent: 'center',
-			alignItems: 'center',
-			width: '100%',
-		},   
+const useStyles = makeStyles(() => ({
+	introBox: {
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		width: '100%'
 	}
-))
+}));
 
 export const Home = () => {
 	const classes = useStyles();
@@ -25,7 +22,7 @@ export const Home = () => {
 				<SongDiscovery />
 			</Box>
 		</Box>
-	)
+	);
 };
 
 export default Home;

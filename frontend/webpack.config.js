@@ -1,7 +1,6 @@
-require('dotenv').config();
-
-const path = require("path");
-const webpack = require("webpack");
+const path = require('path');
+const webpack = require('webpack');
+const BundleTracker = require('webpack-bundle-tracker');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -11,11 +10,20 @@ module.exports = (env, argv) => {
 	const isProduction = argv.mode === 'production';
 
 	return {
-		entry: "./src/index.js",
+		entry: isProduction
+			? './src/index.js'
+			: [
+					'webpack-dev-server/client?http://localhost:3000/', // Ensure this is the correct URL
+					'webpack/hot/only-dev-server',
+					'./src/index.js',
+			  ],
 		output: {
-			path: path.resolve(__dirname, "dist"),
-			filename: "js/[name].[contenthash:8].js",
-			publicPath: isProduction ? '/static/' : '/',
+			filename: 'js/[name].[contenthash:8].js',
+			chunkFilename: 'js/[name].[contenthash:8].chunk.js',
+			path: isProduction
+				? path.resolve(__dirname, 'dist')
+				: path.resolve(__dirname, 'static', 'bundles'),
+			publicPath: isProduction ? '/static/' : 'http://localhost:3000/',
 		},
 		module: {
 			rules: [
@@ -23,38 +31,52 @@ module.exports = (env, argv) => {
 					test: /\.js$/,
 					exclude: /node_modules/,
 					use: {
-						loader: "babel-loader",
+						loader: 'babel-loader',
 						options: {
-							presets: ['@babel/preset-env', '@babel/preset-react'],
-							plugins: ['@babel/plugin-transform-runtime']
-						}
-					}
+							presets: [
+								'@babel/preset-env',
+								'@babel/preset-react',
+							],
+							plugins: ['@babel/plugin-transform-runtime'],
+						},
+					},
 				},
 				{
 					test: /\.css$/,
 					use: [
-						isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
-						"css-loader"
+						isProduction
+							? MiniCssExtractPlugin.loader
+							: 'style-loader',
+						'css-loader',
 					],
 				},
 				{
 					test: /\.(png|jpg|jpeg|gif|svg|ico|webp)$/i,
 					type: 'asset/resource',
 					generator: {
-						filename: 'media/[name].[hash:8][ext]'
-					}
+						filename: 'media/[name].[hash:8][ext]',
+					},
 				},
-			]
+			],
 		},
 		plugins: [
 			new webpack.HotModuleReplacementPlugin(),
+			new BundleTracker({
+				path: path.resolve(__dirname, 'static', 'bundles'),
+				filename: 'webpack-stats.json',
+			}),
 			new webpack.DefinePlugin({
-				'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
-				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(process.env.REACT_APP_STRIPE_KEY),
+				'process.env.NODE_ENV': JSON.stringify(
+					isProduction ? 'production' : 'development'
+				),
+				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(
+					process.env.REACT_APP_STRIPE_KEY
+				),
 			}),
 			new HtmlWebpackPlugin({
-				template: isProduction ? './public/index.prod.html' : './public/index.html',
-				// filename: isProduction ? path.resolve(__dirname, 'templates', 'index.html') : 'index.html',
+				template: isProduction
+					? './public/index.prod.html'
+					: './public/index.html',
 				inject: true,
 				minify: isProduction && {
 					removeComments: true,
@@ -77,14 +99,16 @@ module.exports = (env, argv) => {
 		],
 		optimization: {
 			minimize: isProduction,
-			minimizer: [new TerserPlugin({
-				terserOptions: {
-					format: {
-						comments: false,
+			minimizer: [
+				new TerserPlugin({
+					terserOptions: {
+						format: {
+							comments: false,
+						},
 					},
-				},
-				extractComments: false,
-			})],
+					extractComments: false,
+				}),
+			],
 		},
 		devServer: {
 			static: {
@@ -95,14 +119,15 @@ module.exports = (env, argv) => {
 			hot: true,
 			open: true,
 			port: 3000,
-			proxy: [{
-				context: ['/api'],
-				target: 'http://localhost:8000',
-				changeOrigin: true,
-				secure: false,
-			}],
+			proxy: [
+				{
+					context: ['/api'],
+					target: 'http://localhost:8000',
+					changeOrigin: true,
+					secure: false,
+				},
+			],
 		},
 		devtool: isProduction ? false : 'eval-source-map',
 	};
 };
-

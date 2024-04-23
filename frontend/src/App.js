@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import RoutesContainer from './RoutesContainer';
-import './App.css'
+import './App.css';
 import getCSRFToken from './csrf';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
@@ -21,14 +21,12 @@ function App() {
 
 	if (csrfToken === null) {
 		// You can show a loading state or spinner until the CSRF token is retrieved
-		return (
-			<LoadingState />
-		);
+		return <LoadingState />;
 	}
 
 	return (
 		<ThemeProvider theme={theme}>
-			<div >
+			<div>
 				<RoutesContainer />
 			</div>
 		</ThemeProvider>

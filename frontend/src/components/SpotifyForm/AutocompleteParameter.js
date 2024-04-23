@@ -1,24 +1,20 @@
-import React from "react";
-import { getCode } from "iso-3166-1-alpha-2";
-import { debounce } from "lodash";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { 
-	getSpotifyGenres, 
-	getSpotifyMarkets, 
-	getSpotifySearchResult 
-} from "../../thunks";
-import { Autocomplete, Box, TextField } from "@mui/material";
+import React from 'react';
+import { getCode } from 'iso-3166-1-alpha-2';
+import { debounce } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { getSpotifyGenres, getSpotifyMarkets, getSpotifySearchResult } from '../../thunks';
+import { Autocomplete, Box, TextField } from '@mui/material';
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {
 		backgroundColor: '#40444d',
-		color: 'white',
+		color: 'white'
 	},
-	"& .MuiAutocomplete-option:hover": {
+	'& .MuiAutocomplete-option:hover': {
 		backgroundColor: '#40444d',
-		color: 'white',
-	},
+		color: 'white'
+	}
 };
 
 const AutocompleteParameter = ({
@@ -36,7 +32,7 @@ const AutocompleteParameter = ({
 	setTargetParamValues,
 	onSelectedOptions,
 	localSelectedOptions,
-	setLocalSelectedOptions,
+	setLocalSelectedOptions
 }) => {
 	const dispatch = useDispatch();
 	const [song, setSong] = useState('');
@@ -45,47 +41,61 @@ const AutocompleteParameter = ({
 	const [market, setMarket] = useState('');
 	const [options, setOptions] = useState([]);
 
-	const handleOptionSelect = useCallback((selectedValue) => {
-		const selectedOption = options.find(option =>
-			option.id === selectedValue.id
-		);
+	const handleOptionSelect = useCallback(
+		selectedValue => {
+			const selectedOption = options.find(option => option.id === selectedValue.id);
 
-		if (selectedOption) {
-			const totalSelectedValues = Object.values(targetParamValues).reduce((total, array) => total + array?.length, 0);
+			if (selectedOption) {
+				const totalSelectedValues = Object.values(targetParamValues).reduce(
+					(total, array) => total + array?.length,
+					0
+				);
 
-			if (totalSelectedValues < 5 && !Object.values(targetParamValues).flat().includes(selectedOption.label)) {
+				if (
+					totalSelectedValues < 5 &&
+					!Object.values(targetParamValues).flat().includes(selectedOption.label)
+				) {
+					setTargetParamValues(prevValues => ({
+						...prevValues,
+						[parameter]: [...prevValues[parameter], selectedOption.label]
+					}));
 
-				setTargetParamValues(prevValues => ({
-					...prevValues,
-					[parameter]: [...prevValues[parameter], selectedOption.label],
-				}));
-
-				if (parameter === 'songs') {
-					setSong(selectedOption.label);
-					handleChange(parameter, selectedOption.id);
-				} else if (parameter === 'performers') {
-					setPerformer(selectedOption.label);
-					handleChange(parameter, selectedOption.id);
-				} else if (parameter === 'genres') {
-					setGenre(selectedOption.label);
-					handleChange(parameter, selectedOption.label);
-				} else {
-					setMarket(selectedOption.label);
-					handleChange(parameter, getCode(selectedOption.label));
+					if (parameter === 'songs') {
+						setSong(selectedOption.label);
+						handleChange(parameter, selectedOption.id);
+					} else if (parameter === 'performers') {
+						setPerformer(selectedOption.label);
+						handleChange(parameter, selectedOption.id);
+					} else if (parameter === 'genres') {
+						setGenre(selectedOption.label);
+						handleChange(parameter, selectedOption.label);
+					} else {
+						setMarket(selectedOption.label);
+						handleChange(parameter, getCode(selectedOption.label));
+					}
 				}
 			}
-		}
 
-		setLocalSelectedOptions(prevValues => {
-			const updatedValues = {
-				...prevValues,
-				[parameter]: [...(prevValues[parameter] || []), selectedOption?.label],
-			};
+			setLocalSelectedOptions(prevValues => {
+				const updatedValues = {
+					...prevValues,
+					[parameter]: [...(prevValues[parameter] || []), selectedOption?.label]
+				};
 
-			return updatedValues;
-		});
-		onSelectedOptions(parameter, prevValues => ([...prevValues, selectedOption?.label]));
-	}, [options, setLocalSelectedOptions, onSelectedOptions, parameter, targetParamValues, setTargetParamValues, handleChange]);
+				return updatedValues;
+			});
+			onSelectedOptions(parameter, prevValues => [...prevValues, selectedOption?.label]);
+		},
+		[
+			options,
+			setLocalSelectedOptions,
+			onSelectedOptions,
+			parameter,
+			targetParamValues,
+			setTargetParamValues,
+			handleChange
+		]
+	);
 
 	const [inputValue, setInputValue] = useState('');
 	useEffect(() => {
@@ -100,42 +110,46 @@ const AutocompleteParameter = ({
 	}, [inputValue, parameter, accessToken, expiresAt, dispatch]);
 
 	useEffect(() => {
-		if (parameter === 'genres') {
+		if (parameter === 'genres' && accessToken) {
 			dispatch(getSpotifyGenres(accessToken, expiresAt));
-		} else if (parameter === 'markets') {
+		} else if (parameter === 'markets' && accessToken) {
 			dispatch(getSpotifyMarkets(accessToken, expiresAt));
 		}
 	}, [parameter, accessToken, expiresAt, dispatch]);
 
 	useEffect(() => {
-		const newOptions = parameter === 'songs' ?
-			tracks.items.map(item => ({
-				id: item.id,
-				label: `${item.name} - ${item.artists[0].name}`,
-				image: item.album.images[2]?.url
-			})) : parameter === 'performers' ?
-				artists.items.map(item => ({
-					id: item.id,
-					label: item.name,
-					image: item.images[2]?.url
-				})) : parameter === 'genres' ?
-					genres.map((genre, index) => ({
+		const newOptions =
+			parameter === 'songs'
+				? tracks.items.map(item => ({
+						id: item.id,
+						label: `${item.name} - ${item.artists[0].name}`,
+						image: item.album.images[2]?.url
+				  }))
+				: parameter === 'performers'
+				? artists.items.map(item => ({
+						id: item.id,
+						label: item.name,
+						image: item.images[2]?.url
+				  }))
+				: parameter === 'genres'
+				? genres.map((genre, index) => ({
 						id: `genre_${index}`,
-						label: genre,
-					})) : markets.map((market, index) => ({
+						label: genre
+				  }))
+				: markets.map((market, index) => ({
 						id: `markets_${index}`,
-						label: market,
-					}));
+						label: market
+				  }));
 
 		setOptions(newOptions);
 	}, [tracks, artists, genres, markets, parameter]);
 
-	const handleInputChange = (event) => {
+	const handleInputChange = event => {
 		setInputValue(event.target.value);
 	};
 
-	const filteredOptions = options.filter(option =>
-		!Object.values(targetParamValues).flat().includes(option.label)
+	const filteredOptions = options.filter(
+		option => !Object.values(targetParamValues).flat().includes(option.label)
 	);
 
 	return (
@@ -157,11 +171,15 @@ const AutocompleteParameter = ({
 					});
 					setLocalSelectedOptions(prev => ({
 						...prev,
-						[parameter]: newValue?.map(option => typeof option === 'string' ? option : option.label),
+						[parameter]: newValue?.map(option =>
+							typeof option === 'string' ? option : option.label
+						)
 					}));
 					setTargetParamValues(prevValues => ({
 						...prevValues,
-						[parameter]: newValue?.map(option => typeof option === 'string' ? option : option.label),
+						[parameter]: newValue?.map(option =>
+							typeof option === 'string' ? option : option.label
+						)
 					}));
 				}}
 				selectOnFocus
@@ -171,31 +189,28 @@ const AutocompleteParameter = ({
 				ListboxProps={{
 					sx: {
 						...root,
-						padding: 0,
+						padding: 0
 					}
 				}}
 				renderOption={(props, option) => {
-					console.log('option_id: ', option.id)
+					console.log('option_id: ', option.id);
 					return (
 						<Box
 							key={option.id}
-							component="li"
+							component='li'
 							sx={{
 								justifyContent: 'space-between',
 								background: '#30313d',
-								color: 'white',
+								color: 'white'
 							}}
 							{...props}
 						>
-							{option.image && <img
-								loading="lazy"
-								width="40"
-								src={option.image}
-								alt=""
-							/>}
+							{option.image && (
+								<img loading='lazy' width='40' src={option.image} alt='' />
+							)}
 							{option.label}
 						</Box>
-					)
+					);
 				}}
 				freeSolo
 				ChipProps={{
@@ -213,33 +228,35 @@ const AutocompleteParameter = ({
 							color: 'white',
 							backgroundColor: '#006f96',
 							'& .MuiChip-deleteIcon': {
-								color: 'white',
+								color: 'white'
 							},
 							'& .MuiChip-deleteIcon:hover': {
-								color: '#00435a',
-							},
-						},
-					},
+								color: '#00435a'
+							}
+						}
+					}
 				}}
 				className={classes.textField}
-				renderInput={(params) => (
+				renderInput={params => (
 					<TextField
 						{...params}
-						label={parameter === 'songs'
-							? 'Select Songs'
-							: parameter === 'performers'
+						label={
+							parameter === 'songs'
+								? 'Select Songs'
+								: parameter === 'performers'
 								? 'Select Artists'
 								: parameter === 'genres'
-									? 'Select Genres'
-									: 'Select Market'
+								? 'Select Genres'
+								: 'Select Market'
 						}
-						value={parameter === 'songs'
-							? song
-							: parameter === 'performers'
+						value={
+							parameter === 'songs'
+								? song
+								: parameter === 'performers'
 								? performer
 								: parameter === 'genres'
-									? genre
-									: market
+								? genre
+								: market
 						}
 						onChange={handleInputChange}
 						variant='standard'
@@ -249,7 +266,7 @@ const AutocompleteParameter = ({
 								backgroundColor: '#30313d',
 								color: 'white',
 								fontSize: '1.25rem'
-							},
+							}
 						}}
 						InputProps={{
 							...params.InputProps,
@@ -260,8 +277,8 @@ const AutocompleteParameter = ({
 								'& .MuiInputBase-input': {
 									color: 'white',
 									fontSize: '1.25rem'
-								},
-							},
+								}
+							}
 						}}
 					/>
 				)}

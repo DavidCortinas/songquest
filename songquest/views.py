@@ -1240,6 +1240,7 @@ def update_playlist_items(request, playlist_id):
         user_id = request.headers.get('User-Id')
         user = User.objects.get(id=user_id)
 
+        # Handling Spotify access and refresh tokens
         spotify_access = user.spotify_access
         spotify_refresh = user.spotify_refresh
         expires_at = user.spotify_expires_at
@@ -1248,8 +1249,8 @@ def update_playlist_items(request, playlist_id):
             token_info = refresh_spotify_access(spotify_refresh)
             if token_info:
                 spotify_access = token_info['access_token']
-                user.spotify_access = spotify_access
                 expires_at = time() + token_info['expires_in']
+                user.spotify_access = spotify_access
                 user.spotify_expires_at = expires_at
                 user.save()
             else:
@@ -1264,18 +1265,14 @@ def update_playlist_items(request, playlist_id):
             'Content-Type': 'application/json'
         }
 
-        # Check if the request is for reordering or replacing items
         if 'uris' in data:
-            # Replacing items in the playlist
             body = json.dumps({'uris': data['uris']})
             method = requests.put
         elif 'range_start' in data:
-            # Reordering items in the playlist
             body = json.dumps({
                 'range_start': data['range_start'],
                 'insert_before': data['insert_before'],
                 'range_length': data.get('range_length', 1),
-                # 'snapshot_id': data.get('snapshot_id')
             })
             method = requests.put
         else:
@@ -1286,17 +1283,13 @@ def update_playlist_items(request, playlist_id):
         if response.status_code in [200, 201]:
             snapshot_id = response.json().get('snapshot_id')
 
-            # Now, update the order in your database
-            # Assuming 'data' includes the ordered list of track Spotify IDs
+            # Extract track IDs from URIs and update the order in the database
+            track_ids = [uri.split(':')[-1] for uri in data['uris']]
             with transaction.atomic():
-                for index, spotify_id in enumerate(data.get('ordered_spotify_ids', [])):
-                    try:
-                        song = Song.objects.get(spotify_id=spotify_id)
-                        PlaylistSong.objects.filter(playlist=playlist, song=song).update(order=index)
-                    except Song.DoesNotExist:
-                        print(f"Song with Spotify ID {spotify_id} does not exist.")
+                for index, track_id in enumerate(track_ids):
+                    song = Song.objects.get(spotify_id=track_id)
+                    PlaylistSong.objects.filter(playlist=playlist, song=song).update(order=index)
 
-            # After updating the database, retrieve the ordered tracks to return to the frontend
             ordered_tracks = [
                 {
                     'id': pt.song.id,
@@ -1316,6 +1309,8 @@ def update_playlist_items(request, playlist_id):
         return JsonResponse({'error': 'Playlist not found'}, status=404)
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
+    except Song.DoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
         return JsonResponse({'error': 'Server error'}, status=500)

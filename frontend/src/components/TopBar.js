@@ -10,7 +10,7 @@ import {
 	Menu,
 	MenuItem,
 	ListItemIcon,
-	Avatar,
+	Avatar
 } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HomeIcon from '@mui/icons-material/Home';
@@ -18,7 +18,12 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PaidIcon from '@mui/icons-material/Paid';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
-import { deletePlaylist, removeFromCurrentPlaylistById, resetDataLoaded, setCurrentUser } from '../actions';
+import {
+	deletePlaylist,
+	removeFromCurrentPlaylistById,
+	resetDataLoaded,
+	setCurrentUser
+} from '../actions';
 import { connect } from 'react-redux';
 import '../App.css';
 import theme from '../theme';
@@ -29,11 +34,11 @@ import logoIcon from '../../public/images/sq-logo-2.ico';
 
 const StyledLinearProgress = withStyles({
 	colorPrimary: {
-		backgroundColor: "rgb(216,44,139, 0.5)"
+		backgroundColor: 'rgb(216,44,139, 0.5)'
 	},
 	barColorPrimary: {
 		backgroundColor: theme.palette.primary.triadic2
-	},
+	}
 })(LinearProgress);
 
 const useStyles = makeStyles(() => ({
@@ -42,36 +47,36 @@ const useStyles = makeStyles(() => ({
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		height: '32px',
+		height: '32px'
 	},
 	responsiveBox: {
 		[theme.breakpoints.up('md')]: {
-			width: '500px',
+			width: '500px'
 		},
 		[theme.breakpoints.down('sm')]: {
 			flex: 1,
-			maxWidth: '50%',
-		},
-	},
-}))
+			maxWidth: '50%'
+		}
+	}
+}));
 
-export const TopBar = ({ 
+export const TopBar = ({
 	onResetDataLoaded,
 	onDeletePlaylist,
 	onRemoveFromCurrentPlaylistById,
 	onSetCurrentUser,
-	onLogout,  
+	onLogout,
 	user,
 	currentUser,
 	userPlaylists,
-	currentPlaylist, 
+	currentPlaylist
 }) => {
 	const classes = useStyles();
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const open = Boolean(anchorEl);
-	const handleMenuClick = (event) => {
+	const handleMenuClick = event => {
 		setAnchorEl(event.currentTarget);
 	};
 	const handleClose = () => {
@@ -107,43 +112,45 @@ export const TopBar = ({
 	const handleHomeClick = () => {
 		setAnchorEl(null);
 		navigate('/');
-	}
+	};
 
-	const xpPercentage = currentUser?.user?.karma
+	const xpPercentage = currentUser?.user?.karma;
 
 	return (
 		<Box
-			display="flex"
-			justifyContent="space-between"
-			p={(isXsScreen || isSmScreen) ? 1 : 2}
+			display='flex'
+			justifyContent='space-between'
+			p={isXsScreen || isSmScreen ? 1 : 2}
 			id='topBar'
 		>
-			<Box
-				display="flex"
-				borderRadius="3px"
-			>
+			<Box display='flex' borderRadius='3px'>
 				<Link
-					to="/"
+					to='/'
 					style={{
 						textDecoration: 'none',
 						color: 'inherit',
 						flexGrow: 1,
 						display: 'flex',
-						alignItems: 'center',
+						alignItems: 'center'
 					}}
 					onClick={handleNavigate}
 				>
 					<img
 						loading='lazy'
 						src={logoIcon}
-						alt="Logo"
-						style={{ 
-							width: (isXsScreen || isSmScreen) ? '20%' : '13%',
-							paddingRight: (isXsScreen || isSmScreen) ? '2%' : '15px',
+						alt='Logo'
+						style={{
+							width: isXsScreen || isSmScreen ? '20%' : '13%',
+							paddingRight: isXsScreen || isSmScreen ? '2%' : '15px'
 						}}
 					/>
-					<Typography variant={(isXsScreen || isSmScreen) ? "h6" : "h5"} component="div" color='white' letterSpacing='2px'>
-            SongQuest
+					<Typography
+						variant={isXsScreen || isSmScreen ? 'h6' : 'h5'}
+						component='div'
+						color='white'
+						letterSpacing='2px'
+					>
+						SongQuest
 					</Typography>
 				</Link>
 			</Box>
@@ -156,9 +163,9 @@ export const TopBar = ({
 								maxHeight: '25vh',
 								overflowY: 'auto',
 								padding: '8px',
-								borderRadius: '8px',
+								borderRadius: '8px'
 							}}
-						> 
+						>
 							<Typography variant='body2' letterSpacing='1px'>
 								{'Create account or login'}
 							</Typography>
@@ -166,27 +173,27 @@ export const TopBar = ({
 					}
 				>
 					<IconButton
-						color="inherit"
+						color='inherit'
 						component={Link}
-						to="/login"
-						style={{ 
-							textDecoration: 'none', 
-							color: 'white',
+						to='/login'
+						style={{
+							textDecoration: 'none',
+							color: 'white'
 						}}
 					>
 						{!isXsScreen && !isSmScreen && (
 							<Typography variant='h6' letterSpacing='1px'>
-                  Login/Register
+								Login/Register
 							</Typography>
 						)}
 						<LoginIcon />
-					</IconButton>             
+					</IconButton>
 				</Tooltip>
 			) : (
-				<Box 
-					display='flex' 
-					alignItems='center' 
-					className={classes.responsiveBox} 
+				<Box
+					display='flex'
+					alignItems='center'
+					className={classes.responsiveBox}
 					justifyContent='flex-end'
 				>
 					<Box className={classes.counterContainer}>
@@ -199,9 +206,9 @@ export const TopBar = ({
 									maxHeight: '25vh',
 									overflowY: 'auto',
 									padding: '8px',
-									borderRadius: '8px',
+									borderRadius: '8px'
 								}}
-							> 
+							>
 								<Typography variant='caption' letterSpacing='1px'>
 									{`Tokens: ${currentUser?.user?.tokens}`}
 								</Typography>
@@ -213,12 +220,12 @@ export const TopBar = ({
 					>
 						<Box display='flex'>
 							<PaidIcon
-								fontSize='medium' 
+								fontSize='medium'
 								sx={{ color: '#c4a537' }}
-								onClick={handleGetMoreTokens} 
+								onClick={handleGetMoreTokens}
 							/>
 							{currentUser?.user?.tokens === 0 && (
-								<PriorityHighIcon 
+								<PriorityHighIcon
 									color='warning'
 									sx={{
 										height: '15px',
@@ -226,22 +233,26 @@ export const TopBar = ({
 									}}
 								/>
 							)}
-						</Box>                
+						</Box>
 					</Tooltip>
-					<Box 
+					<Box
 						display='flex'
 						flexDirection='column'
 						justifyContent='flex-end'
-						sx={{ 
+						sx={{
 							height: '40%',
 							width: '100px',
-							pl: '3%', 
+							pl: '3%'
 						}}
 					>
-						<StyledLinearProgress 
-							variant='determinate' 
-							value={xpPercentage} 
-							sx={{ borderRadius: '5px', height: '8px', marginRight: '5%' }}
+						<StyledLinearProgress
+							variant='determinate'
+							value={xpPercentage}
+							sx={{
+								borderRadius: '5px',
+								height: '8px',
+								marginRight: '5%'
+							}}
 						/>
 						<Typography
 							color='white'
@@ -265,26 +276,26 @@ export const TopBar = ({
 									maxHeight: '25vh',
 									overflowY: 'auto',
 									padding: '8px',
-									borderRadius: '8px',
+									borderRadius: '8px'
 								}}
-							> 
+							>
 								<Typography variant='body2' letterSpacing='1px'>
 									{`Account menu`}
 								</Typography>
 							</div>
 						}
-					>  
-						<IconButton onClick={handleMenuClick} size="large">
+					>
+						<IconButton onClick={handleMenuClick} size='large'>
 							<Avatar
 								src={
-									currentUser?.user?.profileImage ? 
-										currentUser?.user?.profileImage : 
-										"/path/to/nonexistent/image.jpg"
+									currentUser?.user?.profileImage
+										? currentUser?.user?.profileImage
+										: '/path/to/nonexistent/image.jpg'
 								}
 								alt={currentUser?.user?.displayName}
 								sx={{
-									width: (isSmScreen || isXsScreen) ? 32 : 48,
-									height: (isSmScreen || isXsScreen) ? 32 : 48,
+									width: isSmScreen || isXsScreen ? 32 : 48,
+									height: isSmScreen || isXsScreen ? 32 : 48
 								}}
 							/>
 						</IconButton>
@@ -297,89 +308,86 @@ export const TopBar = ({
 							paper: {
 								style: {
 									backgroundColor: '#282828',
-									borderRadius: '8px',
+									borderRadius: '8px'
 								}
 							}
 						}}
 					>
 						<MenuItem onClick={handleProfileClick}>
 							<ListItemIcon
-								color="inherit"
+								color='inherit'
 								component={Link}
-								style={{ textDecoration: 'none', color: 'white' }}
+								style={{
+									textDecoration: 'none',
+									color: 'white'
+								}}
 							>
 								<AccountCircleIcon />
 							</ListItemIcon>
 							{!isXsScreen && !isSmScreen && (
-								<Typography 
-									variant='body1' 
-									letterSpacing='1px' 
-									color='white'
-								>
+								<Typography variant='body1' letterSpacing='1px' color='white'>
 									{`Profile`}
 								</Typography>
 							)}
 						</MenuItem>
 						<MenuItem divider onClick={handleHomeClick}>
 							<ListItemIcon
-								color="inherit"
+								color='inherit'
 								component={Link}
-								style={{ textDecoration: 'none', color: 'white' }}
+								style={{
+									textDecoration: 'none',
+									color: 'white'
+								}}
 							>
 								<HomeIcon />
 							</ListItemIcon>
 							{!isXsScreen && !isSmScreen && (
-								<Typography 
-									variant='body1' 
-									letterSpacing='1px' 
-									color='white'
-								>
+								<Typography variant='body1' letterSpacing='1px' color='white'>
 									{`Home`}
 								</Typography>
 							)}
 						</MenuItem>
 						<MenuItem onClick={handleLogout}>
 							<ListItemIcon
-								color="inherit"
+								color='inherit'
 								component={Link}
-								style={{ textDecoration: 'none', color: 'white' }}
+								style={{
+									textDecoration: 'none',
+									color: 'white'
+								}}
 							>
-								<LogoutIcon fontSize='small'/>
-							</ListItemIcon> 
+								<LogoutIcon fontSize='small' />
+							</ListItemIcon>
 							{!isXsScreen && !isSmScreen && (
-								<Typography 
-									variant='body1' 
-									letterSpacing='1px' 
-									color='white'
-								>
+								<Typography variant='body1' letterSpacing='1px' color='white'>
 									{`Logout`}
 								</Typography>
 							)}
 						</MenuItem>
 					</Menu>
 				</Box>
-			)
-			}
+			)}
 		</Box>
 	);
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
 	return {
 		user: state.auth.account,
 		currentUser: state.user.currentUser,
 		currentPlaylist: state.playlist.currentPlaylist.createPlaylist,
-		userPlaylists: state.playlist.playlists,
+		userPlaylists: state.playlist.playlists
 	};
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
 	return {
 		onResetDataLoaded: () => dispatch(resetDataLoaded()),
-		onSetCurrentUser: (user) => dispatch(setCurrentUser(user)),
+		onSetCurrentUser: user => dispatch(setCurrentUser(user)),
 		onDeletePlaylist: (...playlistIds) => dispatch(deletePlaylist(...playlistIds)),
-		onRemoveFromCurrentPlaylistById: (...songs) => dispatch(removeFromCurrentPlaylistById(...songs)),
-		onLogout: () => dispatch(authSlice.actions.logout()),
+		onRemoveFromCurrentPlaylistById: (...songs) =>
+			dispatch(removeFromCurrentPlaylistById(...songs)),
+		onLogout: () => dispatch(authSlice.actions.logout())
 	};
 };
 

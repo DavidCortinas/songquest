@@ -11,8 +11,8 @@ const theme = createTheme({
 			triadic2: '#d82c8b',
 			white: 'white',
 			whitesmoke: 'whitesmoke',
-			dark: '#30313d',
-		},
+			dark: '#30313d'
+		}
 	},
 	breakpoints: {
 		values: {
@@ -20,9 +20,9 @@ const theme = createTheme({
 			sm: 640,
 			md: 800,
 			lg: 1024,
-			xl: 1280,
-		},
-	},
+			xl: 1280
+		}
+	}
 });
 
 export default theme;

@@ -1,10 +1,5 @@
 import React from 'react';
-import { 
-	createContext,
-	useState,
-	useContext,
-	useEffect,
-} from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 import { AppSnack } from './AppSnack';
 
 const SnackbarContext = createContext();

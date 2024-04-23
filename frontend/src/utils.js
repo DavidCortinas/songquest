@@ -1,15 +1,15 @@
 import React from 'react';
-import { Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 
-export const toCapitalCase= (str) => {
+export const toCapitalCase = str => {
 	if (str) {
 		return str
 			.split(' ')
 			.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-			.join(' ')
+			.join(' ');
 	} else {
-		return str
+		return str;
 	}
 };
 
@@ -26,7 +26,7 @@ export const TokenCounter = ({ tokens }) => {
 		if (newTokensAdded > 0) {
 			setAddedTokens(newTokensAdded);
 			let currentDisplay = displayTokens;
-      
+
 			const intervalId = setInterval(() => {
 				currentDisplay++;
 				setDisplayTokens(currentDisplay);
@@ -38,14 +38,8 @@ export const TokenCounter = ({ tokens }) => {
 	}, [tokens]);
 
 	return (
-		<Typography
-			color='white'
-			paddingRight='1%'
-			variant='h6'
-		>
-			{addedTokens > 0 && (
-				<div className="added-tokens-animation">+{addedTokens}</div>
-			)}
+		<Typography color='white' paddingRight='1%' variant='h6'>
+			{addedTokens > 0 && <div className='added-tokens-animation'>+{addedTokens}</div>}
 			{displayTokens}
 		</Typography>
 	);
@@ -65,7 +59,7 @@ export const KarmaCounter = ({ currentKarma }) => {
 		if (karmaDifference > 0) {
 			setAddedKarma(karmaDifference);
 			let currentDisplay = displayKarma;
-      
+
 			const intervalId = setInterval(() => {
 				currentDisplay++;
 				setDisplayKarma(currentDisplay);
@@ -79,21 +73,15 @@ export const KarmaCounter = ({ currentKarma }) => {
 
 	return (
 		<>
-			{addedKarma > 0 && (
-				<div className="added-karma-animation">+{addedKarma}</div>
-			)}
-			<Typography
-				color='white'
-				paddingRight='1%'
-				letterSpacing='1px'
-			>
+			{addedKarma > 0 && <div className='added-karma-animation'>+{addedKarma}</div>}
+			<Typography color='white' paddingRight='1%' letterSpacing='1px'>
 				{`${displayKarma}%`}
 			</Typography>
 		</>
 	);
 };
 
-export const transformResponseToQueryStructure = (responseData) => {
+export const transformResponseToQueryStructure = responseData => {
 	const {
 		name,
 		limit,
@@ -142,7 +130,7 @@ export const transformResponseToQueryStructure = (responseData) => {
 		target_time_signature,
 		min_valence,
 		max_valence,
-		target_valence,
+		target_valence
 	} = responseData;
 
 	const transformedQuery = {
@@ -157,98 +145,100 @@ export const transformResponseToQueryStructure = (responseData) => {
 				min: min_acousticness,
 				target: target_acousticness,
 				max: max_acousticness,
-				label: 'acousticness',
+				label: 'acousticness'
 			},
 			danceability: {
 				min: min_danceability,
 				target: target_danceability,
 				max: max_danceability,
-				label: 'danceability',
+				label: 'danceability'
 			},
 			duration_ms: {
 				min: min_duration_ms,
 				target: target_duration_ms,
 				max: max_duration_ms,
-				label: 'duration_ms',
+				label: 'duration_ms'
 			},
 			energy: {
 				min: min_energy,
 				target: target_energy,
 				max: max_energy,
-				label: 'energy',
+				label: 'energy'
 			},
 			instrumentalness: {
 				min: min_instrumentalness,
 				target: target_instrumentalness,
 				max: max_instrumentalness,
-				label: 'instrumentalness',
+				label: 'instrumentalness'
 			},
 			key: {
 				min: min_key,
 				target: target_key,
 				max: max_key,
-				label: 'key',
+				label: 'key'
 			},
 			liveness: {
 				min: min_liveness,
 				target: target_liveness,
 				max: max_liveness,
-				label: 'liveness',
+				label: 'liveness'
 			},
 			loudness: {
 				min: min_loudness,
 				target: target_loudness,
 				max: max_loudness,
-				label: 'loudness',
+				label: 'loudness'
 			},
 			mode: {
 				min: min_mode,
 				target: target_mode,
 				max: max_mode,
-				label: 'mode',
+				label: 'mode'
 			},
 			popularity: {
 				min: min_popularity,
 				target: target_popularity,
 				max: max_popularity,
-				label: 'popularity',
+				label: 'popularity'
 			},
 			speechiness: {
 				min: min_speechiness,
 				target: target_speechiness,
 				max: max_speechiness,
-				label: 'speechiness',
+				label: 'speechiness'
 			},
 			tempo: {
 				min: min_tempo,
 				target: target_tempo,
 				max: max_tempo,
-				label: 'tempo',
+				label: 'tempo'
 			},
 			time_signature: {
 				min: min_time_signature,
 				target: target_time_signature,
 				max: max_time_signature,
-				label: 'time_signature',
+				label: 'time_signature'
 			},
 			valence: {
 				min: min_valence,
 				target: target_valence,
 				max: max_valence,
-				label: 'valence',
-			},
-		},
+				label: 'valence'
+			}
+		}
 	};
 
 	return transformedQuery;
 };
 
-export const toCamelCase = (obj) => {
+export const toCamelCase = obj => {
 	if (Array.isArray(obj)) {
 		return obj.map(v => toCamelCase(v));
 	} else if (obj !== null && obj?.constructor === Object) {
 		return Object.keys(obj).reduce((result, key) => {
-			const camelCaseKey = key.replace(/([-_][a-z])/ig, ($1) => $1.toUpperCase().replace('-', '').replace('_', ''));
+			const camelCaseKey = key.replace(/([-_][a-z])/gi, $1 =>
+				$1.toUpperCase().replace('-', '').replace('_', '')
+			);
 			result[camelCaseKey] = toCamelCase(obj[key]);
 			return result;
 		}, {});
@@ -278,6 +268,4 @@ export const getTrackObjectsFromSpotifyIds = (spotifyIds, playlists) => {
 	});
 
 	return trackObjects;
-}
-
-
+};

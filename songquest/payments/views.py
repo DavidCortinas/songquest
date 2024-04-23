@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from songquest.payments.models import PricingPackage
+
 stripe.api_key = os.environ.get('STRIPE_SECRET')
 
 @api_view(['POST'])
@@ -69,25 +71,18 @@ def get_all_pricing_packages(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed(['GET'])
     
-    pricing_packages = [
+    pricing_packages = PricingPackage.objects.all()
+    packages_data = [
         {
-            'id': 1,
-            'name': '8 Tokens',
-            'price': 200,
-        },
-        {
-            'id': 2,
-            'name': '80 Tokens',
-            'price': 1250,
-        },
-        {
-            'id': 3,
-            'name': '40 Tokens',
-            'price': 800,
-        },
+            'id': package.id,
+            'name': package.name,
+            'price': package.price,  # Keep as integer
+            'image': request.build_absolute_uri(package.image.url) if package.image else None
+        }
+        for package in pricing_packages
     ]
 
-    return JsonResponse({'pricing_packages': pricing_packages})
+    return JsonResponse({'pricing_packages': packages_data})
 
 
 @csrf_exempt

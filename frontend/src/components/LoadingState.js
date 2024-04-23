@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, keyframes, Typography } from "@mui/material";
+import { Box, keyframes, Typography } from '@mui/material';
 import logoIcon from '../../public/images/sq-logo-2.ico';
 import '../App.css';
 
@@ -28,7 +28,7 @@ export const LoadingSpinner = () => {
 					content: '""',
 					position: 'absolute',
 					borderRadius: '50%',
-					zIndex: -1,
+					zIndex: -1
 				},
 				'&::before': {
 					top: '-3px', // Align with the outer border
@@ -42,7 +42,7 @@ export const LoadingSpinner = () => {
                         rgba(48, 49, 61, 0.8) 75%,
                         rgba(128, 128, 128, 0.6) 100%
                     )`,
-					animation: `${rotate} 17s linear infinite`, // Apply the animation
+					animation: `${rotate} 17s linear infinite` // Apply the animation
 				},
 				'&::after': {
 					width: '8px', // Size of the white dot
@@ -55,28 +55,27 @@ export const LoadingSpinner = () => {
 					transform: 'translate(-50%, 0) rotate(0deg)', // Centers the dot
 					transformOrigin: '50% calc(100% + 116px)', // Move the origin to the bottom center of the box
 					animation: `${rotate} 17s linear infinite`,
-					zIndex: 1, // Ensures the dot is above the gradient but below the avatar
-				},
+					zIndex: 1 // Ensures the dot is above the gradient but below the avatar
+				}
 			}}
 		>
 			<img
 				loading='lazy'
 				src={logoIcon}
-				alt="Spinning-Logo"
+				alt='Spinning-Logo'
 				className='spin'
-				style={{ 
+				style={{
 					// width: (isXsScreen || isSmScreen) ? '20%' : '13%',
 					// paddingRight: (isXsScreen || isSmScreen) ? '2%' : '15px',
 					height: 200,
-					width: 200,
+					width: 200
 				}}
 			/>
 		</Box>
-	)
-}
+	);
+};
 
 export const LoadingState = () => {
-    
 	return (
 		<Box
 			sx={{
@@ -84,7 +83,7 @@ export const LoadingState = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				height: '55vh',
-				position: 'relative',
+				position: 'relative'
 			}}
 		>
 			<Box
@@ -101,7 +100,7 @@ export const LoadingState = () => {
 						content: '""',
 						position: 'absolute',
 						borderRadius: '50%',
-						zIndex: -1,
+						zIndex: -1
 					},
 					'&::before': {
 						top: '-3px', // Align with the outer border
@@ -115,7 +114,7 @@ export const LoadingState = () => {
                             rgba(48, 49, 61, 0.8) 75%,
                             rgba(128, 128, 128, 0.6) 100%
                         )`,
-						animation: `${rotate} 17s linear infinite`, // Apply the animation
+						animation: `${rotate} 17s linear infinite` // Apply the animation
 					},
 					'&::after': {
 						width: '8px', // Size of the white dot
@@ -128,20 +127,20 @@ export const LoadingState = () => {
 						transform: 'translate(-50%, 0) rotate(0deg)', // Centers the dot
 						transformOrigin: '50% calc(100% + 116px)', // Move the origin to the bottom center of the box
 						animation: `${rotate} 17s linear infinite`,
-						zIndex: 1, // Ensures the dot is above the gradient but below the avatar
-					},
+						zIndex: 1 // Ensures the dot is above the gradient but below the avatar
+					}
 				}}
 			>
 				<img
 					loading='lazy'
 					src={logoIcon}
-					alt="Spinning-Logo"
+					alt='Spinning-Logo'
 					className='spin'
-					style={{ 
+					style={{
 						// width: (isXsScreen || isSmScreen) ? '20%' : '13%',
 						// paddingRight: (isXsScreen || isSmScreen) ? '2%' : '15px',
 						height: 200,
-						width: 200,
+						width: 200
 					}}
 				/>
 			</Box>
@@ -153,10 +152,11 @@ export const LoadingState = () => {
 					letterSpacing: '1px',
 					bottom: '0%', // Place it at the bottom of the container or adjust as needed
 					textAlign: 'center',
-					width: '100%',
+					width: '100%'
 				}}
 			>
 				{`Loading...`}
 			</Typography>
 		</Box>
-	)};
+	);
+};
