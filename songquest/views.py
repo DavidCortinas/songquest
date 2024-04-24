@@ -1521,6 +1521,279 @@ def get_user_tokens(request):
     return JsonResponse({'tokens': user_tokens})
 
 
+@csrf_exempt
+def add_to_spotify(request):
+    print('add to spotify')
+    if request.method == 'POST':
+        print('if post')
+        data = json.loads(request.body.decode('utf-8'))
+        recommendation = data.get('recommendation')
+        user_id = request.headers.get('User-Id')
+        try:
+            user = User.objects.get(id=user_id)
+            spotify_access = user.spotify_access
+            expires_at = user.spotify_expires_at
+
+            if token_expired(expires_at):
+                token_info = refresh_spotify_access(user.spotify_refresh)
+                if token_info:
+                    user.spotify_access = token_info['access_token']
+                    expires_at = time() + token_info['expires_in']
+                    user.spotify_expires_at = expires_at
+                    user.save()
+                    spotify_access = token_info['access_token']
+
+            spotify_url = 'https://api.spotify.com/v1/me/tracks'
+            headers = {
+                'Authorization': f'Bearer {spotify_access}',
+                'Content-Type': 'application/json'
+            }
+
+            track_id = recommendation['id']
+            payload = {"ids": [track_id]}
+
+            response = requests.put(
+                spotify_url, headers=headers, data=json.dumps(payload))
+
+            if response.status_code == 200:
+                return JsonResponse({'message': 'Added to Spotify library successfully'}, status=200)
+            else:
+                error_message = 'Failed to add tracks to Spotify library'
+                print('Response content:', response.text)
+                return JsonResponse({'error': error_message}, status=400)
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=400)
+        except Exception as e:
+            print('Error:', str(e))
+            return JsonResponse({'error': 'Failed to add track to Spotify'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def check_users_tracks(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        recommendation = data.get('recommendation')
+        user_id = request.headers.get('User-Id')
+        try:
+            user = User.objects.get(id=user_id)
+            spotify_access = user.spotify_access
+            expires_at = user.spotify_expires_at
+
+            if token_expired(expires_at):
+                token_info = refresh_spotify_access(user.spotify_refresh)
+                if token_info:
+                    user.spotify_access = token_info['access_token']
+                    expires_at = time() + token_info['expires_in']
+                    user.spotify_expires_at = expires_at
+                    user.save()
+                    spotify_access = token_info['access_token']
+
+            spotify_url = "https://api.spotify.com/v1/me/tracks/contains"
+            headers = {
+                'Authorization': f'Bearer {spotify_access}',
+                'Content-Type': 'application/json'
+            }
+
+            track_id = recommendation['id']
+            params = {"ids": [track_id]}
+
+            response = requests.get(
+                spotify_url, headers=headers, params=params
+            )
+
+            if response.status_code == 200:
+                track_is_saved = response.json()
+                return JsonResponse(track_is_saved, safe=False, status=200)
+            else:
+                error_message = 'Failed to check saved tracks'
+                return JsonResponse({'error': error_message}, status=400)
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=400)
+        except Exception as e:
+            print('Error:', str(e))
+            return JsonResponse({'error': 'Failed to check users tracks'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def remove_users_tracks(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        recommendation = data.get('recommendation')
+        user_id = request.headers.get('User-Id')
+        try:
+            user = User.objects.get(id=user_id)
+            spotify_access = user.spotify_access
+            expires_at = user.spotify_expires_at
+
+            if token_expired(expires_at):
+                token_info = refresh_spotify_access(user.spotify_refresh)
+                if token_info:
+                    user.spotify_access = token_info['access_token']
+                    expires_at = time() + token_info['expires_in']
+                    user.spotify_expires_at = expires_at
+                    user.save()
+                    spotify_access = token_info['access_token']
+
+            spotify_url = "https://api.spotify.com/v1/me/tracks"
+            headers = {
+                'Authorization': f'Bearer {spotify_access}',
+                'Content-Type': 'application/json'
+            }
+
+            track_id = recommendation['id']
+            params = {"ids": [track_id]}
+
+            response = requests.delete(
+                spotify_url, headers=headers, params=params
+            )
+
+            if response.status_code == 200:
+                return JsonResponse({'message': 'Removed from Spotify library successfully'}, status=200)
+            else:
+                error_message = 'Failed to remove saved tracks'
+                return JsonResponse({'error': error_message}, status=400)
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=400)
+        except Exception as e:
+            print('Error:', str(e))
+            return JsonResponse({'error': 'Failed to remove users tracks'}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+@csrf_exempt
+def follow_artists_on_spotify(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        artist_ids = data.get('ids')
+        user_id = request.headers.get('User-Id')
+
+        try:
+            user = User.objects.get(id=user_id)
+            spotify_access = user.spotify_access
+            expires_at = user.spotify_expires_at
+
+            if token_expired(expires_at):
+                token_info = refresh_spotify_access(user.spotify_refresh)
+                if token_info:
+                    user.spotify_access = token_info['access_token']
+                    user.spotify_expires_at = time() + token_info['expires_in']
+                    user.save()
+                    spotify_access = token_info['access_token']
+
+            spotify_url = 'https://api.spotify.com/v1/me/following'
+            headers = {
+                'Authorization': f'Bearer {spotify_access}',
+                'Content-Type': 'application/json'
+            }
+            payload = {
+                'type': 'artist', 
+                'ids': artist_ids
+            }
+
+            response = requests.put(spotify_url, headers=headers, json=payload)
+
+            if response.status_code == 204:
+                return JsonResponse({'message': 'Artists followed successfully'}, status=204)
+            else:
+                error_message = 'Failed to follow artists'
+                print('Response content:', response.text)
+                return JsonResponse({'error': error_message}, status=response.status_code)
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=400)
+        except Exception as e:
+            print('Error:', str(e))
+            return JsonResponse({'error': 'Failed to follow artists'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def check_if_user_follows_artists(request):
+    if request.method == 'GET':
+        user_id = request.headers.get('User-Id')
+        artist_ids = request.GET.get('ids')  # Comma-separated artist IDs from query params
+        try:
+            user = User.objects.get(id=user_id)
+            spotify_access = user.spotify_access
+            expires_at = user.spotify_expires_at
+
+            if token_expired(expires_at):
+                token_info = refresh_spotify_access(user.spotify_refresh)
+                if token_info:
+                    user.spotify_access = token_info['access_token']
+                    user.spotify_expires_at = time() + token_info['expires_in']
+                    user.save()
+                    spotify_access = user.spotify_access
+
+            spotify_url = f"https://api.spotify.com/v1/me/following/contains?type=artist&ids={artist_ids}"
+            headers = {'Authorization': f'Bearer {spotify_access}'}
+            response = requests.get(spotify_url, headers=headers)
+
+            if response.status_code == 200:
+                return JsonResponse(response.json(), safe=False)
+            else:
+                return JsonResponse({'error': 'Failed to check if user follows artists'}, status=response.status_code)
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+@csrf_exempt
+def unfollow_artists(request):
+    if request.method == 'DELETE':
+        user_id = request.headers.get('User-Id')
+        try:
+            data = json.loads(request.body)
+            artist_ids = data.get('ids')  # JSON array of artist IDs
+            user = User.objects.get(id=user_id)
+            spotify_access = user.spotify_access
+            expires_at = user.spotify_expires_at
+
+            if token_expired(expires_at):
+                token_info = refresh_spotify_access(user.spotify_refresh)
+                if token_info:
+                    user.spotify_access = token_info['access_token']
+                    user.spotify_expires_at = time() + token_info['expires_in']
+                    user.save()
+                    spotify_access = user.spotify_access
+
+            spotify_url = 'https://api.spotify.com/v1/me/following'
+            headers = {
+                'Authorization': f'Bearer {spotify_access}',
+                'Content-Type': 'application/json'
+            }
+            payload = json.dumps({'type': 'artist', 'ids': artist_ids})
+
+            response = requests.delete(spotify_url, headers=headers, data=payload)
+
+            if response.status_code == 204:
+                return JsonResponse({'message': 'Successfully unfollowed the artists'}, status=204)
+            else:
+                return JsonResponse({'error': 'Failed to unfollow artists'}, status=response.status_code)
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 # @csrf_exempt
 # def get_openai_initial_response(request):
 #     if request.method == 'POST':

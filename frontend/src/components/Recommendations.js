@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RemoveIcon from '@mui/icons-material/Remove';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +13,12 @@ import { useCallback, useRef, useState } from 'react';
 import theme from '../theme';
 import { connect } from 'react-redux';
 import { addToCurrentPlaylist, addToPlaylistToEdit } from '../actions';
-import { addToSavedPlaylistRequest } from '../thunks';
+import {
+	addToSavedPlaylistRequest,
+	addToSpotify,
+	checkUsersTracks,
+	removeUsersTracks
+} from '../thunks';
 
 const Recommendation = ({
 	classes,
@@ -32,6 +38,15 @@ const Recommendation = ({
 	const recommendationInPlaylist = createPlaylist?.tracks.some(
 		track => track.spotifyId === recommendation.id
 	);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const data = await checkUsersTracks(recommendation, user?.user.id);
+			data && setIsSavedTrack(data[0]);
+		};
+
+		user?.user && fetchData();
+	}, [recommendation, user, checkUsersTracks]);
 
 	const handleAddToPlaylistClick = useCallback(() => {
 		if (!user?.user.spotifyConnected) {
@@ -77,6 +92,21 @@ const Recommendation = ({
 	]);
 
 	const recommendationInSongsToAdd = songsToAdd.some(obj => obj.id === recommendation.id);
+	const [isSavedTrack, setIsSavedTrack] = useState(false);
+
+	const handleLikeClick = () => {
+		if (user?.user.spotifyConnected) {
+			if (isSavedTrack) {
+				removeUsersTracks(recommendation, user?.user.id);
+			} else {
+				addToSpotify(recommendation, user?.user.id);
+			}
+
+			setIsSavedTrack(!isSavedTrack);
+		} else {
+			navigate('/spotify-connect');
+		}
+	};
 
 	const handleSelectClick = useCallback(() => {
 		if (recommendationInSongsToAdd) {
@@ -89,58 +119,137 @@ const Recommendation = ({
 	const isChecked = recommendationInSongsToAdd;
 
 	return (
-		<li className={classes.recommendations} key={index}>
-			<Checkbox
-				icon={<CircleIcon sx={{ color: theme.palette.primary.white }} />}
-				checkedIcon={<CheckCircleIcon sx={{ color: theme.palette.primary.analgous1 }} />}
-				onClick={handleSelectClick}
-				checked={isChecked}
-				sx={{ padding: '0 3% 0 2%' }}
-			/>
-			<iframe
-				title={`${recommendation.name}`}
-				src={`https://open.spotify.com/embed/track/${
-					recommendation.spotifyId || recommendation.id
-				}?utm_source=generator`}
-				height='100%'
-				width={isXsScreen ? '65%' : '100%'}
-				frameBorder='0'
-				allowFullScreen=''
-				allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
-				loading='lazy'
-			/>
-			<Box>
-				<Tooltip
-					arrow
-					title={
-						<div
-							style={{
-								maxHeight: '25vh',
-								overflowY: 'auto',
-								padding: '8px',
-								borderRadius: '18px'
-							}}
-						>
-							<Typography variant='body2' letterSpacing='1px'>
-								{user?.user?.spotifyConnected && !recommendationInPlaylist
-									? 'Add to current collection'
-									: recommendationInPlaylist
-									? 'Remove from current collection'
-									: 'Login to build collections and more'}
-							</Typography>
-						</div>
+		<Box display='flex' flexDirection='column' width='100%'>
+			<Box
+				component='li'
+				className={classes.recommendations}
+				key={index}
+				sx={{ position: 'relative', marginBottom: '85px' }}
+			>
+				<Checkbox
+					icon={<CircleIcon sx={{ color: theme.palette.primary.white }} />}
+					checkedIcon={
+						<CheckCircleIcon sx={{ color: theme.palette.primary.analogous1 }} />
 					}
+					onClick={handleSelectClick}
+					checked={isChecked}
+					sx={{ padding: '0 3% 0 2%' }}
+				/>
+				<iframe
+					title={`${recommendation.name}`}
+					src={`https://open.spotify.com/embed/track/${
+						recommendation.spotifyId || recommendation.id
+					}?utm_source=generator`}
+					height='80'
+					width={isXsScreen ? '65%' : '100%'}
+					frameBorder='0'
+					allowFullScreen=''
+					allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
+					loading='lazy'
+				/>
+				<Box
+					sx={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						flexGrow: 1
+					}}
 				>
-					<Button onClick={handleAddToPlaylistClick}>
-						{recommendationInPlaylist ? (
-							<RemoveIcon sx={{ color: theme.palette.primary.white }} />
-						) : (
-							<AddIcon sx={{ color: theme.palette.primary.white }} />
-						)}
-					</Button>
-				</Tooltip>
+					<Tooltip
+						arrow
+						title={
+							<div
+								style={{
+									maxHeight: '25vh',
+									overflowY: 'auto',
+									padding: '8px',
+									borderRadius: '18px'
+								}}
+							>
+								<Typography variant='body2' letterSpacing='1px'>
+									{user?.user?.spotifyConnected && !recommendationInPlaylist
+										? 'Add to current collection'
+										: recommendationInPlaylist
+										? 'Remove from current collection'
+										: 'Login to build collections and more'}
+								</Typography>
+							</div>
+						}
+					>
+						<Button onClick={handleAddToPlaylistClick}>
+							{recommendationInPlaylist ? (
+								<RemoveIcon sx={{ color: theme.palette.primary.white }} />
+							) : (
+								<AddIcon sx={{ color: theme.palette.primary.white }} />
+							)}
+						</Button>
+					</Tooltip>
+					<Tooltip
+						arrow
+						title={
+							<div
+								style={{
+									maxHeight: '25vh',
+									overflowY: 'auto',
+									padding: '8px',
+									borderRadius: '18px'
+								}}
+							>
+								<Typography variant='body2' letterSpacing='1px'>
+									{user?.user.spotifyConnected && isSavedTrack
+										? 'Remove from your Spotify library'
+										: user?.user.spotifyConnected
+										? 'Save to your Spotify library'
+										: 'Connect to Spotify to save to libary'}
+								</Typography>
+							</div>
+						}
+					>
+						<Button onClick={handleLikeClick}>
+							<FavoriteIcon
+								sx={{
+									color: isSavedTrack
+										? theme.palette.primary.triadic2
+										: theme.palette.primary.white
+								}}
+							/>
+						</Button>
+					</Tooltip>
+				</Box>
+				<Button
+					variant='contained'
+					sx={{
+						position: 'absolute',
+						bottom: '-50%',
+						left: '50%',
+						transform: 'translateX(-50%)',
+						color: 'white',
+						backgroundColor: 'rgb(44, 216, 207, 0.3)',
+						border: '2px solid rgba(89, 149, 192, 0.5)',
+						borderRadius: '18px',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+						whiteSpace: 'nowrap',
+						padding: '0 5%',
+						maxWidth: '50%',
+						boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+						transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+						'&:hover, &:active, &.MuiFocusVisible': {
+							border: '2px solid rgba(89, 149, 192, 0.5)',
+							backgroundColor: 'rgb(44, 216, 207, 0.5)',
+							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+						},
+						zIndex: 2
+					}}
+					onClick={() => {
+						/* Your event handler for follow artist */
+					}}
+				>
+					{`Follow ${recommendation.artists[0].name}`}
+				</Button>
 			</Box>
-		</li>
+		</Box>
 	);
 };
 
