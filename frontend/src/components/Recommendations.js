@@ -33,21 +33,15 @@ const Recommendation = ({
 	onAddToPlaylistToEdit,
 	onRemoveFromCurrentPlaylistById,
 	user,
-	isXsScreen
+	isXsScreen,
+	savedTracks,
+	setSavedTracks
 }) => {
 	const navigate = useNavigate();
+	const isSavedTrack = savedTracks[index];
 	const recommendationInPlaylist = createPlaylist?.tracks.some(
 		track => track.spotifyId === recommendation.id
 	);
-
-	useEffect(() => {
-		const fetchData = async () => {
-			const data = await checkUsersTracks(recommendation, user?.user.id);
-			data && setIsSavedTrack(data[0]);
-		};
-
-		user?.user && fetchData();
-	}, [recommendation, user, checkUsersTracks]);
 
 	const handleAddToPlaylistClick = useCallback(() => {
 		if (!user?.user.spotifyConnected) {
@@ -91,17 +85,19 @@ const Recommendation = ({
 	]);
 
 	const recommendationInSongsToAdd = songsToAdd.some(obj => obj.id === recommendation.id);
-	const [isSavedTrack, setIsSavedTrack] = useState(false);
 
 	const handleLikeClick = () => {
 		if (user?.user.spotifyConnected) {
+			const updatedSavedTracks = [...savedTracks];
+			updatedSavedTracks[index] = !isSavedTrack;
+
 			if (isSavedTrack) {
 				removeUsersTracks(recommendation, user?.user.id);
 			} else {
 				addToSpotify(recommendation, user?.user.id);
 			}
 
-			setIsSavedTrack(!isSavedTrack);
+			setSavedTracks(updatedSavedTracks);
 		} else {
 			navigate('/spotify-connect');
 		}
@@ -278,7 +274,19 @@ const Recommendations = ({
 }) => {
 	const [songsToAdd, setSongsToAdd] = useState([]);
 	const [visibleRecommendations, setVisibleRecommendations] = useState(recommendations?.length);
+	const [savedTracks, setSavedTracks] = useState([]);
 	const containerRef = useRef(null);
+
+	useEffect(() => {
+		const checkTracks = async () => {
+			if (user?.user && recommendations?.length) {
+				const trackStatus = await checkUsersTracks(recommendations, user.user.id);
+				setSavedTracks(trackStatus);
+			}
+		};
+
+		checkTracks();
+	}, [recommendations, user]);
 
 	const openModal = () => {
 		setIsModalOpen(true);
@@ -474,6 +482,8 @@ const Recommendations = ({
 									user={user}
 									isXsScreen={isXsScreen}
 									toggleValue={toggleValue}
+									savedTracks={savedTracks}
+									setSavedTracks={setSavedTracks}
 								/>
 							))
 					) : (

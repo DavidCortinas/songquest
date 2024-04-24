@@ -1566,8 +1566,9 @@ def add_to_spotify(request):
 def check_users_tracks(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
-        recommendation = data.get('recommendation')
+        recommendations = data.get('recommendations', [])
         user_id = request.headers.get('User-Id')
+        
         try:
             user = User.objects.get(id=user_id)
             spotify_access = user.spotify_access
@@ -1588,12 +1589,11 @@ def check_users_tracks(request):
                 'Content-Type': 'application/json'
             }
 
-            track_id = recommendation.get('spotifyId', recommendation.get('id'))
-            params = {"ids": [track_id]}
+            # Extract track IDs using spotifyId or fallback to id
+            track_ids = [track.get('spotifyId', track.get('id')) for track in recommendations]
+            params = {"ids": ",".join(track_ids)}  # Join IDs into a comma-separated string
 
-            response = requests.get(
-                spotify_url, headers=headers, params=params
-            )
+            response = requests.get(spotify_url, headers=headers, params=params)
 
             if response.status_code == 200:
                 track_is_saved = response.json()
