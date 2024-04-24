@@ -327,10 +327,9 @@ def update_user_profile(request):
             user = User.objects.get(pk=user_id)
 
             data = json.loads(request.body.decode('utf-8'))
-            print('data: ', data)
 
             display_name = data.get('display_name')
-            print(display_name)
+
             if display_name:
                 if User.objects.exclude(pk=user_id).filter(display_name=display_name).exists():
                     return JsonResponse(
@@ -338,10 +337,8 @@ def update_user_profile(request):
                         status=400
                     )
                 user.display_name = display_name
-                print(user.display_name)
 
             birthday = data.get('birth_date')
-            print(birthday)
             if birthday:
                 parsed_birthday = dateutil.parser.isoparse(birthday).date()
                 user.birthday = parsed_birthday
@@ -353,8 +350,6 @@ def update_user_profile(request):
             profession = data.get('profession')
             if profession:
                 user.profession = profession
-
-            print(data.get('genres'))
                 
             genre_names = [genre_name.lower() for genre_name in data.get('genres')]
 
@@ -476,7 +471,7 @@ def request_authorization(request, source='default'):
     # Spotify API authorization URL
     authorization_url = (
         'https://accounts.spotify.com/authorize/?'
-        'client_id={}&response_type=code&redirect_uri={}&scope=user-library-read user-library-modify user-read-email playlist-modify-public playlist-modify-private&state={}'
+        'client_id={}&response_type=code&redirect_uri={}&scope=user-library-read user-library-modify user-read-email user-follow-modify user-follow-read playlist-modify-public playlist-modify-private&state={}'
     ).format(client_id, redirect_uri, encoded_state)
 
     return redirect(authorization_url)
@@ -1085,7 +1080,6 @@ def add_to_playlist(request, playlist_id):
         }
 
         tracks = data['tracks']
-        print(tracks)
 
         body = json.dumps({
             'uris': [f'spotify:track:{track["spotifyId"]}' for track in tracks],
@@ -1095,7 +1089,7 @@ def add_to_playlist(request, playlist_id):
         max_order = PlaylistSong.objects.filter(playlist=playlist).aggregate(Max('order'))['order__max'] or -1
         for track in tracks:
             name = track['name']
-            artists = [artist for artist in track['artists']]
+            artists = track['artists']
             spotify_id = track['spotifyId']
             isrc = track['isrc']
             image = track['image']
@@ -1105,7 +1099,7 @@ def add_to_playlist(request, playlist_id):
                 spotify_id=spotify_id,
                 defaults={
                     'name': name, 
-                    'artists': ', '.join(artists), 
+                    'artists': artists, 
                     'isrc': isrc,
                     'image': image,
                 }
@@ -1137,7 +1131,7 @@ def add_to_playlist(request, playlist_id):
                     {
                         'id': song.id,
                         'name': song.name,
-                        'artists': song.artists.split(', '),
+                        'artists': song.artists,
                         'spotifyId': song.spotify_id,
                         'image': song.image,
                     }
@@ -1210,7 +1204,7 @@ def remove_from_playlist(request, playlist_id):
                     {
                         'id': song.id,
                         'name': song.name,
-                        'artists': song.artists.split(', '),
+                        'artists': song.artists,
                         'spotifyId': song.spotify_id,
                         'image': song.image,
                     }
@@ -1294,7 +1288,7 @@ def update_playlist_items(request, playlist_id):
                 {
                     'id': pt.song.id,
                     'name': pt.song.name,
-                    'artists': pt.song.artists.split(', '),
+                    'artists': pt.song.artists,
                     'spotifyId': pt.song.spotify_id,
                     'image': pt.song.image,
                     'isrc': pt.song.isrc,
@@ -1336,7 +1330,7 @@ def get_user_playlists(request):
             {
                 'id': song.id,
                 'name': song.name,
-                'artists': song.artists.split(', '),
+                'artists': song.artists,
                 'spotifyId': song.spotify_id,
                 'image': song.image,
                 'isrc': song.isrc,
@@ -1523,9 +1517,7 @@ def get_user_tokens(request):
 
 @csrf_exempt
 def add_to_spotify(request):
-    print('add to spotify')
     if request.method == 'POST':
-        print('if post')
         data = json.loads(request.body.decode('utf-8'))
         recommendation = data.get('recommendation')
         user_id = request.headers.get('User-Id')
@@ -1549,7 +1541,7 @@ def add_to_spotify(request):
                 'Content-Type': 'application/json'
             }
 
-            track_id = recommendation['id']
+            track_id = recommendation.get('spotifyId', recommendation.get('id'))
             payload = {"ids": [track_id]}
 
             response = requests.put(
@@ -1559,7 +1551,6 @@ def add_to_spotify(request):
                 return JsonResponse({'message': 'Added to Spotify library successfully'}, status=200)
             else:
                 error_message = 'Failed to add tracks to Spotify library'
-                print('Response content:', response.text)
                 return JsonResponse({'error': error_message}, status=400)
 
         except User.DoesNotExist:
@@ -1597,7 +1588,7 @@ def check_users_tracks(request):
                 'Content-Type': 'application/json'
             }
 
-            track_id = recommendation['id']
+            track_id = recommendation.get('spotifyId', recommendation.get('id'))
             params = {"ids": [track_id]}
 
             response = requests.get(
@@ -1646,7 +1637,7 @@ def remove_users_tracks(request):
                 'Content-Type': 'application/json'
             }
 
-            track_id = recommendation['id']
+            track_id = recommendation.get('spotifyId', recommendation.get('id'))
             params = {"ids": [track_id]}
 
             response = requests.delete(
@@ -1671,7 +1662,7 @@ def remove_users_tracks(request):
 
 @csrf_exempt
 def follow_artists_on_spotify(request):
-    if request.method == 'POST':
+    if request.method == 'PUT':
         data = json.loads(request.body.decode('utf-8'))
         artist_ids = data.get('ids')
         user_id = request.headers.get('User-Id')
@@ -1685,21 +1676,20 @@ def follow_artists_on_spotify(request):
                 token_info = refresh_spotify_access(user.spotify_refresh)
                 if token_info:
                     user.spotify_access = token_info['access_token']
-                    user.spotify_expires_at = time() + token_info['expires_in']
+                    expires_at = time() + token_info['expires_in']
+                    user.spotify_expires_at = expires_at
                     user.save()
                     spotify_access = token_info['access_token']
 
-            spotify_url = 'https://api.spotify.com/v1/me/following'
+            # Building the query string for the request
+            artist_ids_query = ','.join(artist_ids)  # Ensure this is a list of strings
+            spotify_url = f'https://api.spotify.com/v1/me/following?type=artist&ids={artist_ids_query}'
             headers = {
                 'Authorization': f'Bearer {spotify_access}',
                 'Content-Type': 'application/json'
             }
-            payload = {
-                'type': 'artist', 
-                'ids': artist_ids
-            }
-
-            response = requests.put(spotify_url, headers=headers, json=payload)
+            # Since the API expects no body when ids are passed in the URL, we send an empty body
+            response = requests.put(spotify_url, headers=headers)
 
             if response.status_code == 204:
                 return JsonResponse({'message': 'Artists followed successfully'}, status=204)
@@ -1721,7 +1711,11 @@ def follow_artists_on_spotify(request):
 def check_if_user_follows_artists(request):
     if request.method == 'GET':
         user_id = request.headers.get('User-Id')
-        artist_ids = request.GET.get('ids')  # Comma-separated artist IDs from query params
+        artist_ids = request.GET.get('ids')  # Expecting a comma-separated list of artist IDs from query params
+
+        if not artist_ids:
+            return JsonResponse({'error': 'Artist IDs are required'}, status=400)
+
         try:
             user = User.objects.get(id=user_id)
             spotify_access = user.spotify_access
@@ -1731,7 +1725,7 @@ def check_if_user_follows_artists(request):
                 token_info = refresh_spotify_access(user.spotify_refresh)
                 if token_info:
                     user.spotify_access = token_info['access_token']
-                    user.spotify_expires_at = time() + token_info['expires_in']
+                    user.spotify_expires_at = datetime.now().timestamp() + token_info['expires_in']
                     user.save()
                     spotify_access = user.spotify_access
 
@@ -1740,7 +1734,7 @@ def check_if_user_follows_artists(request):
             response = requests.get(spotify_url, headers=headers)
 
             if response.status_code == 200:
-                return JsonResponse(response.json(), safe=False)
+                return JsonResponse(response.json(), safe=False)  # Directly pass the JSON response from Spotify
             else:
                 return JsonResponse({'error': 'Failed to check if user follows artists'}, status=response.status_code)
 
@@ -1757,8 +1751,12 @@ def unfollow_artists(request):
     if request.method == 'DELETE':
         user_id = request.headers.get('User-Id')
         try:
-            data = json.loads(request.body)
-            artist_ids = data.get('ids')  # JSON array of artist IDs
+            data = json.loads(request.body.decode('utf-8'))  # Make sure to decode the request body
+            artist_ids = data.get('ids')  # Expecting a JSON array of artist IDs
+
+            if not artist_ids:
+                return JsonResponse({'error': 'Artist IDs are required'}, status=400)
+
             user = User.objects.get(id=user_id)
             spotify_access = user.spotify_access
             expires_at = user.spotify_expires_at
@@ -1767,18 +1765,20 @@ def unfollow_artists(request):
                 token_info = refresh_spotify_access(user.spotify_refresh)
                 if token_info:
                     user.spotify_access = token_info['access_token']
-                    user.spotify_expires_at = time() + token_info['expires_in']
+                    user.spotify_expires_at = time.time() + token_info['expires_in']
                     user.save()
                     spotify_access = user.spotify_access
 
-            spotify_url = 'https://api.spotify.com/v1/me/following'
+            # Convert list of IDs to a comma-separated string
+            artist_ids_str = ','.join(artist_ids)
+            spotify_url = f"https://api.spotify.com/v1/me/following?type=artist&ids={artist_ids_str}"
             headers = {
                 'Authorization': f'Bearer {spotify_access}',
                 'Content-Type': 'application/json'
             }
-            payload = json.dumps({'type': 'artist', 'ids': artist_ids})
 
-            response = requests.delete(spotify_url, headers=headers, data=payload)
+            # Send the DELETE request without a payload, as IDs are in the URL
+            response = requests.delete(spotify_url, headers=headers)
 
             if response.status_code == 204:
                 return JsonResponse({'message': 'Successfully unfollowed the artists'}, status=204)

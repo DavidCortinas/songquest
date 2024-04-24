@@ -9,6 +9,7 @@ import { store } from './store';
 import './index.css';
 import App from './App';
 import { SnackbarProvider } from './contexts/snackbar/SnackbarContext';
+import '../public/images/favicon.ico';
 // import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

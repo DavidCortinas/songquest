@@ -193,7 +193,6 @@ const AutocompleteParameter = ({
 					}
 				}}
 				renderOption={(props, option) => {
-					console.log('option_id: ', option.id);
 					return (
 						<Box
 							key={option.id}
@@ -214,15 +213,6 @@ const AutocompleteParameter = ({
 				}}
 				freeSolo
 				ChipProps={{
-					// onDelete: (option) => {
-					//   console.log(option);
-					//   if (currentUser?.user) {
-					//     console.log('remove')
-					//     handleOptionRemove(option);
-					//   } else {
-					//     return null;
-					//   }
-					// },
 					sx: {
 						color: {
 							color: 'white',

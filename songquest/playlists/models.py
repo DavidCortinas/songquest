@@ -3,13 +3,13 @@ from django.db import models
 
 class Song(models.Model):
     name = models.CharField()
-    artists = models.CharField()
+    artists = models.JSONField()
     spotify_id = models.CharField()
     isrc = models.CharField()
     image = models.CharField()
 
     def __str__(self):
-        return f'{self.name} - {self.artists}'
+        return f"{self.name} - {', '.join(artist['name'] for artist in self.artists)}"
 
 
 class Playlist(models.Model):
