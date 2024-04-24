@@ -1002,8 +1002,6 @@ export const Profile = ({
 
 			await onSaveUserProfile(currentUser?.user?.id, userInfo);
 			const updatedProfile = await onGetUserProfile(currentUser?.user?.id);
-			console.log(initialBadges);
-			console.log(updatedProfile);
 
 			const initialBadgeNames = new Set(initialBadges?.map(badge => badge.name));
 			const newBadges = updatedProfile.achievements.filter(

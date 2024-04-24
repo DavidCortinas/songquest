@@ -63,7 +63,7 @@ const PlaylistItemCard = ({
 	isXsScreen
 }) => {
 	const songName = item?.name;
-	const artists = item?.artists?.join(', ');
+	const artists = item?.artists?.map(artist => artist.name).join(', ');
 	const imgUrl = item?.image;
 
 	return (

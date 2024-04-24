@@ -17,6 +17,7 @@ import {
 	addToSavedPlaylistRequest,
 	addToSpotify,
 	checkUsersTracks,
+	followArtistsOnSpotify,
 	removeUsersTracks
 } from '../thunks';
 
@@ -56,9 +57,7 @@ const Recommendation = ({
 				? onRemoveFromCurrentPlaylistById(recommendation.id)
 				: onAddToCurrentPlaylist({
 						name: recommendation.name,
-						artists: recommendation.artists.map(artist =>
-							artist.name ? artist.name : artist
-						),
+						artists: recommendation.artists,
 						spotify_id: recommendation.id,
 						image: recommendation.album
 							? recommendation.album.images[2].url
@@ -116,7 +115,19 @@ const Recommendation = ({
 		}
 	}, [recommendation, recommendationInSongsToAdd, setSongsToAdd, songsToAdd]);
 
+	const handleFollowArtist = async () => {
+		await followArtistsOnSpotify([recommendation.artists[0].id], user?.user.id);
+	};
+
 	const isChecked = recommendationInSongsToAdd;
+
+	let artistName;
+
+	if (typeof recommendation.artists[0] === 'string') {
+		artistName = recommendation.artists[0];
+	} else {
+		artistName = recommendation.artists[0].name;
+	}
 
 	return (
 		<Box display='flex' flexDirection='column' width='100%'>
@@ -242,11 +253,9 @@ const Recommendation = ({
 						},
 						zIndex: 2
 					}}
-					onClick={() => {
-						/* Your event handler for follow artist */
-					}}
+					onClick={handleFollowArtist}
 				>
-					{`Follow ${recommendation.artists[0].name}`}
+					{`Follow ${artistName}`}
 				</Button>
 			</Box>
 		</Box>
@@ -283,7 +292,7 @@ const Recommendations = ({
 		const songsToAddData = songsToAdd.map(song => ({
 			// 'id': song.id,
 			name: song.name,
-			artists: song.artists.map(artist => artist.name),
+			artists: song.artists,
 			spotifyId: song.spotifyId || song.id,
 			isrc: song.external_ids ? song.external_ids.isrc : song.isrc,
 			image: song.album ? song.album.images[2].url : song.image

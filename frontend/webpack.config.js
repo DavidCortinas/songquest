@@ -15,7 +15,7 @@ module.exports = (env, argv) => {
 			: [
 					'webpack-dev-server/client?http://localhost:3000/', // Ensure this is the correct URL
 					'webpack/hot/only-dev-server',
-					'./src/index.js',
+					'./src/index.js'
 			  ],
 		output: {
 			filename: 'js/[name].[contenthash:8].js',
@@ -23,7 +23,7 @@ module.exports = (env, argv) => {
 			path: isProduction
 				? path.resolve(__dirname, 'dist')
 				: path.resolve(__dirname, 'static', 'bundles'),
-			publicPath: isProduction ? '/static/' : 'http://localhost:3000/',
+			publicPath: isProduction ? '/static/' : 'http://localhost:3000/'
 		},
 		module: {
 			rules: [
@@ -33,50 +33,36 @@ module.exports = (env, argv) => {
 					use: {
 						loader: 'babel-loader',
 						options: {
-							presets: [
-								'@babel/preset-env',
-								'@babel/preset-react',
-							],
-							plugins: ['@babel/plugin-transform-runtime'],
-						},
-					},
+							presets: ['@babel/preset-env', '@babel/preset-react'],
+							plugins: ['@babel/plugin-transform-runtime']
+						}
+					}
 				},
 				{
 					test: /\.css$/,
-					use: [
-						isProduction
-							? MiniCssExtractPlugin.loader
-							: 'style-loader',
-						'css-loader',
-					],
+					use: [isProduction ? MiniCssExtractPlugin.loader : 'style-loader', 'css-loader']
 				},
 				{
 					test: /\.(png|jpg|jpeg|gif|svg|ico|webp)$/i,
 					type: 'asset/resource',
 					generator: {
-						filename: 'media/[name].[hash:8][ext]',
-					},
-				},
-			],
+						filename: 'media/[name].[hash:8][ext]'
+					}
+				}
+			]
 		},
 		plugins: [
 			new webpack.HotModuleReplacementPlugin(),
 			new BundleTracker({
 				path: path.resolve(__dirname, 'static', 'bundles'),
-				filename: 'webpack-stats.json',
+				filename: 'webpack-stats.json'
 			}),
 			new webpack.DefinePlugin({
-				'process.env.NODE_ENV': JSON.stringify(
-					isProduction ? 'production' : 'development'
-				),
-				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(
-					process.env.REACT_APP_STRIPE_KEY
-				),
+				'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
+				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(process.env.REACT_APP_STRIPE_KEY)
 			}),
 			new HtmlWebpackPlugin({
-				template: isProduction
-					? './public/index.prod.html'
-					: './public/index.html',
+				template: isProduction ? './public/index.prod.html' : './public/index.html',
 				inject: true,
 				minify: isProduction && {
 					removeComments: true,
@@ -88,14 +74,14 @@ module.exports = (env, argv) => {
 					keepClosingSlash: true,
 					minifyJS: true,
 					minifyCSS: true,
-					minifyURLs: true,
-				},
+					minifyURLs: true
+				}
 			}),
 			new MiniCssExtractPlugin({
 				filename: 'css/[name].[contenthash:8].css',
-				chunkFilename: 'css/[id].[contenthash:8].css',
+				chunkFilename: 'css/[id].[contenthash:8].css'
 			}),
-			new CleanWebpackPlugin(),
+			new CleanWebpackPlugin()
 		],
 		optimization: {
 			minimize: isProduction,
@@ -103,17 +89,17 @@ module.exports = (env, argv) => {
 				new TerserPlugin({
 					terserOptions: {
 						format: {
-							comments: false,
-						},
+							comments: false
+						}
 					},
-					extractComments: false,
-				}),
-			],
+					extractComments: false
+				})
+			]
 		},
 		devServer: {
 			static: {
 				directory: path.join(__dirname, 'dist'),
-				publicPath: '/',
+				publicPath: '/'
 			},
 			historyApiFallback: true,
 			hot: true,
@@ -124,10 +110,10 @@ module.exports = (env, argv) => {
 					context: ['/api'],
 					target: 'http://localhost:8000',
 					changeOrigin: true,
-					secure: false,
-				},
-			],
+					secure: false
+				}
+			]
 		},
-		devtool: isProduction ? false : 'eval-source-map',
+		devtool: isProduction ? false : 'eval-source-map'
 	};
 };
