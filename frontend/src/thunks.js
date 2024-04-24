@@ -986,3 +986,151 @@ export const getUserTokens = userId => async dispatch => {
 		dispatch(getUserTokensFailure(error));
 	}
 };
+
+export const addToSpotify = async (recommendation, userId) => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId
+		};
+
+		const response = await axios.post(
+			'http://localhost:8000/add-to-spotify/',
+			{ recommendation },
+			{ headers: headers }
+		);
+
+		if (response.status === 200) {
+			console.log('Track successfully added to Spotify library');
+		} else {
+			console.error('There was an error with trying to add the track to Spotify');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
+};
+
+export const checkUsersTracks = async (recommendation, userId) => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId
+		};
+
+		const response = await axios.post(
+			'http://localhost:8000/check-users-tracks/',
+			{ recommendation },
+			{ headers: headers }
+		);
+
+		if (response.status === 200) {
+			console.log('API request successful');
+			return response.data;
+		} else {
+			console.error('API request failed');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
+};
+
+export const removeUsersTracks = async (recommendation, userId) => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId
+		};
+
+		const response = await axios.post(
+			'http://localhost:8000/remove-users-tracks/',
+			{ recommendation },
+			{ headers: headers }
+		);
+
+		if (response.status === 200) {
+			console.log('Remove users tracks request successful');
+			return response.data;
+		} else {
+			console.error('Remove users tracks request failed');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
+};
+
+export const followArtistsOnSpotify = async (artistIds, userId) => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId
+		};
+
+		const response = await axios.put(
+			'http://localhost:8000/follow-artist/',
+			{ ids: artistIds },
+			{ headers: headers }
+		);
+
+		if (response.status === 204) {
+			console.log('Artists successfully followed on Spotify');
+		} else {
+			console.error('There was an error with trying to follow the artists on Spotify');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
+};
+
+export const checkIfUserFollowsArtists = async (artistIds, userId) => {
+	try {
+		const headers = {
+			'User-Id': userId
+		};
+
+		const response = await axios.get(
+			`http://localhost:8000/check-if-user-follows-artists/?ids=${artistIds.join(',')}`,
+			{ headers: headers }
+		);
+
+		if (response.status === 200) {
+			console.log('Check follow status successful', response.data);
+			return response.data;
+		} else {
+			console.error('Failed to check follow status');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
+};
+
+export const unfollowArtists = async (artistIds, userId) => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const headers = {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'User-Id': userId
+		};
+
+		const response = await axios.delete('http://localhost:8000/unfollow-artists/', {
+			data: { ids: artistIds },
+			headers: headers
+		});
+
+		if (response.status === 204) {
+			console.log('Successfully unfollowed artists');
+		} else {
+			console.error('Failed to unfollow artists');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
+};
