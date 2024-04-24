@@ -1012,7 +1012,7 @@ export const addToSpotify = async (recommendation, userId) => {
 	}
 };
 
-export const checkUsersTracks = async (recommendation, userId) => {
+export const checkUsersTracks = async (recommendations, userId) => {
 	try {
 		const csrfToken = await getCSRFToken();
 		const headers = {
@@ -1023,7 +1023,7 @@ export const checkUsersTracks = async (recommendation, userId) => {
 
 		const response = await axios.post(
 			'http://localhost:8000/check-users-tracks/',
-			{ recommendation },
+			{ recommendations },
 			{ headers: headers }
 		);
 
