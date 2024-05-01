@@ -109,7 +109,7 @@ const overrideTheme = createTheme({
 });
 
 const UserAvatar = ({ currentUser, isSmScreen, isXsScreen }) => {
-	const avatarSize = isSmScreen || isXsScreen ? 32 : 48;
+	const avatarSize = isXsScreen ? 32 : 48;
 	const hasImage = Boolean(currentUser?.user?.profileImage);
 
 	return (
@@ -117,8 +117,22 @@ const UserAvatar = ({ currentUser, isSmScreen, isXsScreen }) => {
 			src={hasImage ? currentUser?.user?.profileImage : undefined}
 			alt={hasImage ? currentUser?.user?.displayName : 'User Avatar'}
 			sx={{
-				width: hasImage ? 200 : avatarSize,
-				height: hasImage ? 200 : avatarSize,
+				width:
+					hasImage && isXsScreen
+						? 125
+						: hasImage && isSmScreen
+						? 175
+						: hasImage
+						? 200
+						: avatarSize,
+				height:
+					hasImage && isXsScreen
+						? 125
+						: hasImage && isSmScreen
+						? 175
+						: hasImage
+						? 200
+						: avatarSize,
 				backgroundColor: !hasImage ? theme.palette.primary.triadic1 : undefined,
 				opacity: !hasImage ? '0.7' : undefined
 			}}
@@ -132,7 +146,7 @@ const UserAvatar = ({ currentUser, isSmScreen, isXsScreen }) => {
 	);
 };
 
-const UserInfo = ({ fieldLabel, fieldValue, handleValueChange }) => {
+const UserInfo = ({ fieldLabel, fieldValue, handleValueChange, isXsScreen }) => {
 	const hasValue = Boolean(fieldValue);
 	const [fieldDisabled, setFieldDisabled] = useState(true);
 
@@ -152,7 +166,7 @@ const UserInfo = ({ fieldLabel, fieldValue, handleValueChange }) => {
 	}, [fieldDisabled]);
 
 	return (
-		<Box display='flex' alignItems='center'>
+		<Box display='flex' alignItems='center' paddingTop={isXsScreen ? '3%' : 0}>
 			{fieldLabel === 'Birth Date' ? (
 				<LocalizationProvider dateAdapter={AdapterDayjs}>
 					<DateField
@@ -165,7 +179,7 @@ const UserInfo = ({ fieldLabel, fieldValue, handleValueChange }) => {
 						onChange={handleValueChange}
 						onBlur={() => setFieldDisabled(true)}
 						sx={{
-							width: '25vw',
+							width: isXsScreen ? '40vw' : '25vw',
 							'& .MuiInputLabel-root': {
 								top: 4,
 								left: '12px',
@@ -189,7 +203,7 @@ const UserInfo = ({ fieldLabel, fieldValue, handleValueChange }) => {
 							},
 							'& .MuiInputBase-input': {
 								color: 'white',
-								fontSize: '1rem',
+								fontSize: isXsScreen ? '0.75rem' : '1rem',
 								padding: '3% 4% 0'
 							},
 							'& .MuiInputBase-input.Mui-disabled': {
@@ -226,8 +240,11 @@ const UserInfo = ({ fieldLabel, fieldValue, handleValueChange }) => {
 					sx={{
 						maxHeight: '35px',
 						width: '25vw',
+						[theme.breakpoints.down('md')]: {
+							width: '35vw'
+						},
 						[theme.breakpoints.down('sm')]: {
-							width: '80%'
+							width: '40vw'
 						},
 						backgroundColor: '#30313d',
 						color: 'white',
@@ -240,7 +257,8 @@ const UserInfo = ({ fieldLabel, fieldValue, handleValueChange }) => {
 						...(hasValue
 							? {
 									input: {
-										color: 'white'
+										color: 'white',
+										fontSize: isXsScreen ? '0.75rem' : '1rem'
 									}
 							  }
 							: {
@@ -356,7 +374,8 @@ const UserDetailsField = ({
 	hasValue,
 	handleValueChange,
 	fieldDisabled,
-	setFieldDisabled
+	setFieldDisabled,
+	isXsScreen
 }) => {
 	const textFieldRef = useRef(null);
 
@@ -417,6 +436,7 @@ const UserDetailsField = ({
 					: {
 							sx: {
 								color: 'white',
+								fontSize: isXsScreen ? '0.75rem' : '1rem',
 								transform: 'translate(14px, 10px) scale(1)',
 								'&.Mui-focused': {
 									transform: 'translate(14px, 0) scale(0.75)'
@@ -436,12 +456,13 @@ const UserDetailsField = ({
 					? {
 							style: {
 								margin: '2px 3%',
-								padding: '2% 0',
+								padding: isXsScreen ? '5% 0' : '2% 0',
 								fill: 'white'
 							},
 							sx: {
 								color: 'white',
-								letterSpacing: '1px'
+								letterSpacing: '1px',
+								fontSize: isXsScreen ? '0.75rem' : '1rem'
 							}
 					  }
 					: {
@@ -454,7 +475,14 @@ const UserDetailsField = ({
 	);
 };
 
-const UserDetails = ({ fieldLabel, fieldValue, handleValueChange, handleAddClick, userType }) => {
+const UserDetails = ({
+	fieldLabel,
+	fieldValue,
+	handleValueChange,
+	handleAddClick,
+	userType,
+	isXsScreen
+}) => {
 	const hasValue = Boolean(fieldValue);
 
 	const [fieldDisabled, setFieldDisabled] = useState(true);
@@ -570,7 +598,7 @@ const UserDetails = ({ fieldLabel, fieldValue, handleValueChange, handleAddClick
 									color: 'white',
 									'& .MuiInputBase-input': {
 										color: 'white',
-										fontSize: '1rem'
+										fontSize: isXsScreen ? '0.75rem' : '1rem'
 									},
 									'&:before': {
 										borderBottom: 'none'
@@ -595,6 +623,7 @@ const UserDetails = ({ fieldLabel, fieldValue, handleValueChange, handleAddClick
 					handleValueChange={handleValueChange}
 					fieldDisabled={fieldDisabled}
 					setFieldDisabled={setFieldDisabled}
+					isXsScreen={isXsScreen}
 				/>
 			)}
 			<Tooltip
@@ -719,9 +748,6 @@ export const PreferredGenres = ({
 					}
 				}}
 				className={classes.textField}
-				sx={{
-					maxHeight: '85%'
-				}}
 				renderOption={(props, option) => (
 					<Box
 						component='li'
@@ -755,16 +781,16 @@ export const PreferredGenres = ({
 						InputLabelProps={{
 							sx: {
 								paddingLeft: '1em',
-								// backgroundColor: '#30313d',
 								color: 'white',
-								letterSpacing: '1px'
+								letterSpacing: '1px',
+								top: '-5px'
 							}
 						}}
 						InputProps={{
 							...params.InputProps,
 							style: {
 								margin: '5px 0',
-								padding: '5px 10px',
+								padding: '0',
 								fill: 'white'
 							},
 							sx: {
@@ -772,7 +798,9 @@ export const PreferredGenres = ({
 								color: 'white',
 								'& .MuiInputBase-input': {
 									color: 'white',
-									fontSize: '1.25rem'
+									fontSize: '1rem',
+									padding: '0',
+									height: 'auto'
 								},
 								'&:before': {
 									borderBottom: 'none'
@@ -1080,20 +1108,25 @@ export const Profile = ({
 			}}
 		>
 			<Typography
-				variant='h5'
+				variant={isXsScreen ? 'h6' : 'h5'}
 				color={theme.palette.primary.whitesmoke}
-				letterSpacing='50px'
+				letterSpacing={isXsScreen ? '35px' : '50px'}
 				textAlign='center'
 				paddingLeft='10%'
 			>
 				{'PROFILE'}
 			</Typography>
-			<Box display='flex' flexDirection='row' justifyContent='space-between' width='100%'>
+			<Box
+				display='flex'
+				flexDirection='row'
+				justifyContent='space-between'
+				width={isXsScreen ? '110%' : '100%'}
+			>
 				<Box
 					sx={{
 						position: 'relative',
-						width: 'calc(200px + 26px)', // Avatar size plus gradient border
-						height: 'calc(200px + 26px)', // Avatar size plus gradient border
+						width: isXsScreen ? 'calc(125px)' : 'calc(200px + 26px)', // Avatar size plus gradient border
+						height: isXsScreen ? 'calc(125px)' : 'calc(200px + 26px)', // Avatar size plus gradient border
 						display: 'flex',
 						justifyContent: 'center',
 						alignItems: 'center',
@@ -1124,11 +1157,15 @@ export const Profile = ({
 							height: '8px', // Size of the white dot
 							background: 'white',
 							// Position the dot initially at the top center of the border
-							top: '-8px', // Slightly more than the padding to sit on the gradient border
-							left: '48%',
+							top: isXsScreen ? '-8px' : '-8px', // Slightly more than the padding to sit on the gradient border
+							left: isXsScreen ? '50%' : '48%',
 							// Adjust the transform origin to the center of the avatar
-							transform: 'translate(-50%, 0) rotate(0deg)', // Centers the dot
-							transformOrigin: '50% calc(100% + 116px)', // Move the origin to the bottom center of the box
+							transform: isXsScreen
+								? 'translate(-50%, -50%) rotate(0deg)'
+								: 'translate(-50%, 0) rotate(0deg)', // Centers the dot
+							transformOrigin: isXsScreen
+								? '50% calc(50% + 68px)'
+								: '50% calc(100% + 116px)', // Move the origin to the bottom center of the box
 							animation: `${rotate} 35s linear infinite`,
 							zIndex: 1 // Ensures the dot is above the gradient but below the avatar
 						}
@@ -1167,6 +1204,10 @@ export const Profile = ({
 								// Adjust these values as necessary to position the icon correctly over the Avatar
 								transform: !currentUser?.user?.profileImage
 									? 'translate(0%, -85%)'
+									: isSmScreen
+									? 'translate(0%, -50%)'
+									: isXsScreen
+									? 'translate(-70%, 7%)'
 									: 'translate(10%, -30%)', // Adjust if necessary
 								borderRadius: '50%',
 								// Styles for the icon button (you can adjust size, border, etc.)
@@ -1227,14 +1268,19 @@ export const Profile = ({
 						/>
 					</ThemeProvider>
 				</Box>
-				<Box display='flex' flexDirection='column' justifyContent='space-around' p={'2% 0'}>
+				<Box
+					display='flex'
+					flexDirection='column'
+					justifyContent='space-around'
+					p={isXsScreen ? '0' : '2% 0'}
+				>
 					<Typography
 						color={'white'}
 						sx={{
-							mt: 1,
-							letterSpacing: '2px'
+							mt: isXsScreen ? 0 : 1,
+							letterSpacing: isXsScreen ? '1px' : '2px'
 						}}
-						variant='h6'
+						variant={isXsScreen ? 'body1' : 'h6'}
 					>
 						{`User Info:`}
 					</Typography>
@@ -1242,16 +1288,19 @@ export const Profile = ({
 						fieldLabel={'Display Name'}
 						fieldValue={displayNameValue}
 						handleValueChange={handleDisplayNameChange}
+						isXsScreen={isXsScreen}
 					/>
 					<UserInfo
 						fieldLabel={'Birth Date'}
 						fieldValue={birthDateValue}
 						handleValueChange={handleBirthDateChange}
+						isXsScreen={isXsScreen}
 					/>
 					<UserInfo
 						fieldLabel={'Email'}
 						fieldValue={currentUser?.user?.email}
 						handleValueChange={null}
+						isXsScreen={isXsScreen}
 					/>
 				</Box>
 			</Box>
@@ -1259,9 +1308,10 @@ export const Profile = ({
 				<Typography
 					color={'white'}
 					sx={{
-						letterSpacing: '5px'
+						letterSpacing: '5px',
+						pt: isXsScreen ? 1 : 0
 					}}
-					variant='h6'
+					variant={isXsScreen ? 'body1' : 'h6'}
 				>
 					{'ACHIEVEMENTS'}
 				</Typography>
@@ -1290,8 +1340,8 @@ export const Profile = ({
 									src={achievement.badge.image_url}
 									alt={achievement.badge.name}
 									style={{
-										width: isXsScreen || isSmScreen ? '20%' : '10%',
-										paddingRight: isXsScreen || isSmScreen ? '2%' : '15px'
+										width: isXsScreen ? '20%' : isSmScreen ? '15%' : '10%',
+										paddingRight: isXsScreen ? '2%' : isSmScreen ? '4%' : '15px'
 									}}
 								/>
 							</Tooltip>
@@ -1303,21 +1353,26 @@ export const Profile = ({
 					)}
 				</Box>
 			</Box>
-			<Box display='flex' flexDirection='row' justifyContent='space-around' width='100%'>
+			<Box
+				display='flex'
+				flexDirection='row'
+				justifyContent='space-around'
+				width={isXsScreen ? '110%' : '100%'}
+			>
 				<Box
 					display='flex'
 					flexDirection='column'
 					justifyContent='center'
 					alignItems='flex-start'
-					width='85%'
-					paddingLeft={1}
+					width={isXsScreen ? '100%' : '85%'}
+					paddingLeft={isXsScreen ? 0 : 1}
 				>
 					<Typography
 						color={'white'}
-						variant='h6'
+						variant={isXsScreen ? 'body1' : 'h6'}
 						sx={{
 							my: 2,
-							letterSpacing: '2px'
+							letterSpacing: isXsScreen ? '1px' : '2px'
 						}}
 					>
 						{`User Details:`}
@@ -1335,6 +1390,7 @@ export const Profile = ({
 							userType={userTypeValue}
 							handleValueChange={handleUserTypeChange}
 							handleAddClick={null}
+							isXsScreen={isXsScreen}
 						/>
 						<UserDetails
 							fieldLabel={'Profession'}
@@ -1342,6 +1398,7 @@ export const Profile = ({
 							userType={userTypeValue}
 							handleValueChange={handleProfessionChange}
 							handleAddClick={null}
+							isXsScreen={isXsScreen}
 						/>
 						<UserDetails
 							fieldLabel={'Tokens'}
@@ -1349,6 +1406,7 @@ export const Profile = ({
 							userType={userTypeValue}
 							handleValueChange={null}
 							handleAddClick={handleAddTokens}
+							isXsScreen={isXsScreen}
 						/>
 						<UserDetailsField
 							label={'XP'}
@@ -1357,6 +1415,7 @@ export const Profile = ({
 							handleValueChange={null}
 							fieldDisabled={true}
 							setFieldDisabled={null}
+							isXsScreen={isXsScreen}
 						/>
 					</Box>
 				</Box>
@@ -1366,15 +1425,15 @@ export const Profile = ({
 					justifyContent='flex-start'
 					alignItems='flex-start'
 					width='100%'
-					pt={2}
+					pt={isXsScreen ? 0 : 2}
 				>
 					<Typography
 						color={'white'}
-						variant='h6'
+						variant={isXsScreen ? 'body1' : 'h6'}
 						sx={{
 							mt: 2,
 							lineHeight: '1.2',
-							letterSpacing: '2px'
+							letterSpacing: isXsScreen ? '1px' : '2px'
 						}}
 					>
 						{`Preferred Genres:`}
@@ -1425,7 +1484,11 @@ export const Profile = ({
 								}}
 							/>
 						</Box>
-						<Typography color={'white'} variant='h6' letterSpacing='1px'>
+						<Typography
+							color={'white'}
+							variant={isXsScreen ? 'body1' : 'h6'}
+							letterSpacing='1px'
+						>
 							{`Connected to Spotify`}
 						</Typography>
 						<Tooltip
@@ -1493,7 +1556,7 @@ export const Profile = ({
 							>
 								<Box padding='0 5% 0'>
 									<Typography
-										variant='subtitle1'
+										variant={isXsScreen ? 'caption' : 'subtitle1'}
 										textAlign='center'
 										letterSpacing='2px'
 										color='white'
@@ -1543,7 +1606,7 @@ export const Profile = ({
 					onClick={handleSave}
 					className={classes.button}
 					sx={
-						isSmScreen || isXsScreen
+						isXsScreen
 							? {
 									typography: {
 										fontSize: '12px'

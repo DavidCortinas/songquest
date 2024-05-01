@@ -1,5 +1,14 @@
 import React, { useEffect } from 'react';
-import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
+import {
+	Alert,
+	Box,
+	Button,
+	Checkbox,
+	Skeleton,
+	Snackbar,
+	Tooltip,
+	Typography
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -14,12 +23,14 @@ import theme from '../theme';
 import { connect } from 'react-redux';
 import { addToCurrentPlaylist, addToPlaylistToEdit } from '../actions';
 import {
-	addToSavedPlaylistRequest,
 	addToSpotify,
+	checkIfUserFollowsArtists,
 	checkUsersTracks,
 	followArtistsOnSpotify,
-	removeUsersTracks
+	removeUsersTracks,
+	unfollowArtists
 } from '../thunks';
+import { LoadingState } from './LoadingState';
 
 const Recommendation = ({
 	classes,
@@ -27,6 +38,7 @@ const Recommendation = ({
 	playlistAction,
 	index,
 	createPlaylist,
+	editPlaylist,
 	songsToAdd,
 	setSongsToAdd,
 	onAddToCurrentPlaylist,
@@ -35,10 +47,18 @@ const Recommendation = ({
 	user,
 	isXsScreen,
 	savedTracks,
-	setSavedTracks
+	setSavedTracks,
+	followedArtists,
+	setFollowedArtists,
+	setSnackbarOpen,
+	setSnackbarMessage,
+	setSnackbarSeverity
 }) => {
 	const navigate = useNavigate();
+
+	const [iframeLoaded, setIframeLoaded] = useState(false);
 	const isSavedTrack = savedTracks[index];
+	const artistIsFollowed = followedArtists[index];
 	const recommendationInPlaylist = createPlaylist?.tracks.some(
 		track => track.spotifyId === recommendation.id
 	);
@@ -47,17 +67,23 @@ const Recommendation = ({
 		if (!user?.user.spotifyConnected) {
 			navigate('/spotify-connect');
 		} else if (playlistAction === 'create') {
-			recommendationInPlaylist
-				? onRemoveFromCurrentPlaylistById(recommendation.id)
-				: onAddToCurrentPlaylist({
-						name: recommendation.name,
-						artists: recommendation.artists,
-						spotify_id: recommendation.id,
-						image: recommendation.album
-							? recommendation.album.images[2].url
-							: recommendation.image,
-						isrc: recommendation['external_ids']['isrc']
-				  });
+			if (recommendationInPlaylist) {
+				onRemoveFromCurrentPlaylistById(recommendation.id);
+				setSnackbarMessage(`Removed ${recommendation.name} from playlist`);
+				setSnackbarSeverity('info');
+			} else {
+				onAddToCurrentPlaylist({
+					name: recommendation.name,
+					artists: recommendation.artists,
+					spotify_id: recommendation.id,
+					image: recommendation.album
+						? recommendation.album.images[2].url
+						: recommendation.image,
+					isrc: recommendation['external_ids']['isrc']
+				});
+				setSnackbarMessage(`Added ${recommendation.name} to current playlist`);
+				setSnackbarSeverity('success');
+			}
 		} else {
 			onAddToPlaylistToEdit({
 				name: recommendation.name,
@@ -68,18 +94,17 @@ const Recommendation = ({
 					: recommendation.image,
 				isrc: recommendation['external_ids']['isrc']
 			});
+			setSnackbarMessage(`Added ${recommendation.name} to ${editPlaylist.name}`);
+			setSnackbarSeverity('success');
 		}
+		setSnackbarOpen(true);
 	}, [
 		user?.user.spotifyConnected,
 		playlistAction,
 		navigate,
 		recommendationInPlaylist,
 		onRemoveFromCurrentPlaylistById,
-		recommendation.id,
-		recommendation.name,
-		recommendation.artists,
-		recommendation.album,
-		recommendation.image,
+		recommendation,
 		onAddToCurrentPlaylist,
 		onAddToPlaylistToEdit
 	]);
@@ -112,7 +137,24 @@ const Recommendation = ({
 	}, [recommendation, recommendationInSongsToAdd, setSongsToAdd, songsToAdd]);
 
 	const handleFollowArtist = async () => {
-		await followArtistsOnSpotify([recommendation.artists[0].id], user?.user.id);
+		if (user?.user.spotifyConnected) {
+			const updatedFollowedArtists = [...followedArtists];
+			updatedFollowedArtists[index] = !artistIsFollowed;
+
+			if (artistIsFollowed) {
+				unfollowArtists([recommendation.artists[0].id], user?.user.id);
+			} else {
+				followArtistsOnSpotify([recommendation.artists[0].id], user?.user.id);
+			}
+
+			setFollowedArtists(updatedFollowedArtists);
+		} else {
+			navigate('/spotify-connect');
+		}
+	};
+
+	const handleIframeLoad = () => {
+		setIframeLoaded(true);
 	};
 
 	const isChecked = recommendationInSongsToAdd;
@@ -142,18 +184,53 @@ const Recommendation = ({
 					checked={isChecked}
 					sx={{ padding: '0 3% 0 2%' }}
 				/>
-				<iframe
-					title={`${recommendation.name}`}
-					src={`https://open.spotify.com/embed/track/${
-						recommendation.spotifyId || recommendation.id
-					}?utm_source=generator`}
-					height='80'
-					width={isXsScreen ? '65%' : '100%'}
-					frameBorder='0'
-					allowFullScreen=''
-					allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
-					loading='lazy'
-				/>
+				<Box display='flex' flexDirection='column' width='100%'>
+					<Box
+						component='li'
+						className={classes.recommendations}
+						key={index}
+						sx={{
+							position: 'relative', // Parent relative position
+							// marginBottom: '85px',
+							height: '80px', // Set a fixed height for the container
+							width: isXsScreen ? '65%' : '100%' // Control width based on screen size
+						}}
+					>
+						{/* Skeleton that only displays when iframe is not loaded */}
+						{!iframeLoaded && (
+							<Skeleton
+								variant='rounded'
+								width={'100%'}
+								height={'80px'}
+								sx={{
+									position: 'absolute',
+									top: 0,
+									left: 0,
+									backgroundColor: 'rgba(48, 130, 164, 0.15)'
+								}}
+							/>
+						)}
+						{/* Iframe styled to be in the same position */}
+						<iframe
+							title={`${recommendation.name}`}
+							src={`https://open.spotify.com/embed/track/${
+								recommendation.spotifyId || recommendation.id
+							}?utm_source=generator`}
+							height='80'
+							width='100%' // Always 100% to fill the container
+							frameBorder='0'
+							allowFullScreen=''
+							allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
+							loading='lazy'
+							onLoad={handleIframeLoad}
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0
+							}}
+						/>
+					</Box>
+				</Box>
 				<Box
 					sx={{
 						display: 'flex',
@@ -232,7 +309,9 @@ const Recommendation = ({
 						left: '50%',
 						transform: 'translateX(-50%)',
 						color: 'white',
-						backgroundColor: 'rgb(44, 216, 207, 0.3)',
+						background: artistIsFollowed
+							? 'rgba(216,44,139, 0.7)'
+							: 'rgba(44, 216, 207, 0.3)',
 						border: '2px solid rgba(89, 149, 192, 0.5)',
 						borderRadius: '18px',
 						overflow: 'hidden',
@@ -244,14 +323,16 @@ const Recommendation = ({
 						transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
 						'&:hover, &:active, &.MuiFocusVisible': {
 							border: '2px solid rgba(89, 149, 192, 0.5)',
-							backgroundColor: 'rgb(44, 216, 207, 0.5)',
+							backgroundColor: artistIsFollowed
+								? 'rgba(216,44,139, 0.9)'
+								: 'rgba(44, 216, 207, 0.5)',
 							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
 						},
 						zIndex: 2
 					}}
 					onClick={handleFollowArtist}
 				>
-					{`Follow ${artistName}`}
+					{artistIsFollowed ? `Unfollow ${artistName}` : `Follow ${artistName}`}
 				</Button>
 			</Box>
 		</Box>
@@ -269,23 +350,47 @@ const Recommendations = ({
 	onRemoveFromCurrentPlaylistById,
 	setIsModalOpen,
 	isXsScreen,
+	isSmScreen,
 	toggleValue,
-	handleExploreMoreClick
+	handleExploreMoreClick,
+	editPlaylist
 }) => {
 	const [songsToAdd, setSongsToAdd] = useState([]);
 	const [visibleRecommendations, setVisibleRecommendations] = useState(recommendations?.length);
 	const [savedTracks, setSavedTracks] = useState([]);
+	const [followedArtists, setFollowedArtists] = useState([]);
+
+	const [loading, setLoading] = useState(true);
+
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
+	const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+
 	const containerRef = useRef(null);
 
 	useEffect(() => {
-		const checkTracks = async () => {
+		async function fetchData() {
 			if (user?.user && recommendations?.length) {
-				const trackStatus = await checkUsersTracks(recommendations, user.user.id);
-				setSavedTracks(trackStatus);
-			}
-		};
+				try {
+					const artistIds = recommendations.map(rec => rec.artists[0].id);
+					const [trackStatus, followStatus] = await Promise.all([
+						checkUsersTracks(recommendations, user.user.id),
+						checkIfUserFollowsArtists(artistIds, user.user.id)
+					]);
 
-		checkTracks();
+					setSavedTracks(trackStatus);
+					setFollowedArtists(followStatus);
+				} catch (error) {
+					console.error('Failed to fetch data:', error);
+				} finally {
+					setLoading(false);
+				}
+			} else {
+				setLoading(false);
+			}
+		}
+
+		fetchData();
 	}, [recommendations, user]);
 
 	const openModal = () => {
@@ -307,6 +412,9 @@ const Recommendations = ({
 		}));
 
 		onAddToCurrentPlaylist(...songsToAddData);
+		setSnackbarMessage(`Added ${songsToAddData.length} songs to current playlist`);
+		setSnackbarSeverity('success');
+		setSnackbarOpen(true);
 	};
 
 	const handleSaveRequestParameters = () => {
@@ -323,6 +431,18 @@ const Recommendations = ({
 			setVisibleRecommendations(preVisible => preVisible + 4);
 		}
 	}, [recommendations]);
+
+	const handleClose = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+
+		setSnackbarOpen(false);
+	};
+
+	if (loading) {
+		return <LoadingState />;
+	}
 
 	return (
 		<>
@@ -470,6 +590,7 @@ const Recommendations = ({
 									classes={classes}
 									recommendation={recommendation}
 									playlistAction={playlistAction}
+									editPlaylist={editPlaylist}
 									index={index}
 									createPlaylist={createPlaylist}
 									songsToAdd={songsToAdd}
@@ -484,6 +605,11 @@ const Recommendations = ({
 									toggleValue={toggleValue}
 									savedTracks={savedTracks}
 									setSavedTracks={setSavedTracks}
+									followedArtists={followedArtists}
+									setFollowedArtists={setFollowedArtists}
+									setSnackbarOpen={setSnackbarOpen}
+									setSnackbarMessage={setSnackbarMessage}
+									setSnackbarSeverity={setSnackbarSeverity}
 								/>
 							))
 					) : (
@@ -495,18 +621,20 @@ const Recommendations = ({
 							style={{ margin: '0 auto' }}
 						>
 							<Typography
-								variant='h5'
+								variant={isXsScreen || isSmScreen ? 'h6' : 'h5'}
 								textAlign='center'
 								color='whitesmoke'
 								paddingTop='5%'
+								letterSpacing='1px'
 							>
 								{'No Playlist Selected'}
 							</Typography>
 							<Typography
-								variant='h6'
+								variant={isXsScreen || isSmScreen ? 'body1' : 'h5'}
 								textAlign='center'
 								color='whitesmoke'
 								paddingTop='3%'
+								letterSpacing='1px'
 							>
 								{`Select one of your saved playlists from the left panel to 
                 preview the gems you have in your collection, or use the song
@@ -563,20 +691,29 @@ const Recommendations = ({
 				</Typography>
 				<KeyboardDoubleArrowDownIcon sx={{ color: theme.palette.primary.triadic2 }} />
 			</Box>
+			<Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose}>
+				<Alert
+					onClose={handleClose}
+					severity={snackbarSeverity}
+					variant='filled'
+					sx={{ width: '100%' }}
+				>
+					{snackbarMessage}
+				</Alert>
+			</Snackbar>
 		</>
 	);
 };
 
 const mapStateToProps = state => {
 	return {
-		playlistAction: state.playlist.currentPlaylist.action
+		playlistAction: state.playlist.currentPlaylist.action,
+		editPlaylist: state.playlist.currentPlaylist.editPlaylist
 	};
 };
 
 const mapDispatchToProps = dispatch => ({
 	onAddToCurrentPlaylist: (...songs) => dispatch(addToCurrentPlaylist(...songs)),
-	onAddToSavedPlaylist: (playlistId, userId, ...songs) =>
-		dispatch(addToSavedPlaylistRequest(playlistId, userId, ...songs)),
 	onAddToPlaylistToEdit: (...songs) => dispatch(addToPlaylistToEdit(...songs))
 });
 

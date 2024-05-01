@@ -70,14 +70,19 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 			alignItems='center'
 			backgroundColor='transparent'
 		>
-			<Box display='flex' flexDirection='column' alignItems='center' padding='5% 0'>
+			<Box
+				display='flex'
+				flexDirection='column'
+				alignItems='center'
+				padding={isSmScreen || isXsScreen ? '5%' : '5% 0'}
+			>
 				<Typography
 					variant={isXsScreen || isSmScreen ? 'h6' : 'h4'}
 					textAlign='center'
 					color='whitesmoke'
 					letterSpacing='1px'
 				>
-					Unearth New Sounds with SongQuest
+					{'Unearth New Sounds with SongQuest'}
 				</Typography>
 				<Typography
 					textAlign='center'

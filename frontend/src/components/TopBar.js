@@ -73,7 +73,6 @@ export const TopBar = ({
 }) => {
 	const classes = useStyles();
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
-	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const open = Boolean(anchorEl);
 	const handleMenuClick = event => {
@@ -117,12 +116,7 @@ export const TopBar = ({
 	const xpPercentage = currentUser?.user?.karma;
 
 	return (
-		<Box
-			display='flex'
-			justifyContent='space-between'
-			p={isXsScreen || isSmScreen ? 1 : 2}
-			id='topBar'
-		>
+		<Box display='flex' justifyContent='space-between' p={isXsScreen ? 1 : 2} id='topBar'>
 			<Box display='flex' borderRadius='3px'>
 				<Link
 					to='/'
@@ -140,12 +134,12 @@ export const TopBar = ({
 						src={logoIcon}
 						alt='Logo'
 						style={{
-							width: isXsScreen || isSmScreen ? '20%' : '13%',
-							paddingRight: isXsScreen || isSmScreen ? '2%' : '15px'
+							width: '13%',
+							paddingRight: isXsScreen ? '2%' : '15px'
 						}}
 					/>
 					<Typography
-						variant={isXsScreen || isSmScreen ? 'h6' : 'h5'}
+						variant={isXsScreen ? 'h6' : 'h5'}
 						component='div'
 						color='white'
 						letterSpacing='2px'
@@ -181,7 +175,7 @@ export const TopBar = ({
 							color: 'white'
 						}}
 					>
-						{!isXsScreen && !isSmScreen && (
+						{!isXsScreen && (
 							<Typography variant='h6' letterSpacing='1px'>
 								Login/Register
 							</Typography>
@@ -294,8 +288,8 @@ export const TopBar = ({
 								}
 								alt={currentUser?.user?.displayName}
 								sx={{
-									width: isSmScreen || isXsScreen ? 32 : 48,
-									height: isSmScreen || isXsScreen ? 32 : 48
+									width: isXsScreen ? 32 : 48,
+									height: isXsScreen ? 32 : 48
 								}}
 							/>
 						</IconButton>
@@ -314,55 +308,67 @@ export const TopBar = ({
 						}}
 					>
 						<MenuItem onClick={handleProfileClick}>
-							<ListItemIcon
-								color='inherit'
-								component={Link}
-								style={{
-									textDecoration: 'none',
-									color: 'white'
-								}}
-							>
-								<AccountCircleIcon />
-							</ListItemIcon>
-							{!isXsScreen && !isSmScreen && (
-								<Typography variant='body1' letterSpacing='1px' color='white'>
-									{`Profile`}
-								</Typography>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<AccountCircleIcon />
+								</ListItemIcon>
 							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Profile`}
+							</Typography>
 						</MenuItem>
 						<MenuItem divider onClick={handleHomeClick}>
-							<ListItemIcon
-								color='inherit'
-								component={Link}
-								style={{
-									textDecoration: 'none',
-									color: 'white'
-								}}
-							>
-								<HomeIcon />
-							</ListItemIcon>
-							{!isXsScreen && !isSmScreen && (
-								<Typography variant='body1' letterSpacing='1px' color='white'>
-									{`Home`}
-								</Typography>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<HomeIcon />
+								</ListItemIcon>
 							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Home`}
+							</Typography>
 						</MenuItem>
 						<MenuItem onClick={handleLogout}>
-							<ListItemIcon
-								color='inherit'
-								component={Link}
-								style={{
-									textDecoration: 'none',
-									color: 'white'
-								}}
-							>
-								<LogoutIcon fontSize='small' />
-							</ListItemIcon>
-							{!isXsScreen && !isSmScreen && (
-								<Typography variant='body1' letterSpacing='1px' color='white'>
-									{`Logout`}
-								</Typography>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<LogoutIcon fontSize='small' />
+								</ListItemIcon>
 							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Logout`}
+							</Typography>
 						</MenuItem>
 					</Menu>
 				</Box>

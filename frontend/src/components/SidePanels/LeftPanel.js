@@ -275,7 +275,7 @@ export const LeftPanel = ({
 						display='flex'
 						alignItems='center'
 						justifyContent='space-around'
-						padding={isXsScreen ? '5% 0 5% 15%' : '5% 0 5% 6%'}
+						padding={'5% 0 5% 3%'}
 					>
 						<Tooltip
 							title={
@@ -343,7 +343,7 @@ export const LeftPanel = ({
 					</Box>
 					{userPlaylists.length == 0 ? (
 						<Typography
-							variant='subtitle1'
+							variant={isXsScreen || isSmScreen ? 'subtitle2' : 'subtitle1'}
 							textAlign='center'
 							padding='10%'
 							letterSpacing='2px'

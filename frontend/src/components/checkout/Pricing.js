@@ -204,28 +204,6 @@ export const Pricing = ({ onGetPricing }) => {
 			<Typography textAlign='center' variant='h6' color='whitesmoke' letterSpacing='1px'>
 				{`You can earn tokens through in-app achievements or you can purchase more here.`}
 			</Typography>
-			{/* <CardHeader
-          title="Use Tokens To Uncover Hidden Gems and More"
-          titleTypographyProps={{
-              width: '100%',
-              variant: isSmScreen || isXsScreen
-              ? 'h5'
-              : 'h4',
-              textAlign: 'center',
-              color: 'white',
-              letterSpacing: '1px',
-          }}
-          subheader="Enter a display name to get started on your profile"
-          subheaderTypographyProps={{ 
-              width: '100%', 
-              variant: isXlScreen || isLgScreen 
-              ? 'body1'
-              : 'body2',
-              textAlign: 'center',
-              color: 'white',
-              letterSpacing: '1px',
-          }}
-        /> */}
 			<Box className={classes.containerBox}>
 				{pricing &&
 					Object.values(pricing).map((price, outerIndex) => (

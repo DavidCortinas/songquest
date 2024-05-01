@@ -65,6 +65,7 @@ export const useStyles = makeStyles(() => ({
 		borderColor: 'rgb(210,220,225, 0.6)',
 		background: 'rgba(48, 130, 164, 0.15)',
 		marginBottom: '2%',
+		fontSize: '0.75rem',
 		'& p': {
 			color: 'white'
 		},

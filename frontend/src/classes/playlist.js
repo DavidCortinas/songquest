@@ -36,7 +36,7 @@ const useStyles = makeStyles(() => ({
 			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
 		},
 		[theme.breakpoints.down('md')]: {
-			padding: '0',
+			padding: '2%',
 			height: '5%',
 			minWidth: '54px'
 		}
@@ -90,9 +90,12 @@ const useStyles = makeStyles(() => ({
 	},
 	panelCard: {
 		display: 'flex',
-		width: '18vw',
-		[theme.breakpoints.down('sm')]: {
+		width: '25vw',
+		[theme.breakpoints.down('lg')]: {
 			width: '30vw'
+		},
+		[theme.breakpoints.down('md')]: {
+			width: '50vw'
 		},
 		minHeight: 'fit-content',
 		padding: '5% 0',
@@ -153,10 +156,10 @@ const useStyles = makeStyles(() => ({
 	},
 	textField: {
 		width: '100%',
-		// maxHeight: '30px',
-		[theme.breakpoints.down('sm')]: {
-			width: '80%'
-		},
+		// maxHeight: '36px',
+		// [theme.breakpoints.down('sm')]: {
+		// 	width: '90%'
+		// },
 		input: {
 			color: 'white'
 		},
