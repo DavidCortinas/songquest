@@ -417,7 +417,11 @@ const SpotifyForm = ({
 													<>
 														<Typography
 															paddingBottom='3px'
-															variant='subtitle1'
+															variant={
+																!(isSmScreen || isXsScreen)
+																	? 'subtitle1'
+																	: 'subtitle2'
+															}
 															textAlign='center'
 															color={'whitesmoke'}
 															letterSpacing='1px'
@@ -730,6 +734,8 @@ const SpotifyForm = ({
 															}}
 														>
 															<AutocompleteParameter
+																isSmScreen={isSmScreen}
+																isXsScreen={isXsScreen}
 																parameter={parameter}
 																handleChange={(
 																	parameter,
@@ -917,7 +923,7 @@ const SpotifyForm = ({
 										color={theme.palette.primary.white}
 										variant='caption1'
 									>
-										Click Here!
+										{'Click Here!'}
 									</Typography>
 									<NorthEastIcon
 										sx={{

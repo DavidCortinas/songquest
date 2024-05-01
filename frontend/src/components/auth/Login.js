@@ -232,7 +232,11 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 										}}
 										error={errors.email}
 										required
-										className={`${classes.textField} ${classes.emailField}`}
+										className={
+											isSmScreen || isXsScreen
+												? classes.textField
+												: `${classes.textField} ${classes.emailField}`
+										}
 										value={emailValue}
 										label={errors.email ? 'Invalid Email' : 'email'}
 										{...register('email', {

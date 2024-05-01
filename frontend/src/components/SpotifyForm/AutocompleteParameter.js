@@ -32,7 +32,9 @@ const AutocompleteParameter = ({
 	setTargetParamValues,
 	onSelectedOptions,
 	localSelectedOptions,
-	setLocalSelectedOptions
+	setLocalSelectedOptions,
+	isSmScreen,
+	isXsScreen
 }) => {
 	const dispatch = useDispatch();
 	const [song, setSong] = useState('');
@@ -252,7 +254,7 @@ const AutocompleteParameter = ({
 						variant='standard'
 						InputLabelProps={{
 							sx: {
-								paddingLeft: '1em',
+								paddingLeft: isSmScreen || isXsScreen ? '0.5em' : '1em',
 								backgroundColor: '#30313d',
 								color: 'white',
 								fontSize: '1.25rem'
@@ -262,7 +264,7 @@ const AutocompleteParameter = ({
 							...params.InputProps,
 							sx: {
 								...params.InputProps.sx,
-								paddingLeft: '1em',
+								paddingLeft: isSmScreen || isXsScreen ? '0.25em' : '1em',
 								color: 'white',
 								'& .MuiInputBase-input': {
 									color: 'white',

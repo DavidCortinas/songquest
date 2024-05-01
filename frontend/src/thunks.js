@@ -1074,7 +1074,7 @@ export const followArtistsOnSpotify = async (artistIds, userId) => {
 		};
 
 		const response = await axios.put(
-			'http://localhost:8000/follow-artist/',
+			'http://localhost:8000/follow-artists/',
 			{ ids: artistIds },
 			{ headers: headers }
 		);
@@ -1096,7 +1096,7 @@ export const checkIfUserFollowsArtists = async (artistIds, userId) => {
 		};
 
 		const response = await axios.get(
-			`http://localhost:8000/check-if-user-follows-artists/?ids=${artistIds.join(',')}`,
+			`http://localhost:8000/user-follows-artists/?ids=${artistIds.join(',')}`,
 			{ headers: headers }
 		);
 

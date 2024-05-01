@@ -1,6 +1,7 @@
 import React from 'react';
-import { Typography } from '@mui/material';
+import { Typography, useMediaQuery } from '@mui/material';
 import { useEffect, useState } from 'react';
+import theme from './theme';
 
 export const toCapitalCase = str => {
 	if (str) {
@@ -21,6 +22,9 @@ export const TokenCounter = ({ tokens }) => {
 	const [displayTokens, setDisplayTokens] = useState(tokens);
 	const [addedTokens, setAddedTokens] = useState(0);
 
+	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+
 	useEffect(() => {
 		const newTokensAdded = tokens - displayTokens;
 		if (newTokensAdded > 0) {
@@ -38,7 +42,11 @@ export const TokenCounter = ({ tokens }) => {
 	}, [tokens]);
 
 	return (
-		<Typography color='white' paddingRight='1%' variant='h6'>
+		<Typography
+			color='white'
+			paddingRight='1%'
+			variant={isXsScreen || isSmScreen ? 'body2' : 'body1'}
+		>
 			{addedTokens > 0 && <div className='added-tokens-animation'>+{addedTokens}</div>}
 			{displayTokens}
 		</Typography>
@@ -48,6 +56,9 @@ export const TokenCounter = ({ tokens }) => {
 export const KarmaCounter = ({ currentKarma }) => {
 	const [displayKarma, setDisplayKarma] = useState(currentKarma);
 	const [addedKarma, setAddedKarma] = useState(0);
+
+	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
 	useEffect(() => {
 		if (displayKarma === undefined) {
@@ -74,7 +85,12 @@ export const KarmaCounter = ({ currentKarma }) => {
 	return (
 		<>
 			{addedKarma > 0 && <div className='added-karma-animation'>+{addedKarma}</div>}
-			<Typography color='white' paddingRight='1%' letterSpacing='1px'>
+			<Typography
+				color='white'
+				paddingRight='1%'
+				letterSpacing='1px'
+				variant={isXsScreen || isSmScreen ? 'body2' : 'body1'}
+			>
 				{`${displayKarma}%`}
 			</Typography>
 		</>

@@ -19,6 +19,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
@@ -205,8 +206,6 @@ const CreateOrEditPlaylist = ({
 }) => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-	const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-	const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
 	const [songsToRemove, setSongsToRemove] = useState([]);
 	const [hoveredCardId, setHoveredCardId] = useState(null);
@@ -290,7 +289,7 @@ const CreateOrEditPlaylist = ({
 				onRemoveFromPlaylistToEdit(track);
 			}
 			setSnackbarMessage('Track removed successfully');
-			setSnackbarSeverity('success');
+			setSnackbarSeverity('info');
 		} catch (error) {
 			console.error('Error removing track:', error);
 			setSnackbarMessage('Failed to remove track');
@@ -383,8 +382,8 @@ const CreateOrEditPlaylist = ({
 						sx={{
 							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
 							borderRadius: '8px',
-							width: '70%',
-							marginTop: '2%'
+							width: isXsScreen || isSmScreen ? '90%' : '70%',
+							marginTop: isXsScreen || isSmScreen ? '5%' : '2%'
 						}}
 						onChange={handleToggle}
 					>
@@ -399,6 +398,7 @@ const CreateOrEditPlaylist = ({
 								borderRadius: '8px',
 								width: '50%',
 								padding: '1%',
+								fontSize: isXsScreen || isSmScreen ? '0.6rem' : '0.8rem',
 								'&:hover': {
 									backgroundColor: 'rgb(44, 216, 207, 0.5)',
 									color: 'whitesmoke'
@@ -418,6 +418,7 @@ const CreateOrEditPlaylist = ({
 								borderRadius: '8px',
 								width: '50%',
 								padding: '1%',
+								fontSize: isXsScreen || isSmScreen ? '0.6rem' : '0.8rem',
 								'&:hover': {
 									backgroundColor: 'rgb(44, 216, 207, 0.5)',
 									color: 'whitesmoke'
@@ -443,14 +444,6 @@ const CreateOrEditPlaylist = ({
 							value={playlistName}
 							onChange={e => setPlaylistName(e.target.value)}
 							className={classes.playlistField}
-							// eslint-disable-next-line no-unused-vars
-							sx={() => ({
-								...((isXsScreen || isSmScreen) && {
-									'& .MuiInputBase-root': {
-										marginTop: '7px'
-									}
-								})
-							})}
 							InputLabelProps={{
 								sx: {
 									color: 'white',
@@ -521,19 +514,18 @@ const CreateOrEditPlaylist = ({
 									InputLabelProps={{
 										sx: {
 											paddingLeft: '1em',
-											// backgroundColor: '#30313d',
-											color: 'white'
+											color: 'white',
+											fontSize: isXsScreen || isSmScreen ? '0.75rem' : '1rem'
 										}
 									}}
 									InputProps={{
 										...params.InputProps,
 										style: {
-											// margin: '5px 0',
-											// padding: '5px 10px',
 											fill: 'white'
 										},
 										sx: {
 											...params.InputProps.sx,
+											padding: '0',
 											color: 'white',
 											'&:before': {
 												borderBottom: 'none'
@@ -548,7 +540,11 @@ const CreateOrEditPlaylist = ({
 						/>
 					)}
 				</Box>
-				<Box display='flex' justifyContent={'space-between'} padding={'5% 0 0 5%'}>
+				<Box
+					display='flex'
+					justifyContent={isXsScreen || isSmScreen ? 'space-around' : 'space-between'}
+					padding={isXsScreen || isSmScreen ? '5% 0 0' : '5% 0 0 5%'}
+				>
 					<Tooltip
 						title={
 							<div
@@ -618,23 +614,25 @@ const CreateOrEditPlaylist = ({
 									: classes.button
 							}
 						>
-							<Box display='flex' alignItems='center'>
-								<AutoAwesomeIcon
-									style={{
-										color: theme.palette.primary.complementary,
-										paddingRight: '2%'
-									}}
-									fontSize={isSmScreen || isXsScreen ? 'small' : 'medium'}
-								/>
-								<Typography
-									variant={isLgScreen || isXlScreen ? 'body2' : 'caption'}
-									letterSpacing='1px'
-								>
-									{!(isXsScreen || isSmScreen) && playlistAction === 'create'
-										? 'Create'
-										: 'Update'}
-								</Typography>
-							</Box>
+							{isXsScreen || isSmScreen ? (
+								<PlaylistAddCheckIcon />
+							) : (
+								<Box display='flex' alignItems='center'>
+									<AutoAwesomeIcon
+										style={{
+											color: theme.palette.primary.complementary,
+											paddingRight: '2%'
+										}}
+										fontSize={isSmScreen || isXsScreen ? 'small' : 'medium'}
+									/>
+									<Typography
+										variant={isSmScreen || isXsScreen ? 'caption' : 'body2'}
+										letterSpacing='1px'
+									>
+										{playlistAction === 'create' ? 'Create' : 'Update'}
+									</Typography>
+								</Box>
+							)}
 						</Button>
 					</Tooltip>
 					<Tooltip
@@ -653,7 +651,7 @@ const CreateOrEditPlaylist = ({
 							</div>
 						}
 					>
-						<Button sx={{ padding: '0' }}>
+						<Button sx={{ margin: '-17%' }}>
 							<PlaylistRemoveIcon
 								style={{ color: theme.palette.primary.white }}
 								onClick={handleBulkRemove}
@@ -773,7 +771,11 @@ const CreateOrEditPlaylist = ({
 									) : (
 										<>
 											<Typography
-												variant='subtitle1'
+												variant={
+													isXsScreen || isSmScreen
+														? 'caption'
+														: 'subtitle1'
+												}
 												textAlign='center'
 												padding='20px'
 												letterSpacing='2px'
@@ -791,9 +793,19 @@ const CreateOrEditPlaylist = ({
 														margin: '0 auto'
 													}}
 												>
-													<Box padding='0 5% 0'>
+													<Box
+														padding={
+															isXsScreen || isSmScreen
+																? '0 10%'
+																: '0 5%'
+														}
+													>
 														<Typography
-															variant='subtitle1'
+															variant={
+																isXsScreen || isSmScreen
+																	? 'caption'
+																	: 'subtitle1'
+															}
 															textAlign='center'
 															letterSpacing='2px'
 															color='white'
@@ -813,7 +825,10 @@ const CreateOrEditPlaylist = ({
 														alt='spotify-icon'
 														src={spotifyIcon}
 														style={{
-															maxWidth: '8%',
+															maxWidth:
+																isXsScreen || isSmScreen
+																	? '12%'
+																	: '8%',
 															height: 'auto'
 														}}
 													/>

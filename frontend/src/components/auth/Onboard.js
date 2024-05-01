@@ -105,7 +105,7 @@ const DisplayNameInput = ({
 			<Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
 				<form className={classes.form} onSubmit={handleSubmit(onCreateDisplayName)}>
 					<CardHeader
-						title='Welcome to SongQuest'
+						title='Your Email is Verified!'
 						titleTypographyProps={{
 							width: '100%',
 							variant: isSmScreen || isXsScreen ? 'h6' : 'h5',
@@ -248,7 +248,7 @@ const BirthdayInput = ({
 								value={date}
 								onChange={newDate => setDate(newDate)}
 								sx={{
-									width: '40%',
+									width: isSmScreen || isXsScreen ? '80%' : '40%',
 									'& .MuiInputLabel-root': {
 										color: 'white'
 									},
@@ -356,10 +356,19 @@ const GenresInput = ({
 							color: 'white',
 							letterSpacing: '1px'
 						}}
-						subheader='What genres do you usually prefer to listen to? This will help us to better customize your experience'
+						subheader={
+							isXsScreen || isSmScreen
+								? 'What genres do you prefer to listen to?'
+								: 'What genres do you usually prefer to listen to? This will help us to better customize your experience'
+						}
 						subheaderTypographyProps={{
 							width: '100%',
-							variant: isXlScreen || isLgScreen ? 'body1' : 'body2',
+							variant:
+								isXlScreen || isLgScreen
+									? 'body1'
+									: isMdScreen
+									? 'body2'
+									: 'subtitle2',
 							textAlign: 'center',
 							color: 'white',
 							letterSpacing: '1px'
@@ -491,8 +500,6 @@ const UserTypeInput = ({
 	isXsScreen,
 	isSmScreen,
 	isMdScreen,
-	isLgScreen,
-	isXlScreen,
 	errors,
 	register,
 	handleSubmit,
@@ -523,7 +530,14 @@ const UserTypeInput = ({
 	};
 
 	const controlledMessage =
-		toggleValue === 'Fan'
+		toggleValue === 'Fan' && isXsScreen
+			? `If you work with music, we'd like to know so we can learn how 
+        to best serve you...`
+			: toggleValue === 'Fan' && isSmScreen
+			? `We believe music discovery offers a rewarding experience for all music 
+        fans, but if you work with music, we'd like to know so we can learn how 
+        to best serve you...`
+			: toggleValue === 'Fan'
 			? `We believe music discovery offers a rewarding experience for all music 
         fans and are on a mission to make it easier and more rewarding for fans
         to unearth, discover,  and share new songs, but if you work with music, 
@@ -532,10 +546,14 @@ const UserTypeInput = ({
 
 	return (
 		<Box display='flex' justifyContent='center' paddingTop='1rem'>
-			<Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '60%'}>
+			<Box width={isSmScreen || isXsScreen ? '90%' : isMdScreen ? '85%' : '80%'}>
 				<form className={classes.form}>
 					<CardHeader
-						title={`Just a few more things before we get you on your way...`}
+						title={
+							isXsScreen || isSmScreen
+								? 'Just a few more things...'
+								: `Just a few more things before we get you on your way...`
+						}
 						titleTypographyProps={{
 							width: '100%',
 							variant: isSmScreen || isXsScreen ? 'h6' : 'h5',
@@ -543,10 +561,14 @@ const UserTypeInput = ({
 							color: 'white',
 							letterSpacing: '1px'
 						}}
-						subheader='How do you typically engage with music? Are you a fan or do you work with music to make a living?'
+						subheader={
+							isXsScreen || isSmScreen
+								? 'Are you a fan or do you work with music to make a living?'
+								: 'How do you typically engage with music? Are you a fan or do you work with music to make a living?'
+						}
 						subheaderTypographyProps={{
 							width: '100%',
-							variant: isXlScreen || isLgScreen ? 'h6' : 'subtitle1',
+							variant: isSmScreen || isXsScreen ? 'subtitle1' : 'h6',
 							textAlign: 'center',
 							color: 'white',
 							letterSpacing: '1px'
@@ -563,7 +585,7 @@ const UserTypeInput = ({
 					>
 						{toggleValue === 'Fan' ? (
 							<Typography
-								variant='subtitle1'
+								variant={isSmScreen || isXsScreen ? 'subtitle2' : 'subtitle1'}
 								letterSpacing='2px'
 								color='whitesmoke'
 								textAlign='center'
@@ -614,7 +636,7 @@ const UserTypeInput = ({
 							sx={{
 								boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
 								borderRadius: '8px',
-								width: '70%'
+								width: isXsScreen || isSmScreen ? '80%' : '70%'
 							}}
 							onChange={handleToggle}
 						>
@@ -700,8 +722,6 @@ const ImageInput = ({
 	isXsScreen,
 	isSmScreen,
 	isMdScreen,
-	isLgScreen,
-	isXlScreen,
 	classes,
 	handleSubmit,
 	setCurrentStep,
@@ -736,10 +756,10 @@ const ImageInput = ({
 							color: 'white',
 							letterSpacing: '1px'
 						}}
-						subheader='Upload an image for your profile, then continue to connect your Spotify account'
+						subheader={'Upload an image, then continue to connect your Spotify account'}
 						subheaderTypographyProps={{
 							width: '100%',
-							variant: isXlScreen || isLgScreen ? 'h6' : 'subtitle1',
+							variant: isXsScreen || isSmScreen ? 'subtitle1' : 'h6',
 							textAlign: 'center',
 							color: 'white',
 							letterSpacing: '1px'
@@ -750,7 +770,9 @@ const ImageInput = ({
 						filesLimit={1}
 						maxFileSize={maxFileSize}
 						dropzoneText={
-							'Drag and drop an image here or click to pull up your file browser...'
+							isXsScreen || isSmScreen
+								? 'Add your image here...'
+								: 'Drag and drop an image here or click to pull up your file browser...'
 						}
 						onChange={handleImageChange}
 						dropzoneClass={classes.dropzone}
@@ -776,14 +798,7 @@ const ImageInput = ({
 	);
 };
 
-const OnboardSpotify = ({
-	isXsScreen,
-	isSmScreen,
-	isMdScreen,
-	isLgScreen,
-	isXlScreen,
-	classes
-}) => {
+const OnboardSpotify = ({ isXsScreen, isSmScreen, isMdScreen, classes }) => {
 	const navigate = useNavigate();
 
 	const handleConnectThroughSpotify = async (e, source) => {
@@ -811,10 +826,14 @@ const OnboardSpotify = ({
 							color: 'white',
 							letterSpacing: '1px'
 						}}
-						subheader='Link to your Spotify library to create playlists and more!'
+						subheader={
+							isSmScreen || isXsScreen
+								? 'Click on the icon to link to your Spotify Library'
+								: 'Click on the icon to link to your Spotify library to create playlists and more!'
+						}
 						subheaderTypographyProps={{
 							width: '100%',
-							variant: isXlScreen || isLgScreen ? 'h6' : 'subtitle1',
+							variant: isXsScreen || isSmScreen ? 'subtitle1' : 'h6',
 							textAlign: 'center',
 							color: 'white',
 							letterSpacing: '1px'
@@ -834,7 +853,7 @@ const OnboardSpotify = ({
 					>
 						<img
 							loading='lazy'
-							width='300em'
+							width={isSmScreen || isXsScreen ? '200em' : '300em'}
 							style={{
 								margin: '0 auto',
 								display: 'block'
@@ -849,9 +868,9 @@ const OnboardSpotify = ({
 						letterSpacing='1px'
 						paddingBottom='2%'
 					>
-						{
-							'If you do not already have a Spotify account you can sign up for free! Then continue on to the demo...'
-						}
+						{isXsScreen || isSmScreen
+							? 'Or sign up for free! Then continue on to the demo...'
+							: 'If you do not already have a Spotify account you can sign up for free! Then continue on to the demo...'}
 					</Typography>
 					<Button
 						type='submit'
@@ -1036,8 +1055,6 @@ export const Onboard = ({
 					isXsScreen={isXsScreen}
 					isSmScreen={isSmScreen}
 					isMdScreen={isMdScreen}
-					isLgScreen={isLgScreen}
-					isXlScreen={isXlScreen}
 					errors={errors}
 					register={register}
 					handleSubmit={handleSubmit}
@@ -1051,8 +1068,6 @@ export const Onboard = ({
 					isXsScreen={isXsScreen}
 					isSmScreen={isSmScreen}
 					isMdScreen={isMdScreen}
-					isLgScreen={isLgScreen}
-					isXlScreen={isXlScreen}
 					classes={classes}
 					handleSubmit={handleSubmit}
 					setCurrentStep={setCurrentStep}
@@ -1064,8 +1079,6 @@ export const Onboard = ({
 					isXsScreen={isXsScreen}
 					isSmScreen={isSmScreen}
 					isMdScreen={isMdScreen}
-					isLgScreen={isLgScreen}
-					isXlScreen={isXlScreen}
 					classes={classes}
 				/>
 			)}

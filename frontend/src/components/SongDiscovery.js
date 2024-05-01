@@ -301,6 +301,7 @@ const MobileResults = ({
 	setIsModalOpen,
 	isLoading,
 	showTracks,
+	selectedPlaylist,
 	handleExploreMoreClick,
 	isXsScreen,
 	isSmScreen,
@@ -308,7 +309,9 @@ const MobileResults = ({
 	isLgScreen,
 	isXlScreen,
 	showPlaylists,
-	setShowPlaylists
+	setShowPlaylists,
+	handleToggle,
+	toggleValue
 }) => {
 	return (
 		<Box
@@ -338,13 +341,64 @@ const MobileResults = ({
 						setShowPlaylists={setShowPlaylists}
 					/>
 				))}
-			<Box backgroundColor='transparent' width={isXsScreen || isSmScreen ? '100%' : '65%'}>
-				<Box display='flex' justifyContent='center'>
-					<ToggleButtonGroup exclusive>
-						<ToggleButton value='Discover'>Results</ToggleButton>
-						<ToggleButton value='Selected Playlist'>Playlist</ToggleButton>
+			<Box
+				backgroundColor='transparent'
+				display='flex'
+				flexDirection='column'
+				alignItems='center'
+				width='75%'
+			>
+				{currentUser && (
+					<ToggleButtonGroup
+						exclusive
+						sx={{
+							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+							borderRadius: '8px',
+							width: '70%',
+							marginTop: '2%'
+						}}
+						onChange={handleToggle}
+					>
+						<ToggleButton
+							value='Discovery Results'
+							sx={{
+								backgroundColor:
+									toggleValue === 'Discovery Results'
+										? 'rgb(44, 216, 207, 0.3)'
+										: 'rgba(48, 130, 164, 0.15)',
+								color: toggleValue === 'Discovery Results' ? 'whitesmoke' : 'grey',
+								borderRadius: '8px',
+								fontSize: '0.75rem',
+								width: '50%',
+								'&:hover': {
+									backgroundColor: 'rgb(44, 216, 207, 0.5)',
+									color: 'whitesmoke'
+								}
+							}}
+						>
+							{'Discovery Results'}
+						</ToggleButton>
+						<ToggleButton
+							value='Selected Playlist'
+							sx={{
+								backgroundColor:
+									toggleValue === 'Selected Playlist'
+										? 'rgb(44, 216, 207, 0.3)'
+										: 'rgba(48, 130, 164, 0.15)',
+								color: toggleValue === 'Selected Playlist' ? 'whitesmoke' : 'grey',
+								borderRadius: '8px',
+								fontSize: '0.75rem',
+								width: '50%',
+								'&:hover': {
+									backgroundColor: 'rgb(44, 216, 207, 0.5)',
+									color: 'whitesmoke'
+								}
+							}}
+						>
+							{'Selected Playlist'}
+						</ToggleButton>
 					</ToggleButtonGroup>
-				</Box>
+				)}
 				{isLoading && (
 					<Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
 						{/* <Box
@@ -367,12 +421,19 @@ const MobileResults = ({
 						<Suspense fallback={<LoadingState />}>
 							<Recommendations
 								classes={classes}
-								recommendations={discoveryRecommendations}
+								recommendations={
+									toggleValue === 'Selected Playlist'
+										? selectedPlaylist.tracks
+										: discoveryRecommendations
+								}
 								user={currentUser}
 								currentPlaylist={currentPlaylist}
 								onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
 								setIsModalOpen={setIsModalOpen}
 								isXsScreen={isXsScreen}
+								isSmScreen={isSmScreen}
+								toggleValue={toggleValue}
+								handleExploreMoreClick={handleExploreMoreClick}
 							/>
 						</Suspense>
 					</Box>
@@ -393,7 +454,7 @@ const MobileResults = ({
 								padding='5% 0 0'
 								width='80%'
 							>
-								What kind of music are you in the mood for today?
+								{'What kind of music are you in the mood for today?'}
 							</Typography>
 							<Typography
 								color='white'
@@ -402,9 +463,9 @@ const MobileResults = ({
 								letterSpacing='1px'
 								padding='5% 5% 0'
 							>
-								Start discovering new music now. Simply choose from the songs,
+								{`Start discovering new music now. Simply choose from the songs,
 								artists, and genres that inspire you and start discovering related
-								music.
+								music.`}
 							</Typography>
 							<Typography
 								color='white'
@@ -821,6 +882,7 @@ export const SongDiscovery = ({
 										}
 										setIsModalOpen={setIsModalOpen}
 										isXsScreen={isXsScreen}
+										isSmScreen={isSmScreen}
 										toggleValue={toggleValue}
 										handleExploreMoreClick={handleExploreMoreClick}
 									/>
@@ -932,6 +994,9 @@ export const SongDiscovery = ({
 					isMdScreen={isMdScreen}
 					isLgScreen={isLgScreen}
 					isXlScreen={isXlScreen}
+					handleToggle={handleToggle}
+					toggleValue={toggleValue}
+					selectedPlaylist={selectedPlaylist}
 				/>
 			)}
 			<SaveQueryModal
