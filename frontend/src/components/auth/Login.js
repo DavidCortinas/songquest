@@ -360,7 +360,7 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 												}}
 											>
 												<Typography variant='body2' letterSpacing='1px'>
-													{`Sign in as ${user?.user.display_name}`}
+													{`Sign in as ${user?.user?.display_name}`}
 												</Typography>
 											</div>
 										}

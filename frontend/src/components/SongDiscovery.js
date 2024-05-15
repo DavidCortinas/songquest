@@ -306,8 +306,6 @@ const MobileResults = ({
 	isXsScreen,
 	isSmScreen,
 	isMdScreen,
-	isLgScreen,
-	isXlScreen,
 	showPlaylists,
 	setShowPlaylists,
 	handleToggle,
@@ -504,9 +502,6 @@ const MobileResults = ({
 						<Body
 							isSmScreen={isSmScreen}
 							isXsScreen={isXsScreen}
-							isMdScreen={isMdScreen}
-							isLgScreen={isLgScreen}
-							isXlScreen={isXlScreen}
 							handleExploreMoreClick={handleExploreMoreClick}
 						/>
 					))
@@ -957,9 +952,6 @@ export const SongDiscovery = ({
 								<Body
 									isSmScreen={isSmScreen}
 									isXsScreen={isXsScreen}
-									isMdScreen={isMdScreen}
-									isLgScreen={isLgScreen}
-									isXlScreen={isXlScreen}
 									handleExploreMoreClick={handleExploreMoreClick}
 								/>
 							))
