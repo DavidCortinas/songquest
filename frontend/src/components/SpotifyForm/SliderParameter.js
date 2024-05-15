@@ -228,23 +228,28 @@ export const SliderParameter = ({
 	const handleSliderChange = newValues => {
 		const [newMin, newTarget, newMax] = newValues;
 
+		// Immediately update local component state to ensure smooth UI response
 		setParameterValue({
 			min: newMin,
 			target: newTarget,
 			max: newMax
 		});
 
-		setParameters(prevParameters => ({
-			...prevParameters,
-			[parameter]: {
-				min: newMin,
-				target: newTarget,
-				max: newMax,
-				label: query[parameter]['label']
-			}
-		}));
+		// Use setTimeout to defer the execution of the global state update
+		setTimeout(() => {
+			setParameters(prevParameters => ({
+				...prevParameters,
+				[parameter]: {
+					min: newMin,
+					target: newTarget,
+					max: newMax,
+					label: query[parameter]['label']
+				}
+			}));
 
-		onSetQueryParameter(query, parameter, newValues);
+			// Assuming onSetQueryParameter might be sync or async and needs to be called after updating global state
+			onSetQueryParameter(query, parameter, newValues);
+		}, 10); // Even a timeout of 0 ms helps in deferring the task until after the current call stack is clear
 	};
 
 	return (
