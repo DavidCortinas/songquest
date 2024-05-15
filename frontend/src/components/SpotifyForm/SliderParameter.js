@@ -225,31 +225,26 @@ export const SliderParameter = ({
 		});
 	}, [query, parameter]);
 
-	const handleSliderChange = newValues => {
-		const [newMin, newTarget, newMax] = newValues;
-
-		// Immediately update local component state to ensure smooth UI response
+	const handleSliderChange = (event, newValues) => {
 		setParameterValue({
-			min: newMin,
-			target: newTarget,
-			max: newMax
+			min: newValues[0],
+			target: newValues[1],
+			max: newValues[2]
 		});
+	};
 
-		// Use setTimeout to defer the execution of the global state update
-		setTimeout(() => {
-			setParameters(prevParameters => ({
-				...prevParameters,
-				[parameter]: {
-					min: newMin,
-					target: newTarget,
-					max: newMax,
-					label: query[parameter]['label']
-				}
-			}));
+	const handleSliderCommit = (event, newValues) => {
+		setParameters(prevParameters => ({
+			...prevParameters,
+			[parameter]: {
+				min: newValues[0],
+				target: newValues[1],
+				max: newValues[2],
+				label: query[parameter]['label']
+			}
+		}));
 
-			// Assuming onSetQueryParameter might be sync or async and needs to be called after updating global state
-			onSetQueryParameter(query, parameter, newValues);
-		}, 10); // Even a timeout of 0 ms helps in deferring the task until after the current call stack is clear
+		onSetQueryParameter(query, parameter, newValues);
 	};
 
 	return (
@@ -304,7 +299,8 @@ export const SliderParameter = ({
 				disableSwap
 				// track={false}
 				aria-labelledby='track-false-range-slider'
-				onChange={(e, newValues) => handleSliderChange(newValues)}
+				onChange={handleSliderChange}
+				onChangeCommitted={handleSliderCommit}
 				// getAriaValueText={valuetext}
 				value={[parameterValue.min, parameterValue.max, parameterValue.target]}
 				marks={marks}
