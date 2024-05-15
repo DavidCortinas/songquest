@@ -14,7 +14,7 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 				description:
 					"Experience the ease of finding new music with SongQuest. Our advanced AI taps into a blend of songs, artists, and genres, using Spotify's audio analysis to deliver recommendations that match your unique taste. Discover sounds that resonate with you in ways you never imagined.",
 				mobileDescription:
-					"We leverage Spotify's powerful recommendation algorithm to handpick selections based on your unique tastes, ensuring you find the perfect tunes for your search."
+					'Explore music seamlessly with SongQuest. Our AI leverages Spotify’s audio tools to tailor selections to your taste. Enjoy uniquely personalized sound experiences.'
 			},
 			{
 				emoji: '🔐',
@@ -25,7 +25,7 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 				description:
 					"SongQuest opens the door to a vast universe of music. Harness the power of Spotify's recommendation algorithm to uncover tracks that align perfectly with your preferences. Create playlists that feel like they were made just for you, and explore music that fits your every mood.",
 				mobileDescription:
-					'Take control of your musical adventure like never before. With SongQuest, you have the power to fine-tune your recommendations.'
+					'Unlock music that fits your needs with SongQuest. Our AI uses Spotify’s tools to personalize tracks for your taste. Discover new and thrilling sounds.'
 			},
 			{
 				emoji: '⚙️',
@@ -36,7 +36,7 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 				description:
 					"Take control of your musical journey. With SongQuest, fine-tune your listening experience to your heart's content. Whether you crave songs with acoustic vibes or tracks that make you dance, you have the power to shape your music discovery. Personalize your playlists to suit your every whim.",
 				mobileDescription:
-					'Customize your music discovery experience down to the finest detail.'
+					'Master your musical journey with SongQuest. Tailor your listening experience, from acoustic to dance tracks, and customize playlists to your liking.'
 			},
 			{
 				emoji: '📊',
@@ -47,7 +47,7 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 				description:
 					'SongQuest lets you delve deep into the music world with a range of parameters like acousticness, danceability, energy, and more. Customize your exploration to the tiniest detail, and discover music that fits your exact preferences. Your journey through sound is just a few tweaks away.',
 				mobileDescription:
-					'Enter up to five recommendation sources above and activate the fine tuning parameters to discover new music.'
+					'Dive into music with SongQuest by adjusting settings like acousticness and danceability. Customize your search to find music that perfectly matches your preferences.'
 			},
 			{
 				emoji: '🚀',
@@ -58,7 +58,7 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 				description:
 					'Ready to dive into a musical exploration like no other? Begin by selecting up to five recommendation sources - songs, artists, genres - and fine-tune your preferences to discover the perfect sound for your journey. Enter your choices, adjust the parameters, and embark on an unparalleled musical adventure with SongQuest.',
 				mobileDescription:
-					'Enter up to five recommendation sources above and activate the fine tuning parameters to discover new music.'
+					'Start a unique musical exploration with SongQuest by selecting up to five sources—songs, artists, genres—and fine-tuning your preferences to find your perfect sound.'
 			}
 		]
 	};
@@ -74,21 +74,20 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 				display='flex'
 				flexDirection='column'
 				alignItems='center'
-				padding={isSmScreen || isXsScreen ? '5%' : '5% 0'}
+				padding={isXsScreen ? '5%' : '5% 0'}
 			>
 				<Typography
-					variant={isXsScreen || isSmScreen ? 'h6' : 'h4'}
+					variant={isXsScreen ? 'h6' : 'h4'}
 					textAlign='center'
-					color='whitesmoke'
+					color='white'
 					letterSpacing='1px'
 				>
 					{'Unearth New Sounds with SongQuest'}
 				</Typography>
 				<Typography
 					textAlign='center'
-					variant={isXsScreen || isSmScreen ? 'body1' : 'h6'}
-					width='95%'
-					color='#e0e6ea'
+					variant={isXsScreen ? 'body1' : 'h6'}
+					color='whitesmoke'
 					letterSpacing='1px'
 				>
 					{isXsScreen || isSmScreen
@@ -114,8 +113,9 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 								<CardHeader
 									title={item.header}
 									titleTypographyProps={{
-										color: 'whitesmoke',
-										letterSpacing: '1px'
+										color: 'white',
+										letterSpacing: '1px',
+										fontSize: isXsScreen ? '1.25rem' : '1.75rem'
 									}}
 									subheader={
 										!isSmScreen && !isXsScreen
@@ -123,8 +123,9 @@ export const Body = ({ isSmScreen, isXsScreen, handleExploreMoreClick }) => {
 											: item.mobileDescription
 									}
 									subheaderTypographyProps={{
-										color: '#e0e6ea',
-										letterSpacing: '1px'
+										color: 'whitesmoke',
+										letterSpacing: '1px',
+										fontSize: isXsScreen ? '1rem' : '1.25rem'
 									}}
 									style={{
 										textAlign: 'left',

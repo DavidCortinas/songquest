@@ -90,12 +90,9 @@ const useStyles = makeStyles(() => ({
 	},
 	panelCard: {
 		display: 'flex',
-		width: '25vw',
+		width: '18vw',
 		[theme.breakpoints.down('lg')]: {
-			width: '30vw'
-		},
-		[theme.breakpoints.down('md')]: {
-			width: '50vw'
+			width: '28vw'
 		},
 		minHeight: 'fit-content',
 		padding: '5% 0',

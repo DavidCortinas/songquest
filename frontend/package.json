@@ -100,6 +100,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
+    "use-debounce": "^10.0.0",
     "web-vitals": "^2.1.4",
     "webpack-bundle-tracker": "^3.1.0"
   },
