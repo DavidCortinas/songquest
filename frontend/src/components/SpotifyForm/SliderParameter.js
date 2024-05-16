@@ -306,10 +306,40 @@ export const SliderParameter = ({
 				marks={marks}
 				valueLabelDisplay='auto'
 				valueLabelFormat={(value, index) => {
-					if (index === 0) return `Min: ${value}`;
-					if (index === 1) return `Target: ${value}`;
-					if (index === 2) return `Max: ${value}`;
-					return '';
+					if (parameter === 'time_signature') {
+						if (index === 0) return `Min: ${value}/4`;
+						if (index === 1) return `Target: ${value}/4`;
+						if (index === 2) return `Max: ${value}/4`;
+						return '';
+					} else if (parameter === 'tempo' || parameter === 'loudness') {
+						if (index === 0) return `Min: ${Math.round(value)}`;
+						if (index === 1) return `Target: ${Math.round(value)}`;
+						if (index === 2) return `Max: ${Math.round(value)}`;
+						return '';
+					} else if (parameter === 'key') {
+						const keyLabels = {
+							0: 'C',
+							1: 'C#',
+							2: 'D',
+							3: 'D#',
+							4: 'E',
+							5: 'F',
+							6: 'F#',
+							7: 'G',
+							8: 'G#',
+							9: 'A',
+							10: 'A#',
+							11: 'B'
+						};
+						if (index === 0) return `Min: ${keyLabels[value]}`;
+						if (index === 1) return `Target: ${keyLabels[value]}`;
+						if (index === 2) return `Max: ${keyLabels[value]}`;
+					} else {
+						if (index === 0) return `Min: ${Math.round(value * 100)}%`;
+						if (index === 1) return `Target: ${Math.round(value * 100)}%`;
+						if (index === 2) return `Max: ${Math.round(value * 100)}%`;
+						return '';
+					}
 				}}
 				max={
 					parameter === 'duration_ms'
