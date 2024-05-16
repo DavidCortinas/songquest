@@ -60,6 +60,8 @@ export const SliderParameter = ({
 					? -60
 					: parameter === 'mode'
 					? 0
+					: parameter === 'time_signature'
+					? 4
 					: 0,
 			target:
 				target !== null
@@ -77,7 +79,7 @@ export const SliderParameter = ({
 					: parameter === 'tempo'
 					? 150
 					: parameter === 'time_signature'
-					? 5
+					? 4
 					: 0.5,
 			max:
 				max !== null
@@ -89,7 +91,7 @@ export const SliderParameter = ({
 					: parameter === 'popularity'
 					? 100
 					: parameter === 'time_signature'
-					? 11
+					? 4
 					: parameter === 'key'
 					? 6
 					: parameter === 'loudness'
@@ -102,7 +104,7 @@ export const SliderParameter = ({
 
 	const handleSliderChange = (event, newValues) => {
 		console.log('newValues: ', newValues);
-		if (parameter === 'mode' || parameter === 'key') {
+		if (parameter === 'mode' || parameter === 'key' || parameter === 'time_signature') {
 			setParameterValue(prev => ({ ...prev, target: newValues[0] }));
 		} else {
 			setParameterValue({
@@ -114,7 +116,7 @@ export const SliderParameter = ({
 	};
 
 	const handleSliderCommit = (event, newValues) => {
-		if (parameter === 'mode' || parameter === 'key') {
+		if (parameter === 'mode' || parameter === 'key' || parameter === 'time_signature') {
 			setParameters(prevParameters => ({
 				...prevParameters,
 				[parameter]: {
@@ -122,6 +124,7 @@ export const SliderParameter = ({
 					label: query[parameter]?.label
 				}
 			}));
+			onSetQueryParameter(query, parameter, [newValues[0], newValues[0], newValues[0]]);
 		} else {
 			setParameters(prevParameters => ({
 				...prevParameters,
@@ -132,8 +135,8 @@ export const SliderParameter = ({
 					label: query[parameter]?.label
 				}
 			}));
+			onSetQueryParameter(query, parameter, newValues);
 		}
-		onSetQueryParameter(query, parameter, newValues);
 	};
 
 	const marks =
@@ -276,7 +279,7 @@ export const SliderParameter = ({
 				onChange={handleSliderChange}
 				onChangeCommitted={handleSliderCommit}
 				value={
-					parameter === 'mode' || parameter === 'key'
+					parameter === 'mode' || parameter === 'key' || parameter === 'time_signature'
 						? [parameterValue.target]
 						: [parameterValue.min, parameterValue.target, parameterValue.max]
 				}
