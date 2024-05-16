@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Box, FormControlLabel, Slider, Switch, Typography } from '@mui/material';
 import { toCapitalCase } from '../../utils';
 
+const ModeEnum = {
+	0: 'Minor',
+	1: 'Major'
+};
+
 export const SliderParameter = ({
 	parameter,
 	query,
@@ -20,94 +25,145 @@ export const SliderParameter = ({
 		if (
 			query[parameter]['min'] === null ||
 			query[parameter]['target'] === null ||
-			query[parameter]['target'] === null
+			query[parameter]['max'] === null
 		) {
 			setItemSelected(false);
 		}
-	}, [query]);
+	}, [query, parameter]);
 
 	const handleContainerClick = () => {
 		setItemSelected(prev => !prev);
 	};
 
-	const min = query && query[parameter]['min'];
-	const max = query && query[parameter]['max'];
-	const target = query && query[parameter]['target'];
+	const [parameterValue, setParameterValue] = useState({
+		min: query[parameter]?.min ?? 0,
+		target: query[parameter]?.target ?? 50,
+		max: query[parameter]?.max ?? 100
+	});
+
+	useEffect(() => {
+		const min = query && query[parameter] && query[parameter]['min'];
+		const max = query && query[parameter] && query[parameter]['max'];
+		const target = query && query[parameter] && query[parameter]['target'];
+
+		setParameterValue({
+			min:
+				min !== null
+					? min
+					: parameter === 'duration_ms'
+					? 30000
+					: parameter === 'time_signature'
+					? 1
+					: parameter === 'key'
+					? 6
+					: parameter === 'loudness'
+					? -60
+					: parameter === 'mode'
+					? 0
+					: 0,
+			target:
+				target !== null
+					? target
+					: parameter === 'duration_ms'
+					? 1800000
+					: parameter === 'key'
+					? 6
+					: parameter === 'loudness'
+					? -30
+					: parameter === 'popularity'
+					? 50
+					: parameter === 'mode'
+					? 0
+					: parameter === 'tempo'
+					? 150
+					: parameter === 'time_signature'
+					? 5
+					: 0.5,
+			max:
+				max !== null
+					? max
+					: parameter === 'duration_ms'
+					? 3600000
+					: parameter === 'tempo'
+					? 300
+					: parameter === 'popularity'
+					? 100
+					: parameter === 'time_signature'
+					? 11
+					: parameter === 'key'
+					? 6
+					: parameter === 'loudness'
+					? 0
+					: parameter === 'mode'
+					? 0
+					: 100
+		});
+	}, [query, parameter]);
+
+	const handleSliderChange = (event, newValues) => {
+		console.log('newValues: ', newValues);
+		if (parameter === 'mode' || parameter === 'key') {
+			setParameterValue(prev => ({ ...prev, target: newValues[0] }));
+		} else {
+			setParameterValue({
+				min: newValues[0],
+				target: newValues[1],
+				max: newValues[2]
+			});
+		}
+	};
+
+	const handleSliderCommit = (event, newValues) => {
+		if (parameter === 'mode' || parameter === 'key') {
+			setParameters(prevParameters => ({
+				...prevParameters,
+				[parameter]: {
+					target: newValues[0],
+					label: query[parameter]?.label
+				}
+			}));
+		} else {
+			setParameters(prevParameters => ({
+				...prevParameters,
+				[parameter]: {
+					min: newValues[0],
+					target: newValues[1],
+					max: newValues[2],
+					label: query[parameter]?.label
+				}
+			}));
+		}
+		onSetQueryParameter(query, parameter, newValues);
+	};
 
 	const marks =
 		parameter === 'time_signature'
 			? [
-					{
-						value: 3,
-						label: '3/4'
-					},
-					{
-						value: 4,
-						label: '4/4'
-					},
-					{
-						value: 5,
-						label: '5/4'
-					},
-					{
-						value: 6,
-						label: '6/4'
-					},
-					{
-						value: 7,
-						label: '7/4'
-					}
+					{ value: 3, label: '3/4' },
+					{ value: 4, label: '4/4' },
+					{ value: 5, label: '5/4' },
+					{ value: 6, label: '6/4' },
+					{ value: 7, label: '7/4' }
+			  ]
+			: parameter === 'mode'
+			? [
+					{ value: 0, label: 'Minor' },
+					{ value: 1, label: 'Major' }
 			  ]
 			: parameter === 'key'
 			? [
-					{
-						value: 0,
-						label: 'C'
-					},
-					{
-						value: 1,
-						label: 'C#'
-					},
-					{
-						value: 2,
-						label: 'D'
-					},
-					{
-						value: 3,
-						label: 'D#'
-					},
-					{
-						value: 4,
-						label: 'E'
-					},
-					{
-						value: 5,
-						label: 'F'
-					},
-					{
-						value: 6,
-						label: 'F#'
-					},
-					{
-						value: 7,
-						label: 'G'
-					},
-					{
-						value: 8,
-						label: 'G#'
-					},
-					{
-						value: 9,
-						label: 'A'
-					},
-					{
-						value: 10,
-						label: 'A#'
-					},
-					{
-						value: 11,
-						label: 'B'
-					}
+					{ value: 0, label: 'C' },
+					{ value: 1, label: 'C#' },
+					{ value: 2, label: 'D' },
+					{ value: 3, label: 'D#' },
+					{ value: 4, label: 'E' },
+					{ value: 5, label: 'F' },
+					{ value: 6, label: 'F#' },
+					{ value: 7, label: 'G' },
+					{ value: 8, label: 'G#' },
+					{ value: 9, label: 'A' },
+					{ value: 10, label: 'A#' },
+					{ value: 11, label: 'B' }
 			  ]
 			: [
 					{
@@ -134,7 +190,7 @@ export const SliderParameter = ({
 								? -30
 								: parameter === 'tempo'
 								? 150
-								: parameter === 'mode' || parameter === 'popularity'
+								: parameter === 'popularity'
 								? 50
 								: 0.5,
 						label:
@@ -154,7 +210,7 @@ export const SliderParameter = ({
 								? 0
 								: parameter === 'tempo'
 								? 300
-								: parameter === 'mode' || parameter === 'popularity'
+								: parameter === 'popularity'
 								? 100
 								: 1,
 						label:
@@ -167,85 +223,6 @@ export const SliderParameter = ({
 								: '100%'
 					}
 			  ];
-
-	const [parameterValue, setParameterValue] = useState({
-		min: min !== null ? min : 0,
-		target: max !== null ? max : 50,
-		max: target !== null ? target : 100
-	});
-
-	useEffect(() => {
-		const min = query && query[parameter] && query[parameter]['min'];
-		const max = query && query[parameter] && query[parameter]['max'];
-		const target = query && query[parameter] && query[parameter]['target'];
-
-		setParameterValue({
-			min:
-				min !== null
-					? min
-					: parameter === 'duration_ms'
-					? 30000
-					: parameter === 'time_signature'
-					? 1
-					: parameter === 'key'
-					? -1
-					: parameter === 'loudness'
-					? -60
-					: 0,
-			target:
-				target !== null
-					? target
-					: parameter === 'duration_ms'
-					? 1800000
-					: parameter === 'key'
-					? 6
-					: parameter === 'loudness'
-					? -30
-					: parameter === 'mode' || parameter === 'popularity'
-					? 50
-					: parameter === 'tempo'
-					? 150
-					: parameter === 'time_signature'
-					? 5
-					: 0.5,
-			max:
-				max !== null
-					? max
-					: parameter === 'duration_ms'
-					? 3600000
-					: parameter === 'tempo'
-					? 300
-					: parameter === 'mode' || parameter === 'popularity'
-					? 100
-					: parameter === 'time_signature' || parameter === 'key'
-					? 11
-					: parameter === 'loudness'
-					? 0
-					: 1
-		});
-	}, [query, parameter]);
-
-	const handleSliderChange = (event, newValues) => {
-		setParameterValue({
-			min: newValues[0],
-			target: newValues[1],
-			max: newValues[2]
-		});
-	};
-
-	const handleSliderCommit = (event, newValues) => {
-		setParameters(prevParameters => ({
-			...prevParameters,
-			[parameter]: {
-				min: newValues[0],
-				target: newValues[1],
-				max: newValues[2],
-				label: query[parameter]['label']
-			}
-		}));
-
-		onSetQueryParameter(query, parameter, newValues);
-	};
 
 	return (
 		<Box className={classes.sliderBox}>
@@ -288,21 +265,21 @@ export const SliderParameter = ({
 						</>
 					}
 					labelPlacement='start'
-					sx={{
-						padding: '0 20px 0 0'
-					}}
+					sx={{ padding: '0 20px 0 0' }}
 				/>
 				<Typography variant='subtitle2'>{toCapitalCase(query[parameter].label)}</Typography>
 			</Box>
 			<Slider
 				disabled={!itemSelected}
 				disableSwap
-				// track={false}
 				aria-labelledby='track-false-range-slider'
 				onChange={handleSliderChange}
 				onChangeCommitted={handleSliderCommit}
-				// getAriaValueText={valuetext}
-				value={[parameterValue.min, parameterValue.max, parameterValue.target]}
+				value={
+					parameter === 'mode' || parameter === 'key'
+						? [parameterValue.target]
+						: [parameterValue.min, parameterValue.target, parameterValue.max]
+				}
 				marks={marks}
 				valueLabelDisplay='auto'
 				valueLabelFormat={(value, index) => {
@@ -331,9 +308,14 @@ export const SliderParameter = ({
 							10: 'A#',
 							11: 'B'
 						};
-						if (index === 0) return `Min: ${keyLabels[value]}`;
-						if (index === 1) return `Target: ${keyLabels[value]}`;
-						if (index === 2) return `Max: ${keyLabels[value]}`;
+						return `Target: ${keyLabels[value]}`;
+					} else if (parameter === 'popularity') {
+						if (index === 0) return `Min: ${Math.round(value)}%`;
+						if (index === 1) return `Target: ${Math.round(value)}%`;
+						if (index === 2) return `Max: ${Math.round(value)}%`;
+						return '';
+					} else if (parameter === 'mode') {
+						return `Target: ${ModeEnum[Math.round(value)]}`;
 					} else {
 						if (index === 0) return `Min: ${Math.round(value * 100)}%`;
 						if (index === 1) return `Target: ${Math.round(value * 100)}%`;
@@ -346,7 +328,7 @@ export const SliderParameter = ({
 						? 3600000
 						: parameter === 'tempo'
 						? 300
-						: parameter === 'mode' || parameter === 'popularity'
+						: parameter === 'popularity'
 						? 100
 						: parameter === 'time_signature'
 						? 7
