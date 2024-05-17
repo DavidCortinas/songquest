@@ -16,11 +16,61 @@ import { useForm } from 'react-hook-form';
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import theme from '../../theme';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { checkRegistration, getUserPlaylists, login, registerUser } from '../../thunks';
 import { resetDataLoaded, setCurrentUser } from '../../actions';
 import { useStyles } from './classes';
 import { LoadingState } from '../../components/LoadingState';
+import { validatePassword } from '../../utils';
+
+const PasswordRules = ({ password, confirmPassword }) => {
+	const rules = [
+		{ regex: /.{8,}/, message: 'Be at least 8 characters long' },
+		{ regex: /[A-Z]/, message: 'Have at least one uppercase letter' },
+		{ regex: /[a-z]/, message: 'Have at least one lowercase letter' },
+		{ regex: /[0-9]/, message: 'Have at least one number' },
+		{ regex: /[^A-Za-z0-9]/, message: 'Have at least one special character' },
+		{ regex: new RegExp('^' + confirmPassword + '$'), message: 'Passwords must match' }
+	];
+
+	return (
+		<Box display='flex' flexDirection='column' mt={2}>
+			<Typography variant='h6' letterSpacing='2px' color='white'>
+				{'Password Requirements: '}
+			</Typography>
+			<ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
+				{rules.map((rule, index) => (
+					<li
+						key={index}
+						style={{ color: 'whitesmoke', position: 'relative', paddingRight: '28px' }}
+					>
+						<Typography variant='subtitle1' letterSpacing='1px'>
+							{rule.message}
+						</Typography>
+						{rule === rules[5] && confirmPassword === '' ? (
+							<CloseIcon
+								color='error'
+								sx={{ position: 'absolute', right: 0, top: 0 }}
+							/>
+						) : rule.regex.test(password) ? (
+							<CheckIcon
+								color='success'
+								sx={{ position: 'absolute', right: 0, top: 0 }}
+							/>
+						) : (
+							<CloseIcon
+								color='error'
+								sx={{ position: 'absolute', right: 0, top: 0 }}
+							/>
+						)}
+					</li>
+				))}
+			</ul>
+		</Box>
+	);
+};
 
 export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -114,12 +164,25 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 	const onCreatePassword = async () => {
 		setSnackbarMessage('One moment while we register your account...');
 		setSnackbarOpen(true);
-		if (!passwordValue) {
+
+		const passwordErrors = validatePassword(passwordValue);
+		if (passwordErrors.length > 0) {
 			setInvalidPassword(true);
+			setSnackbarMessage(
+				`Password does not meet the following criteria: ${passwordErrors
+					.map(error => error.message)
+					.join(', ')}`
+			);
+			setSnackbarSeverity('error');
+			setSnackbarOpen(true);
 			return;
 		}
-		if (!confirmPasswordValue) {
+
+		if (passwordValue !== confirmPasswordValue) {
 			setInvalidConfirmPassword(true);
+			setSnackbarMessage('Passwords do not match');
+			setSnackbarSeverity('error');
+			setSnackbarOpen(true);
 			return;
 		}
 
@@ -486,6 +549,12 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 											onChange: e => handleConfirmPasswordChange(e),
 											error: invalidConfirmPassword
 										})}
+									/>
+								</Box>
+								<Box display='flex' justifyContent='center'>
+									<PasswordRules
+										password={passwordValue}
+										confirmPassword={confirmPasswordValue}
 									/>
 								</Box>
 								<br />

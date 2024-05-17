@@ -14,6 +14,19 @@ export const toCapitalCase = str => {
 	}
 };
 
+export const validatePassword = password => {
+	const rules = [
+		{ regex: /.{8,}/, message: 'At least 8 characters long' },
+		{ regex: /[A-Z]/, message: 'At least one uppercase letter' },
+		{ regex: /[a-z]/, message: 'At least one lowercase letter' },
+		{ regex: /[0-9]/, message: 'At least one number' },
+		{ regex: /[^A-Za-z0-9]/, message: 'At least one special character' }
+	];
+
+	const failedRules = rules.filter(rule => !rule.regex.test(password));
+	return failedRules;
+};
+
 export const handleExploreMoreClick = () => {
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 };
