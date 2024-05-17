@@ -162,6 +162,7 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 	};
 
 	const onCreatePassword = async () => {
+		setSnackbarSeverity('info');
 		setSnackbarMessage('One moment while we register your account...');
 		setSnackbarOpen(true);
 
