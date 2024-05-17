@@ -193,7 +193,7 @@ const Recommendation = ({
 							position: 'relative', // Parent relative position
 							// marginBottom: '85px',
 							height: '80px', // Set a fixed height for the container
-							width: isXsScreen ? '65%' : '100%' // Control width based on screen size
+							width: isXsScreen ? '100%' : '100%' // Control width based on screen size
 						}}
 					>
 						{/* Skeleton that only displays when iframe is not loaded */}
@@ -351,6 +351,7 @@ const Recommendations = ({
 	setIsModalOpen,
 	isXsScreen,
 	isSmScreen,
+	isMdScreen,
 	toggleValue,
 	handleExploreMoreClick,
 	editPlaylist
@@ -630,13 +631,16 @@ const Recommendations = ({
 								{'No Playlist Selected'}
 							</Typography>
 							<Typography
-								variant={isXsScreen || isSmScreen ? 'body1' : 'h5'}
+								variant={isXsScreen || isSmScreen || isMdScreen ? 'body1' : 'h6'}
 								textAlign='center'
 								color='whitesmoke'
 								paddingTop='3%'
 								letterSpacing='1px'
 							>
-								{`Select one of your saved playlists from the left panel to 
+								{isXsScreen || isSmScreen
+									? `Select a saved playlist from the left panel to preview your 
+                collection or use the song explorer to unearth new gems.`
+									: `Select one of your saved playlists from the left panel to 
                 preview the gems you have in your collection, or use the song
                 explorer to start unearthing new gems for your collection.`}
 							</Typography>
