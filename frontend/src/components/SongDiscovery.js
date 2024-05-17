@@ -430,6 +430,7 @@ const MobileResults = ({
 								setIsModalOpen={setIsModalOpen}
 								isXsScreen={isXsScreen}
 								isSmScreen={isSmScreen}
+								isMdScreen={isMdScreen}
 								toggleValue={toggleValue}
 								handleExploreMoreClick={handleExploreMoreClick}
 							/>
@@ -447,7 +448,7 @@ const MobileResults = ({
 							<Typography
 								color='white'
 								textAlign='center'
-								variant='h6'
+								variant='h5'
 								letterSpacing='1px'
 								padding='5% 0 0'
 								width='80%'
@@ -461,21 +462,19 @@ const MobileResults = ({
 								letterSpacing='1px'
 								padding='5% 5% 0'
 							>
-								{`Start discovering new music now. Simply choose from the songs,
-								artists, and genres that inspire you and start discovering related
-								music.`}
+								{`Choose from the songs, artists, and genres that inspire you and 
+                start discovering related music.`}
 							</Typography>
 							<Typography
 								color='white'
 								// textAlign='center'
-								variant='caption'
+								variant='body1'
 								letterSpacing='1px'
 								padding='5% 5% 0'
 							>
-								{`* Adjust your search by clicking on "Fine Tune Your Recommendations" 
-                to enable and configure fine-tuning parameters. This allows you to 
-                personalize your results and find music that precisely matches your 
-                preferences.`}
+								{`* Click on "Fine Tune Your Recommendations" 
+                to enable and configure fine-tuning parameters to find music that 
+                precisely matches your preferences.`}
 							</Typography>
 							<Button
 								className={`${classes.button} ${classes.buttonWithMargin}`}
@@ -878,6 +877,7 @@ export const SongDiscovery = ({
 										setIsModalOpen={setIsModalOpen}
 										isXsScreen={isXsScreen}
 										isSmScreen={isSmScreen}
+										isMdScreen={isMdScreen}
 										toggleValue={toggleValue}
 										handleExploreMoreClick={handleExploreMoreClick}
 									/>
@@ -906,7 +906,7 @@ export const SongDiscovery = ({
 									<Typography
 										color='white'
 										// textAlign='center'
-										variant='subtitle1'
+										variant='h6'
 										letterSpacing='1px'
 										padding='5% 3% 0'
 										width='100%'
@@ -917,7 +917,7 @@ export const SongDiscovery = ({
 									<Typography
 										color='white'
 										// textAlign='center'
-										variant='subtitle1'
+										variant='h6'
 										letterSpacing='1px'
 										padding='5% 3% 0'
 										width='100%'
