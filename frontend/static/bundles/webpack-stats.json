@@ -6,10 +6,150 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/index.html",
       "publicPath": "http://localhost:3000/index.html"
     },
+    "js/main.03c3598c.js": {
+      "name": "js/main.03c3598c.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.03c3598c.js",
+      "publicPath": "http://localhost:3000/js/main.03c3598c.js"
+    },
+    "js/main.0ca96be2.js": {
+      "name": "js/main.0ca96be2.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.0ca96be2.js",
+      "publicPath": "http://localhost:3000/js/main.0ca96be2.js"
+    },
+    "js/main.19243af1.js": {
+      "name": "js/main.19243af1.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.19243af1.js",
+      "publicPath": "http://localhost:3000/js/main.19243af1.js"
+    },
+    "js/main.1a94a3c9.js": {
+      "name": "js/main.1a94a3c9.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.1a94a3c9.js",
+      "publicPath": "http://localhost:3000/js/main.1a94a3c9.js"
+    },
+    "js/main.20c58c8f.js": {
+      "name": "js/main.20c58c8f.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.20c58c8f.js",
+      "publicPath": "http://localhost:3000/js/main.20c58c8f.js"
+    },
+    "js/main.24c33a3f.js": {
+      "name": "js/main.24c33a3f.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.24c33a3f.js",
+      "publicPath": "http://localhost:3000/js/main.24c33a3f.js"
+    },
+    "js/main.2e752333.js": {
+      "name": "js/main.2e752333.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.2e752333.js",
+      "publicPath": "http://localhost:3000/js/main.2e752333.js"
+    },
+    "js/main.39afdf37.js": {
+      "name": "js/main.39afdf37.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.39afdf37.js",
+      "publicPath": "http://localhost:3000/js/main.39afdf37.js"
+    },
+    "js/main.3d288cb3.js": {
+      "name": "js/main.3d288cb3.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.3d288cb3.js",
+      "publicPath": "http://localhost:3000/js/main.3d288cb3.js"
+    },
+    "js/main.5ca0a57a.js": {
+      "name": "js/main.5ca0a57a.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.5ca0a57a.js",
+      "publicPath": "http://localhost:3000/js/main.5ca0a57a.js"
+    },
+    "js/main.612d6185.js": {
+      "name": "js/main.612d6185.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.612d6185.js",
+      "publicPath": "http://localhost:3000/js/main.612d6185.js"
+    },
+    "js/main.64d899e5.js": {
+      "name": "js/main.64d899e5.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.64d899e5.js",
+      "publicPath": "http://localhost:3000/js/main.64d899e5.js"
+    },
+    "js/main.762ea983.js": {
+      "name": "js/main.762ea983.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.762ea983.js",
+      "publicPath": "http://localhost:3000/js/main.762ea983.js"
+    },
+    "js/main.80d75e90.js": {
+      "name": "js/main.80d75e90.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.80d75e90.js",
+      "publicPath": "http://localhost:3000/js/main.80d75e90.js"
+    },
+    "js/main.825b2d57.js": {
+      "name": "js/main.825b2d57.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.825b2d57.js",
+      "publicPath": "http://localhost:3000/js/main.825b2d57.js"
+    },
+    "js/main.86b00e50.js": {
+      "name": "js/main.86b00e50.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.86b00e50.js",
+      "publicPath": "http://localhost:3000/js/main.86b00e50.js"
+    },
+    "js/main.8e83ac65.js": {
+      "name": "js/main.8e83ac65.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.8e83ac65.js",
+      "publicPath": "http://localhost:3000/js/main.8e83ac65.js"
+    },
+    "js/main.9e9f9227.js": {
+      "name": "js/main.9e9f9227.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.9e9f9227.js",
+      "publicPath": "http://localhost:3000/js/main.9e9f9227.js"
+    },
+    "js/main.acdab8bd.js": {
+      "name": "js/main.acdab8bd.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.acdab8bd.js",
+      "publicPath": "http://localhost:3000/js/main.acdab8bd.js"
+    },
+    "js/main.b5744a15.js": {
+      "name": "js/main.b5744a15.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.b5744a15.js",
+      "publicPath": "http://localhost:3000/js/main.b5744a15.js"
+    },
     "js/main.bd1cff27.js": {
       "name": "js/main.bd1cff27.js",
       "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.bd1cff27.js",
       "publicPath": "http://localhost:3000/js/main.bd1cff27.js"
+    },
+    "js/main.d7830a16.js": {
+      "name": "js/main.d7830a16.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.d7830a16.js",
+      "publicPath": "http://localhost:3000/js/main.d7830a16.js"
+    },
+    "js/main.de0ed20e.js": {
+      "name": "js/main.de0ed20e.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.de0ed20e.js",
+      "publicPath": "http://localhost:3000/js/main.de0ed20e.js"
+    },
+    "js/main.e0448642.js": {
+      "name": "js/main.e0448642.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.e0448642.js",
+      "publicPath": "http://localhost:3000/js/main.e0448642.js"
+    },
+    "js/main.e60c1276.js": {
+      "name": "js/main.e60c1276.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.e60c1276.js",
+      "publicPath": "http://localhost:3000/js/main.e60c1276.js"
+    },
+    "js/main.e778cd93.js": {
+      "name": "js/main.e778cd93.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.e778cd93.js",
+      "publicPath": "http://localhost:3000/js/main.e778cd93.js"
+    },
+    "js/main.e924397d.js": {
+      "name": "js/main.e924397d.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.e924397d.js",
+      "publicPath": "http://localhost:3000/js/main.e924397d.js"
+    },
+    "js/main.ea449cca.js": {
+      "name": "js/main.ea449cca.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.ea449cca.js",
+      "publicPath": "http://localhost:3000/js/main.ea449cca.js"
+    },
+    "js/main.f4259ef6.js": {
+      "name": "js/main.f4259ef6.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/main.f4259ef6.js",
+      "publicPath": "http://localhost:3000/js/main.f4259ef6.js"
     },
     "js/src_components_auth_Login_js.d2c5f9cb.chunk.js": {
       "name": "js/src_components_auth_Login_js.d2c5f9cb.chunk.js",
@@ -56,10 +196,125 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_Recommendations_js.f3fd49d0.chunk.js",
       "publicPath": "http://localhost:3000/js/src_components_Recommendations_js.f3fd49d0.chunk.js"
     },
+    "js/src_components_SaveQueryModal_js.0209f5a9.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.0209f5a9.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.0209f5a9.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.0209f5a9.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.1495be75.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.1495be75.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.1495be75.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.1495be75.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.26991864.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.26991864.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.26991864.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.26991864.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.27026af8.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.27026af8.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.27026af8.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.27026af8.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.35179ab0.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.35179ab0.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.35179ab0.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.35179ab0.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.38331fc6.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.38331fc6.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.38331fc6.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.38331fc6.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.4ab044f1.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.4ab044f1.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.4ab044f1.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.4ab044f1.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.4fff018d.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.4fff018d.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.4fff018d.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.4fff018d.chunk.js"
+    },
     "js/src_components_SaveQueryModal_js.5b0cd9ca.chunk.js": {
       "name": "js/src_components_SaveQueryModal_js.5b0cd9ca.chunk.js",
       "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.5b0cd9ca.chunk.js",
       "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.5b0cd9ca.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.782349df.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.782349df.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.782349df.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.782349df.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.837dd493.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.837dd493.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.837dd493.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.837dd493.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.9222c235.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.9222c235.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.9222c235.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.9222c235.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.979909c1.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.979909c1.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.979909c1.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.979909c1.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.9d6a6b00.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.9d6a6b00.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.9d6a6b00.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.9d6a6b00.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.b26492bf.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.b26492bf.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.b26492bf.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.b26492bf.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.bdb3f5aa.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.bdb3f5aa.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.bdb3f5aa.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.bdb3f5aa.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.c19c9448.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.c19c9448.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.c19c9448.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.c19c9448.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.cf9f2804.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.cf9f2804.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.cf9f2804.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.cf9f2804.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.d555160f.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.d555160f.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.d555160f.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.d555160f.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.daf915e4.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.daf915e4.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.daf915e4.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.daf915e4.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.dea94c7d.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.dea94c7d.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.dea94c7d.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.dea94c7d.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.e3054f19.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.e3054f19.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.e3054f19.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.e3054f19.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.e55d938b.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.e55d938b.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.e55d938b.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.e55d938b.chunk.js"
+    },
+    "js/src_components_SaveQueryModal_js.e7a63bd1.chunk.js": {
+      "name": "js/src_components_SaveQueryModal_js.e7a63bd1.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/src_components_SaveQueryModal_js.e7a63bd1.chunk.js",
+      "publicPath": "http://localhost:3000/js/src_components_SaveQueryModal_js.e7a63bd1.chunk.js"
     },
     "js/src_components_SongDiscovery_js.8cbf57ec.chunk.js": {
       "name": "js/src_components_SongDiscovery_js.8cbf57ec.chunk.js",
@@ -161,6 +416,286 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/js/vendors-node_modules_stripe_react-stripe-js_dist_react-stripe_umd_js-node_modules_stripe_stri-b110c8.22efbd54.chunk.js",
       "publicPath": "http://localhost:3000/js/vendors-node_modules_stripe_react-stripe-js_dist_react-stripe_umd_js-node_modules_stripe_stri-b110c8.22efbd54.chunk.js"
     },
+    "main.0845457216259419fc08.hot-update.js": {
+      "name": "main.0845457216259419fc08.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.0845457216259419fc08.hot-update.js",
+      "publicPath": "http://localhost:3000/main.0845457216259419fc08.hot-update.js"
+    },
+    "main.0845457216259419fc08.hot-update.json": {
+      "name": "main.0845457216259419fc08.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.0845457216259419fc08.hot-update.json",
+      "publicPath": "http://localhost:3000/main.0845457216259419fc08.hot-update.json"
+    },
+    "main.0f8ab3cdc3e51be2b972.hot-update.js": {
+      "name": "main.0f8ab3cdc3e51be2b972.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.0f8ab3cdc3e51be2b972.hot-update.js",
+      "publicPath": "http://localhost:3000/main.0f8ab3cdc3e51be2b972.hot-update.js"
+    },
+    "main.0f8ab3cdc3e51be2b972.hot-update.json": {
+      "name": "main.0f8ab3cdc3e51be2b972.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.0f8ab3cdc3e51be2b972.hot-update.json",
+      "publicPath": "http://localhost:3000/main.0f8ab3cdc3e51be2b972.hot-update.json"
+    },
+    "main.1bf0f9889932a790f81d.hot-update.js": {
+      "name": "main.1bf0f9889932a790f81d.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.1bf0f9889932a790f81d.hot-update.js",
+      "publicPath": "http://localhost:3000/main.1bf0f9889932a790f81d.hot-update.js"
+    },
+    "main.1bf0f9889932a790f81d.hot-update.json": {
+      "name": "main.1bf0f9889932a790f81d.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.1bf0f9889932a790f81d.hot-update.json",
+      "publicPath": "http://localhost:3000/main.1bf0f9889932a790f81d.hot-update.json"
+    },
+    "main.242ffc105a9631309e54.hot-update.js": {
+      "name": "main.242ffc105a9631309e54.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.242ffc105a9631309e54.hot-update.js",
+      "publicPath": "http://localhost:3000/main.242ffc105a9631309e54.hot-update.js"
+    },
+    "main.242ffc105a9631309e54.hot-update.json": {
+      "name": "main.242ffc105a9631309e54.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.242ffc105a9631309e54.hot-update.json",
+      "publicPath": "http://localhost:3000/main.242ffc105a9631309e54.hot-update.json"
+    },
+    "main.3cfa43a805a6956a49d0.hot-update.js": {
+      "name": "main.3cfa43a805a6956a49d0.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.3cfa43a805a6956a49d0.hot-update.js",
+      "publicPath": "http://localhost:3000/main.3cfa43a805a6956a49d0.hot-update.js"
+    },
+    "main.3cfa43a805a6956a49d0.hot-update.json": {
+      "name": "main.3cfa43a805a6956a49d0.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.3cfa43a805a6956a49d0.hot-update.json",
+      "publicPath": "http://localhost:3000/main.3cfa43a805a6956a49d0.hot-update.json"
+    },
+    "main.40d11e7a29a8062a6b40.hot-update.js": {
+      "name": "main.40d11e7a29a8062a6b40.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.40d11e7a29a8062a6b40.hot-update.js",
+      "publicPath": "http://localhost:3000/main.40d11e7a29a8062a6b40.hot-update.js"
+    },
+    "main.40d11e7a29a8062a6b40.hot-update.json": {
+      "name": "main.40d11e7a29a8062a6b40.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.40d11e7a29a8062a6b40.hot-update.json",
+      "publicPath": "http://localhost:3000/main.40d11e7a29a8062a6b40.hot-update.json"
+    },
+    "main.41b8086e56c67522c0d4.hot-update.js": {
+      "name": "main.41b8086e56c67522c0d4.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.41b8086e56c67522c0d4.hot-update.js",
+      "publicPath": "http://localhost:3000/main.41b8086e56c67522c0d4.hot-update.js"
+    },
+    "main.41b8086e56c67522c0d4.hot-update.json": {
+      "name": "main.41b8086e56c67522c0d4.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.41b8086e56c67522c0d4.hot-update.json",
+      "publicPath": "http://localhost:3000/main.41b8086e56c67522c0d4.hot-update.json"
+    },
+    "main.5fe7be4f6fc21a1fca6b.hot-update.js": {
+      "name": "main.5fe7be4f6fc21a1fca6b.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.5fe7be4f6fc21a1fca6b.hot-update.js",
+      "publicPath": "http://localhost:3000/main.5fe7be4f6fc21a1fca6b.hot-update.js"
+    },
+    "main.5fe7be4f6fc21a1fca6b.hot-update.json": {
+      "name": "main.5fe7be4f6fc21a1fca6b.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.5fe7be4f6fc21a1fca6b.hot-update.json",
+      "publicPath": "http://localhost:3000/main.5fe7be4f6fc21a1fca6b.hot-update.json"
+    },
+    "main.6150bf4bc4e18221ddc6.hot-update.js": {
+      "name": "main.6150bf4bc4e18221ddc6.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.6150bf4bc4e18221ddc6.hot-update.js",
+      "publicPath": "http://localhost:3000/main.6150bf4bc4e18221ddc6.hot-update.js"
+    },
+    "main.6150bf4bc4e18221ddc6.hot-update.json": {
+      "name": "main.6150bf4bc4e18221ddc6.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.6150bf4bc4e18221ddc6.hot-update.json",
+      "publicPath": "http://localhost:3000/main.6150bf4bc4e18221ddc6.hot-update.json"
+    },
+    "main.7183634dc0beaef18284.hot-update.js": {
+      "name": "main.7183634dc0beaef18284.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.7183634dc0beaef18284.hot-update.js",
+      "publicPath": "http://localhost:3000/main.7183634dc0beaef18284.hot-update.js"
+    },
+    "main.7183634dc0beaef18284.hot-update.json": {
+      "name": "main.7183634dc0beaef18284.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.7183634dc0beaef18284.hot-update.json",
+      "publicPath": "http://localhost:3000/main.7183634dc0beaef18284.hot-update.json"
+    },
+    "main.7b2f91d0f376bd5dab3e.hot-update.js": {
+      "name": "main.7b2f91d0f376bd5dab3e.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.7b2f91d0f376bd5dab3e.hot-update.js",
+      "publicPath": "http://localhost:3000/main.7b2f91d0f376bd5dab3e.hot-update.js"
+    },
+    "main.7b2f91d0f376bd5dab3e.hot-update.json": {
+      "name": "main.7b2f91d0f376bd5dab3e.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.7b2f91d0f376bd5dab3e.hot-update.json",
+      "publicPath": "http://localhost:3000/main.7b2f91d0f376bd5dab3e.hot-update.json"
+    },
+    "main.7bc2af7cc8812c7798ab.hot-update.js": {
+      "name": "main.7bc2af7cc8812c7798ab.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.7bc2af7cc8812c7798ab.hot-update.js",
+      "publicPath": "http://localhost:3000/main.7bc2af7cc8812c7798ab.hot-update.js"
+    },
+    "main.7bc2af7cc8812c7798ab.hot-update.json": {
+      "name": "main.7bc2af7cc8812c7798ab.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.7bc2af7cc8812c7798ab.hot-update.json",
+      "publicPath": "http://localhost:3000/main.7bc2af7cc8812c7798ab.hot-update.json"
+    },
+    "main.8c838d275106473b726e.hot-update.js": {
+      "name": "main.8c838d275106473b726e.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.8c838d275106473b726e.hot-update.js",
+      "publicPath": "http://localhost:3000/main.8c838d275106473b726e.hot-update.js"
+    },
+    "main.8c838d275106473b726e.hot-update.json": {
+      "name": "main.8c838d275106473b726e.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.8c838d275106473b726e.hot-update.json",
+      "publicPath": "http://localhost:3000/main.8c838d275106473b726e.hot-update.json"
+    },
+    "main.90cc8f808b233e95bf14.hot-update.js": {
+      "name": "main.90cc8f808b233e95bf14.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.90cc8f808b233e95bf14.hot-update.js",
+      "publicPath": "http://localhost:3000/main.90cc8f808b233e95bf14.hot-update.js"
+    },
+    "main.90cc8f808b233e95bf14.hot-update.json": {
+      "name": "main.90cc8f808b233e95bf14.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.90cc8f808b233e95bf14.hot-update.json",
+      "publicPath": "http://localhost:3000/main.90cc8f808b233e95bf14.hot-update.json"
+    },
+    "main.91c7bf9bc4b9c09c3543.hot-update.js": {
+      "name": "main.91c7bf9bc4b9c09c3543.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.91c7bf9bc4b9c09c3543.hot-update.js",
+      "publicPath": "http://localhost:3000/main.91c7bf9bc4b9c09c3543.hot-update.js"
+    },
+    "main.91c7bf9bc4b9c09c3543.hot-update.json": {
+      "name": "main.91c7bf9bc4b9c09c3543.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.91c7bf9bc4b9c09c3543.hot-update.json",
+      "publicPath": "http://localhost:3000/main.91c7bf9bc4b9c09c3543.hot-update.json"
+    },
+    "main.9500734bc5bd1ba0b17b.hot-update.js": {
+      "name": "main.9500734bc5bd1ba0b17b.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.9500734bc5bd1ba0b17b.hot-update.js",
+      "publicPath": "http://localhost:3000/main.9500734bc5bd1ba0b17b.hot-update.js"
+    },
+    "main.9500734bc5bd1ba0b17b.hot-update.json": {
+      "name": "main.9500734bc5bd1ba0b17b.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.9500734bc5bd1ba0b17b.hot-update.json",
+      "publicPath": "http://localhost:3000/main.9500734bc5bd1ba0b17b.hot-update.json"
+    },
+    "main.9d677fa652c02f3b1ce8.hot-update.js": {
+      "name": "main.9d677fa652c02f3b1ce8.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.9d677fa652c02f3b1ce8.hot-update.js",
+      "publicPath": "http://localhost:3000/main.9d677fa652c02f3b1ce8.hot-update.js"
+    },
+    "main.9d677fa652c02f3b1ce8.hot-update.json": {
+      "name": "main.9d677fa652c02f3b1ce8.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.9d677fa652c02f3b1ce8.hot-update.json",
+      "publicPath": "http://localhost:3000/main.9d677fa652c02f3b1ce8.hot-update.json"
+    },
+    "main.a4848571409e339ec8fd.hot-update.js": {
+      "name": "main.a4848571409e339ec8fd.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.a4848571409e339ec8fd.hot-update.js",
+      "publicPath": "http://localhost:3000/main.a4848571409e339ec8fd.hot-update.js"
+    },
+    "main.a4848571409e339ec8fd.hot-update.json": {
+      "name": "main.a4848571409e339ec8fd.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.a4848571409e339ec8fd.hot-update.json",
+      "publicPath": "http://localhost:3000/main.a4848571409e339ec8fd.hot-update.json"
+    },
+    "main.a54fe7c4ffe3da579fe5.hot-update.js": {
+      "name": "main.a54fe7c4ffe3da579fe5.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.a54fe7c4ffe3da579fe5.hot-update.js",
+      "publicPath": "http://localhost:3000/main.a54fe7c4ffe3da579fe5.hot-update.js"
+    },
+    "main.a54fe7c4ffe3da579fe5.hot-update.json": {
+      "name": "main.a54fe7c4ffe3da579fe5.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.a54fe7c4ffe3da579fe5.hot-update.json",
+      "publicPath": "http://localhost:3000/main.a54fe7c4ffe3da579fe5.hot-update.json"
+    },
+    "main.afeba1ae0049cc7b15d4.hot-update.js": {
+      "name": "main.afeba1ae0049cc7b15d4.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.afeba1ae0049cc7b15d4.hot-update.js",
+      "publicPath": "http://localhost:3000/main.afeba1ae0049cc7b15d4.hot-update.js"
+    },
+    "main.afeba1ae0049cc7b15d4.hot-update.json": {
+      "name": "main.afeba1ae0049cc7b15d4.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.afeba1ae0049cc7b15d4.hot-update.json",
+      "publicPath": "http://localhost:3000/main.afeba1ae0049cc7b15d4.hot-update.json"
+    },
+    "main.b4a79edc3a176df2cf72.hot-update.js": {
+      "name": "main.b4a79edc3a176df2cf72.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.b4a79edc3a176df2cf72.hot-update.js",
+      "publicPath": "http://localhost:3000/main.b4a79edc3a176df2cf72.hot-update.js"
+    },
+    "main.b4a79edc3a176df2cf72.hot-update.json": {
+      "name": "main.b4a79edc3a176df2cf72.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.b4a79edc3a176df2cf72.hot-update.json",
+      "publicPath": "http://localhost:3000/main.b4a79edc3a176df2cf72.hot-update.json"
+    },
+    "main.bb0bfd630416ed323e8a.hot-update.js": {
+      "name": "main.bb0bfd630416ed323e8a.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.bb0bfd630416ed323e8a.hot-update.js",
+      "publicPath": "http://localhost:3000/main.bb0bfd630416ed323e8a.hot-update.js"
+    },
+    "main.bb0bfd630416ed323e8a.hot-update.json": {
+      "name": "main.bb0bfd630416ed323e8a.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.bb0bfd630416ed323e8a.hot-update.json",
+      "publicPath": "http://localhost:3000/main.bb0bfd630416ed323e8a.hot-update.json"
+    },
+    "main.bb16a05e8b6a474c4155.hot-update.js": {
+      "name": "main.bb16a05e8b6a474c4155.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.bb16a05e8b6a474c4155.hot-update.js",
+      "publicPath": "http://localhost:3000/main.bb16a05e8b6a474c4155.hot-update.js"
+    },
+    "main.bb16a05e8b6a474c4155.hot-update.json": {
+      "name": "main.bb16a05e8b6a474c4155.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.bb16a05e8b6a474c4155.hot-update.json",
+      "publicPath": "http://localhost:3000/main.bb16a05e8b6a474c4155.hot-update.json"
+    },
+    "main.ec2cc73a11fdbd6efe5c.hot-update.js": {
+      "name": "main.ec2cc73a11fdbd6efe5c.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.ec2cc73a11fdbd6efe5c.hot-update.js",
+      "publicPath": "http://localhost:3000/main.ec2cc73a11fdbd6efe5c.hot-update.js"
+    },
+    "main.ec2cc73a11fdbd6efe5c.hot-update.json": {
+      "name": "main.ec2cc73a11fdbd6efe5c.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.ec2cc73a11fdbd6efe5c.hot-update.json",
+      "publicPath": "http://localhost:3000/main.ec2cc73a11fdbd6efe5c.hot-update.json"
+    },
+    "main.f4dc16b23ab16d96397d.hot-update.js": {
+      "name": "main.f4dc16b23ab16d96397d.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.f4dc16b23ab16d96397d.hot-update.js",
+      "publicPath": "http://localhost:3000/main.f4dc16b23ab16d96397d.hot-update.js"
+    },
+    "main.f4dc16b23ab16d96397d.hot-update.json": {
+      "name": "main.f4dc16b23ab16d96397d.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.f4dc16b23ab16d96397d.hot-update.json",
+      "publicPath": "http://localhost:3000/main.f4dc16b23ab16d96397d.hot-update.json"
+    },
+    "main.f7cc084fd5bf4b7aaf2f.hot-update.js": {
+      "name": "main.f7cc084fd5bf4b7aaf2f.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.f7cc084fd5bf4b7aaf2f.hot-update.js",
+      "publicPath": "http://localhost:3000/main.f7cc084fd5bf4b7aaf2f.hot-update.js"
+    },
+    "main.f7cc084fd5bf4b7aaf2f.hot-update.json": {
+      "name": "main.f7cc084fd5bf4b7aaf2f.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.f7cc084fd5bf4b7aaf2f.hot-update.json",
+      "publicPath": "http://localhost:3000/main.f7cc084fd5bf4b7aaf2f.hot-update.json"
+    },
+    "main.fa14926720a6948c2a41.hot-update.js": {
+      "name": "main.fa14926720a6948c2a41.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.fa14926720a6948c2a41.hot-update.js",
+      "publicPath": "http://localhost:3000/main.fa14926720a6948c2a41.hot-update.js"
+    },
+    "main.fa14926720a6948c2a41.hot-update.json": {
+      "name": "main.fa14926720a6948c2a41.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.fa14926720a6948c2a41.hot-update.json",
+      "publicPath": "http://localhost:3000/main.fa14926720a6948c2a41.hot-update.json"
+    },
+    "main.ff4cae5411788b078f76.hot-update.js": {
+      "name": "main.ff4cae5411788b078f76.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.ff4cae5411788b078f76.hot-update.js",
+      "publicPath": "http://localhost:3000/main.ff4cae5411788b078f76.hot-update.js"
+    },
+    "main.ff4cae5411788b078f76.hot-update.json": {
+      "name": "main.ff4cae5411788b078f76.hot-update.json",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/main.ff4cae5411788b078f76.hot-update.json",
+      "publicPath": "http://localhost:3000/main.ff4cae5411788b078f76.hot-update.json"
+    },
     "media/14960493_5532919.c3bda62c.jpg": {
       "name": "media/14960493_5532919.c3bda62c.jpg",
       "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/media/14960493_5532919.c3bda62c.jpg",
@@ -220,12 +755,170 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/media/sq-logo-2.c3cc33ee.ico",
       "publicPath": "http://localhost:3000/media/sq-logo-2.c3cc33ee.ico",
       "sourceFilename": "public/images/sq-logo-2.ico"
+    },
+    "src_components_SaveQueryModal_js.0845457216259419fc08.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.0845457216259419fc08.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.0845457216259419fc08.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.0845457216259419fc08.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.0f8ab3cdc3e51be2b972.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.0f8ab3cdc3e51be2b972.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.0f8ab3cdc3e51be2b972.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.0f8ab3cdc3e51be2b972.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.1bf0f9889932a790f81d.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.1bf0f9889932a790f81d.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.1bf0f9889932a790f81d.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.1bf0f9889932a790f81d.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.242ffc105a9631309e54.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.242ffc105a9631309e54.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.242ffc105a9631309e54.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.242ffc105a9631309e54.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.3cfa43a805a6956a49d0.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.3cfa43a805a6956a49d0.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.3cfa43a805a6956a49d0.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.3cfa43a805a6956a49d0.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.40d11e7a29a8062a6b40.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.40d11e7a29a8062a6b40.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.40d11e7a29a8062a6b40.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.40d11e7a29a8062a6b40.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.41b8086e56c67522c0d4.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.41b8086e56c67522c0d4.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.41b8086e56c67522c0d4.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.41b8086e56c67522c0d4.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.5fe7be4f6fc21a1fca6b.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.5fe7be4f6fc21a1fca6b.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.5fe7be4f6fc21a1fca6b.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.5fe7be4f6fc21a1fca6b.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.6150bf4bc4e18221ddc6.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.6150bf4bc4e18221ddc6.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.6150bf4bc4e18221ddc6.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.6150bf4bc4e18221ddc6.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.7183634dc0beaef18284.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.7183634dc0beaef18284.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.7183634dc0beaef18284.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.7183634dc0beaef18284.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.7b2f91d0f376bd5dab3e.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.7b2f91d0f376bd5dab3e.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.7b2f91d0f376bd5dab3e.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.7b2f91d0f376bd5dab3e.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.7bc2af7cc8812c7798ab.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.7bc2af7cc8812c7798ab.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.7bc2af7cc8812c7798ab.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.7bc2af7cc8812c7798ab.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.8c838d275106473b726e.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.8c838d275106473b726e.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.8c838d275106473b726e.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.8c838d275106473b726e.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.90cc8f808b233e95bf14.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.90cc8f808b233e95bf14.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.90cc8f808b233e95bf14.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.90cc8f808b233e95bf14.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.91c7bf9bc4b9c09c3543.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.91c7bf9bc4b9c09c3543.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.91c7bf9bc4b9c09c3543.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.91c7bf9bc4b9c09c3543.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.9500734bc5bd1ba0b17b.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.9500734bc5bd1ba0b17b.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.9500734bc5bd1ba0b17b.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.9500734bc5bd1ba0b17b.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.9d677fa652c02f3b1ce8.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.9d677fa652c02f3b1ce8.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.9d677fa652c02f3b1ce8.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.9d677fa652c02f3b1ce8.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.a4848571409e339ec8fd.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.a4848571409e339ec8fd.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.a4848571409e339ec8fd.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.a4848571409e339ec8fd.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.a54fe7c4ffe3da579fe5.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.a54fe7c4ffe3da579fe5.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.a54fe7c4ffe3da579fe5.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.a54fe7c4ffe3da579fe5.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.afeba1ae0049cc7b15d4.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.afeba1ae0049cc7b15d4.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.afeba1ae0049cc7b15d4.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.afeba1ae0049cc7b15d4.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.b4a79edc3a176df2cf72.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.b4a79edc3a176df2cf72.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.b4a79edc3a176df2cf72.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.b4a79edc3a176df2cf72.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.bb0bfd630416ed323e8a.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.bb0bfd630416ed323e8a.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.bb0bfd630416ed323e8a.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.bb0bfd630416ed323e8a.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.bb16a05e8b6a474c4155.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.bb16a05e8b6a474c4155.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.bb16a05e8b6a474c4155.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.bb16a05e8b6a474c4155.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.ec2cc73a11fdbd6efe5c.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.ec2cc73a11fdbd6efe5c.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.ec2cc73a11fdbd6efe5c.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.ec2cc73a11fdbd6efe5c.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.f4dc16b23ab16d96397d.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.f4dc16b23ab16d96397d.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.f4dc16b23ab16d96397d.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.f4dc16b23ab16d96397d.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.f7cc084fd5bf4b7aaf2f.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.f7cc084fd5bf4b7aaf2f.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.f7cc084fd5bf4b7aaf2f.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.f7cc084fd5bf4b7aaf2f.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.fa14926720a6948c2a41.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.fa14926720a6948c2a41.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.fa14926720a6948c2a41.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.fa14926720a6948c2a41.hot-update.js"
+    },
+    "src_components_SaveQueryModal_js.ff4cae5411788b078f76.hot-update.js": {
+      "name": "src_components_SaveQueryModal_js.ff4cae5411788b078f76.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SaveQueryModal_js.ff4cae5411788b078f76.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SaveQueryModal_js.ff4cae5411788b078f76.hot-update.js"
+    },
+    "src_components_SongDiscovery_js.242ffc105a9631309e54.hot-update.js": {
+      "name": "src_components_SongDiscovery_js.242ffc105a9631309e54.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SongDiscovery_js.242ffc105a9631309e54.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SongDiscovery_js.242ffc105a9631309e54.hot-update.js"
+    },
+    "src_components_SongDiscovery_js.41b8086e56c67522c0d4.hot-update.js": {
+      "name": "src_components_SongDiscovery_js.41b8086e56c67522c0d4.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SongDiscovery_js.41b8086e56c67522c0d4.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SongDiscovery_js.41b8086e56c67522c0d4.hot-update.js"
+    },
+    "src_components_SongDiscovery_js.6150bf4bc4e18221ddc6.hot-update.js": {
+      "name": "src_components_SongDiscovery_js.6150bf4bc4e18221ddc6.hot-update.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/static/bundles/src_components_SongDiscovery_js.6150bf4bc4e18221ddc6.hot-update.js",
+      "publicPath": "http://localhost:3000/src_components_SongDiscovery_js.6150bf4bc4e18221ddc6.hot-update.js"
     }
   },
   "chunks": {
     "main": [
-      "js/main.bd1cff27.js"
+      "js/main.1a94a3c9.js",
+      "main.b4a79edc3a176df2cf72.hot-update.js"
     ]
   },
-  "publicPath": "http://localhost:3000/"
+  "publicPath": "http://localhost:3000/",
+  "error": "ModuleBuildError",
+  "message": "Module build failed (from ./node_modules/babel-loader/lib/index.js):\nSyntaxError: /Users/david/Desktop/development/songquest/frontend/src/components/SaveQueryModal.js: Unexpected token (356:15)\n\n  354 | \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t.target}%`\n  355 |                                 : \n> 356 | \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t}\n      | \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t^\n  357 | \t\t\t\t\t\t\t\t\t\t\t\t\t\t</Typography>\n  358 | \t\t\t\t\t\t\t\t\t\t\t\t\t</Box>\n  359 | \t\t\t\t\t\t\t\t\t\t\t\t\t<Box>\n    at constructor (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:353:19)\n    at JSXParserMixin.raise (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:3277:19)\n    at JSXParserMixin.unexpected (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:3297:16)\n    at JSXParserMixin.parseExprAtom (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10974:16)\n    at JSXParserMixin.parseExprAtom (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6821:20)\n    at JSXParserMixin.parseExprSubscripts (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10590:23)\n    at JSXParserMixin.parseUpdate (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10573:21)\n    at JSXParserMixin.parseMaybeUnary (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10551:23)\n    at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10405:61)\n    at JSXParserMixin.parseExprOps (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10410:23)\n    at JSXParserMixin.parseMaybeConditional (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10387:23)\n    at JSXParserMixin.parseMaybeAssign (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10348:21)\n    at JSXParserMixin.parseConditional (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10399:29)\n    at JSXParserMixin.parseMaybeConditional (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10391:17)\n    at JSXParserMixin.parseMaybeAssign (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10348:21)\n    at JSXParserMixin.parseExpressionBase (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10302:23)\n    at /Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10298:39\n    at JSXParserMixin.allowInAnd (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:11936:12)\n    at JSXParserMixin.parseExpression (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10298:17)\n    at JSXParserMixin.jsxParseExpressionContainer (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6687:31)\n    at JSXParserMixin.jsxParseElementAt (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6766:36)\n    at JSXParserMixin.jsxParseElementAt (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6753:32)\n    at JSXParserMixin.jsxParseElementAt (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6753:32)\n    at JSXParserMixin.jsxParseElementAt (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6753:32)\n    at JSXParserMixin.jsxParseElement (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6804:17)\n    at JSXParserMixin.parseExprAtom (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6816:19)\n    at JSXParserMixin.parseExprSubscripts (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10590:23)\n    at JSXParserMixin.parseUpdate (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10573:21)\n    at JSXParserMixin.parseMaybeUnary (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10551:23)\n    at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10405:61)\n    at JSXParserMixin.parseExprOps (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10410:23)\n    at JSXParserMixin.parseMaybeConditional (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10387:23)\n    at JSXParserMixin.parseMaybeAssign (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10348:21)\n    at /Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10318:39\n    at JSXParserMixin.allowInAnd (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:11936:12)\n    at JSXParserMixin.parseMaybeAssignAllowIn (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10318:17)\n    at JSXParserMixin.parseParenAndDistinguishExpression (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:11199:28)\n    at JSXParserMixin.parseExprAtom (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10857:23)\n    at JSXParserMixin.parseExprAtom (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:6821:20)\n    at JSXParserMixin.parseExprSubscripts (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10590:23)\n    at JSXParserMixin.parseUpdate (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10573:21)\n    at JSXParserMixin.parseMaybeUnary (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10551:23)\n    at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10405:61)\n    at JSXParserMixin.parseExprOpBaseRightExpr (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10491:34)\n    at JSXParserMixin.parseExprOpRightExpr (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10486:21)\n    at JSXParserMixin.parseExprOp (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10453:27)\n    at JSXParserMixin.parseExprOp (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10459:21)\n    at JSXParserMixin.parseExprOp (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10459:21)\n    at JSXParserMixin.parseExprOp (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10459:21)\n    at JSXParserMixin.parseExprOp (/Users/david/Desktop/development/songquest/frontend/node_modules/@babel/parser/lib/index.js:10459:21)"
 }
