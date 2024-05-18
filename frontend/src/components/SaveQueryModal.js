@@ -161,7 +161,7 @@ const SaveQueryModal = ({
 							}}
 						>
 							<Typography variant='body2' letterSpacing='1px'>
-								Save request parameters
+								{'Save request parameters'}
 							</Typography>
 						</div>
 					}
@@ -183,11 +183,11 @@ const SaveQueryModal = ({
 							}
 						}}
 					>
-						Save Request
+						{'Save Request'}
 					</Button>
 				</Tooltip>
 				<Typography variant='h5' letterSpacing='1px' padding='2%'>
-					Recommendation Sources
+					{'Recommendation Sources'}
 				</Typography>
 				<Box display='flex' flexDirection='column' width='90%'>
 					{formattedSongs && (
@@ -199,7 +199,7 @@ const SaveQueryModal = ({
 								color='white'
 							>
 								<Typography variant='h6' letterSpacing='1px'>
-									Songs
+									{'Songs'}
 								</Typography>
 								<Box width='50%'>
 									{formattedSongs.map(formattedSong => (
@@ -235,7 +235,7 @@ const SaveQueryModal = ({
 								color='white'
 							>
 								<Typography variant='h6' letterSpacing='1px'>
-									Artists
+									{'Artists'}
 								</Typography>
 								<Box width='50%'>
 									{artistsToSave.map(artistToSave => (
@@ -262,7 +262,7 @@ const SaveQueryModal = ({
 							</Box>
 						</>
 					)}
-					{savedQueries.previous?.genres.length && (
+					{savedQueries.previous?.genres.length > 0 && (
 						<>
 							<Box
 								display='flex'
@@ -271,7 +271,7 @@ const SaveQueryModal = ({
 								color='white'
 							>
 								<Typography variant='h6' letterSpacing='1px'>
-									Genres
+									{'Genres'}
 								</Typography>
 								<Box display='flex' width='50%' alignItems='center'>
 									<Typography noWrap>
@@ -301,7 +301,7 @@ const SaveQueryModal = ({
 									padding='2%'
 									textAlign='center'
 								>
-									Fine Tuning Parameters
+									{'Fine Tuning Parameters'}
 								</Typography>
 								<Box
 									display='flex'
@@ -338,20 +338,35 @@ const SaveQueryModal = ({
 												>
 													<Box>
 														<Typography textAlign='center'>
-															{savedQueries.previous[parameter].min}
+															{parameter === 'popularity'
+																? `${savedQueries.previous[parameter].min}%`
+																: `${
+																		savedQueries.previous[
+																			parameter
+																		].min * 100
+																  }%`}
 														</Typography>
 													</Box>
 													<Box>
 														<Typography textAlign='center'>
-															{
-																savedQueries.previous[parameter]
-																	.target
-															}
+															{parameter === 'popularity'
+																? `${savedQueries.previous[parameter].target}%`
+																: `${
+																		savedQueries.previous[
+																			parameter
+																		].target * 100
+																  }%`}
 														</Typography>
 													</Box>
 													<Box>
 														<Typography textAlign='center'>
-															{savedQueries.previous[parameter].max}
+															{parameter === 'popularity'
+																? `${savedQueries.previous[parameter].max}%`
+																: `${
+																		savedQueries.previous[
+																			parameter
+																		].max * 100
+																  }%`}
 														</Typography>
 													</Box>
 												</Box>
