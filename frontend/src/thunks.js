@@ -270,7 +270,7 @@ export const SpotifyAuth = ({ children }) => {
 	return <>{children(accessToken, expiresAt)}</>;
 };
 
-export const getSpotifyUserAuth = () => async () => {
+export const getSpotifyUserAuth = (userId, source) => async () => {
 	try {
 		const csrfToken = await getCSRFToken();
 		const response = await fetch('http://localhost:8000/request-authorization/', {
@@ -278,14 +278,15 @@ export const getSpotifyUserAuth = () => async () => {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken
-			}
+			},
+			body: JSON.stringify({ source })
 		});
 
 		if (response.ok) {
 			const data = await response.json();
 			const authorizationUrl = data.authorization_url;
 
-			window.location.href = authorizationUrl;
+			window.location.href = authorizationUrl; // Perform the redirect on the client side
 		} else {
 			console.error('Authorization request failed');
 		}

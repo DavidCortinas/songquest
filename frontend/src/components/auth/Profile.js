@@ -35,7 +35,8 @@ import {
 	getSpotifyGenres,
 	handleUpdateProfileImage,
 	handleUpdateUserProfile,
-	getUserProfile
+	getUserProfile,
+	getSpotifyUserAuth
 } from '../../thunks';
 import { useDispatch } from 'react-redux';
 import { AddImageIcon } from './Onboard';
@@ -897,7 +898,8 @@ export const Profile = ({
 	userLoading,
 	onUpdateProfileImage,
 	onSaveUserProfile,
-	onGetUserProfile
+	onGetUserProfile,
+	onGetSpotifyUserAuth
 }) => {
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -996,10 +998,7 @@ export const Profile = ({
 
 	const handleConnectThroughSpotify = async (e, source) => {
 		e.preventDefault();
-
-		const authorizationUrl = `http://localhost:8000/request-authorization/${source}`;
-
-		window.location.href = authorizationUrl;
+		await onGetSpotifyUserAuth(currentUser.user.id, source); // call the thunk with the user id
 	};
 
 	const handleAddTokens = () => {
@@ -1642,6 +1641,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
+	onGetSpotifyUserAuth: (userId, source) => dispatch(getSpotifyUserAuth(userId, source)),
 	onUpdateProfileImage: (userId, imageFile) =>
 		dispatch(handleUpdateProfileImage(userId, imageFile)),
 	onSaveUserProfile: (userId, userInfo) => dispatch(handleUpdateUserProfile(userId, userInfo)),
