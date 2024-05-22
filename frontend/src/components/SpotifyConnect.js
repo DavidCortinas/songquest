@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import theme from '../theme';
 import { connect } from 'react-redux';
 import spotifyLogo from '../../public/images/spotifyLogo.png';
+import { getSpotifyUserAuth } from '../thunks';
 
 const useStyles = makeStyles(() => ({
 	card: {
@@ -60,16 +61,20 @@ const useStyles = makeStyles(() => ({
 	}
 }));
 
-const SpotifyConnect = ({ isSmScreen, isXsScreen, isXlScreen, isLgScreen }) => {
+const SpotifyConnect = ({
+	currentUser,
+	onGetSpotifyUserAuth,
+	isSmScreen,
+	isXsScreen,
+	isXlScreen,
+	isLgScreen
+}) => {
 	const navigate = useNavigate();
 	const classes = useStyles();
 
 	const handleConnectThroughSpotify = async (e, source) => {
 		e.preventDefault();
-
-		const authorizationUrl = `http://localhost:8000/request-authorization/${source}`;
-
-		window.location.href = authorizationUrl;
+		await onGetSpotifyUserAuth(currentUser.user.id, source);
 	};
 
 	return (
@@ -137,8 +142,12 @@ const SpotifyConnect = ({ isSmScreen, isXsScreen, isXlScreen, isLgScreen }) => {
 
 const mapStateToProps = state => {
 	return {
-		userId: state.user.currentUser?.user.id
+		currentUser: state.user.currentUser
 	};
 };
 
-export default connect(mapStateToProps)(SpotifyConnect);
+const mapDispatchToProps = dispatch => ({
+	onGetSpotifyUserAuth: (userId, source) => dispatch(getSpotifyUserAuth(userId, source))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SpotifyConnect);

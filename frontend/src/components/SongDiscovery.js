@@ -17,7 +17,9 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { makeStyles } from '@mui/styles';
 import {
 	confirmSpotifyAccess,
+	getUserKarmaSuccess,
 	getUserProfileSuccess,
+	getUserTokensSuccess,
 	removeFromCurrentPlaylistById,
 	setSelectedPlaylist
 } from '../actions';
@@ -540,6 +542,7 @@ export const SongDiscovery = ({
 	useEffect(() => {
 		const searchParams = new URLSearchParams(location.search);
 		const code = searchParams.get('code');
+		console.log('Discovery code: ', code);
 		const encodedState = searchParams.get('state');
 		let source = 'default';
 
@@ -570,7 +573,7 @@ export const SongDiscovery = ({
 		}
 
 		if (code) {
-			fetchUserProfile(code, source);
+			fetchUserProfile(code, encodedState, source);
 			searchParams.delete('code');
 			searchParams.delete('state');
 			navigate(
@@ -581,13 +584,29 @@ export const SongDiscovery = ({
 				{ replace: true }
 			);
 		}
-	}, [location, dispatch, navigate]);
+	}, [location.search]);
+
+	let fetchCalled = false;
 
 	// eslint-disable-next-line no-unused-vars
-	const fetchUserProfile = async (code, source) => {
+	const fetchUserProfile = async (code, encodedState, source) => {
+		if (fetchCalled) return;
+		fetchCalled = true;
+
 		try {
-			const response = await fetch(`/spotify-callback?code=${code}`);
+			const userId = currentUser.user.id;
+			const response = await fetch(
+				`http://localhost:8000/auth/spotify/callback?code=${code}&state=${encodedState}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'User-Id': userId
+					}
+				}
+			);
 			const data = await response.json();
+			console.log('fetch data: ', data);
 
 			if (data.spotify_connected) {
 				dispatch(confirmSpotifyAccess(true));
@@ -596,8 +615,18 @@ export const SongDiscovery = ({
 			if (data.user_profile) {
 				dispatch(getUserProfileSuccess(data.user_profile));
 			}
+
+			if (data.user_karma !== currentUser.user.karma) {
+				dispatch(getUserKarmaSuccess(data.user_karma));
+			}
+
+			if (data.user_tokens !== currentUser.user.tokens) {
+				dispatch(getUserTokensSuccess(data.user_tokens));
+			}
 		} catch (error) {
 			console.error('Error fetching user profile:', error);
+		} finally {
+			fetchCalled = false; // Reset flag in case of retry
 		}
 	};
 

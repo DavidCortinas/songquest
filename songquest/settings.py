@@ -56,14 +56,14 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    # Remove 'django.middleware.clickjacking.XFrameOptionsMiddleware' if not needed
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 # Cache settings
@@ -81,29 +81,34 @@ SESSION_CACHE_ALIAS = 'default'
 
 # CORS settings
 CORS_ALLOW_HEADERS = [
-    "X-CSRFToken", 
-    'Content-Type', 
-    'Authorization',
-    'User-Id',
-    'User-Email',
+    "X-CSRFToken",
+    "Content-Type",
+    "Authorization",
+    "User-Id",
+    "User-Email",
 ]
+
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8000',
+    "http://localhost:3000",
+    "http://localhost:8000",
 ]
+
 CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]
+
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8000',
+    "http://localhost:3000",
+    "http://localhost:8000",
 ]
+
 CORS_ALLOW_CREDENTIALS = True
+
 
 # Authentication settings
 AUTH_USER_MODEL = 'user.User'

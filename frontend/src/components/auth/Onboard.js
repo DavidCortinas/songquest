@@ -27,6 +27,7 @@ import { connect, useDispatch } from 'react-redux';
 import {
 	SpotifyAuth,
 	getSpotifyGenres,
+	getSpotifyUserAuth,
 	handleUpdateBirthday,
 	handleUpdateDisplayName,
 	handleUpdatePreferredGenres,
@@ -798,15 +799,20 @@ const ImageInput = ({
 	);
 };
 
-const OnboardSpotify = ({ isXsScreen, isSmScreen, isMdScreen, classes }) => {
+const OnboardSpotify = ({
+	currentUser,
+	onGetSpotifyUserAuth,
+	isXsScreen,
+	isSmScreen,
+	isMdScreen,
+	classes
+}) => {
 	const navigate = useNavigate();
 
 	const handleConnectThroughSpotify = async (e, source) => {
 		e.preventDefault();
 
-		const authorizationUrl = `http://localhost:8000/request-authorization/${source}`;
-
-		window.location.href = authorizationUrl;
+		await onGetSpotifyUserAuth(currentUser.user.id, source);
 	};
 
 	const handleNext = () => {
@@ -890,6 +896,7 @@ const OnboardSpotify = ({ isXsScreen, isSmScreen, isMdScreen, classes }) => {
 };
 
 export const Onboard = ({
+	onGetSpotifyUserAuth,
 	onEmailVerificationSuccess,
 	onEmailVerificationFailure,
 	onUpdateDisplayName,
@@ -1080,6 +1087,8 @@ export const Onboard = ({
 					isSmScreen={isSmScreen}
 					isMdScreen={isMdScreen}
 					classes={classes}
+					currentUser={currentUser}
+					onGetSpotifyUserAuth={onGetSpotifyUserAuth}
 				/>
 			)}
 			<Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar}>
@@ -1103,6 +1112,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+	onGetSpotifyUserAuth: (userId, source) => dispatch(getSpotifyUserAuth(userId, source)),
 	onEmailVerificationSuccess: emailVerified => dispatch(emailVerificationSuccess(emailVerified)),
 	onEmailVerificationFailure: (emailVerified, error) =>
 		dispatch(emailVerificationFailure(emailVerified, error)),

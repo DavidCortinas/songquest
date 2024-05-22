@@ -37,7 +37,7 @@ urlpatterns = [
      path('payments/', include('songquest.payments.urls')),
      path('api/get-access-token/', views.get_access_token_view,
           name='get-access-token'),
-     path('request-authorization/<str:source>/', views.request_authorization,
+     path('request-authorization/', views.request_authorization,
           name='request-authorization'),
      path('auth/spotify/callback/', views.handle_spotify_callback,
           name='spotify-auth-callback'),

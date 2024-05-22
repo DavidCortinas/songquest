@@ -1,5 +1,5 @@
 import base64
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 from django.utils import timezone
 import dateutil
 from django.conf import settings
@@ -504,27 +504,28 @@ def get_access_token_view(request):
 
 client_id = os.environ.get("SPOTIFY_CLIENT_ID")
 client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
+default_redirect_uri = os.environ.get("SPOTIFY_DEFAULT_REDIRECT_URI")
+profile_redirect_uri = os.environ.get("SPOTIFY_PROFILE_REDIRECT_URI")
 
 
 @csrf_exempt
-def request_authorization(request, source="default"):
-    current_user = request.user
+def request_authorization(request):
+    source = request.POST.get("source", "default")
+    redirect_uri = default_redirect_uri if source == "default" else profile_redirect_uri
+
+    print("Original redirect_uri: ", redirect_uri)
+
     state = generate_random_string(16) + "|" + source
-    encoded_state = base64.urlsafe_b64encode(state.encode()).decode(
-        "utf-8"
-    )  # encode the state to ensure URL safety
-    request.session["spotify_state"] = (
-        state  # store the original state for verification later
-    )
+    encoded_state = base64.urlsafe_b64encode(state.encode()).decode("utf-8")
 
     # Spotify API authorization URL
     authorization_url = (
-        "https://accounts.spotify.com/authorize/?"
+        "https://accounts.spotify.com/authorize?"
         "client_id={}&response_type=code&redirect_uri={}&scope=user-library-read user-library-modify user-read-email user-follow-modify user-follow-read playlist-modify-public playlist-modify-private&state={}"
     ).format(client_id, redirect_uri, encoded_state)
 
-    return redirect(authorization_url)
+    print("Authorization URL: ", authorization_url)
+    return JsonResponse({"authorization_url": authorization_url})
 
 
 def check_user_exists(email):
@@ -748,7 +749,8 @@ def get_spotify_token_info(code):
     # Define your Spotify API credentials
     client_id = os.environ.get("SPOTIFY_CLIENT_ID")
     client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-    redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
+    redirect_uri = os.environ.get("SPOTIFY_DEFAULT_REDIRECT_URI")
+    print("get_token_info: ", code)
 
     # Prepare the data to send to the Spotify API to obtain an access token
     token_data = {
@@ -814,65 +816,72 @@ def serialize_profile(profile, request):
 
 @csrf_exempt
 def handle_spotify_callback(request):
-    # Extract the query parameters
     code = request.GET.get("code", "")
+    print("code: ", code)
     encoded_state = request.GET.get("state", "")
+    print("encoded_state: ", encoded_state)
 
-    # Decode and split the state into its components
     try:
         decoded_state = base64.urlsafe_b64decode(encoded_state.encode()).decode("utf-8")
+        print("decoded_state: ", decoded_state)
         state, source = decoded_state.split("|")
+        print("state: ", state)
+        print("source: ", source)
     except Exception as e:
         logging.error(f"Error decoding state: {str(e)}")
         return HttpResponseForbidden("Invalid state parameter")
 
-    # Verify state matches what was stored in the session
-    if not state == request.session.pop("spotify_state", "").split("|")[0]:
-        return HttpResponseForbidden("Invalid state parameter")
+    user_id = request.headers.get("User-Id")
+    print("callback user id: ", user_id)
+    if not user_id:
+        return HttpResponseForbidden("User ID not found in headers")
 
-    user_id = request.session.get(
-        "user_id"
-    )  # Assuming you store user_id in session during authorization
     User = get_user_model()
-    user = User.objects.get(id=user_id)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return HttpResponseForbidden("User not found")
 
     if code:
+        print("callback code: ", code)
         token_info = get_spotify_token_info(code)
 
         if token_info and "access_token" in token_info:
+            print("token_info: ", token_info)
             access_token = token_info["access_token"]
             refresh_token = token_info.get("refresh_token", "")
-            expires_at = time() + token_info.get(
-                "expires_in", 3600
-            )  # Default to 1 hour if not specified
+            expires_at = time() + token_info.get("expires_in", 3600)
 
-            # Update user model with Spotify access credentials
-            user.spotify_access = access_token
-            user.spotify_refresh = refresh_token
-            user.spotify_expires_at = expires_at
-            user.save()
+            with transaction.atomic():
+                user.spotify_access = access_token
+                user.spotify_refresh = refresh_token
+                user.spotify_expires_at = expires_at
+                user.save()
+
+                # Complete onboarding if necessary
+                user.complete_onboarding()
 
             spotify_connected = user.spotify_refresh is not None
-            # Assuming 'serialize_profile' is a function that prepares user profile data
-            user_profile_data = serialize_profile(user.profile)
+            print("callback user: ", user.profile)
+            user_profile_data = serialize_profile(user.profile, request)
 
             return JsonResponse(
                 {
                     "spotify_connected": spotify_connected,
                     "user_profile": user_profile_data,
-                    "source": source,  # Include the source to allow specific frontend behavior
+                    "user_karma": user.karma,
+                    "user_tokens": user.tokens,
+                    "source": source,
                 }
             )
 
         else:
-            # Log and handle the case where Spotify tokens were not retrieved
             logging.error("Failed to retrieve access tokens from Spotify.")
             return JsonResponse(
                 {"error": "Failed to retrieve access tokens"}, status=500
             )
 
     else:
-        # Log and handle the case where no authorization code was provided
         logging.error("No authorization code provided in the request.")
         return JsonResponse({"error": "No authorization code provided"}, status=400)
 
