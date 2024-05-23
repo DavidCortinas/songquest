@@ -63,6 +63,7 @@ urlpatterns = [
      path('get-spotify-tracks/', views.get_spotify_tracks, name='get-spotify-tracks'),
      path('get-spotify-artists/', views.get_spotify_artists, name='get-spotify-artists'),
      path('save-request-parameters/', views.save_request_parameters, name='save-request-parameters'),
+     path('delete-request-parameters/', views.delete_request_parameters, name='delete-request-parameters'),
      path('get-user-requests/', views.get_user_requests, name='get-user-requests'),
      path('get-user-tokens/', views.get_user_tokens, name='get-user-tokens'),
      path('get-pricing/', paymentViews.get_all_pricing_packages, name='get-pricing'),

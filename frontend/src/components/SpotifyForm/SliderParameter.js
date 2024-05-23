@@ -22,11 +22,10 @@ export const SliderParameter = ({
 	const [itemSelected, setItemSelected] = useState(false);
 
 	useEffect(() => {
-		if (
-			query[parameter]['min'] === null ||
-			query[parameter]['target'] === null ||
-			query[parameter]['max'] === null
-		) {
+		const { min, target, max } = query[parameter];
+		if (min !== null || target !== null || max !== null) {
+			setItemSelected(true);
+		} else {
 			setItemSelected(false);
 		}
 	}, [query, parameter]);

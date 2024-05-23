@@ -753,8 +753,10 @@ export const SongDiscovery = ({
 		(discoveryRecommendations && dataLoaded) || toggleValue === 'Selected Playlist';
 
 	const handleQueryNameChange = e => {
+		console.log('change');
 		setQueryName(e.target.value);
 	};
+	console.log('parent: ', queryName);
 
 	const handleToggle = e => {
 		setToggleValue(e.target.value);

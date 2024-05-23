@@ -250,6 +250,12 @@ export const saveQuery = query => ({
 	payload: { query }
 });
 
+export const DELETE_QUERY = 'DELETE_QUERY';
+export const deleteQuery = queryId => ({
+	type: DELETE_QUERY,
+	payload: { queryId }
+});
+
 export const REQUEST_SPOTIFY_USER_AUTH = 'REQUEST_SPOTIFY_USER_AUTH';
 export const requestSpotifyUserAuth = () => ({
 	type: REQUEST_SPOTIFY_USER_AUTH

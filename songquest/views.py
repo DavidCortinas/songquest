@@ -1622,6 +1622,37 @@ def save_request_parameters(request):
 
 
 @csrf_exempt
+def delete_request_parameters(request):
+    if request.method == "DELETE":
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            request_id = data.get("id")
+
+            if not request_id:
+                return JsonResponse({"error": "Request ID not provided"}, status=400)
+
+            try:
+                recommendation_request = RecommendationRequest.objects.get(
+                    id=request_id
+                )
+            except RecommendationRequest.DoesNotExist:
+                return JsonResponse(
+                    {"error": "Request with provided ID does not exist"}, status=404
+                )
+
+            recommendation_request.delete()
+
+            return JsonResponse(
+                {"success": "Request parameters deleted successfully"}, status=200
+            )
+
+        except Exception as e:
+            return JsonResponse({"error": "Server error: " + str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+@csrf_exempt
 def get_user_requests(request):
     user_id = request.headers.get("User-Id")
     if not user_id:
@@ -1887,7 +1918,7 @@ def check_if_user_follows_artists(request):
                 token_info = refresh_spotify_access(user.spotify_refresh)
                 if token_info:
                     user.spotify_access = token_info["access_token"]
-                    user.spotify_expires_at = time.time() + token_info["expires_in"]
+                    user.spotify_expires_at = time() + token_info["expires_in"]
                     user.save()
                     spotify_access = user.spotify_access
 
@@ -1942,7 +1973,7 @@ def unfollow_artists(request):
                 token_info = refresh_spotify_access(user.spotify_refresh)
                 if token_info:
                     user.spotify_access = token_info["access_token"]
-                    user.spotify_expires_at = time.time() + token_info["expires_in"]
+                    user.spotify_expires_at = time() + token_info["expires_in"]
                     user.save()
                     spotify_access = user.spotify_access
 

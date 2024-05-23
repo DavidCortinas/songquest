@@ -49,7 +49,8 @@ import {
 	getUserProfileSuccess,
 	getUserProfileFailure,
 	addToSavedPlaylistSuccess,
-	addToSavedPlaylistFailure
+	addToSavedPlaylistFailure,
+	deleteQuery
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice } from './reducers';
@@ -916,6 +917,33 @@ export const saveRequestParameters = (userId, query) => async dispatch => {
 		const transformedQuery = transformResponseToQueryStructure(res['recommendation_request']);
 
 		dispatch(saveQuery(transformedQuery));
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
+};
+
+export const deleteRequestParameters = (userId, requestId) => async dispatch => {
+	try {
+		const csrfToken = await getCSRFToken();
+
+		const response = await axios.delete('http://localhost:8000/delete-request-parameters/', {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				'User-Id': userId
+			},
+			data: {
+				id: requestId
+			}
+		});
+
+		const res = response.data;
+
+		if (res.success) {
+			dispatch(deleteQuery(requestId));
+		} else {
+			console.log('Error: ' + res.error);
+		}
 	} catch (error) {
 		console.log('Error: ' + error.message);
 	}

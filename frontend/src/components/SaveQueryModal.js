@@ -36,7 +36,7 @@ const SaveQueryModal = ({
 				console.error('Error fetching Spotify tracks:', error.message);
 			}
 		}
-	}, [onGetSpotifyTracks, savedQueries.previous]);
+	}, [onGetSpotifyTracks, savedQueries.previous, user]);
 
 	const memoizedFetchArtists = useCallback(async () => {
 		if (savedQueries.previous) {
@@ -84,9 +84,14 @@ const SaveQueryModal = ({
 		};
 	});
 
+	console.log('modal: ', queryName);
+
 	return (
 		<Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
 			<Box
+				display='flex'
+				flexDirection='column'
+				alignItems='center'
 				sx={{
 					backgroundColor: 'rgba(13,27,38,0.9)',
 					color: 'white',
@@ -102,9 +107,6 @@ const SaveQueryModal = ({
 					boxShadow: 24,
 					p: 4
 				}}
-				display='flex'
-				flexDirection='column'
-				alignItems='center'
 			>
 				<TextField
 					label='Request Name'

@@ -112,6 +112,7 @@ export const KarmaCounter = ({ currentKarma }) => {
 
 export const transformResponseToQueryStructure = responseData => {
 	const {
+		id,
 		name,
 		limit,
 		market,
@@ -163,6 +164,7 @@ export const transformResponseToQueryStructure = responseData => {
 	} = responseData;
 
 	const transformedQuery = {
+		id,
 		name,
 		query: {
 			limit,
