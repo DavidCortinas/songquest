@@ -551,10 +551,31 @@ const SpotifyForm = ({
 																					<MenuItem
 																						sx={{
 																							color: 'white',
-																							flex: 1 // Ensure the MenuItem spans the remaining width
+																							display:
+																								'flex',
+																							justifyContent:
+																								'space-between',
+																							alignItems:
+																								'center',
+																							width: '85%'
 																						}}
 																					>
-																						{`Select ${savedQuery.name}`}
+																						<Box
+																							sx={{
+																								overflow:
+																									'hidden',
+																								textOverflow:
+																									'ellipsis',
+																								whiteSpace:
+																									'nowrap',
+																								flex: 1,
+																								marginRight: 1 // Add some margin to separate text from the icon
+																							}}
+																						>
+																							{
+																								savedQuery.name
+																							}
+																						</Box>
 																					</MenuItem>
 																					<Tooltip
 																						title={

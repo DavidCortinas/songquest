@@ -922,7 +922,7 @@ export const RightPanel = ({
 			const playlistTracks = newPlaylist.tracks.map(track => ({
 				name: track.name,
 				artists: track.artists,
-				spotifyId: track.spotifyId || track.id,
+				spotifyId: track['spotify_id'] || track.spotifyId || track.id,
 				isrc: track.isrc,
 				image: track.image
 			}));

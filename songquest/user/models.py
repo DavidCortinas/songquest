@@ -115,8 +115,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def use_tokens(self, action):
         """Update user's tokens based on the action"""
         tokens_price = {
-            "add": 1,
-            "collect": 2,
+            "collect": 3,
         }
 
         if action not in tokens_price:
