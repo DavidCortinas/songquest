@@ -543,7 +543,7 @@ const CreateOrEditPlaylist = ({
 				<Box
 					display='flex'
 					justifyContent={isXsScreen || isSmScreen ? 'space-around' : 'space-between'}
-					padding={isXsScreen || isSmScreen ? '5% 0 0' : '5% 0 0 5%'}
+					padding={isXsScreen || isSmScreen ? '5% 0 0' : '5% 0 0'}
 				>
 					<Tooltip
 						title={
@@ -566,7 +566,7 @@ const CreateOrEditPlaylist = ({
 						<Checkbox
 							onClick={handlePlaylistSelectAll}
 							sx={{
-								padding: '0px 7px',
+								padding: '0px 7%',
 								color: theme.palette.primary.white,
 								'& .MuiSvgIcon-root': {
 									fontSize: isXsScreen ? '1.25rem' : '2rem',
@@ -651,7 +651,7 @@ const CreateOrEditPlaylist = ({
 							</div>
 						}
 					>
-						<Button sx={{ margin: '-17%' }}>
+						<Button>
 							<PlaylistRemoveIcon
 								style={{ color: theme.palette.primary.white }}
 								onClick={handleBulkRemove}
