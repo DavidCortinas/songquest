@@ -13,6 +13,7 @@ import { resetCurrentPlaylist, setSelectedPlaylist } from '../../actions';
 import theme from '../../theme';
 import { deletePlaylistRequest } from '../../thunks';
 import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
+import ConfirmDeleteModal from '../ConfirmDeleteModal';
 
 const PlaylistCard = ({
 	classes,
@@ -28,6 +29,15 @@ const PlaylistCard = ({
 }) => {
 	const [showOuterTooltip, setShowOuterTooltip] = useState(false);
 	const [isCardHovered, setIsCardHovered] = useState(false);
+	const [openDeleteModals, setOpenDeleteModals] = useState({});
+
+	const handleOpenDeleteModal = item => {
+		setOpenDeleteModals(prev => ({ ...prev, [item.name]: true }));
+	};
+
+	const handleCloseDeleteModal = item => {
+		setOpenDeleteModals(prev => ({ ...prev, [item.name]: false }));
+	};
 
 	const playlistName = userPlaylist?.name;
 
@@ -52,8 +62,8 @@ const PlaylistCard = ({
 		setShowOuterTooltip(false);
 	};
 
-	const handleDeletePlaylist = () => {
-		onDeletePlaylist([userPlaylist.id], currentUser?.user.id, null);
+	const handleDeletePlaylist = playlist => {
+		onDeletePlaylist([playlist.id], currentUser?.user.id, null);
 	};
 
 	return (
@@ -133,10 +143,17 @@ const PlaylistCard = ({
 					<DeleteIcon
 						fontSize='small'
 						className={classes.deleteIcon}
-						onClick={handleDeletePlaylist}
+						// onClick={handleDeletePlaylist}
+						onClick={() => handleOpenDeleteModal(userPlaylist)}
 					/>
 				</Tooltip>
 			</Card>
+			<ConfirmDeleteModal
+				open={openDeleteModals[userPlaylist.name]}
+				onClose={() => handleCloseDeleteModal(userPlaylist)}
+				onDelete={() => handleDeletePlaylist(userPlaylist)}
+				item={userPlaylist}
+			/>
 		</Tooltip>
 	);
 };

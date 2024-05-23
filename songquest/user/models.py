@@ -91,13 +91,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     def update_karma(self, action):
         """Update user's XP based on the action"""
         karma_values = {
-            "dig": 1,
-            "add": 3,
-            "like": 5,
-            "follow": 10,
-            "collect": 15,
-            "share": 25,
-            "excavate": 50,
+            "dig": 0,
+            "add": 1,
+            "like": 3,
+            "follow": 5,
+            "collect": 10,
+            "share": 20,
+            "excavate": 35,
         }
 
         if action not in karma_values:
