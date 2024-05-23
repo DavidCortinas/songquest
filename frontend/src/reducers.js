@@ -73,7 +73,8 @@ import {
 	REMOVE_FROM_PLAYLIST_TO_EDIT,
 	ADD_TO_SAVED_PLAYLIST_SUCCESS,
 	ADD_TO_SAVED_PLAYLIST_FAILURE,
-	REORDER_PLAYLIST_TRACKS
+	REORDER_PLAYLIST_TRACKS,
+	DELETE_QUERY
 } from './actions';
 import { toCamelCase } from './utils';
 
@@ -1108,6 +1109,14 @@ export const discovery = (state = initialDiscoveryState, action) => {
 				savedQueries: {
 					...state.savedQueries,
 					saved: [...state.savedQueries.saved, payload.query]
+				}
+			};
+		case DELETE_QUERY:
+			return {
+				...state,
+				savedQueries: {
+					...state.savedQueries,
+					saved: state.savedQueries.saved.filter(query => query.id !== payload.queryId)
 				}
 			};
 		default:

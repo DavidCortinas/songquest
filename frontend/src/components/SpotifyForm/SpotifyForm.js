@@ -17,11 +17,13 @@ import {
 	useMediaQuery
 } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
+import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import {
 	SpotifyAuth,
+	deleteRequestParameters,
 	discoverSongRequest,
 	getRequestParameters,
 	getSpotifyArtists,
@@ -41,6 +43,7 @@ import { initialDiscoveryState } from '../../reducers';
 import { toCapitalCase } from '../../utils';
 import { getCode } from 'iso-3166-1-alpha-2';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDeleteModal from '../ConfirmDeleteModal';
 
 const SliderModal = lazy(() => import('./SliderModal'));
 const AutocompleteParameter = lazy(() => import('./AutocompleteParameter'));
@@ -85,7 +88,8 @@ const SpotifyForm = ({
 	onSetQueryParameter,
 	onResetDataLoaded,
 	onResetQueryParameter,
-	onGetRequestParameters
+	onGetRequestParameters,
+	onDeleteRequestParameters
 }) => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -96,6 +100,20 @@ const SpotifyForm = ({
 	const [openModal, setOpenModal] = useState(false);
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
+
+	const [openDeleteModals, setOpenDeleteModals] = useState({});
+
+	const handleOpenDeleteModal = item => {
+		setOpenDeleteModals(prev => ({ ...prev, [item.name]: true }));
+	};
+
+	const handleCloseDeleteModal = item => {
+		setOpenDeleteModals(prev => ({ ...prev, [item.name]: false }));
+	};
+
+	const handleDelete = item => {
+		onDeleteRequestParameters(currentUser.user.id, item.id);
+	};
 
 	const [selectOpen, setSelectOpen] = useState(false);
 	const [invalidSearch, setInvalidSearch] = useState(false);
@@ -514,23 +532,80 @@ const SpotifyForm = ({
 																{savedQueries.saved.length
 																	? savedQueries.saved.map(
 																			savedQuery => (
-																				<MenuItem
+																				<Box
 																					key={
 																						savedQuery.name
 																					}
+																					display='flex'
+																					alignItems='center'
+																					justifyContent='space-between'
 																					onClick={() =>
 																						handleSelectSavedQuery(
 																							savedQuery
 																						)
 																					}
 																					sx={{
-																						color: 'white'
+																						width: '100%'
 																					}}
 																				>
-																					{
-																						savedQuery.name
-																					}
-																				</MenuItem>
+																					<MenuItem
+																						sx={{
+																							color: 'white',
+																							flex: 1 // Ensure the MenuItem spans the remaining width
+																						}}
+																					>
+																						{`Select ${savedQuery.name}`}
+																					</MenuItem>
+																					<Tooltip
+																						title={
+																							<Typography
+																								variant='body2'
+																								letterSpacing='1px'
+																							>
+																								{`Remove ${savedQuery.name} from Saved Requests`}
+																							</Typography>
+																						}
+																						arrow
+																						placement='right'
+																					>
+																						<DeleteIcon
+																							onClick={e => {
+																								e.stopPropagation(); // Prevent the click from propagating to the parent container
+																								handleOpenDeleteModal(
+																									savedQuery
+																								);
+																							}}
+																							sx={{
+																								color: 'white',
+																								pr: '3%',
+																								fontSize:
+																									'1rem',
+																								cursor: 'pointer' // Make sure the cursor indicates a clickable element
+																							}}
+																						/>
+																					</Tooltip>
+																					<ConfirmDeleteModal
+																						open={
+																							openDeleteModals[
+																								savedQuery
+																									.name
+																							]
+																						}
+																						onClose={() =>
+																							handleCloseDeleteModal(
+																								savedQuery
+																							)
+																						}
+																						onDelete={() =>
+																							handleDelete(
+																								savedQuery
+																							)
+																						}
+																						item={
+																							savedQuery
+																						}
+																					/>
+																				</Box>
 																			)
 																	  )
 																	: [
@@ -554,8 +629,8 @@ const SpotifyForm = ({
 																				margin='2%'
 																			>
 																				{`Requests that yield quality finds can be 
-                                      saved for later review in the results section
-                                      below`}
+                                        saved for later review in the results section
+                                        below`}
 																			</Typography>
 																	  ]}
 															</Menu>
@@ -996,7 +1071,9 @@ const mapDispatchToProps = dispatch => ({
 	onResetDataLoaded: () => dispatch(resetDataLoaded()),
 	onSetQueryParameter: (query, parameter, newValues) =>
 		dispatch(setQueryParameter(query, parameter, newValues)),
-	onGetRequestParameters: userId => dispatch(getRequestParameters(userId))
+	onGetRequestParameters: userId => dispatch(getRequestParameters(userId)),
+	onDeleteRequestParameters: (userId, requestId) =>
+		dispatch(deleteRequestParameters(userId, requestId))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SpotifyForm);
