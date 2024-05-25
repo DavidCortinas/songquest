@@ -108,7 +108,7 @@ const useStyles = makeStyles(theme => ({
 	},
 	button: {
 		color: 'white',
-		backgroundColor: 'rgb(44, 216, 207, 0.3)',
+		backgroundColor: 'rgba(44, 216, 207, 0.3)',
 		border: '2px solid rgba(89, 149, 192, 0.5)',
 		borderRadius: '18px',
 		boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',

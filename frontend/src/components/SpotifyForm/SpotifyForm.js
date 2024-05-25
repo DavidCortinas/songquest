@@ -43,7 +43,7 @@ import { initialDiscoveryState } from '../../reducers';
 import { toCapitalCase } from '../../utils';
 import { getCode } from 'iso-3166-1-alpha-2';
 import { useNavigate } from 'react-router-dom';
-import ConfirmDeleteModal from '../ConfirmDeleteModal';
+import ConfirmActionModal from '../ConfirmActionModal';
 
 const SliderModal = lazy(() => import('./SliderModal'));
 const AutocompleteParameter = lazy(() => import('./AutocompleteParameter'));
@@ -605,7 +605,10 @@ const SpotifyForm = ({
 																							}}
 																						/>
 																					</Tooltip>
-																					<ConfirmDeleteModal
+																					<ConfirmActionModal
+																						actionType={
+																							'delete'
+																						}
 																						open={
 																							openDeleteModals[
 																								savedQuery
@@ -617,13 +620,16 @@ const SpotifyForm = ({
 																								savedQuery
 																							)
 																						}
-																						onDelete={() =>
+																						onConfirm={() =>
 																							handleDelete(
 																								savedQuery
 																							)
 																						}
 																						item={
 																							savedQuery
+																						}
+																						tokens={
+																							null
 																						}
 																					/>
 																				</Box>
