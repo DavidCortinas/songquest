@@ -203,12 +203,21 @@ export const TopBar = ({
 									borderRadius: '8px'
 								}}
 							>
-								<Typography variant='caption' letterSpacing='1px'>
-									{`Tokens: ${currentUser?.user?.tokens}`}
-								</Typography>
 								<Typography variant='body2' letterSpacing='1px'>
-									{`Get More Tokens`}
+									{`Click Here To Get More Tokens`}
 								</Typography>
+								<Box display='flex' justifyContent='center' alignItems='center'>
+									<Typography variant='subtitle1' letterSpacing='1px'>
+										{`Balance: `}
+									</Typography>
+									<PaidIcon
+										fontSize='small'
+										sx={{ color: '#c4a537', pl: '2%' }}
+									/>
+									<Typography variant='subtitle1' letterSpacing='1px' pl='1%'>
+										{currentUser?.user?.tokens}
+									</Typography>
+								</Box>
 							</div>
 						}
 					>

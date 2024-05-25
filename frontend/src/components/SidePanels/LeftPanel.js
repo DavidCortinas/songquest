@@ -13,7 +13,7 @@ import { resetCurrentPlaylist, setSelectedPlaylist } from '../../actions';
 import theme from '../../theme';
 import { deletePlaylistRequest } from '../../thunks';
 import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
-import ConfirmDeleteModal from '../ConfirmDeleteModal';
+import ConfirmActionModal from '../ConfirmActionModal';
 
 const PlaylistCard = ({
 	classes,
@@ -148,11 +148,13 @@ const PlaylistCard = ({
 					/>
 				</Tooltip>
 			</Card>
-			<ConfirmDeleteModal
+			<ConfirmActionModal
 				open={openDeleteModals[userPlaylist.name]}
 				onClose={() => handleCloseDeleteModal(userPlaylist)}
-				onDelete={() => handleDeletePlaylist(userPlaylist)}
+				onConfirm={() => handleDeletePlaylist(userPlaylist)}
 				item={userPlaylist}
+				actionType={'delete'}
+				tokens={null}
 			/>
 		</Tooltip>
 	);

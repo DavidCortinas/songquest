@@ -19,6 +19,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import PaidIcon from '@mui/icons-material/Paid';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
@@ -44,6 +45,7 @@ import {
 	setSelectedPlaylist
 } from '../../actions';
 import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
+import ConfirmActionModal from '../ConfirmActionModal';
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {
@@ -214,6 +216,16 @@ const CreateOrEditPlaylist = ({
 	const [playlistToEdit, setPlaylistToEdit] = useState({});
 
 	const [localTracks, setLocalTracks] = useState([]);
+
+	const [openConfirmModal, setOpenConfirmModal] = useState({});
+
+	const handleOpenDeleteModal = item => {
+		setOpenConfirmModal(prev => ({ ...prev, [item.name]: true }));
+	};
+
+	const handleCloseDeleteModal = item => {
+		setOpenConfirmModal(prev => ({ ...prev, [item.name]: false }));
+	};
 
 	useEffect(() => {
 		setLocalTracks(playlist?.tracks || []);
@@ -586,18 +598,33 @@ const CreateOrEditPlaylist = ({
 								}}
 							>
 								<Typography variant='body2' letterSpacing='1px'>
-									{currentUser &&
-									currentUser?.user?.spotifyConnected &&
-									currentUser?.user?.tokens > 2 &&
+									{currentUser?.user?.spotifyConnected &&
+									currentUser?.user?.tokens > 3 &&
 									playlistAction === 'create'
-										? 'Create Playlist - 2 Tokens'
+										? 'Create Playlist:'
 										: currentUser?.user?.spotifyConnected &&
 										  playlistAction === 'edit'
 										? 'Update Playlist'
-										: currentUser?.user?.tokens < 2
+										: currentUser?.user?.tokens < 3
 										? 'Get more tokens to complete request'
 										: 'Connect to Spotify to create playlists'}
 								</Typography>
+								{currentUser?.user?.spotifyConnected &&
+									currentUser?.user?.tokens > 3 &&
+									playlistAction === 'create' && (
+										<Box
+											display='flex'
+											justifyContent='center'
+											alignItems='center'
+										>
+											<PaidIcon fontSize='small' sx={{ color: '#c4a537' }} />
+											<Typography
+												variant='subtitle1'
+												textAlign='center'
+												pl='2%'
+											>{`3`}</Typography>
+										</Box>
+									)}
 							</div>
 						}
 					>
@@ -605,11 +632,11 @@ const CreateOrEditPlaylist = ({
 							disabled={!currentUser?.user}
 							onClick={
 								playlistAction === 'create'
-									? handleCreatePlaylist
+									? () => handleOpenDeleteModal(playlist)
 									: handleUpdatePlaylist
 							}
 							className={
-								currentUser?.user?.tokens < 2 && playlistAction === 'create'
+								currentUser?.user?.tokens < 3 && playlistAction === 'create'
 									? classes.disabled
 									: classes.button
 							}
@@ -659,6 +686,13 @@ const CreateOrEditPlaylist = ({
 						</Button>
 					</Tooltip>
 				</Box>
+				<ConfirmActionModal
+					open={openConfirmModal[playlist.name]}
+					onClose={() => handleCloseDeleteModal(playlist)}
+					onConfirm={handleCreatePlaylist}
+					actionType={''}
+					tokens={3}
+				/>
 			</Box>
 			<DragDropContext onDragEnd={onDragEnd}>
 				<Droppable droppableId='droppable-playlist'>
@@ -899,7 +933,7 @@ export const RightPanel = ({
 			return;
 		}
 
-		if (currentUser?.user.tokens < 2 && playlistAction === 'create') {
+		if (currentUser?.user.tokens < 3 && playlistAction === 'create') {
 			navigate('/pricing');
 			return;
 		}
