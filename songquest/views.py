@@ -408,6 +408,8 @@ def update_user_profile(request):
                 "userType": user.user_type,
                 "profession": user.profession,
                 "preferredGenres": updated_genre_names,
+                "tokens": user.tokens,
+                "karma": user.karma,
             }
 
             return JsonResponse(
@@ -510,8 +512,13 @@ profile_redirect_uri = os.environ.get("SPOTIFY_PROFILE_REDIRECT_URI")
 
 @csrf_exempt
 def request_authorization(request):
-    source = request.POST.get("source", "default")
-    redirect_uri = default_redirect_uri if source == "default" else profile_redirect_uri
+    try:
+        data = json.loads(request.body)
+        source = data.get("source", "default")
+    except (json.JSONDecodeError, KeyError):
+        return JsonResponse({"error": "Invalid JSON or missing source"}, status=400)
+
+    redirect_uri = profile_redirect_uri if source == 'profile' else default_redirect_uri
 
     print("Original redirect_uri: ", redirect_uri)
 
