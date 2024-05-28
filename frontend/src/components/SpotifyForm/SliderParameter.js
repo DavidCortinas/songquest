@@ -102,7 +102,6 @@ export const SliderParameter = ({
 	}, [query, parameter]);
 
 	const handleSliderChange = (event, newValues) => {
-		console.log('newValues: ', newValues);
 		if (parameter === 'mode' || parameter === 'key' || parameter === 'time_signature') {
 			setParameterValue(prev => ({ ...prev, target: newValues[0] }));
 		} else {

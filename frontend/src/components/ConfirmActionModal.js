@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
+import theme from '../theme';
 
 const ConfirmActionModal = ({ open, onClose, onConfirm, item, actionType, tokens }) => {
 	const handleConfirm = () => {
@@ -54,10 +55,44 @@ const ConfirmActionModal = ({ open, onClose, onConfirm, item, actionType, tokens
 				<Box
 					sx={{ mt: 4, display: 'flex', justifyContent: 'space-between', width: '100%' }}
 				>
-					<Button onClick={onClose} variant='outlined' color='secondary'>
+					<Button
+						onClick={onClose}
+						sx={{
+							color: 'white',
+							backgroundColor: `rgb(121, 44, 216, 0.3)`,
+							border: `2px solid ${theme.palette.primary.triadic1}`,
+							borderRadius: '8px',
+							boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+							width: 'fit-content',
+							padding: '2% 5%',
+							transition: 'border 0.3s, background 0.3s, boxShadow 0.3s width 0.3s',
+							'&:hover, &:active, &.MuiFocusVisible': {
+								border: `2px solid ${theme.palette.primary.triadic1}`,
+								background: `rgba(121, 44, 216, 0.5)`,
+								boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+							}
+						}}
+					>
 						{cancelButtonText}
 					</Button>
-					<Button onClick={handleConfirm} variant='contained' color={confirmButtonColor}>
+					<Button
+						onClick={handleConfirm}
+						sx={{
+							color: 'white',
+							backgroundColor: `rgba(244,67,54, 0.5)`,
+							border: `2px solid ${theme.palette.primary.error}`,
+							borderRadius: '8px',
+							boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+							width: 'fit-content',
+							padding: '2% 5%',
+							transition: 'border 0.3s, background 0.3s, boxShadow 0.3s width 0.3s',
+							'&:hover, &:active, &.MuiFocusVisible': {
+								border: `2px solid ${theme.palette.primary.error}`,
+								background: `rgba(244,67,54, 0.7)`,
+								boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+							}
+						}}
+					>
 						{confirmButtonText}
 					</Button>
 				</Box>

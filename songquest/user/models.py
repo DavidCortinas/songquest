@@ -142,14 +142,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return all(required_fields)
 
     def complete_onboarding(self):
-        print("complete onboarding")
         """Award the onboarding achievement and badge if onboarding is complete."""
         profile, profile_created = Profile.objects.get_or_create(user=self)
         if (
             self.is_onboarding_complete()
             and not profile.achievements.filter(name="Onboarding Completed").exists()
         ):
-            print("if complete")
             self.is_active = True
             # self.save(update_fields=["is_active"])
             onboarding_achievement = Achievement.objects.get(
@@ -162,7 +160,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
             profile.achievements.add(onboarding_achievement)
             profile.badges.add(onboarding_achievement.badge_reward)
-            print("achievement and badge added to profile")
 
     def __str__(self):
         return self.email

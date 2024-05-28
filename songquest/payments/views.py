@@ -88,12 +88,9 @@ def get_all_pricing_packages(request):
 @csrf_exempt
 @api_view(['POST'])
 def stripe_webhook(request):
-    print('webhook')
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     temp_endpoint_secret = os.environ.get('STRIPE_TEMP_ENDPOINT_SECRET', '')
-    print('temp_endpoint: ')
-    print(temp_endpoint_secret)
     endpoint_secret = os.environ.get('STRIPE_ENDPOINT_SECRET', '')
 
     try:
@@ -106,7 +103,6 @@ def stripe_webhook(request):
         return HttpResponse(status=400)
 
     if event['type'] == 'charge.succeeded':
-        print('charge succeeded')
         charge = event['data']['object']
 
         customer_id = charge.get('customer', None)
@@ -117,12 +113,9 @@ def stripe_webhook(request):
             # TODO: Update this to retrieve user based on your own logic, e.g., by customer email
             User = get_user_model()
             user = User.objects.get(email=customer_email)
-            print(user)
-            print(charge['amount'])
             
             # TODO: Calculate the token amount based on the amount paid
             token_amount = calculate_tokens(charge['amount'])
-            print(token_amount)
             user.tokens += token_amount
             user.save()
 

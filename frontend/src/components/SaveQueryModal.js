@@ -84,8 +84,6 @@ const SaveQueryModal = ({
 		};
 	});
 
-	console.log('modal: ', queryName);
-
 	return (
 		<Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
 			<Box

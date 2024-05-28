@@ -31,6 +31,7 @@ import {
 	unfollowArtists
 } from '../thunks';
 import { LoadingState } from './LoadingState';
+import defaultImage from '../images/defaultImage.webp';
 
 const Recommendation = ({
 	classes,
@@ -63,6 +64,11 @@ const Recommendation = ({
 		track => track.spotifyId === recommendation.id
 	);
 
+	const imageUrl =
+		recommendation.album && recommendation.album.images[2] && recommendation.album.images[2].url
+			? recommendation.album.images[2].url
+			: recommendation.image || defaultImage;
+
 	const handleAddToPlaylistClick = useCallback(() => {
 		if (!user?.user.spotifyConnected) {
 			navigate('/spotify-connect');
@@ -76,9 +82,7 @@ const Recommendation = ({
 					name: recommendation.name,
 					artists: recommendation.artists,
 					spotify_id: recommendation.id,
-					image: recommendation.album
-						? recommendation.album.images[2].url
-						: recommendation.image,
+					image: imageUrl,
 					isrc: recommendation['external_ids']['isrc']
 				});
 				setSnackbarMessage(`Added ${recommendation.name} to current playlist`);
@@ -89,9 +93,7 @@ const Recommendation = ({
 				name: recommendation.name,
 				artists: recommendation.artists.map(artist => (artist.name ? artist.name : artist)),
 				spotifyId: recommendation.id,
-				image: recommendation.album
-					? recommendation.album.images[2].url
-					: recommendation.image,
+				image: imageUrl,
 				isrc: recommendation['external_ids']['isrc']
 			});
 			setSnackbarMessage(`Added ${recommendation.name} to ${editPlaylist.name}`);
@@ -409,7 +411,10 @@ const Recommendations = ({
 			artists: song.artists,
 			spotifyId: song.spotifyId || song.id,
 			isrc: song.external_ids ? song.external_ids.isrc : song.isrc,
-			image: song.album ? song.album.images[2].url : song.image
+			image:
+				song.album && song.album.images[2] && song.album.images[2].url
+					? song.album.images[2].url
+					: song.image || defaultImage
 		}));
 
 		onAddToCurrentPlaylist(...songsToAddData);

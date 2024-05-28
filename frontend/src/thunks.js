@@ -506,7 +506,6 @@ export const handleUpdateBirthday = (userId, date) => async dispatch => {
 			dispatch(updateBirthday(birthday));
 		}
 
-		console.log('Birthday Saved Successfully');
 		return birthday;
 	} catch (error) {
 		console.error(`Error: ${error.response ? error.response.data : error.message}`);
@@ -532,7 +531,6 @@ export const handleUpdatePreferredGenres = (userId, genres) => async dispatch =>
 			dispatch(updatePreferredGenres(preferred_genres));
 		}
 
-		console.log('Preferred Genres Saved Successfully');
 		return preferred_genres;
 	} catch (error) {
 		console.error(`Error: ${error.response ? error.response.data : error.message}`);
@@ -560,7 +558,6 @@ export const handleUpdateUserType = (userId, userType) => async dispatch => {
 
 		dispatch(updateUserProfession(profession));
 
-		console.log('User Type Saved Successfully');
 		return user_type;
 	} catch (error) {
 		console.error(`Error: ${error.response ? error.response.data : error.message}`);
@@ -586,7 +583,6 @@ export const handleUpdateUserProfession = (userId, profession) => async dispatch
 			dispatch(updateUserProfession(saved_profession));
 		}
 
-		console.log('User Profession Saved Successfully');
 		return saved_profession;
 	} catch (error) {
 		console.error(`Error: ${error.response ? error.response.data : error.message}`);
@@ -612,7 +608,6 @@ export const handleUpdateProfileImage = (userId, imageFile) => async dispatch =>
 			dispatch(updateProfileImage(profile_image));
 		}
 
-		console.log('Profile Image Saved Successfully');
 		return profile_image;
 	} catch (error) {
 		console.error(`Error: ${error.response ? error.response.data : error.message}`);
@@ -631,7 +626,7 @@ export const getUserProfile = userId => async dispatch => {
 
 		const { profile } = response.data;
 		dispatch(getUserProfileSuccess(profile));
-		console.log('Successfully retrieved user profile: ', profile);
+
 		return profile;
 	} catch (error) {
 		let errorMessage = 'An unexpected error occurred';
@@ -662,8 +657,6 @@ export const handleUpdateUserProfile = (userId, userInfo) => async dispatch => {
 
 		const { user } = response.data;
 		dispatch(updateUserProfileSuccess(user));
-
-		console.log('Successfully updated user: ', user);
 	} catch (error) {
 		let errorMessage = 'An unexpected error occurred';
 
@@ -761,8 +754,6 @@ export const deletePlaylistRequest = (playlistIds, userId, onSuccess) => async d
 			}
 
 			dispatch(deletePlaylist(...playlistIds));
-
-			console.log('Playlists successfully deleted');
 		} else {
 			throw new Error('Request failed with status ' + response.status);
 		}
@@ -829,7 +820,6 @@ export const removeFromPlaylistRequest = (playlistId, userId, tracks) => async d
 		const playlist = response.data['playlist'];
 
 		dispatch(removeFromSavedPlaylist(playlist.id, playlist.tracks));
-		return playlist.tracks;
 	} catch (error) {
 		console.error('Error: ', error.message);
 	}
@@ -856,7 +846,7 @@ export const updatePlaylistItemsRequest = (userId, playlistId, updatedData) => a
 					const reorderedTracks = response.data['tracks'];
 					const snapshotId = response.data['snapshotId'];
 					dispatch(updatePlaylistOrderSuccess(playlistId, reorderedTracks, snapshotId));
-					console.log('Playlist updated successfully');
+
 					return Promise.resolve(reorderedTracks);
 				} else {
 					const error = new Error('Request failed with status ' + response.status);
@@ -1057,7 +1047,6 @@ export const checkUsersTracks = async (recommendations, userId) => {
 		);
 
 		if (response.status === 200) {
-			console.log('API request successful');
 			return response.data;
 		} else {
 			console.error('API request failed');
@@ -1083,7 +1072,6 @@ export const removeUsersTracks = async (recommendation, userId) => {
 		);
 
 		if (response.status === 200) {
-			console.log('Remove users tracks request successful');
 			return response.data;
 		} else {
 			console.error('Remove users tracks request failed');
@@ -1130,7 +1118,6 @@ export const checkIfUserFollowsArtists = async (artistIds, userId) => {
 		);
 
 		if (response.status === 200) {
-			console.log('Check follow status successful', response.data);
 			return response.data;
 		} else {
 			console.error('Failed to check follow status');
