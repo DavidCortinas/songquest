@@ -92,13 +92,26 @@ const DisplayNameInput = ({
 					currentUser?.user.id,
 					displayNameValue
 				);
+				// Move to the next step only if the display name is successfully updated
+				setCurrentStep('birthday');
 			} catch (error) {
 				console.error('Failed to update display name:', error);
 				// Optionally handle the error, e.g., show an error message to the user
+				// Do not move to the next step if there is an error
+			}
+		} else {
+			// If displayNameValue is empty or only spaces, set the display name to null
+			try {
+				// eslint-disable-next-line no-unused-vars
+				const savedDisplayName = await onUpdateDisplayName(currentUser?.user.id, null);
+				// Move to the next step
+				setCurrentStep('birthday');
+			} catch (error) {
+				console.error('Failed to update display name to null:', error);
+				// Optionally handle the error, e.g., show an error message to the user
+				// Do not move to the next step if there is an error
 			}
 		}
-		// Move to the next step regardless of display name being updated or not
-		setCurrentStep('birthday');
 	};
 
 	return (
