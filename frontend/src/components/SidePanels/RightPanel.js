@@ -291,12 +291,7 @@ const CreateOrEditPlaylist = ({
 			if (playlistAction === 'create') {
 				await onRemoveFromCurrentPlaylistById(track.spotifyId);
 			} else if (track.id) {
-				const updatedTrackList = await onRemoveFromSavedPlaylist(
-					playlist.id,
-					currentUser?.user.id,
-					[track]
-				);
-				console.log(updatedTrackList);
+				await onRemoveFromSavedPlaylist(playlist.id, currentUser?.user.id, [track]);
 			} else {
 				onRemoveFromPlaylistToEdit(track);
 			}

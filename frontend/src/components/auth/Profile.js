@@ -25,7 +25,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
 import { DropzoneDialog } from 'mui-file-dropzone';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import useStyles from '../../classes/playlist';
 import theme from '../../theme';
@@ -42,6 +42,7 @@ import { useDispatch } from 'react-redux';
 import { AddImageIcon } from './Onboard';
 import spotifyIcon from '../../../public/images/Spotify_Icon_RGB_White.png';
 import spotifyGreenIcon from '../../../public/images/Spotify_Icon_RGB_Green.png';
+import { confirmSpotifyAccess } from '../../actions';
 
 const root = {
 	"& .MuiAutocomplete-option[data-focus='true']": {
@@ -910,6 +911,8 @@ export const Profile = ({
 
 	const classes = useStyles();
 	const navigate = useNavigate();
+	const location = useLocation();
+	const dispatch = useDispatch();
 
 	const [displayNameValue, setDisplayNameValue] = useState(currentUser?.user?.displayName);
 	const [birthDateValue, setBirthDateValue] = useState(currentUser?.user?.birthday);
@@ -1078,6 +1081,69 @@ export const Profile = ({
 			return;
 		}
 		setSnackbarOpen(false);
+	};
+
+	useEffect(() => {
+		const searchParams = new URLSearchParams(location.search);
+		const code = searchParams.get('code');
+		const encodedState = searchParams.get('state');
+		let source = 'default';
+
+		if (encodedState) {
+			try {
+				const decodedState = window.atob(encodedState);
+				const parts = decodedState.split('|');
+				if (parts.length === 2) {
+					source = parts[1];
+				}
+			} catch (error) {
+				console.error('Error decoding state:', error);
+			}
+		}
+
+		if (code) {
+			fetchUserProfile(code, encodedState, source);
+			searchParams.delete('code');
+			searchParams.delete('state');
+			navigate(
+				{
+					pathname: location.pathname,
+					search: `?${searchParams.toString()}`
+				},
+				{ replace: true }
+			);
+		}
+	}, [location.search]);
+
+	let fetchCalled = false;
+
+	// eslint-disable-next-line no-unused-vars
+	const fetchUserProfile = async (code, encodedState, source) => {
+		if (fetchCalled) return;
+		fetchCalled = true;
+
+		try {
+			const userId = currentUser.user.id;
+			const response = await fetch(
+				`http://localhost:8000/auth/spotify/callback?code=${code}&state=${encodedState}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'User-Id': userId
+					}
+				}
+			);
+			const data = await response.json();
+
+			if (data.spotify_connected) {
+				dispatch(confirmSpotifyAccess(true));
+			}
+		} catch (error) {
+			console.error('Error fetching user profile:', error);
+		} finally {
+			fetchCalled = false; // Reset flag in case of retry
+		}
 	};
 
 	return (

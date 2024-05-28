@@ -40,19 +40,19 @@ export const TokenCounter = ({ tokens }) => {
 
 	useEffect(() => {
 		const newTokensAdded = tokens - displayTokens;
-		if (newTokensAdded > 0) {
+		if (newTokensAdded !== 0) {
 			setAddedTokens(newTokensAdded);
 			let currentDisplay = displayTokens;
 
 			const intervalId = setInterval(() => {
-				currentDisplay++;
+				currentDisplay += Math.sign(newTokensAdded);
 				setDisplayTokens(currentDisplay);
-				if (currentDisplay >= tokens) {
+				if (currentDisplay === tokens) {
 					clearInterval(intervalId);
 				}
 			}, 50);
 		}
-	}, [tokens]);
+	}, [tokens, displayTokens]);
 
 	return (
 		<Typography
@@ -60,7 +60,11 @@ export const TokenCounter = ({ tokens }) => {
 			paddingRight='1%'
 			variant={isXsScreen || isSmScreen ? 'body2' : 'body1'}
 		>
-			{addedTokens > 0 && <div className='added-tokens-animation'>+{addedTokens}</div>}
+			{addedTokens !== 0 && (
+				<div className='added-tokens-animation'>
+					{addedTokens > 0 ? `+${addedTokens}` : addedTokens}
+				</div>
+			)}
 			{displayTokens}
 		</Typography>
 	);
@@ -80,14 +84,14 @@ export const KarmaCounter = ({ currentKarma }) => {
 		}
 
 		const karmaDifference = currentKarma - displayKarma;
-		if (karmaDifference > 0) {
+		if (karmaDifference !== 0) {
 			setAddedKarma(karmaDifference);
 			let currentDisplay = displayKarma;
 
 			const intervalId = setInterval(() => {
-				currentDisplay++;
+				currentDisplay += Math.sign(karmaDifference);
 				setDisplayKarma(currentDisplay);
-				if (currentDisplay >= currentKarma) {
+				if (currentDisplay === currentKarma) {
 					clearInterval(intervalId);
 					setTimeout(() => setAddedKarma(0), 2000);
 				}
@@ -97,7 +101,11 @@ export const KarmaCounter = ({ currentKarma }) => {
 
 	return (
 		<>
-			{addedKarma > 0 && <div className='added-karma-animation'>+{addedKarma}</div>}
+			{addedKarma !== 0 && (
+				<div className='added-karma-animation'>
+					{addedKarma > 0 ? `+${addedKarma}` : addedKarma}
+				</div>
+			)}
 			<Typography
 				color='white'
 				paddingRight='1%'

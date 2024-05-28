@@ -11,7 +11,8 @@ const theme = createTheme({
 			triadic2: '#d82c8b',
 			white: 'white',
 			whitesmoke: 'whitesmoke',
-			dark: '#30313d'
+			dark: '#30313d',
+			error: '#e53935'
 		}
 	},
 	breakpoints: {

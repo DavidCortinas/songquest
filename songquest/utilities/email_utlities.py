@@ -5,7 +5,6 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 
 def send_verification_email(user_email, verification_token):
-    print(user_email)
     subject = 'Confirm Your Email to Start Your SongQuest Journey'
     message = (
         "Dear Music Explorer,\n\n"

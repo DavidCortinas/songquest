@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
-		height: '600px',
+		height: '85vh',
 		[theme.breakpoints.down('sm')]: {
 			flexDirection: 'column',
 			height: 'auto'
@@ -161,7 +161,6 @@ export const Pricing = ({ onGetPricing }) => {
 
 	const classes = useStyles(theme);
 	const [focusedIndex, setFocusedIndex] = useState(isXsScreen ? null : 1);
-	console.log(focusedIndex);
 	const [pricing, setPricing] = useState(null);
 
 	const navigate = useNavigate();

@@ -311,7 +311,8 @@ const MobileResults = ({
 	showPlaylists,
 	setShowPlaylists,
 	handleToggle,
-	toggleValue
+	toggleValue,
+	setToggleValue
 }) => {
 	return (
 		<Box
@@ -325,6 +326,7 @@ const MobileResults = ({
 			{(currentUser?.user || showTracks) &&
 				(showPlaylists ? (
 					<LeftPanel
+						setToggleValue={setToggleValue}
 						isMdScreen={isMdScreen}
 						isSmScreen={isSmScreen}
 						isXsScreen={isXsScreen}
@@ -542,7 +544,6 @@ export const SongDiscovery = ({
 	useEffect(() => {
 		const searchParams = new URLSearchParams(location.search);
 		const code = searchParams.get('code');
-		console.log('Discovery code: ', code);
 		const encodedState = searchParams.get('state');
 		let source = 'default';
 
@@ -606,7 +607,6 @@ export const SongDiscovery = ({
 				}
 			);
 			const data = await response.json();
-			console.log('fetch data: ', data);
 
 			if (data.spotify_connected) {
 				dispatch(confirmSpotifyAccess(true));
@@ -753,10 +753,8 @@ export const SongDiscovery = ({
 		(discoveryRecommendations && dataLoaded) || toggleValue === 'Selected Playlist';
 
 	const handleQueryNameChange = e => {
-		console.log('change');
 		setQueryName(e.target.value);
 	};
-	console.log('parent: ', queryName);
 
 	const handleToggle = e => {
 		setToggleValue(e.target.value);
@@ -1019,6 +1017,7 @@ export const SongDiscovery = ({
 					isXlScreen={isXlScreen}
 					handleToggle={handleToggle}
 					toggleValue={toggleValue}
+					setToggleValue={setToggleValue}
 					selectedPlaylist={selectedPlaylist}
 				/>
 			)}

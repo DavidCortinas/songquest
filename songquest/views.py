@@ -518,9 +518,7 @@ def request_authorization(request):
     except (json.JSONDecodeError, KeyError):
         return JsonResponse({"error": "Invalid JSON or missing source"}, status=400)
 
-    redirect_uri = profile_redirect_uri if source == 'profile' else default_redirect_uri
-
-    print("Original redirect_uri: ", redirect_uri)
+    redirect_uri = profile_redirect_uri if source == "profile" else default_redirect_uri
 
     state = generate_random_string(16) + "|" + source
     encoded_state = base64.urlsafe_b64encode(state.encode()).decode("utf-8")
@@ -531,7 +529,6 @@ def request_authorization(request):
         "client_id={}&response_type=code&redirect_uri={}&scope=user-library-read user-library-modify user-read-email user-follow-modify user-follow-read playlist-modify-public playlist-modify-private&state={}"
     ).format(client_id, redirect_uri, encoded_state)
 
-    print("Authorization URL: ", authorization_url)
     return JsonResponse({"authorization_url": authorization_url})
 
 
@@ -757,7 +754,6 @@ def get_spotify_token_info(code):
     client_id = os.environ.get("SPOTIFY_CLIENT_ID")
     client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
     redirect_uri = os.environ.get("SPOTIFY_DEFAULT_REDIRECT_URI")
-    print("get_token_info: ", code)
 
     # Prepare the data to send to the Spotify API to obtain an access token
     token_data = {
@@ -824,22 +820,16 @@ def serialize_profile(profile, request):
 @csrf_exempt
 def handle_spotify_callback(request):
     code = request.GET.get("code", "")
-    print("code: ", code)
     encoded_state = request.GET.get("state", "")
-    print("encoded_state: ", encoded_state)
 
     try:
         decoded_state = base64.urlsafe_b64decode(encoded_state.encode()).decode("utf-8")
-        print("decoded_state: ", decoded_state)
         state, source = decoded_state.split("|")
-        print("state: ", state)
-        print("source: ", source)
     except Exception as e:
         logging.error(f"Error decoding state: {str(e)}")
         return HttpResponseForbidden("Invalid state parameter")
 
     user_id = request.headers.get("User-Id")
-    print("callback user id: ", user_id)
     if not user_id:
         return HttpResponseForbidden("User ID not found in headers")
 
@@ -850,11 +840,9 @@ def handle_spotify_callback(request):
         return HttpResponseForbidden("User not found")
 
     if code:
-        print("callback code: ", code)
         token_info = get_spotify_token_info(code)
 
         if token_info and "access_token" in token_info:
-            print("token_info: ", token_info)
             access_token = token_info["access_token"]
             refresh_token = token_info.get("refresh_token", "")
             expires_at = time() + token_info.get("expires_in", 3600)
@@ -869,7 +857,6 @@ def handle_spotify_callback(request):
                 user.complete_onboarding()
 
             spotify_connected = user.spotify_refresh is not None
-            print("callback user: ", user.profile)
             user_profile_data = serialize_profile(user.profile, request)
 
             return JsonResponse(
@@ -1748,10 +1735,8 @@ def add_to_spotify(request):
 @csrf_exempt
 def check_users_tracks(request):
     if request.method == "POST":
-        print("track request: ", request)
         data = json.loads(request.body.decode("utf-8"))
         recommendations = data.get("recommendations", [])
-        print("recommendations: ", recommendations)
         user_id = request.headers.get("User-Id")
 
         try:
@@ -1782,7 +1767,6 @@ def check_users_tracks(request):
 
             for chunk in chunk_list(track_ids, 50):
                 params = {"ids": ",".join(chunk)}
-                print("track_params:", params)
                 response = requests.get(spotify_url, headers=headers, params=params)
 
                 if response.status_code == 200:
@@ -1888,7 +1872,6 @@ def follow_artists_on_spotify(request):
                 )
             else:
                 error_message = "Failed to follow artists"
-                print("Response content:", response.text)
                 return JsonResponse(
                     {"error": error_message}, status=response.status_code
                 )
@@ -1905,16 +1888,13 @@ def follow_artists_on_spotify(request):
 @csrf_exempt
 def check_if_user_follows_artists(request):
     if request.method == "GET":
-        print("artist request: ", request)
         user_id = request.headers.get("User-Id")
         artist_ids = request.GET.get("ids", [])
-        print("all_artist_ids: ", artist_ids)
 
         if not artist_ids:
             return JsonResponse({"error": "Artist IDs are required"}, status=400)
 
         artist_ids = artist_ids.split(",")
-        print("split_artist_ids: ", artist_ids)
 
         try:
             user = User.objects.get(id=user_id)
@@ -1934,14 +1914,10 @@ def check_if_user_follows_artists(request):
             all_responses = []
 
             for chunk in chunk_list(artist_ids, 50):
-                print("chuck_artist_ids: ", artist_ids)
                 params = {"type": "artist", "ids": ",".join(chunk)}
-                print("artist_params: ", params)
                 response = requests.get(spotify_url, headers=headers, params=params)
-                print("artist_Status: ", response.status_code)
 
                 if response.status_code == 200:
-                    print("artist_response: ", response.json)
                     all_responses.extend(response.json())
                 else:
                     return JsonResponse(
