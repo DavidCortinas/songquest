@@ -166,7 +166,11 @@ export const login = (email, password) => async dispatch => {
 		});
 
 		if (!response.ok) {
-			throw new Error('Request failed with status ' + response.status);
+			const errorData = await response.json();
+			const errorMessage = errorData.non_field_errors
+				? errorData.non_field_errors.join(' ')
+				: 'Request failed with status ' + response.status;
+			throw new Error(errorMessage);
 		}
 
 		const res = await response.json();
@@ -182,7 +186,7 @@ export const login = (email, password) => async dispatch => {
 
 		return res;
 	} catch (error) {
-		console.log('Error: ' + error.message);
+		dispatch(authSlice.actions.setError(error.message));
 	}
 };
 
