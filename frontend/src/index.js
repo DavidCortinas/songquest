@@ -5,24 +5,28 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/lib/integration/react';
 import { Provider } from 'react-redux';
-import { configuredStore } from './store';
+import { store } from './store';
 import './index.css';
 import App from './App';
+import { SnackbarProvider } from './contexts/snackbar/SnackbarContext';
+import '../public/images/favicon.ico';
 // import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const store = configuredStore();
 const persistor = persistStore(store);
-window.React = React
+window.React = React;
+console.log('Running in environment:', process.env.NODE_ENV);
 
 root.render(
-  <Provider store={store}>
-    <PersistGate persistor={persistor}>
-      <Router>
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      </Router>
-    </PersistGate>
-  </Provider>
+	<Provider store={store}>
+		<PersistGate persistor={persistor}>
+			<SnackbarProvider>
+				<Router>
+					<React.StrictMode>
+						<App />
+					</React.StrictMode>
+				</Router>
+			</SnackbarProvider>
+		</PersistGate>
+	</Provider>
 );

@@ -1,1567 +1,1241 @@
-import TextField from '@mui/material/TextField';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Alert,
-  Autocomplete,
-  Box,
-  Button,
-  Card,
-  CardHeader,
-  Chip,
-  Grid,
-  MenuItem,
-  Slider,
-  Snackbar,
-  Typography,
-  useMediaQuery,
-  InputLabel,
-  Select,
-  FormControl,
-  OutlinedInput,
-  Tooltip,
-  Input,
-  FormControlLabel,
-  Switch,
-  ToggleButton,
+	Alert,
+	Box,
+	Button,
+	Modal,
+	Snackbar,
+	ToggleButton,
+	ToggleButtonGroup,
+	Tooltip,
+	Typography,
+	useMediaQuery
 } from '@mui/material';
-import CancelIcon from '@mui/icons-material/Cancel';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import QueueMusicIcon from '@mui/icons-material/QueueMusic';
-import { useForm } from 'react-hook-form';
-import { makeStyles, useTheme } from '@mui/styles';
-import { getCode, getCountry } from 'iso-3166-1-alpha-2';
-import { SpotifyAuth, addToSpotify, checkUsersTracks, createPlaylistRequest, discoverSongRequest, getSpotifyGenres, getSpotifyMarkets, getSpotifySearchResult, login, refreshAccessToken, removeUsersTracks } from '../thunks';
-import { clearSearchSongError, discoverSongSuccess, resetDataLoaded, resetQueryParameter, setCurrentUser, setQueryParameter } from '../actions';
+import CloseIcon from '@mui/icons-material/Close';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { makeStyles } from '@mui/styles';
+import {
+	confirmSpotifyAccess,
+	getUserKarmaSuccess,
+	getUserProfileSuccess,
+	getUserTokensSuccess,
+	removeFromCurrentPlaylistById,
+	setSelectedPlaylist
+} from '../actions';
 import '../App.css';
-import theme from '../theme'
+import theme from '../theme';
 import { LoadingState } from './LoadingState';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { SpotifyConnect } from './SpotifyConnect';
-import { Body } from './Home';
-import { user } from '../reducers';
+import { Body } from './Body';
+import LeftPanel from './sidePanels/LeftPanel';
+import RightPanel from './sidePanels/RightPanel';
+import { initialDiscoveryState } from '../reducers';
+import { saveRequestParameters } from '../thunks';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { DemoModal } from './auth/DemoModal';
 
-const useStyles = makeStyles(() => (
-  {
-  card: {
-    backgroundColor: "white",
-    justifyContent: 'center',
-    display: 'flex',
-    width: '100%',
-    marginTop: '2rem'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    color: "#007fbf",
-    // backgroundColor: "white",
-    width: '90%',
-    marginTop: '30px',
-  },
-  textField: {
-    marginLeft: '8px',
-    width: '66%',
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
-    },
-    backgroundColor: 'white',
-    borderRadius: '5px',
-  },
-  resultsField: {
-    width: '15%',
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
-    },
-    backgroundColor: 'white',
-    borderRadius: '5px',
-  },
-  primaryField: {
-    width: '50%',
-    backgroundColor: 'white',
-    borderRadius: '5px',
-    marginRight: '10px',
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
-      paddingRight: '0',
-      margin: '0 0 1em'
-    },
-  },
-  secondaryField: {
-    width: '66%',
-    [theme.breakpoints.down('sm')]: {
-      width: '40%',
-    },
-    [theme.breakpoints.down('xs')]: {
-      width: '50%',
-    },
-    backgroundColor: 'white',
-    borderRadius: '5px',
-  },
-  menuList: {
-    '& li': {
-      color: 'black', // Define the color for MenuItem values
-    },
-  },
-  subHeader: {
-    width: '40%',
-    [theme.breakpoints.up('sm')]: {
-      width: '25rem',
-    },
-  },
-  description: {
-    maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
-    color: '#6f6f71',
-    paddingTop: '1rem',
-  },
-  buttonsContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    paddingTop: '2%',
-  },
-  noBottomLine: {
-    borderBottom: 'none',
-  },
-  recommendations: {
-    display: 'flex',
-    justifyContent: 'center',
-    listStyle: 'none',
-  },
-  recommendationsUl: {
-    width: '100%'
-  },
-  resetBtn: {
-    position: 'fixed',
-    bottom: '2%',
-    right: '2%',
-    color: '#006f96',
-    fontSize: 14,
-    [theme.breakpoints.down('md')]: {
-      bottom: '12%',
-      right: '0',
-    }
-  },
-  createPlaylistBtn: {
-    position: 'fixed',
-    bottom: '2%',
-    left: '2%',
-    color: '#006f96',
-    fontSize: 14,
-    [theme.breakpoints.down('lg')]: {
-      left: '7%',
-    },
-    [theme.breakpoints.down('md')]: {
-      bottom: '12%',
-      left: '0'
-    },
-  },
-  discoveryCard: {
-    padding: '2rem',
-    marginTop: '2rem',
-    position: 'fixed',
-    left: '7%',
-    color: 'white',
-    // backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
-    width: '15%',
-    maxHeight: '80%',
-    [theme.breakpoints.down('lg')]: {
-      left: '10%',
-      width: '10%',
-    },
-  },
-  accordion: {
-    width: '100%',
-    borderRadius: '5px',
-    overflow: 'hidden',
-    paddingTop: '1%'
-  },
-  inputLabel: {
-    overflow: 'hidden',   
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    margin: '0 1em', 
-  },
-  detailsHeader: {
-    boxShadow: '0 4px 2px -2px #013a57',
-    width: '100%',
-    marginBottom: '1rem',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  sliderBox: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingRight: '2%',
-    [theme.breakpoints.down('md')]: {
-      flexDirection: 'column',
-    },
-  }
+const Recommendations = lazy(() => import('./Recommendations'));
+const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'));
+const SaveQueryModal = lazy(() => import('./SaveQueryModal'));
+
+const useStyles = makeStyles(theme => ({
+	root: {
+		padding: '15px 0 5px',
+		[theme.breakpoints.down('md')]: {
+			padding: '0px'
+		}
+	},
+	paper: {
+		marginTop: '1vh',
+		backgroundColor: '#30313d',
+		width: '18%'
+	},
+	expanded: {
+		'&.Mui-expanded': {
+			margin: 0
+		}
+	},
+	card: {
+		backgroundColor: 'white',
+		justifyContent: 'center',
+		display: 'flex',
+		width: '100%',
+		marginTop: '2rem'
+	},
+	form: {
+		display: 'flex',
+		flexDirection: 'column',
+		color: '#007fbf',
+		width: '90%',
+		border: '2px solid rgba(89, 149, 192, 0.5)',
+		borderRadius: '18px',
+		background: 'rgba(48, 130, 164, 0.15)',
+		// background: 'rgba(196,213,228, 0.2)',
+		boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+		padding: '0 2%'
+	},
+	panelCard: {
+		display: 'flex',
+		width: '18vw',
+		minHeight: 'fit-content',
+		padding: '0.5%',
+		alignItems: 'center',
+		justifyContent: 'center',
+		overflow: 'hidden',
+		margin: '1%',
+		borderRadius: '8px',
+		backgroundColor: '#282828',
+		boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+		opacity: '0.8',
+		'&:hover, &:active, &.MuiFocusVisible': {
+			border: '2px solid rgba(89, 149, 192, 0.5)',
+			background: 'rgba(48, 130, 164, 0.15)',
+			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+		},
+		[theme.breakpoints.down('lg')]: {
+			width: '25vw'
+		},
+		[theme.breakpoints.down('sm')]: {
+			width: '50vw'
+		}
+	},
+	buttonWithMargin: {
+		margin: '2%',
+		width: '22vw',
+		height: '10vh',
+		[theme.breakpoints.down('md')]: {
+			width: '80%'
+		}
+	},
+	button: {
+		color: 'white',
+		backgroundColor: 'rgba(44, 216, 207, 0.3)',
+		border: '2px solid rgba(89, 149, 192, 0.5)',
+		borderRadius: '18px',
+		boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+		transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+		'&:hover, &:active, &.MuiFocusVisible': {
+			border: '2px solid rgba(89, 149, 192, 0.5)',
+			backgroundColor: 'rgb(44, 216, 207, 0.5)',
+			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+		}
+	},
+	disabled: {
+		color: 'grey',
+		backgroundColor: 'rgb(44, 216, 207, 0.1)',
+		border: '2px solid rgba(89, 149, 192, 0.5)',
+		borderRadius: '18px',
+		boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+		transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+		'&:hover, &:active, &.MuiFocusVisible': {
+			border: '2px solid rgba(89, 149, 192, 0.5)',
+			backgroundColor: 'rgb(44, 216, 207, 0.2)',
+			boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+		}
+	},
+	highlightedButton: {
+		backgroundColor: 'rgb(44, 216, 207, 0.5)'
+	},
+	sidePanel: {
+		marginTop: '10px',
+		height: '95vh',
+		width: '20%',
+		color: 'white',
+		border: '2px solid rgba(89, 149, 192, 0.5)',
+		borderRadius: '18px',
+		background: 'rgba(48, 130, 164, 0.15)',
+		boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+		overflowY: 'auto',
+		scrollbarWidth: 'thin',
+		scrollbarColor: `${theme.palette.primary.analogous1} transparent`,
+		WebkitOverflowScrolling: 'touch',
+		scrollbarFaceColor: theme.palette.primary.analogous2,
+		scrollbarHighlightColor: 'transparent',
+		scrollbarShadowColor: 'transparent',
+		scrollbarDarkShadowColor: 'transparent'
+	},
+	textField: {
+		width: '66%',
+		[theme.breakpoints.down('lg')]: {
+			width: '100%'
+		},
+		backgroundColor: '#30313d',
+		borderRadius: '8px',
+		boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)'
+	},
+	resultsField: {
+		width: '15%',
+		[theme.breakpoints.down('lg')]: {
+			width: '25%'
+		},
+		[theme.breakpoints.down('md')]: {
+			width: '100%'
+		},
+		backgroundColor: '#30313d',
+		borderRadius: '8px',
+		boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)'
+	},
+	primaryField: {
+		width: '50%',
+		backgroundColor: '#30313d',
+		borderRadius: '8px',
+		boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)',
+		margin: '0 10px 0 0',
+		[theme.breakpoints.down('lg')]: {
+			width: '75%'
+		},
+		[theme.breakpoints.down('md')]: {
+			width: '100%',
+			paddingRight: '0',
+			margin: '1vh'
+		}
+	},
+	secondaryField: {
+		width: '66%',
+		[theme.breakpoints.down('sm')]: {
+			width: '40%'
+		},
+		[theme.breakpoints.down('xs')]: {
+			width: '50%'
+		},
+		backgroundColor: '#30313d',
+		borderRadius: '8px',
+		boxShadow: '1px 1px 1px 1px rgba(0,0,0,0.75)'
+	},
+	menuList: {
+		'& li': {
+			color: 'black'
+		}
+	},
+	subHeader: {
+		width: '40%',
+		[theme.breakpoints.up('sm')]: {
+			width: '25rem'
+		}
+	},
+	description: {
+		maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
+		color: '#6f6f71',
+		paddingTop: '1rem'
+	},
+	buttonsContainer: {
+		display: 'flex',
+		justifyContent: 'center',
+		paddingTop: '2%'
+	},
+	noBottomLine: {
+		borderBottom: 'none'
+	},
+	recommendations: {
+		display: 'flex',
+		alignItems: 'start',
+		listStyle: 'none'
+	},
+	recommendationsUl: {
+		width: '100%'
+	},
+	resetBtn: {
+		position: 'fixed',
+		bottom: '2%',
+		right: '2%',
+		color: 'white',
+		fontSize: 14,
+		[theme.breakpoints.down('md')]: {
+			bottom: '12%',
+			right: '0'
+		}
+	},
+	createPlaylistBtn: {
+		position: 'fixed',
+		bottom: '2%',
+		left: '2%',
+		color: '#006f96',
+		fontSize: 14,
+		[theme.breakpoints.down('lg')]: {
+			left: '7%'
+		},
+		[theme.breakpoints.down('md')]: {
+			bottom: '12%',
+			left: '0'
+		}
+	},
+	modal: {
+		width: '100%',
+		borderRadius: '18px',
+		overflow: 'hidden',
+		paddingTop: '1%'
+	},
+	inputLabel: {
+		overflow: 'hidden',
+		whiteSpace: 'nowrap',
+		textOverflow: 'ellipsis',
+		margin: '0 1em',
+		color: 'white'
+	},
+	detailsHeader: {
+		boxShadow: '0 4px 2px -2px #013a57',
+		width: '100%',
+		marginBottom: '1rem',
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center'
+	},
+	sliderBox: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		paddingBottom: '15px',
+		width: '100%',
+		marginLeft: '-25px',
+		[theme.breakpoints.down('md')]: {
+			flexDirection: 'column'
+		},
+		[theme.breakpoints.down('sm')]: {
+			marginLeft: '-10px'
+		}
+	}
 }));
 
-const toCapitalCase= (str) => {
-    if (str) {
-        return str
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
-    } else {
-      return str
-    };
-};
-
-const autocompleteParam = ['songs', 'performers', 'genres', 'market']
-
-const AutocompleteParameter = ({
-    parameter, 
-    handleChange, 
-    classes, 
-    invalidSearch, 
-    accessToken,
-    tracks,
-    artists,
-    genres,
-    markets,
-    targetParamValues,
-    setTargetParamValues,
-    onSelectedOptions,
+const MobileResults = ({
+	discoveryRecommendations,
+	classes,
+	currentUser,
+	currentPlaylist,
+	onRemoveFromCurrentPlaylistById,
+	setIsModalOpen,
+	isLoading,
+	showTracks,
+	selectedPlaylist,
+	handleExploreMoreClick,
+	isXsScreen,
+	isSmScreen,
+	isMdScreen,
+	showPlaylists,
+	setShowPlaylists,
+	handleToggle,
+	toggleValue,
+	setToggleValue
 }) => {
-    const dispatch = useDispatch();
-    const [song, setSong] = useState('');
-    const [performer, setPerformer] = useState('');
-    const [genre, setGenre] = useState('');
-    const [market, setMarket] = useState('');
-
-
-    const handleOptionSelect = (selectedValue) => {
-        const selectedOption = options.find(option => 
-          option.id === selectedValue.id
-        );
-
-        if (selectedOption) {
-          const totalSelectedValues = Object.values(targetParamValues).reduce((total, array) => total + array.length, 0);
-
-          if (totalSelectedValues < 5 && !Object.values(targetParamValues).flat().includes(selectedOption.label)) {
-              
-              setTargetParamValues(prevValues => ({
-                  ...prevValues,
-                  [parameter]: [...prevValues[parameter], selectedOption.label],
-              }));
-
-            if (parameter === 'songs') {
-                setSong(selectedOption.label);
-                handleChange(parameter, selectedOption.id);
-              } else if (parameter === 'performers') {
-                setPerformer(selectedOption.label);
-                handleChange(parameter, selectedOption.id);
-            } else if (parameter === 'genres') {
-                setGenre(selectedOption.label);
-                handleChange(parameter, selectedOption.label);
-            } else {
-                setMarket(selectedOption.label);
-                handleChange(parameter, getCode(selectedOption.label));
-            }
-          }
-        }
-        const selectedOptions = [...targetParamValues[parameter], selectedOption?.label];
-        onSelectedOptions(parameter, selectedOptions)
-    };
-
-    useEffect(() => {
-        if (song) {
-            dispatch(getSpotifySearchResult(song, parameter, accessToken));
-        };
-        if (performer) {
-            dispatch(getSpotifySearchResult(performer, parameter, accessToken));
-        };
-        if (genre) {
-          dispatch(getSpotifyGenres(accessToken));
-        };
-        if (market) {
-          dispatch(getSpotifyMarkets(accessToken));
-        };
-    }, [song, performer, genre, market]);
-
-    const options = parameter === 'songs' 
-      ? tracks.items.map((item) => ({
-        id: item.id,
-        label: `${item.name} - ${item.artists[0].name}`,
-        image: item.album.images[2].url
-      }))
-      : parameter === 'performers'
-      ? artists.items.map((item) => ({
-        id: item.id,
-        label: item.name,
-        image: item.images[2]?.url
-      }))
-      : parameter === 'genres'
-      ? genres.map((genre, index) => ({
-        id: `genre_${index}`,
-        label: genre,
-      }))
-      : markets.map((market, index) => ({
-        id: `markets_${index}`,
-        label: getCountry(market),
-      }));
-
-    const filteredOptions = options.filter(option =>
-      !Object.values(targetParamValues).flat().includes(option.label)
-      );
-
-    return (
-      <>
-        <Autocomplete
-          multiple
-          filterSelectedOptions
-          onChange={(e, newInputValues) => {
-              const newInputValue = newInputValues[newInputValues.length - 1]
-              if (newInputValue) {
-                  handleOptionSelect(newInputValue);
-              }
-          }}
-          selectOnFocus
-          clearOnBlur
-          handleHomeEndKeys
-          options={filteredOptions}
-          renderOption={(props, option) => {
-            return (
-              <Box component="li" sx={{justifyContent: 'space-between'}} {...props}>
-                  {option.image && <img
-                      loading="lazy"
-                      width="40"
-                      src={option.image}
-                      alt=""
-                  />}
-                  {option.label}
-              </Box>
-          )}}
-          freeSolo
-          ChipProps={{ 
-            sx: {
-              color: {
-                color: 'white',
-                backgroundColor: '#006f96',
-                '& .MuiChip-deleteIcon': {
-                  color: 'white',
-                },
-              '& .MuiChip-deleteIcon:hover': {
-                color: '#00435a',
-              },
-              
-            }}
-          }}
-          className={classes.textField}
-          renderInput={(params) => (
-              <TextField
-                  {...params} 
-                  label={parameter === 'songs' 
-                    ? 'Select Songs' 
-                    : parameter === 'performers'
-                    ? 'Select Artists'
-                    : parameter === 'genres' 
-                    ? 'Select Genres'
-                    : 'Select Market'
-                  }
-                  value={parameter === 'songs' 
-                    ? song 
-                    : parameter === 'performers'
-                    ? performer
-                    : parameter === 'genres'
-                    ? genre
-                    : market
-                  }
-                  onChange={
-                    parameter === 'songs' 
-                    ? (e) => setSong(e.target.value)
-                    : parameter === 'performers'
-                    ? (e) => setPerformer(e.target.value)
-                    : parameter === 'genres'
-                    ? (e) => setGenre(e.target.value)
-                    : (e) => setMarket(e.target.value)
-                  }
-                  variant='standard'
-                  InputLabelProps={{
-                    style: {paddingLeft: '1em'},
-                  }}
+	return (
+		<Box
+			display='flex'
+			flexDirection='row'
+			justifyContent='center'
+			width='99%'
+			id='resultsBox'
+			paddingLeft={(currentUser?.user || showTracks) && '3%'}
+		>
+			{(currentUser?.user || showTracks) &&
+				(showPlaylists ? (
+					<LeftPanel
+						setToggleValue={setToggleValue}
+						isMdScreen={isMdScreen}
+						isSmScreen={isSmScreen}
+						isXsScreen={isXsScreen}
+						setShowPlaylists={setShowPlaylists}
+						currentUser={currentUser}
+					/>
+				) : (
+					<RightPanel
+						currentPlaylist={currentPlaylist}
+						onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+						handleExploreMoreClick={handleExploreMoreClick}
+						isSmScreen={isSmScreen}
+						isXsScreen={isXsScreen}
+						setShowPlaylists={setShowPlaylists}
+					/>
+				))}
+			<Box
+				backgroundColor='transparent'
+				display='flex'
+				flexDirection='column'
+				alignItems='center'
+				width='75%'
+			>
+				{currentUser && (
+					<ToggleButtonGroup
+						exclusive
+						sx={{
+							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+							borderRadius: '8px',
+							width: '70%',
+							marginTop: '2%'
+						}}
+						onChange={handleToggle}
+					>
+						<ToggleButton
+							value='Discovery Results'
+							sx={{
+								backgroundColor:
+									toggleValue === 'Discovery Results'
+										? 'rgb(44, 216, 207, 0.3)'
+										: 'rgba(48, 130, 164, 0.15)',
+								color: toggleValue === 'Discovery Results' ? 'whitesmoke' : 'grey',
+								borderRadius: '8px',
+								fontSize: '0.75rem',
+								width: '50%',
+								'&:hover': {
+									backgroundColor: 'rgb(44, 216, 207, 0.5)',
+									color: 'whitesmoke'
+								}
+							}}
+						>
+							{'Discovery Results'}
+						</ToggleButton>
+						<ToggleButton
+							value='Selected Playlist'
+							sx={{
+								backgroundColor:
+									toggleValue === 'Selected Playlist'
+										? 'rgb(44, 216, 207, 0.3)'
+										: 'rgba(48, 130, 164, 0.15)',
+								color: toggleValue === 'Selected Playlist' ? 'whitesmoke' : 'grey',
+								borderRadius: '8px',
+								fontSize: '0.75rem',
+								width: '50%',
+								'&:hover': {
+									backgroundColor: 'rgb(44, 216, 207, 0.5)',
+									color: 'whitesmoke'
+								}
+							}}
+						>
+							{'Selected Playlist'}
+						</ToggleButton>
+					</ToggleButtonGroup>
+				)}
+				{isLoading && (
+					<Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
+						{/* <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              id='loadingState'
+            >
+              <CardHeader
+                title="Loading Results"
+                titleTypographyProps={{ color: 'white' }}
+                subheaderTypographyProps={{ color: '#3d3d3d' }}
               />
-          )}
-        />
-      </>
-    );
+            </Box> */}
+						<LoadingState />
+					</Box>
+				)}
+				{showTracks ? (
+					<Box width='100%' justifyContent='space-between'>
+						<Suspense fallback={<LoadingState />}>
+							<Recommendations
+								classes={classes}
+								recommendations={
+									toggleValue === 'Selected Playlist'
+										? selectedPlaylist.tracks
+										: discoveryRecommendations
+								}
+								user={currentUser}
+								currentPlaylist={currentPlaylist}
+								onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+								setIsModalOpen={setIsModalOpen}
+								isXsScreen={isXsScreen}
+								isSmScreen={isSmScreen}
+								isMdScreen={isMdScreen}
+								toggleValue={toggleValue}
+								handleExploreMoreClick={handleExploreMoreClick}
+							/>
+						</Suspense>
+					</Box>
+				) : (
+					!isLoading &&
+					(currentUser?.user ? (
+						<Box
+							display='flex'
+							flexDirection='column'
+							justifyContent='center'
+							alignItems='center'
+						>
+							<Typography
+								color='white'
+								textAlign='center'
+								variant='h5'
+								letterSpacing='1px'
+								padding='5% 0 0'
+								width='80%'
+							>
+								{'What kind of music are you in the mood for today?'}
+							</Typography>
+							<Typography
+								color='white'
+								// textAlign='center'
+								variant='body1'
+								letterSpacing='1px'
+								padding='5% 5% 0'
+							>
+								{`Choose from the songs, artists, and genres that inspire you and 
+                start discovering related music.`}
+							</Typography>
+							<Typography
+								color='white'
+								// textAlign='center'
+								variant='body1'
+								letterSpacing='1px'
+								padding='5% 5% 0'
+							>
+								{`* Click on "Fine Tune Your Recommendations" 
+                to enable and configure fine-tuning parameters to find music that 
+                precisely matches your preferences.`}
+							</Typography>
+							<Button
+								className={`${classes.button} ${classes.buttonWithMargin}`}
+								onClick={() => handleExploreMoreClick(false)}
+								variant='contained'
+							>
+								<Typography
+									variant='body2'
+									color='white'
+									letterSpacing='1px'
+									sx={{
+										fontWeight: 'bold',
+										cursor: 'pointer'
+									}}
+								>
+									Get Started On Your Journey
+								</Typography>
+								{/* <Typography variant='h5' paddingLeft='2%'>
+                  🚀
+                </Typography> */}
+							</Button>
+						</Box>
+					) : (
+						<Body
+							isSmScreen={isSmScreen}
+							isXsScreen={isXsScreen}
+							handleExploreMoreClick={handleExploreMoreClick}
+						/>
+					))
+				)}
+			</Box>
+		</Box>
+	);
 };
 
-const SearchParameter = ({ 
-    parameter, 
-    handleChange, 
-    classes, 
-    invalidSearch,  
-}) => (
-        <>
-          <FormControl className={classes.resultsField}>
-            <InputLabel className={classes.inputLabel} variant='standard' >Results</InputLabel>
-            <Select 
-              label='Results'
-              onChange={(e) => handleChange(parameter, e.target.value)}
-              variant="filled"
-              SelectProps={{
-                MenuProps: {
-                  anchorOrigin: {
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  },
-                  transformOrigin: {
-                    vertical: 'top',
-                    horizontal: 'left',
-                  },
-                  getContentAnchorEl: null,
-                },
-              }}
-            >
-              {Array.from({ length: 100 }, (_, index) => (
-                <MenuItem key={index} value={index + 1}>
-                  {index + 1}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-      </>
-    ); 
-
-const SliderParameter = ({ 
-  parameter, 
-  query, 
-  onSetQueryParameter, 
-  setParameters,
-  isXsScreen, 
-  isSmScreen, 
-  isMdScreen, 
-  isLgScreen, 
-  isXlScreen
+export const SongDiscovery = ({
+	recommendations,
+	selectedPlaylist,
+	editPlaylist,
+	onSetSelectedPlaylist,
+	dataLoaded,
+	currentUser,
+	currentUserProfile,
+	currentPlaylist,
+	onRemoveFromCurrentPlaylistById,
+	onSaveQuery,
+	playlists
 }) => {
-  const classes = useStyles();
-
-  const [itemSelected, setItemSelected] = useState(false);
-
-  useEffect(() => {
-    if (
-      query[parameter]['min'] === null || 
-      query[parameter]['target'] === null || 
-      query[parameter]['target'] === null
-    ) {
-      setItemSelected(false);
-    };
-  }, [query])
-
-  const handleContainerClick = () => {
-    setItemSelected((prev) => !prev);
-  };
-
-  const min = query && query[parameter]['min'];
-  const max = query && query[parameter]['max'];
-  const target = query && query[parameter]['target'];
-
-  const marks = parameter === 'time_signature' 
-  ? [
-    {
-      value: 3,
-      label: '3/4',
-    },
-    {
-      value: 4,
-      label: '4/4',
-    },
-    {
-      value: 5,
-      label: '5/4',
-    },
-    {
-      value: 6,
-      label: '6/4',
-    },
-    {
-      value: 7,
-      label: '7/4',
-    },
-  ]
-  : parameter === 'key'
-  ? [
-    {
-      value: 0,
-      label: 'C',
-    },
-    {
-      value: 1,
-      label: 'C#',
-    },
-    {
-      value: 2,
-      label: 'D',
-    },
-    {
-      value: 3,
-      label: 'D#',
-    },
-    {
-      value: 4,
-      label: 'E',
-    },
-    {
-      value: 5,
-      label: 'F',
-    },
-    {
-      value: 6,
-      label: 'F#',
-    },
-    {
-      value: 7,
-      label: 'G',
-    },
-    {
-      value: 8,
-      label: 'G#',
-    },
-    {
-      value: 9,
-      label: 'A',
-    },
-    {
-      value: 10,
-      label: 'A#',
-    },
-    {
-      value: 11,
-      label: 'B',
-    },
-  ]
-  : [
-      {
-        value: parameter === 'duration_ms' 
-          ? 30000
-          : parameter === 'loudness'
-          ? -60
-          : 0,
-        label: parameter === 'duration_ms' 
-          ? '30 seconds'
-          : parameter === 'loudness'
-          ? '-60 db'
-          : parameter === 'tempo'
-          ? '0 bpm'
-          : '0%',
-      },
-      {
-        value: parameter === 'duration_ms' 
-          ? 1800000
-          : parameter === 'loudness'
-          ? -30
-          : parameter === 'tempo'
-          ? 150
-          : parameter === 'mode' || parameter === 'popularity' 
-          ? 50
-          : 0.5,
-        label: parameter === 'duration_ms' 
-          ? '30 minutes'
-          : parameter === 'loudness'
-          ? '-30 db'
-          : parameter === 'tempo'
-          ? '150 bpm'
-          : '50%',
-      },
-      {
-        value: parameter === 'duration_ms' 
-          ? 3600000
-          : parameter === 'loudness'
-          ? 0
-          : parameter === 'tempo'
-          ? 300
-          : parameter === 'mode' || parameter === 'popularity'
-          ? 100
-          : 1,
-        label: parameter === 'duration_ms' 
-          ? '1 hr'
-          : parameter === 'loudness'
-          ? '0 db'
-          : parameter === 'tempo'
-          ? '300 bpm'
-          : '100%',
-      },
-    ];
-
-  const [parameterValue, setParameterValue] = useState({
-    min: min !== null ? min : 0,
-    target: max !== null ? max : 50,
-    max: target!== null ? target : 100,
-  });
-
-  useEffect(() => {
-    const min = query && query[parameter] && query[parameter]['min'];
-    const max = query && query[parameter] && query[parameter]['max'];
-    const target = query && query[parameter] && query[parameter]['target'];
-
-    setParameterValue({
-      min: min !== null 
-        ? min
-        : parameter === 'duration_ms'
-        ? 30000
-        : parameter === 'time_signature'
-        ? 1
-        : parameter === 'key'
-        ? -1
-        : parameter === 'loudness'
-        ? -60
-        : 0,
-      target: target !== null 
-      ? target
-      : parameter === 'duration_ms'
-      ? 1800000
-      : parameter === 'key'
-      ? 6
-      : parameter === 'loudness'
-      ? -30
-      : parameter === 'mode' || parameter === 'popularity'
-      ? 50
-      : parameter === 'tempo'
-      ? 150
-      : parameter === 'time_signature'
-      ? 5
-      : .50,
-      max: max !== null 
-        ? max 
-        : parameter === 'duration_ms'
-        ? 3600000
-        : parameter === 'tempo'
-        ? 300
-        : parameter === 'mode' || parameter === 'popularity'
-        ? 100
-        : parameter === 'time_signature' || parameter === 'key'
-        ? 11
-        : parameter === 'loudness'
-        ? 0
-        : 1,
-    });
-  }, [query, parameter]);
-
-  const handleSliderChange = (newValues) => {
-    const [newMin, newTarget, newMax] = newValues;
-
-    setParameterValue({
-      min: newMin,
-      target: newTarget,
-      max: newMax,
-    });
-
-    setParameters(prevParameters => ({
-    ...prevParameters,
-    [parameter]: {
-      min: newMin,
-      target: newTarget,
-      max: newMax,
-      label: query[parameter]['label']
-    },
-
-    }));
-
-    onSetQueryParameter(query, parameter, newValues);
-  };
-  
-  return (
-    <Box className={classes.sliderBox}>
-      <FormControlLabel 
-        control={<Switch onChange={handleContainerClick} checked={itemSelected}/>} 
-        label={toCapitalCase(query[parameter].label)}
-        labelPlacement='end' 
-        sx={{ paddingLeft: '0' }}
-      />
-      <Slider
-        disabled={!itemSelected}
-        disableSwap
-        track={false}
-        aria-labelledby="track-false-range-slider"
-        onChange={(e, newValues) => handleSliderChange(newValues)}
-        // getAriaValueText={valuetext}
-        value={[parameterValue.min, parameterValue.max, parameterValue.target]}
-        marks={marks}
-        valueLabelDisplay="auto"
-        valueLabelFormat={(value, index) => {
-          if (index === 0) return `Min: ${value}`;
-          if (index === 1) return `Target: ${value}`;
-          if (index === 2) return `Max: ${value}`;
-          return '';
-        }}
-        max={
-          parameter === 'duration_ms'
-          ? 3600000
-          : parameter === 'tempo'
-          ? 300
-          : parameter === 'mode' || parameter === 'popularity'
-          ? 100
-          : parameter === 'time_signature' 
-          ? 7
-          : parameter === 'key'
-          ? 11
-          : parameter === 'loudness'
-          ? 0
-          : 1
-        }
-        min={
-          parameter === 'duration_ms'
-          ? 30000
-          : parameter === 'time_signature'
-          ? 3
-          : parameter === 'loudness'
-          ? -60
-          : 0
-        }
-        step={
-          parameter === 'duration_ms' 
-          ? 10
-          : parameter === 'mode' 
-            || parameter === 'popularity' 
-            || parameter === 'key'
-            || parameter === 'time_signature'
-            || parameter === 'tempo'
-          ? 1
-          :0.01
-        }
-        sx={ isLgScreen || isXlScreen || isMdScreen ? { 
-          width: '75%',
-        } : {
-          width: '90%',
-          alignSelf: 'flex-end'
-        }}
-      />
-    </Box>
-  )
-};
-
-const CollapsibleSliders = ({ 
-  parameters, 
-  setParameters, 
-  query, 
-  onSetQueryParameter, 
-  expanded, 
-  setExpanded, 
-  handleExpand,
-  isXsScreen,
-  isSmScreen,
-  isMdScreen,
-  isLgScreen,
-  isXlScreen,
-}) => {
-
-  return (
-    <Accordion expanded={expanded}>
-    <AccordionSummary
-      expandIcon={<ExpandMoreIcon sx={{ color: 'whitesmoke' }} />}
-      onClick={handleExpand}
-      sx={{ backgroundColor: '#013a57', color: 'white', borderRadius: '3px' }}
-    >
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between',
-        alignItems: 'center', 
-        width: '98%' }}>
-        <Typography>Fine Tune Your Recommendations</Typography>
-        <Typography 
-          color='#f6f8fc' 
-          variant='caption' 
-          textAlign='end'
-        >
-          {
-            isXsScreen || isSmScreen ? 
-            "* activate parameters and set the min, target, and max values" : 
-            "* activate additional parameters and set the min, target, and max values to refine your recommendations"}
-        </Typography>
-      </Box>
-    </AccordionSummary>
-      <AccordionDetails 
-        sx={{ 
-          maxHeight: '300px', 
-          overflowY: 'auto',
-          // paddingTop: '3%' 
-        }}
-      >
-        <>
-          <Grid container columns={20}>
-            {isMdScreen || isLgScreen || isXlScreen ?
-              (
-                <Grid item xs={4}>
-                  <Typography>Fine Tuning Parameters</Typography>
-                </Grid>
-              ) : (
-                <Grid item xs={1}></Grid>
-              )
-            }
-            <Grid item xs={
-              isMdScreen || isLgScreen || isXlScreen ?
-              16 :
-              19
-            }> 
-              <Box 
-                display='flex' 
-                flexDirection='row' 
-                justifyContent='space-between'
-              >
-                <Typography textAlign='start'>Minimum Value</Typography>
-                <Typography textAlign='center'>Target Value</Typography>
-                <Typography textAlign='end'>Maximum Value</Typography>
-              </Box>
-            </Grid>
-          </Grid>
-          {Object.keys(parameters).map((parameter, index) => { 
-            return parameter !== 'limit' && !autocompleteParam.includes(parameter) && (
-            <SliderParameter
-              key={index}
-              parameter={parameter}
-              setParameters={setParameters}
-              query={query}
-              onSetQueryParameter={onSetQueryParameter}
-              isXsScreen={isXsScreen}
-              isSmScreen={isSmScreen}
-              isMdScreen={isMdScreen}
-              isLgScreen={isLgScreen}
-              isXlScreen={isXlScreen}
-            />
-          )})}
-        </>
-      </AccordionDetails>
-    </Accordion>
-  );
-};
-
-const Recommendation = ({ 
-  classes,
-  index,
-  recommendation,
-  user,
-  handleAddToSpotify,
-  handleCheckUsersTracks,
-  handleRemoveUsersTracks,
-  setConnectToSpotify, 
-}) => {
-  const [isSavedTrack, setIsSavedTrack] = useState(false);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Call the thunk when the component mounts
-    const fetchData = async () => {
-      const data = await handleCheckUsersTracks(recommendation, user?.spotify_access, user?.spotify_refresh, user?.spotify_expires_at);
-      data && setIsSavedTrack(data[0]); // Set the response data in the state
-    };
-
-    user && fetchData();
-  }, [recommendation, user, handleCheckUsersTracks]);
-
-  const handleLikeClick = () => {
-
-    if (user?.user.spotify_email && user?.spotify_access) {
-      if (isSavedTrack) {
-        handleRemoveUsersTracks(recommendation, user?.spotify_access, user?.spotify_refresh, user?.spotify_expires_at);
-      }
-      else {
-        handleAddToSpotify(recommendation);
-      };
-
-      setIsSavedTrack(!isSavedTrack);
-    } if (user) {
-      navigate('/spotify-connect');
-    } else {
-      navigate('/login');
-    };
-
-  };
-
-  
-
-  return (
-    <li className={classes.recommendations}>
-      
-      <iframe
-        key={index}
-        src={`https://open.spotify.com/embed/track/${recommendation.id}?utm_source=generator`}
-        width={'70%'}
-        height="100%"
-        frameBorder="0"
-        allowFullScreen=""
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy" 
-      />
-      <Tooltip 
-        arrow
-        title={user?.user.spotify_email && user?.spotify_access ? 
-          "Save to your Spotify library" : user ? 
-          "Connect to Spotify to save to libary" : 
-          "Login and connect to Spotify to save to libary"
-        }
-      >
-        <Button onClick={handleLikeClick}>
-          <FavoriteIcon color={isSavedTrack ? 'success' : 'action'} />
-        </Button>
-      </Tooltip>
-    </li>
-  );
-};
-
-export const SongDiscovery = ({ 
-    recommendations, 
-    error, 
-    query, 
-    onSearchPressed, 
-    onResetQueryParameter, 
-    onResetDataLoaded,
-    onSetQueryParameter,
-    onAddToSpotify, 
-    handleCheckUsersTracks,
-    handleRemoveUsersTracks,
-    dataLoaded,
-    tracks,
-    artists,
-    genres,
-    markets,
-    user,
- }) => {
-  const theme = useTheme();
-
-  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-  const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-  const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
-
-  const [parameters, setParameters] = useState(query);
-  const [isLoading, setIsLoading] = useState(false);
-  const [invalidSearch, setInvalidSearch] = useState(false);
-  const [createPlaylist, setCreatePlaylist] = useState(false);
-  const [playlistName, setPlaylistName] = useState('');
-  const [playlistDescription, setPlaylistDescription] = useState('Created with SongQuest');
-  const [isPlaylistPublic, setIsPlaylistPublic] = useState(false);
-  const [connnectToSpotify, setConnectToSpotify] = useState(false);
-  
-  const [targetParams, setTargetParams] = useState(['songs', 'performers', 'genres']);
-
-  const [targetParamValues, setTargetParamValues] = useState({
-      songs: [],
-      performers: [],
-      genres: [],
-  });
-
-  const [targetParamLabels, setTargetParamLabels] = useState({
-  songs: [],
-  performers: [],
-  genres: [],
-  });
-
-  const [usernameValue, setUsernameValue] = useState('');
-  const [usernameCreated, setUsernameCreated] = useState(Boolean(user?.user));
-  const [spotifyAuthorized, setSpotifyAuthorized] =  useState(false);
-
-
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const email = searchParams.get('email');
-
-  useEffect(() => {
-          // Define an async function inside the useEffect
-          async function fetchData() {
-              const access_token = searchParams.get('access_token');
-              const refresh_token = searchParams.get('refresh_token');
-              const spotify_access_token = searchParams.get('spotify_access_token');
-              const spotify_refresh_token = searchParams.get('spotify_refresh_token');
-              const spotify_expires_at = searchParams.get('spotify_expires_at');
-              const spotify_username = searchParams.get('username')
-
-              if (spotify_access_token && spotify_refresh_token && spotify_expires_at) {
-                  // Use await within the async function
-                  const currentUser = await dispatch(login(email, null, spotify_access_token, spotify_refresh_token, spotify_expires_at));
-                  dispatch(setCurrentUser(currentUser));
-
-                  setSpotifyAuthorized(true);
-              };
-
-              // Check if access_token and refresh_token exist, and then remove them from the URL
-              if (spotify_access_token && spotify_refresh_token && spotify_expires_at) {
-              // Create a new URLSearchParams without the tokens
-              const newSearchParams = new URLSearchParams(searchParams);
-              newSearchParams.delete('email');
-              newSearchParams.delete('spotify_access_token');
-              newSearchParams.delete('spotify_refresh_token');
-              newSearchParams.delete('spotify_expires_at');
-
-              // Replace the URL without the tokens
-              const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
-              window.history.replaceState({}, document.title, newURL);
-              };
-
-              if (spotify_username) {
-                  const newSearchParams = new URLSearchParams(searchParams);
-
-                  setUsernameValue(spotify_username);
-                  newSearchParams.delete('username');
-                  newSearchParams.delete('email');
-                  newSearchParams.delete('spotify_access_token');
-                  newSearchParams.delete('spotify_refresh_token');
-                  newSearchParams.delete('spotify_expires_at');
-
-                  const newURL = `${window.location.pathname}?${newSearchParams.toString()}`;
-                  window.history.replaceState({}, document.title, newURL);
-              };
-          };
-
-          // Call the async function
-          fetchData();
-      }, [email, spotifyAuthorized, usernameCreated]);
-
-  const { handleSubmit } = useForm();
-
-  const handleChange = (param, value) => {
-
-    const sliderParam = value?.hasOwnProperty('min') 
-    || value?.hasOwnProperty('max') 
-    ||value?.hasOwnProperty('target')
-    
-    setInvalidSearch(false);
-
-    if (!sliderParam) {
-      setParameters(prevParameters => {
-        if (param === 'market' || param === 'limit') {
-            return {
-                ...prevParameters,
-                [param]: value
-            };
-        } else {
-            if (!prevParameters[param].includes(value) 
-              && Object.values(targetParamValues).reduce((total, array) => 
-              total + array.length, 0) < 5) {
-              return {
-                ...prevParameters,
-                [param]: [...prevParameters[param], value]
-              };
-            } else {
-                return prevParameters;
-            }
-          }
-      })} 
-  };
-
-  const [selectOpen, setSelectOpen] = useState(false);
-
-  const handleTargetParamChange = (e) => {
-    setSelectOpen(!selectOpen);
-    setTargetParams(e.target.value);
-  }
-
-  const handleTargetParamDelete = (value) => {
-    setTargetParams((prevTargetParam) =>
-      prevTargetParam.filter((param) => param !== value)
-    )
-  }
-
-  const dispatch = useDispatch();
-
-  const handleSnackbarClose = () => {
-    dispatch(clearSearchSongError());
-  };
-
-  const onSubmit = async () => {
-    // if (songValue === '') {
-    //   // Empty song value, set invalidSearch to true and exit the onSubmit process
-    //   setInvalidSearch(true);
-    //   return;
-    // }
-    setIsLoading(true);
-    setExpanded(false);
-
-    // const newQuery = {
-    //   song: songValue,
-    //   performer: performerValue,
-    // };
-    try {
-      if (createPlaylist) {
-        console.log('create playlist')
-        console.log(user)
-        console.log({
-          playlist_name: playlistName,
-          playlist_description: playlistDescription,
-          is_public: isPlaylistPublic,
-        })
-        await createPlaylistRequest(
-          user.user.id, 
-          playlistName, 
-          playlistDescription, 
-          isPlaylistPublic, 
-          user?.spotify_access,
-          user?.spotify_refresh,
-          user?.spotify_expires_at,
-        )
-      } else {
-        await onSearchPressed(parameters); 
-      //   dispatch(resetQueryParameter());
-        setIsLoading(false);
-      }
-
-    } catch (error) {
-      console.log('Error: ', error);
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (isLoading) {
-      const targetHeight = 650; // Replace 500 with the desired vertical position (height) in pixels.
-
-      window.scrollTo({
-        top: targetHeight,
-        behavior: 'smooth', // Use 'auto' for instant scrolling.
-      });
-    };
-  }, [isLoading])
-
-  const handleReset = () => {
-    setInvalidSearch(false);
-    setExpanded(false);
-    setParameters(query);
-    setTargetParams([]);
-    setTargetParamLabels(
-      {
-        songs: [],
-        performers: [],
-        genres: [],
-      }
-    );
-    setTargetParamValues(
-      {
-        songs: [],
-        performers: [],
-        genres: [],
-      }
-    );
-    onResetDataLoaded();
-    onResetQueryParameter(); 
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault(); // Prevent form submission
-    onSubmit(); // Call the onSubmit function manually
-  };
-
-  const hasMinMaxKeys = (obj) => {
-    return 'min' in obj && 'max' in obj && 'target' in obj;
-  } ;
-
-  const [expanded, setExpanded] = useState(false);
-
-  const handleExpand = () => {
-    setExpanded(!expanded);
-  };
-
-  const handleSelectedOptions = (parameter, selectedOptions) => {
-    setTargetParamLabels(prevLabels => ({
-      ...prevLabels,
-      [parameter]: selectedOptions,
-    }))
-  };
-
-  const handleExploreMoreClick = () => {
-    // Smoothly scroll to the top of the page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setCreatePlaylist(false);
-  };
-
-  const handleAddToSpotify = (recommendation) => {
-    onAddToSpotify(recommendation, user.spotify_access, user.spotify_refresh, user.spotify_expires_at);
-  }
-
-  const handleCreatePlaylist = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setCreatePlaylist(true);
-  }
-
-  const classes = useStyles();
-  const discoveryRecommendations = recommendations?.tracks
-
-  const showTracks = discoveryRecommendations && dataLoaded && !query.limit
-
-  window.addEventListener('scroll', () => {
-    const scrollPosition = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const pageHeight = document.documentElement.scrollHeight;
-
-    const buttonsContainer = document.querySelector('.buttons-container');
-
-    const distanceFromTop = 200;
-    const distanceFromBottom = 225;
-
-    if (buttonsContainer && (scrollPosition < distanceFromTop || pageHeight - (scrollPosition + windowHeight) < distanceFromBottom)) {
-      buttonsContainer.style.display = 'none';
-    } 
-    if (buttonsContainer && !(scrollPosition < distanceFromTop || pageHeight - (scrollPosition + windowHeight) < distanceFromBottom)) {
-      buttonsContainer.style.display = 'block';
-    }
-  });
-
-  return (
-    <>
-      <Box
-        sx={{
-          // minHeight: '20rem',
-          width: '100%',
-          // backgroundImage: 'linear-gradient(to bottom right, #004b7f, #006f96, #0090c3)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <form className={classes.form} onSubmit={handleFormSubmit}>
-          {/* <FormControl> */}
-          {/* <CardHeader
-            title={createPlaylist ? "🎵 Create New Playlist 🎶" : "🎵 Discover New Music 🎶"}
-            titleTypographyProps={{
-              width: '100%',
-              variant: isSmScreen || isXsScreen
-                ? 'h6'
-                : 'h5',
-              textAlign: 'center',
-              color: 'white',
-              paddingTop: '2%',
-            }}
-            subheader={!isXsScreen && !createPlaylist &&
-              "Begin your journey by selecting the songs, artists, and genres you'd like to shape your recommendations."}
-            // "Discover music with Song Explorer. Uncover new tunes based on your preferences - from similar songs to unique genres. Begin your musical journey now!"}
-            subheaderTypographyProps={{
-              width: '100%',
-              variant: isXlScreen || isLgScreen
-                ? 'body1'
-                : 'body2',
-              textAlign: 'center',
-              color: 'whitesmoke',
-            }} /> */}
-          <Typography 
-            color='white' 
-            textAlign='center'
-            paddingBottom='5px'
-            variant={isXsScreen || isSmScreen ?
-            "body2" :
-            "body1"}
-          >
-            {isXsScreen || isSmScreen ? 
-            "Select the songs, artists, and genres you'd like to shape your recommendations." :
-            "Begin your journey by selecting the songs, artists, and genres you'd like to shape your recommendations"}
-          </Typography>
-          <>
-            <SpotifyAuth>
-              {(accessToken) => {
-                return createPlaylist ? (
-                  <Box
-                    display="flex"
-                    flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
-                    justifyContent='center'
-                    alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
-                    style={{ marginBottom: '1%' }}
-                  >
-                    <FormControl style={{ width: '50%' }}>
-                      <TextField 
-                        label="Enter Playlist Name" 
-                        style={{ 
-                          marginBottom: '8px',
-                          backgroundColor: 'white',
-                        }}
-                        value={playlistName}
-                        onChange={(e) => setPlaylistName(e.target.value)}
-                      />
-                      <TextField 
-                        value={playlistDescription}
-                        style={{ 
-                          marginBottom: '8px',
-                          backgroundColor: 'white',
-                        }}
-                        multiline
-                        rows={3}
-                        disabled 
-                      />
-                      <FormControlLabel 
-                        disabled 
-                        value={isPlaylistPublic}
-                        control={<Switch />} 
-                        label={
-                          <span style={{ color: 'lightgrey' }}>Make Playlist Public</span>
-                        }
-                      />
-                    </FormControl>
-                  </Box>
-                ) : (
-                  <>
-                    {Object.keys(parameters).map((parameter, index) => {
-                      return parameter === 'limit' || autocompleteParam.includes(parameter) ? (
-                        <Box key={index}>
-                          <Box>
-                            {parameter === 'limit' ? (
-                              <>
-                                <Box
-                                  display="flex"
-                                  flexDirection={(isXsScreen || isSmScreen) ? "column" : "row"}
-                                  justifyContent='center'
-                                  alignItems={(isXsScreen || isSmScreen) ? "center" : "flex-start"}
-                                  style={{ marginBottom: '1%' }}
-                                >
-                                  <FormControl className={classes.primaryField}>
-                                    <InputLabel 
-                                      className={classes.inputLabel} 
-                                      variant='standard'
-                                    >
-                                      Set Recommendation Sources (Songs, Artists, or Genres)
-                                    </InputLabel>
-                                    <Select
-                                      multiple
-                                      open={selectOpen}
-                                      onOpen={() => setSelectOpen(true)}
-                                      onClose={() => setSelectOpen(false)}
-                                      label="Set Recommendation Sources (Songs, Artists, or Genres)"
-                                      value={targetParams}
-                                      onChange={handleTargetParamChange}
-                                      variant="standard"
-                                      SelectProps={{
-                                        MenuProps: {
-                                          anchorOrigin: {
-                                            vertical: 'bottom',
-                                            horizontal: 'left',
-                                          },
-                                          transformOrigin: {
-                                            vertical: 'top',
-                                            horizontal: 'left',
-                                          },
-                                          getContentAnchorEl: null,
-                                        },
-                                      }}
-                                      // input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                                      renderValue={(selected) => (
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                          {selected.map((value, index) => (
-                                            <Chip
-                                              key={value}
-                                              sx={{
-                                                backgroundColor: '#006f96',
-                                                color: 'white',
-                                                '& .MuiChip-deleteIcon': {
-                                                  color: 'white',
-                                                },
-                                                marginLeft: index === 0 ? '8px' : '0px',
-                                              }}
-                                              label={toCapitalCase(value)}
-                                              deleteIcon={<CancelIcon
-                                                onMouseDown={(event) => event.stopPropagation()} />}
-                                              onDelete={() => handleTargetParamDelete(value)} />
-                                          ))}
-                                        </Box>
-                                      )}
-                                    >
-                                      <MenuItem value={'songs'}>Songs</MenuItem>
-                                      <MenuItem value={'performers'}>Performers</MenuItem>
-                                      <MenuItem value={'genres'}>Genres</MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                  <SearchParameter
-                                    parameter={parameter}
-                                    handleChange={handleChange}
-                                    invalidSearch={invalidSearch}
-                                    classes={classes} 
-                                  />
-                                </Box>
-                                <Typography
-                                  textAlign='center'
-                                  color='whitesmoke'
-                                  variant={
-                                    isXsScreen || isSmScreen ?
-                                    "body2" :
-                                    "body1"
-                                  }
-                                >
-                                  {Object.values(targetParamValues).every(arr => arr.length === 0)
-                                    ? `Choose Up to 5 Recommendation Sources`
-                                    : Object.values(targetParamValues).every(arr => arr.length < 5)
-                                      ? `Choose Up to ${5 - [].concat(...[...new Set(Object.values(targetParamValues))])
-                                        .length} More Recommendation Sources`
-                                      : `You Have Run Out Of Target Parameters To Set`}
-                                </Typography>
-                              </>
-                            )
-                              : autocompleteParam.includes(parameter) && targetParams.includes(parameter) ? (
-                                <Box display="flex" flexDirection='column' justifyContent="center" alignItems='center' style={{ marginBottom: '1%' }}>
-                                  <AutocompleteParameter
-                                    parameter={parameter}
-                                    handleChange={(parameter, value) => {
-                                      handleChange(parameter, value);
-                                    } }
-                                    classes={classes}
-                                    invalidSearch={invalidSearch}
-                                    accessToken={accessToken}
-                                    tracks={tracks}
-                                    artists={artists}
-                                    genres={genres}
-                                    markets={markets}
-                                    setTargetParamValues={setTargetParamValues}
-                                    targetParamValues={targetParamValues}
-                                    onSelectedOptions={handleSelectedOptions} />
-                                </Box>
-                              ) : null}
-                          </Box>
-                        </Box>
-                      ) : null;
-                    })}
-                    <Box className={classes.accordion}>
-                      <CollapsibleSliders
-                        parameters={parameters}
-                        setParameters={setParameters}
-                        query={query}
-                        onSetQueryParameter={onSetQueryParameter}
-                        expanded={expanded}
-                        setExpanded={setExpanded}
-                        handleExpand={handleExpand}
-                        isXsScreen={isXsScreen}
-                        isSmScreen={isSmScreen}
-                        isMdScreen={isMdScreen}
-                        isLgScreen={isLgScreen}
-                        isXlScreen={isXlScreen}
-                      />
-                    </Box>
-                  </>
-                )
-              }}
-            </SpotifyAuth>
-          </>
-          <Grid className={classes.buttonsContainer}>
-            <Button
-              type="submit"
-              variant='contained'
-              onClick={handleSubmit(onSubmit)}
-              style={{ color: 'white', backgroundColor: '#3fc98e', borderRadius: '8px' }}
-            >
-              Try For Free
-            </Button>
-            <Button
-              onClick={handleReset}
-              style={{ color: 'white', backgroundColor: 'transparent' }}
-            >
-              Reset
-            </Button>
-          </Grid>
-          <br />
-          {/* </FormControl> */}
-        </form>
-      </Box>
-      {isLoading && (
-        <Box backgroundColor='white' width='100%' paddingBottom='5%'>
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="30vh"
-            id='loadingState'
-          >
-            <CardHeader
-              title="Loading Results"
-              titleTypographyProps={{ color: 'black' }}
-              subheaderTypographyProps={{ color: '#3d3d3d' }}
-            />
-          </Box>
-          <LoadingState />
-        </Box>
-      )}
-      {showTracks ? (
-        <Box backgroundColor='white' width='100%'>
-          <Box className='buttons-container'>
-            {!isXsScreen && !isSmScreen && !isMdScreen ? (
-              <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-                Explore More
-              </Button>
-              ) : (
-              <Button variant='text' className={classes.resetBtn} onClick={handleExploreMoreClick}>
-                <ArrowUpwardIcon />
-              </Button>
-            )}
-            {/* {user && 
-              // <Box 
-              //   display='flex' 
-              //   flexDirection='row' 
-              //   alignItems='center'
-              //   padding='15px 15px 0'
-              // >
-                <Tooltip 
-                  arrow 
-                  title="Create playlist from recommendations" 
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
+	const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+
+	const [achievementModalOpen, setAchievementModalOpen] = useState(false);
+	const [newAchievement, setNewAchievement] = useState(null);
+	const [modalTimeout, setModalTimeout] = useState(null);
+	const [fromOnboard, setFromOnboard] = useState(false);
+	const [openDemo, setOpenDemo] = useState(false);
+
+	const location = useLocation();
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		const searchParams = new URLSearchParams(location.search);
+		const code = searchParams.get('code');
+		const encodedState = searchParams.get('state');
+		let source = 'default';
+
+		if (encodedState) {
+			try {
+				const decodedState = window.atob(encodedState);
+				const parts = decodedState.split('|');
+				if (parts.length === 2) {
+					source = parts[1];
+				}
+			} catch (error) {
+				console.error('Error decoding state:', error);
+			}
+		}
+
+		if (source === 'onboard') {
+			setFromOnboard(true);
+
+			const achievements = currentUserProfile?.achievements || [];
+			const onboardAchievement = achievements.find(
+				ach => ach.name === 'Onboarding Completed'
+			);
+
+			if (onboardAchievement) {
+				setNewAchievement(onboardAchievement);
+				setAchievementModalOpen(true);
+			}
+		}
+
+		if (code) {
+			fetchUserProfile(code, encodedState, source);
+			searchParams.delete('code');
+			searchParams.delete('state');
+			navigate(
+				{
+					pathname: location.pathname,
+					search: `?${searchParams.toString()}`
+				},
+				{ replace: true }
+			);
+		}
+	}, [location.search]);
+
+	let fetchCalled = false;
+
+	// eslint-disable-next-line no-unused-vars
+	const fetchUserProfile = async (code, encodedState, source) => {
+		if (fetchCalled) return;
+		fetchCalled = true;
+
+		try {
+			const userId = currentUser.user.id;
+			const response = await fetch(
+				`http://localhost:8000/auth/spotify/callback?code=${code}&state=${encodedState}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'User-Id': userId
+					}
+				}
+			);
+			const data = await response.json();
+
+			if (data.spotify_connected) {
+				dispatch(confirmSpotifyAccess(true));
+			}
+
+			if (data.user_profile) {
+				dispatch(getUserProfileSuccess(data.user_profile));
+			}
+
+			if (data.user_karma !== currentUser.user.karma) {
+				dispatch(getUserKarmaSuccess(data.user_karma));
+			}
+
+			if (data.user_tokens !== currentUser.user.tokens) {
+				dispatch(getUserTokensSuccess(data.user_tokens));
+			}
+		} catch (error) {
+			console.error('Error fetching user profile:', error);
+		} finally {
+			fetchCalled = false; // Reset flag in case of retry
+		}
+	};
+
+	const handleCloseModal = () => {
+		clearTimeout(modalTimeout);
+		setAchievementModalOpen(false);
+	};
+
+	useEffect(() => {
+		if (achievementModalOpen && !fromOnboard) {
+			const timer = setTimeout(() => {
+				handleCloseModal();
+			}, 7000);
+			setModalTimeout(timer);
+		}
+		return () => clearTimeout(modalTimeout);
+	}, [achievementModalOpen]);
+
+	useEffect(() => {
+		if (location.state?.profileUpdated) {
+			if (location.state.newBadgeEarned) {
+				const achievements = currentUserProfile.achievements || [];
+				const onboardAchievement = achievements.find(
+					ach => ach.name === 'Onboarding Completed'
+				);
+				if (onboardAchievement) {
+					setNewAchievement(onboardAchievement);
+					setAchievementModalOpen(true);
+				}
+			} else {
+				setSnackbarMessage('User profile updated successfully');
+				setSnackbarSeverity('success');
+				setSnackbarOpen(true);
+			}
+			navigate(location.pathname, { replace: true });
+		}
+	}, [location, currentUserProfile]);
+
+	const handleCloseSnackbar = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+		setSnackbarOpen(false);
+	};
+
+	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+	const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+	const isLgScreen = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+	const isXlScreen = useMediaQuery(theme.breakpoints.up('xl'));
+
+	const [parameters, setParameters] = useState(initialDiscoveryState.query);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [invalidSearch, setInvalidSearch] = useState(false);
+	const [targetParamValues, setTargetParamValues] = useState({
+		songs: [],
+		performers: [],
+		genres: []
+	});
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [openDemoModal, setOpenDemoModal] = useState(false);
+	const [queryName, setQueryName] = useState('');
+
+	const [showPlaylists, setShowPlaylists] = useState(true);
+
+	const [toggleValue, setToggleValue] = useState('Discovery Results');
+
+	useEffect(() => {
+		if (isLoading) {
+			const targetElement = document.getElementById('resultsBox');
+
+			if (targetElement) {
+				targetElement.scrollIntoView({
+					behavior: 'smooth',
+					block: 'start'
+				});
+			}
+		}
+	}, [isLoading]);
+
+	useEffect(() => {
+		if (selectedPlaylist) {
+			const currentPlaylist = playlists.find(playlist => playlist.id === selectedPlaylist.id);
+
+			if (!currentPlaylist?.tracks) {
+				onSetSelectedPlaylist(null);
+			} else {
+				const selectedIsEdit = selectedPlaylist.id === editPlaylist.id;
+				const orderChanged =
+					Array.isArray(selectedPlaylist.tracks) &&
+					Array.isArray(editPlaylist.tracks) &&
+					selectedPlaylist.tracks.some(
+						(track, index) => track.id !== editPlaylist.tracks[index]?.id
+					);
+
+				if (selectedIsEdit && orderChanged) {
+					onSetSelectedPlaylist(editPlaylist.id);
+				}
+			}
+		}
+	}, [playlists, onSetSelectedPlaylist, editPlaylist]);
+
+	const handleExploreMoreClick = activatesModal => {
+		const myComponent = document.getElementById('topBar');
+
+		if (myComponent) {
+			myComponent.scrollIntoView({
+				behavior: 'smooth',
+				block: 'start'
+			});
+		}
+
+		if (activatesModal) {
+			setOpenDemoModal(true);
+		}
+	};
+
+	const classes = useStyles();
+	const discoveryRecommendations = recommendations?.tracks;
+
+	const showTracks =
+		(discoveryRecommendations && dataLoaded) || toggleValue === 'Selected Playlist';
+
+	const handleQueryNameChange = e => {
+		setQueryName(e.target.value);
+	};
+
+	const handleToggle = e => {
+		setToggleValue(e.target.value);
+	};
+
+	const handleCloseDemo = () => {
+		setAchievementModalOpen(false);
+		setOpenDemo(false);
+	};
+
+	const [openDemoVideo, setOpenDemoVideo] = useState(false);
+
+	const handleViewDemoVideo = () => {
+		setOpenDemoVideo(true);
+	};
+
+	const handleCloseDemoVideo = () => {
+		setOpenDemoVideo(false);
+	};
+
+	return (
+		<>
+			<SpotifyForm
+				classes={classes}
+				parameters={parameters}
+				setParameters={setParameters}
+				invalidSearch={invalidSearch}
+				setInvalidSearch={setInvalidSearch}
+				targetParamValues={targetParamValues}
+				setTargetParamValues={setTargetParamValues}
+				setIsLoading={setIsLoading}
+				currentUser={currentUser}
+				openDemoModal={openDemoModal}
+				setOpenDemoModal={setOpenDemoModal}
+				setToggleValue={setToggleValue}
+			/>
+			{!(isSmScreen || isXsScreen || isMdScreen) ? (
+				<Box
+					display='flex'
+					flexDirection='row'
+					justifyContent='center'
+					width='100%'
+					id='resultsBox'
+				>
+					{(currentUser?.user || showTracks) && (
+						<LeftPanel
+							setToggleValue={setToggleValue}
+							isMdScreen={isMdScreen}
+							isSmScreen={isSmScreen}
+							isXsScreen={isXsScreen}
+							setShowPlaylists={setShowPlaylists}
+							currentUser={currentUser}
+						/>
+					)}
+					<Box
+						backgroundColor='transparent'
+						width={
+							isXsScreen || isSmScreen
+								? '100%'
+								: currentUser?.user || showTracks
+								? '53%'
+								: '70%'
+						}
+						display='flex'
+						flexDirection='column'
+						alignItems='center'
+					>
+						{currentUser && (
+							<ToggleButtonGroup
+								exclusive
+								sx={{
+									boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)',
+									borderRadius: '8px',
+									width: '70%',
+									marginTop: '2%'
+								}}
+								onChange={handleToggle}
+							>
+								<ToggleButton
+									value='Discovery Results'
+									sx={{
+										backgroundColor:
+											toggleValue === 'Discovery Results'
+												? 'rgb(44, 216, 207, 0.3)'
+												: 'rgba(48, 130, 164, 0.15)',
+										color:
+											toggleValue === 'Discovery Results'
+												? 'whitesmoke'
+												: 'grey',
+										borderRadius: '8px',
+										width: '50%',
+										'&:hover': {
+											backgroundColor: 'rgb(44, 216, 207, 0.5)',
+											color: 'whitesmoke'
+										}
+									}}
+								>
+									{'Discovery Results'}
+								</ToggleButton>
+								<ToggleButton
+									value='Selected Playlist'
+									sx={{
+										backgroundColor:
+											toggleValue === 'Selected Playlist'
+												? 'rgb(44, 216, 207, 0.3)'
+												: 'rgba(48, 130, 164, 0.15)',
+										color:
+											toggleValue === 'Selected Playlist'
+												? 'whitesmoke'
+												: 'grey',
+										borderRadius: '8px',
+										width: '50%',
+										'&:hover': {
+											backgroundColor: 'rgb(44, 216, 207, 0.5)',
+											color: 'whitesmoke'
+										}
+									}}
+								>
+									{'Selected Playlist'}
+								</ToggleButton>
+							</ToggleButtonGroup>
+						)}
+						{isLoading && (
+							<Box backgroundColor='transparent' width='100%' paddingBottom='5%'>
+								{/* <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  id='loadingState'
                 >
-                  {!isXsScreen && !isSmScreen && !isMdScreen ? 
-                  (
-                    <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
-                      Create Playlist
-                    </Button>
-                  ) : (
-                    <Button onClick={handleCreatePlaylist} className={classes.createPlaylistBtn}>
-                      <QueueMusicIcon />
-                    </Button>
-                  )}
-                </Tooltip>
-              // {/* </Box> */}
-            {/* } */} 
-          </Box>
-          <ul className={classes.recommendationsUl}>
-            {discoveryRecommendations.map((recommendation, index) => (
-              <Recommendation 
-                classes={classes} 
-                index={index}
-                recommendation={recommendation}
-                user={user}
-                handleAddToSpotify={handleAddToSpotify}
-                handleCheckUsersTracks={handleCheckUsersTracks}
-                handleRemoveUsersTracks={handleRemoveUsersTracks}
-                setConnectToSpotify={setConnectToSpotify}
-              />
-            ))}
-          </ul>
-        </Box>
-      ) : !isLoading && (
-        <Body 
-          isSmScreen={isSmScreen} 
-          isXsScreen={isXsScreen}
-          isMdScreen={isMdScreen}
-          isLgScreen={isLgScreen} 
-          isXlScreen={isXlScreen} 
-        />
-      )}
-    </>
-  );
+                  <CardHeader
+                    title="Loading Results"
+                    titleTypographyProps={{ color: 'white' }}
+                    subheaderTypographyProps={{ color: '#3d3d3d' }}
+                  />
+                </Box> */}
+								<LoadingState />
+							</Box>
+						)}
+						{showTracks ? (
+							<Box width='100%' justifyContent='space-between'>
+								<Suspense fallback={<LoadingState />}>
+									<Recommendations
+										classes={classes}
+										recommendations={
+											toggleValue === 'Selected Playlist'
+												? selectedPlaylist.tracks
+												: discoveryRecommendations
+										}
+										user={currentUser}
+										currentPlaylist={currentPlaylist}
+										onRemoveFromCurrentPlaylistById={
+											onRemoveFromCurrentPlaylistById
+										}
+										setIsModalOpen={setIsModalOpen}
+										isXsScreen={isXsScreen}
+										isSmScreen={isSmScreen}
+										isMdScreen={isMdScreen}
+										toggleValue={toggleValue}
+										handleExploreMoreClick={handleExploreMoreClick}
+									/>
+								</Suspense>
+							</Box>
+						) : (
+							!isLoading &&
+							(currentUser?.user ? (
+								<Box
+									display='flex'
+									flexDirection='column'
+									justifyContent='center'
+									alignItems='center'
+									width='95%'
+								>
+									<Typography
+										color='white'
+										textAlign='center'
+										variant='h4'
+										letterSpacing='1px'
+										padding='5% 0 0'
+										width='80%'
+									>
+										{'What kind of music are you in the mood for today?'}
+									</Typography>
+									<Typography
+										color='white'
+										// textAlign='center'
+										variant='h6'
+										letterSpacing='1px'
+										padding='4% 3% 0'
+										width='100%'
+									>
+										{`Start discovering new music now. Simply choose from the songs,
+                    artists, and genres that inspire you and start discovering related music.`}
+									</Typography>
+									<Typography
+										color='white'
+										// textAlign='center'
+										variant='h6'
+										letterSpacing='1px'
+										padding='4% 3% 0'
+										width='100%'
+									>
+										{`Adjust your search by clicking on "Fine Tune Your Recommendations" 
+                    to enable and configure fine-tuning parameters. This allows you to 
+                    personalize your results and find music that precisely matches your 
+                    preferences.`}
+									</Typography>
+									<Button
+										className={`${classes.button} ${classes.buttonWithMargin}`}
+										onClick={() => handleExploreMoreClick(false)}
+										variant='contained'
+									>
+										<Typography
+											variant='subtitle1'
+											color='white'
+											letterSpacing='1px'
+											sx={{
+												fontWeight: 'bold',
+												cursor: 'pointer'
+											}}
+										>
+											{'Get Started On Your Journey'}
+										</Typography>
+									</Button>
+									<Typography color={'white'} fontSize='large'>
+										{'OR'}
+									</Typography>
+									<Button
+										className={`${classes.button} ${classes.buttonWithMargin}`}
+										onClick={handleViewDemoVideo}
+										variant='contained'
+									>
+										<Typography
+											variant='subtitle1'
+											color='white'
+											letterSpacing='1px'
+											sx={{
+												fontWeight: 'bold',
+												cursor: 'pointer'
+											}}
+										>
+											{'View Demo'}
+										</Typography>
+									</Button>
+								</Box>
+							) : (
+								<Body
+									isSmScreen={isSmScreen}
+									isXsScreen={isXsScreen}
+									handleExploreMoreClick={handleExploreMoreClick}
+								/>
+							))
+						)}
+					</Box>
+					{(currentUser?.user || showTracks) && (
+						<RightPanel
+							currentPlaylist={currentPlaylist}
+							onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+							handleExploreMoreClick={handleExploreMoreClick}
+							isSmScreen={isSmScreen}
+							isXsScreen={isXsScreen}
+							setShowPlaylists={setShowPlaylists}
+						/>
+					)}
+				</Box>
+			) : (
+				<MobileResults
+					discoveryRecommendations={discoveryRecommendations}
+					classes={classes}
+					currentUser={currentUser}
+					currentPlaylist={currentPlaylist}
+					onRemoveFromCurrentPlaylistById={onRemoveFromCurrentPlaylistById}
+					setIsModalOpen={setIsModalOpen}
+					showPlaylists={showPlaylists}
+					setShowPlaylists={setShowPlaylists}
+					isLoading={isLoading}
+					showTracks={showTracks}
+					handleExploreMoreClick={handleExploreMoreClick}
+					isXsScreen={isXsScreen}
+					isSmScreen={isSmScreen}
+					isMdScreen={isMdScreen}
+					isLgScreen={isLgScreen}
+					isXlScreen={isXlScreen}
+					handleToggle={handleToggle}
+					toggleValue={toggleValue}
+					setToggleValue={setToggleValue}
+					selectedPlaylist={selectedPlaylist}
+				/>
+			)}
+			<SaveQueryModal
+				isModalOpen={isModalOpen}
+				setIsModalOpen={setIsModalOpen}
+				onSaveQuery={onSaveQuery}
+				queryName={queryName}
+				handleQueryNameChange={handleQueryNameChange}
+				user={currentUser}
+				classes={classes}
+				parameters={parameters}
+			/>
+			<Modal
+				open={achievementModalOpen}
+				onClose={handleCloseModal}
+				aria-labelledby='achievement-modal-title'
+				aria-describedby='achievement-modal-description'
+			>
+				<Box
+					display='flex'
+					flexDirection='column'
+					alignItems='center'
+					sx={{
+						backgroundColor: 'rgba(13,27,38,0.9)',
+						color: 'white',
+						border: '2px solid rgba(89, 149, 192, 0.5)',
+						borderRadius: '18px',
+						overflowY: 'auto',
+						position: 'absolute',
+						top: '50%',
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+						width: '40%',
+						minHeight: '40%',
+						boxShadow: 24,
+						p: 4
+					}}
+				>
+					<Box
+						sx={{
+							position: 'absolute',
+							top: '1.5%',
+							right: '1.5%',
+							cursor: 'pointer'
+						}}
+					>
+						<CloseIcon
+							onClick={handleCloseModal}
+							style={{ color: theme.palette.primary.triadic2 }}
+						/>
+					</Box>
+					{!openDemo ? (
+						<>
+							<Typography
+								id='achievement-modal-title'
+								variant='h4'
+								component='h2'
+								textAlign='center'
+								letterSpacing='5px'
+							>
+								{'Congratulations!'}
+							</Typography>
+							<Typography
+								id='achievement-modal-description-1'
+								textAlign='center'
+								variant='h6'
+								sx={{ mt: 2 }}
+								letterSpacing='2px'
+							>
+								{`You have earned a new badge:`}
+							</Typography>
+							<img
+								loading='lazy'
+								src={currentUserProfile?.achievements[0]?.badge.image_url}
+								alt={currentUserProfile?.achievements[0]?.badge.name}
+								style={{
+									width: isXsScreen || isSmScreen ? '20%' : '20%',
+									paddingRight: isXsScreen || isSmScreen ? '2%' : '15px'
+								}}
+							/>
+							<Typography
+								id='achievement-modal-description-2'
+								variant='subtitle1'
+								letterSpacing='1px'
+							>
+								{`${newAchievement?.badge?.description}`}
+							</Typography>
+							<Typography
+								id='achievement-modal-description-2'
+								variant='caption'
+								letterSpacing='1px'
+								my={1}
+							>
+								{'*Earned badges can be viewed in your profile'}
+							</Typography>
+							{fromOnboard && (
+								<Tooltip
+									arrow
+									title={
+										<div
+											style={{
+												maxHeight: '25vh',
+												overflowY: 'auto',
+												padding: '8px',
+												borderRadius: '8px'
+											}}
+										>
+											<Typography variant='body2' letterSpacing='1px'>
+												{`Watch the magic of SongQuest in action! Click here to 
+                          view our demo video and experience firsthand how our 
+                          AI-powered music discovery brings your musical journey 
+                          to life.`}
+											</Typography>
+										</div>
+									}
+								>
+									<Button
+										className={classes.button}
+										type='button'
+										onClick={handleViewDemoVideo}
+									>
+										{'View Demo'}
+										<NavigateNextIcon />
+									</Button>
+								</Tooltip>
+							)}
+						</>
+					) : (
+						<>
+							<Tooltip
+								arrow
+								title={
+									<div
+										style={{
+											maxHeight: '25vh',
+											overflowY: 'auto',
+											padding: '8px',
+											borderRadius: '8px'
+										}}
+									>
+										<Typography variant='body2' letterSpacing='1px'>
+											{`Click here to get started on your journey `}
+										</Typography>
+									</div>
+								}
+							>
+								<Button
+									className={classes.button}
+									type='button'
+									onClick={handleCloseDemo}
+								>
+									{'Get Started'}
+									<NavigateNextIcon />
+								</Button>
+							</Tooltip>
+						</>
+					)}
+				</Box>
+			</Modal>
+			<DemoModal openDemoVideo={openDemoVideo} handleCloseDemoVideo={handleCloseDemoVideo} />
+			<Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+				<Alert
+					variant='filled'
+					onClose={handleCloseSnackbar}
+					severity={snackbarSeverity}
+					sx={{ width: '100%' }}
+				>
+					{snackbarMessage}
+				</Alert>
+			</Snackbar>
+		</>
+	);
 };
 
-const mapStateToProps = (state) => {
-  return {
-    query: state.discovery.query,
-    error: state.discovery.error,
-    recommendations: state.discovery.recommendations,
-    dataLoaded: state.discovery.dataLoaded,
-    tracks: state.discovery.tracks,
-    artists: state.discovery.artists,
-    genres: state.discovery.genres,
-    markets: state.discovery.markets,
-    user: state.user.currentUser,
-  };
+const mapStateToProps = state => {
+	return {
+		error: state.discovery.error,
+		recommendations: state.discovery.recommendations,
+		selectedPlaylist: state.playlist.currentPlaylist.selectedPlaylist,
+		editPlaylist: state.playlist.currentPlaylist.editPlaylist,
+		dataLoaded: state.discovery.dataLoaded,
+		currentUser: state.user.currentUser,
+		currentUserProfile: state.userProfile.currentUserProfile,
+		currentPlaylist: state.playlist.currentPlaylist.createPlaylist,
+		playlists: state.playlist.playlists
+	};
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  onSearchPressed: (query) => dispatch(discoverSongRequest(query)),
-  onResetQueryParameter: () =>
-    dispatch(resetQueryParameter()),
-  onResetDataLoaded: () =>
-    dispatch(resetDataLoaded()),
-  onSetQueryParameter: (query, parameter, newValues) => dispatch(setQueryParameter(query, parameter, newValues)),
-  onAddToSpotify: (recommendation, spotify_access, spotify_refresh, spotify_expires_at) => dispatch(addToSpotify(recommendation, spotify_access, spotify_refresh, spotify_expires_at)),
-  handleCheckUsersTracks: (recommendation, spotify_access, spotify_refresh, spotify_expires_at) => dispatch(checkUsersTracks(recommendation, spotify_access, spotify_refresh, spotify_expires_at)),
-  handleRemoveUsersTracks: (recommendation, spotify_access, spotify_refresh, spotify_expires_at) => dispatch(removeUsersTracks(recommendation, spotify_access, spotify_refresh, spotify_expires_at)),
+const mapDispatchToProps = dispatch => ({
+	onRemoveFromCurrentPlaylistById: (...songs) =>
+		dispatch(removeFromCurrentPlaylistById(...songs)),
+	onSaveQuery: (userId, query) => dispatch(saveRequestParameters(userId, query)),
+	onSetSelectedPlaylist: playlistId => dispatch(setSelectedPlaylist(playlistId))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SongDiscovery);

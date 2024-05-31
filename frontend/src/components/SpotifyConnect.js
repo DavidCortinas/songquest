@@ -1,155 +1,153 @@
-import { Box, Button, Card, CardHeader, Grid } from '@mui/material';
+import React from 'react';
+import { Box, Button, CardHeader, Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import theme from '../theme';
-import { Body } from './Home';
+import { connect } from 'react-redux';
+import spotifyLogo from '../../public/images/spotifyLogo.png';
+import { getSpotifyUserAuth } from '../thunks';
 
-const useStyles = makeStyles(() => (
-  {
-  card: {
-    backgroundColor: "transparent",
-    justifyContent: 'center',
-    display: 'flex',
-    width: '100%',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    color: "#007fbf",
-    backgroundColor: "transparent",
-  },
-  box: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    color: "#007fbf",
-    backgroundColor: "transparent",
-    marginBottom: '5%',
-  },
-  textField: {
-    width: '300px',
-    [theme.breakpoints.down('sm')]: {
-      width: '100%',
-    },
-
-    backgroundColor: 'white',
-    borderRadius: '5px',
-  },
-  subHeader: {
-    width: '40%',
-    [theme.breakpoints.up('sm')]: {
-      width: '25rem',
-    },
-  },
-  description: {
-    maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
-    color: '#6f6f71',
-    paddingTop: '1rem',
-  },
-  buttonsContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: '1rem',
-  },
-  button: {
-    color: 'white'
-  },
-  noBottomLine: {
-    borderBottom: 'none',
-  }
+const useStyles = makeStyles(() => ({
+	card: {
+		backgroundColor: 'transparent',
+		justifyContent: 'center',
+		display: 'flex',
+		width: '100%'
+	},
+	form: {
+		display: 'flex',
+		flexDirection: 'column',
+		color: '#007fbf',
+		backgroundColor: 'transparent'
+	},
+	box: {
+		width: '100%',
+		display: 'flex',
+		flexDirection: 'column',
+		color: '#007fbf',
+		backgroundColor: 'transparent',
+		marginBottom: '5%'
+	},
+	textField: {
+		width: '300px',
+		[theme.breakpoints.down('sm')]: {
+			width: '100%'
+		},
+		backgroundColor: 'white',
+		borderRadius: '5px'
+	},
+	subHeader: {
+		width: '40%',
+		[theme.breakpoints.up('sm')]: {
+			width: '25rem'
+		}
+	},
+	description: {
+		maxWidth: theme.breakpoints.up('xl') ? '65rem' : '50rem',
+		color: '#6f6f71',
+		paddingTop: '1rem'
+	},
+	buttonsContainer: {
+		display: 'flex',
+		justifyContent: 'center',
+		marginTop: '1rem'
+	},
+	button: {
+		color: 'white'
+	},
+	noBottomLine: {
+		borderBottom: 'none'
+	}
 }));
 
-export const SpotifyConnect = ({
-    isSmScreen,
-    isXsScreen,
-    isMdScreen,
-    isXlScreen,
-    isLgScreen,
-    setConnectToSpotify,
+const SpotifyConnect = ({
+	currentUser,
+	onGetSpotifyUserAuth,
+	isSmScreen,
+	isXsScreen,
+	isXlScreen,
+	isLgScreen
 }) => {
-    const classes = useStyles();
+	const navigate = useNavigate();
+	const classes = useStyles();
 
-        const handleConnectThroughSpotify = async (e) => {
-        e.preventDefault();
+	const handleConnectThroughSpotify = async (e, source) => {
+		e.preventDefault();
+		await onGetSpotifyUserAuth(currentUser.user.id, source);
+	};
 
-        const authorizationUrl = `/request-authorization/`;
+	return (
+		<Box display='flex' justifyContent='center' paddingTop='1rem'>
+			<Box width='100%'>
+				<Box className={classes.box}>
+					<CardHeader
+						title='Connect to Spotify'
+						titleTypographyProps={{
+							width: '100%',
+							letterSpacing: '1px',
+							variant: isSmScreen || isXsScreen ? 'h6' : 'h5',
+							textAlign: 'center',
+							color: 'white',
+							paddingTop: '1rem'
+						}}
+						subheader='Link to your Spotify library to add tracks, create playlists and more!'
+						subheaderTypographyProps={{
+							width: '100%',
+							letterSpacing: '1px',
+							variant: isXlScreen || isLgScreen ? 'body1' : 'body2',
+							textAlign: 'center',
+							alignItems: 'center',
+							color: 'whitesmoke'
+						}}
+					/>
+					<Button
+						sx={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							'&:hover': {
+								backgroundColor: 'transparent !important'
+							}
+						}}
+						onClick={e => handleConnectThroughSpotify(e, 'connect')}
+					>
+						<img
+							loading='lazy'
+							width='150em'
+							style={{
+								margin: '0 auto',
+								display: 'block'
+							}}
+							src={spotifyLogo}
+						/>
+					</Button>
+					<br />
+					<Grid className={classes.buttonsContainer}>
+						<Button
+							type='submit'
+							className={classes.button}
+							onClick={() => navigate('/')}
+						>
+							Skip
+							<NavigateNextIcon />
+						</Button>
+					</Grid>
+					<br />
+				</Box>
+			</Box>
+		</Box>
+	);
+};
 
-        // Redirect the user to Spotify for authorization
-        window.location.href = authorizationUrl;
-    };
-    
-    return (
-        <>
-          <Box display='flex' justifyContent='center' paddingTop='1rem'>
-            <Box width='100%'>
-                <Card className={classes.card}>
-                    <Box className={classes.box}>
-                        <CardHeader
-                            title='Connect to Spotify'
-                            titleTypographyProps={{
-                                width: '100%',
-                                variant: isSmScreen || isXsScreen
-                                ? 'h6'
-                                : 'h5',
-                                textAlign: 'center',
-                                color: 'white',
-                                paddingTop: '1rem'
-                            }}
-                            subheader='Link to your Spotify library to add tracks, create playlists and more!'
-                            subheaderTypographyProps={{ 
-                                width: '100%', 
-                                variant: isXlScreen || isLgScreen 
-                                ? 'body1'
-                                : 'body2',
-                                textAlign: 'center',
-                                alignItems: 'center',
-                                color: 'whitesmoke',
-                            }}
-                        />
-                        <Button
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                '&:hover': {
-                                backgroundColor: 'transparent !important', // Add !important to override other styles
-                                },
-                            }}
-                            onClick={handleConnectThroughSpotify} // Call the handleConnectThroughSpotify function
-                            >
-                            <img
-                                width='150em'
-                                style={{
-                                margin: '0 auto',
-                                display: 'block', 
-                                }}
-                                src={'/static/images/spotifyLogo.png'}
-                            />
-                            </Button>
-                        <br />
-                        <Grid className={classes.buttonsContainer}>
-                            <Button
-                                type="submit"
-                                className={classes.button}
-                                onClick={() => setConnectToSpotify(false)}
-                            >
-                                Back to recommendations
-                                <NavigateNextIcon />
-                            </Button>
-                        </Grid>
-                        <br />
-                    </Box>
-                </Card>
-            </Box>
-          </Box>
-          <Body 
-            isSmScreen={isSmScreen} 
-            isXsScreen={isXsScreen}
-            isMdScreen={isMdScreen}
-            isLgScreen={isLgScreen} 
-            isXlScreen={isXlScreen} 
-          />
-        </>
-      )
-  }
+const mapStateToProps = state => {
+	return {
+		currentUser: state.user.currentUser
+	};
+};
+
+const mapDispatchToProps = dispatch => ({
+	onGetSpotifyUserAuth: (userId, source) => dispatch(getSpotifyUserAuth(userId, source))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SpotifyConnect);

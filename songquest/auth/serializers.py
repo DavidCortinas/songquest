@@ -1,77 +1,69 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.settings import api_settings
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.models import update_last_login
-from django.core.exceptions import ObjectDoesNotExist
 
-from songquest.user.serializers import UserSerializer
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import update_last_login
+
 from songquest.user.models import User
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
+from django.contrib.auth import authenticate
+
+from songquest.user.serializers import UserSerializer
 
 class LoginSerializer(TokenObtainPairSerializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True)
+
     def validate(self, attrs):
-        # Check if 'spotify_access_token' is present in the request data
-        spotify_access_token = self.context['request'].data.get(
-            'spotify_access_token')
-        spotify_refresh_token = self.context['request'].data.get(
-            'spotify_refresh_token')
+        email = attrs.get('email')
+        password = attrs.get('password')
 
-        if spotify_access_token:
-            # Handle Spotify authentication without requiring a password
-            user = User.objects.get(email=attrs['email'])
-            refresh = self.get_token(user)
-            refresh_token = str(refresh)
+        user = authenticate(email=email, password=password)
+        
+        if not user:
+            raise serializers.ValidationError('No active account found with the given credentials')
+        
+        user_data = UserSerializer(user, context={'request': self.context.get('request')}).data
 
-            if api_settings.UPDATE_LAST_LOGIN:
-                update_last_login(None, user)
+        token_pair = self.get_token(user)
 
-            # Customize the data you want to return in the response
-            data = {
-                'user': UserSerializer(user).data,
-                'refresh': refresh_token,
-                'access': str(refresh.access_token),
-                'spotify_access': spotify_access_token,
-                'spotify_refresh': spotify_refresh_token,
-            }
-        else:
-            # Perform regular login validation
-            data = super().validate(attrs)
-            user = User.objects.get(email=attrs['email'])
-            refresh = self.get_token(user)
-            refresh_token = str(refresh)
-            data['user'] = UserSerializer(user).data
-            data['refresh'] = refresh_token
-            data['access'] = str(refresh.access_token)
+        return {
+            'refresh': str(token_pair),
+            'access': str(token_pair.access_token),
+            'user': user_data,
+        }
 
-        return data
+    def get_token(self, user):
+        return super().get_token(user)
 
+from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
-class RegisterSerializer(UserSerializer):
-    password = serializers.CharField(
-        max_length=128, min_length=8, write_only=True, required=False)
+User = get_user_model()
+
+class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True, write_only=True, max_length=128)
+    password = serializers.CharField(
+        max_length=128, min_length=8, write_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'username', 'spotify_email', 'spotify_auth']
+        fields = ['email', 'password']
 
     def create(self, validated_data):
-        spotify_auth = validated_data.get('spotify_auth', False)
+        # Check if a user with this email already exists
+        if User.objects.filter(email=validated_data['email']).exists():
+            raise serializers.ValidationError(
+                {"email": "A user with that email already exists."})
 
-        if not spotify_auth:
-            # If not using Spotify Auth, require the password
-            password = validated_data.get('password')
-            if not password:
-                raise serializers.ValidationError(
-                    "Password is required for non-Spotify authentication.")
-
-        try:
-            user = User.objects.get(email=validated_data['email'])
-        except ObjectDoesNotExist:
-            # Exclude the password field when creating the user
-            validated_data.pop('password', None)
-            user = User.objects.create_user(**validated_data)
+        # Create the user
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
 
         return user
+

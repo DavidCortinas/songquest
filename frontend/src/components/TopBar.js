@@ -1,155 +1,446 @@
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Box,
-  IconButton,
-  Typography,
-  useMediaQuery,
+	Box,
+	IconButton,
+	LinearProgress,
+	Tooltip,
+	Typography,
+	useMediaQuery,
+	Menu,
+	MenuItem,
+	ListItemIcon,
+	Avatar
 } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
-import SearchIcon from '@mui/icons-material/Search';
-import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
-import { resetDataLoaded, setCurrentUser } from '../actions';
-import { connect, useDispatch } from 'react-redux';
+import PaidIcon from '@mui/icons-material/Paid';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
+import {
+	deletePlaylist,
+	removeFromCurrentPlaylistById,
+	resetDataLoaded,
+	setCurrentUser
+} from '../actions';
+import { connect } from 'react-redux';
 import '../App.css';
-import { useTheme } from '@mui/styles';
+import theme from '../theme';
 import { authSlice } from '../reducers';
+import { makeStyles, withStyles } from '@mui/styles';
+import { TokenCounter, KarmaCounter } from '../utils';
+import logoIcon from '../../public/images/sq-logo-2.ico';
+import { DemoModal } from './auth/DemoModal';
 
-export const TopBar = ({ resetDataLoaded, collapse, user }) => {
-  const theme = useTheme();
-  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+const StyledLinearProgress = withStyles({
+	colorPrimary: {
+		backgroundColor: 'rgb(216,44,139, 0.5)'
+	},
+	barColorPrimary: {
+		backgroundColor: theme.palette.primary.triadic2
+	}
+})(LinearProgress);
 
-  const dispatch = useDispatch()
+const useStyles = makeStyles(() => ({
+	counterContainer: {
+		position: 'relative',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		height: '32px'
+	},
+	responsiveBox: {
+		[theme.breakpoints.up('md')]: {
+			width: '500px'
+		},
+		[theme.breakpoints.down('sm')]: {
+			flex: 1,
+			maxWidth: '50%'
+		}
+	}
+}));
 
-  const navigate = useNavigate();
+export const TopBar = ({
+	onResetDataLoaded,
+	onDeletePlaylist,
+	onRemoveFromCurrentPlaylistById,
+	onSetCurrentUser,
+	onLogout,
+	user,
+	currentUser,
+	userPlaylists,
+	currentPlaylist
+}) => {
+	const classes = useStyles();
+	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	const [anchorEl, setAnchorEl] = React.useState(null);
+	const open = Boolean(anchorEl);
+	const handleMenuClick = event => {
+		setAnchorEl(event.currentTarget);
+	};
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
 
-  const handleNavigate = () => {
-    resetDataLoaded();
-    navigate('/', { replace: true });
-  };
+	const navigate = useNavigate();
 
-  const handleLogout = () => {
-    dispatch(authSlice.actions.logout());
-    dispatch(setCurrentUser(null))
-    navigate('/')
-  }
+	const handleNavigate = () => {
+		onResetDataLoaded();
+		navigate('/', { replace: true });
+	};
 
-  return (
-    <Box 
-      display="flex" 
-      justifyContent="space-between" 
-      p={2}
-      // backgroundColor='#013a57'
-      className='topbar-nosidebar'
-      // className={isXsScreen || isSmScreen
-      //   ? 'topbar-nosidebar'
-      //   : collapse || isSmScreen
-      //   ? 'topbar-collapsed'
-      //   : 'topbar'}
-    >
-      <Box
-        display="flex"
-        borderRadius="3px"
-      >
-        <Link
-          to="/"
-          style={{
-            textDecoration: 'none',
-            color: 'inherit',
-            flexGrow: 1,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-          onClick={handleNavigate}
-        >
-          <img
-            src={'static/images/sq-logo-2.png'}
-            alt="Logo"
-            style={{ 
-              width: '13%',
-              paddingRight: '15px'
-           }}
-          />
-          <Typography variant="h5" component="div" color='white'>
-            SongQuest
-          </Typography>
-        </Link>
-      </Box>
-      <Box display='flex'>
-        {/* <IconButton
-          color="inherit"
-          component={Link}
-          to="/discover"
-          style={{ 
-            textDecoration: 'none', 
-            color: 'white',
-            marginRight: '50px',  
-          }}
-        > */}
-          {/* <YoutubeSearchedForIcon /> */}
-          {/* <Typography variant='body1'>Discover New Music</Typography> */}
-        {/* </IconButton> */}
-        {/* <IconButton
-          color="inherit"
-          component={Link}
-          to="/discover"
-          style={{ textDecoration: 'none', color: 'white' }}
-        >
-          {/* <YoutubeSearchedForIcon /> */}
-          {/* <Typography>Discover New Music</Typography> */}
-        {/* </IconButton> */}
-        {!user ?
-          <IconButton
-            color="inherit"
-            component={Link}
-            to="/login"
-            style={{ 
-              textDecoration: 'none', 
-              color: 'white',
-            }}
-          >
-            {!isXsScreen && !isSmScreen && <Typography variant='h6'>Login/SignUp</Typography>}
-            <LoginIcon />
-          </IconButton>
-        : 
-          <IconButton
-            color="inherit"
-            component={Link}
-            onClick={handleLogout}
-            style={{ textDecoration: 'none', color: 'white' }}
-          >
-            {!isXsScreen && !isSmScreen && <Typography>Logout</Typography>}
-            <LogoutIcon />
-          </IconButton>
-        }
-        {/* <IconButton
-          color="inherit"
-          component={Link}
-          to='/song-detector'
-          style={{ textDecoration: 'none' }}
-        >
-          <SpatialAudioIcon />
-        </IconButton> */}
-      </Box>
-    </Box>
-  );
+	const handleLogout = () => {
+		navigate('/');
+		setAnchorEl(null);
+		onLogout();
+		onDeletePlaylist(...userPlaylists.map(playlist => playlist.id));
+		onRemoveFromCurrentPlaylistById(...(currentPlaylist?.tracks?.map(song => song) || []));
+		onSetCurrentUser(null);
+		onResetDataLoaded();
+	};
+
+	const handleGetMoreTokens = () => {
+		navigate('/pricing');
+	};
+
+	const handleProfileClick = () => {
+		setAnchorEl(null);
+		navigate('/profile');
+	};
+
+	const handleHomeClick = () => {
+		setAnchorEl(null);
+		navigate('/');
+	};
+
+	const xpPercentage = currentUser?.user?.karma;
+
+	const [openDemoVideo, setOpenDemoVideo] = React.useState(false);
+
+	const handleViewDemoVideo = () => {
+		setOpenDemoVideo(true);
+	};
+
+	const handleCloseDemoVideo = () => {
+		setOpenDemoVideo(false);
+	};
+
+	return (
+		<Box display='flex' justifyContent='space-between' p={isXsScreen ? 1 : 2} id='topBar'>
+			<Box display='flex' borderRadius='3px'>
+				<Link
+					to='/'
+					style={{
+						textDecoration: 'none',
+						color: 'inherit',
+						flexGrow: 1,
+						display: 'flex',
+						alignItems: 'center'
+					}}
+					onClick={handleNavigate}
+				>
+					<img
+						loading='lazy'
+						src={logoIcon}
+						alt='Logo'
+						style={{
+							width: '13%',
+							paddingRight: isXsScreen ? '2%' : '15px'
+						}}
+					/>
+					<Typography
+						variant={isXsScreen ? 'h6' : 'h5'}
+						component='div'
+						color='white'
+						letterSpacing='2px'
+					>
+						SongQuest
+					</Typography>
+				</Link>
+			</Box>
+			{!user ? (
+				<Tooltip
+					arrow
+					title={
+						<div
+							style={{
+								maxHeight: '25vh',
+								overflowY: 'auto',
+								padding: '8px',
+								borderRadius: '8px'
+							}}
+						>
+							<Typography variant='body2' letterSpacing='1px'>
+								{'Create account or login'}
+							</Typography>
+						</div>
+					}
+				>
+					<IconButton
+						color='inherit'
+						component={Link}
+						to='/login'
+						style={{
+							textDecoration: 'none',
+							color: 'white'
+						}}
+					>
+						{!isXsScreen && (
+							<Typography variant='h6' letterSpacing='1px'>
+								Login/Register
+							</Typography>
+						)}
+						<LoginIcon />
+					</IconButton>
+				</Tooltip>
+			) : (
+				<Box
+					display='flex'
+					alignItems='center'
+					className={classes.responsiveBox}
+					justifyContent='flex-end'
+				>
+					<Box className={classes.counterContainer}>
+						<TokenCounter tokens={currentUser?.user?.tokens || 0} />
+					</Box>
+					<Tooltip
+						title={
+							<div
+								style={{
+									maxHeight: '25vh',
+									overflowY: 'auto',
+									padding: '8px',
+									borderRadius: '8px'
+								}}
+							>
+								<Typography variant='body2' letterSpacing='1px'>
+									{`Click Here To Get More Tokens`}
+								</Typography>
+								<Box display='flex' justifyContent='center' alignItems='center'>
+									<Typography variant='subtitle1' letterSpacing='1px'>
+										{`Balance: `}
+									</Typography>
+									<PaidIcon
+										fontSize='small'
+										sx={{ color: '#c4a537', pl: '2%' }}
+									/>
+									<Typography variant='subtitle1' letterSpacing='1px' pl='1%'>
+										{currentUser?.user?.tokens}
+									</Typography>
+								</Box>
+							</div>
+						}
+					>
+						<Box display='flex'>
+							<PaidIcon
+								fontSize='medium'
+								sx={{ color: '#c4a537' }}
+								onClick={handleGetMoreTokens}
+							/>
+							{currentUser?.user?.tokens === 0 && (
+								<PriorityHighIcon
+									color='warning'
+									sx={{
+										height: '15px',
+										marginLeft: '-8px'
+									}}
+								/>
+							)}
+						</Box>
+					</Tooltip>
+					<Box
+						display='flex'
+						flexDirection='column'
+						justifyContent='flex-end'
+						sx={{
+							height: '40%',
+							width: '100px',
+							pl: '3%'
+						}}
+					>
+						<StyledLinearProgress
+							variant='determinate'
+							value={xpPercentage}
+							sx={{
+								borderRadius: '5px',
+								height: '8px',
+								marginRight: '5%'
+							}}
+						/>
+						<Typography
+							color='white'
+							textAlign='center'
+							letterSpacing='8px'
+							sx={{
+								fontSize: '.5rem'
+							}}
+						>
+							{'KARMA'}
+						</Typography>
+					</Box>
+					<Box className={classes.counterContainer}>
+						<KarmaCounter currentKarma={currentUser?.user?.karma} />
+					</Box>
+					<Tooltip
+						arrow
+						title={
+							<div
+								style={{
+									maxHeight: '25vh',
+									overflowY: 'auto',
+									padding: '8px',
+									borderRadius: '8px'
+								}}
+							>
+								<Typography variant='body2' letterSpacing='1px'>
+									{`Account menu`}
+								</Typography>
+							</div>
+						}
+					>
+						<IconButton onClick={handleMenuClick} size='large'>
+							<Avatar
+								src={
+									currentUser?.user?.profileImage
+										? currentUser?.user?.profileImage
+										: '/path/to/nonexistent/image.jpg'
+								}
+								alt={currentUser?.user?.displayName}
+								sx={{
+									width: isXsScreen ? 32 : 48,
+									height: isXsScreen ? 32 : 48
+								}}
+							/>
+						</IconButton>
+					</Tooltip>
+					<Menu
+						open={open}
+						onClose={handleClose}
+						anchorEl={anchorEl}
+						slotProps={{
+							paper: {
+								style: {
+									backgroundColor: '#282828',
+									borderRadius: '8px'
+								}
+							}
+						}}
+					>
+						<MenuItem onClick={handleProfileClick}>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<AccountCircleIcon />
+								</ListItemIcon>
+							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Profile`}
+							</Typography>
+						</MenuItem>
+						<MenuItem onClick={handleHomeClick}>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<HomeIcon />
+								</ListItemIcon>
+							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Home`}
+							</Typography>
+						</MenuItem>
+						<MenuItem divider onClick={handleViewDemoVideo}>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<SlideshowIcon />
+								</ListItemIcon>
+							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Demo`}
+							</Typography>
+						</MenuItem>
+						<MenuItem onClick={handleLogout}>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<LogoutIcon fontSize='small' />
+								</ListItemIcon>
+							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Logout`}
+							</Typography>
+						</MenuItem>
+					</Menu>
+					<DemoModal
+						openDemoVideo={openDemoVideo}
+						handleCloseDemoVideo={handleCloseDemoVideo}
+					/>
+				</Box>
+			)}
+		</Box>
+	);
 };
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.auth.account,
-  };
+const mapStateToProps = state => {
+	return {
+		user: state.auth.account,
+		currentUser: state.user.currentUser,
+		currentPlaylist: state.playlist.currentPlaylist.createPlaylist,
+		userPlaylists: state.playlist.playlists
+	};
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    resetDataLoaded: () => {
-      dispatch(resetDataLoaded());
-    },
-  };
+const mapDispatchToProps = dispatch => {
+	return {
+		onResetDataLoaded: () => dispatch(resetDataLoaded()),
+		onSetCurrentUser: user => dispatch(setCurrentUser(user)),
+		onDeletePlaylist: (...playlistIds) => dispatch(deletePlaylist(...playlistIds)),
+		onRemoveFromCurrentPlaylistById: (...songs) =>
+			dispatch(removeFromCurrentPlaylistById(...songs)),
+		onLogout: () => dispatch(authSlice.actions.logout())
+	};
 };
 
-// export default connect(null, mapDispatchToProps)(TopBar);
 export default connect(mapStateToProps, mapDispatchToProps)(TopBar);

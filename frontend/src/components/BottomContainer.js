@@ -1,20 +1,61 @@
-import { Box, Typography } from "@mui/material";
+import React from 'react';
+import { Box, Typography, useMediaQuery } from '@mui/material';
+import spotifyLogo from '../../public/images/spotifyLogo.png';
+import theme from '../theme';
 
 export const BottomContainer = () => {
-    return (
-        <Box sx={{ backgroundColor: '#18212b' }}>
-            <Box padding='3% 6% 5%' sx={{ textAlign: 'right' }}>
-                <Typography variant='h4' color='white' paddingBottom='1%'>SongQuest</Typography>
-                <Typography variant='h6' color='white' paddingBottom='1%'>Powered by:</Typography>
-                <img
-                    width='115em'
-                    // style={{
-                    // margin: '0 auto',
-                    // display: 'block', 
-                    // }}
-                    src={'/static/images/spotifyLogo.png'}
-                />
-            </Box>
-        </Box>
-    )
+	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+	const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+
+	return (
+		<Box
+			sx={{
+				backgroundColor: 'transparent',
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: isXsScreen || isSmScreen || isMdScreen ? 'flex-start' : 'flex-end',
+				padding: '3% 6% 5%'
+			}}
+		>
+			<Box
+				sx={{
+					textAlign: isXsScreen || isSmScreen || isMdScreen ? 'left' : 'right'
+				}}
+			>
+				<Typography
+					style={{
+						fontSize: '28px',
+						letterSpacing: '3px'
+					}}
+					color='white'
+					paddingBottom='1%'
+				>
+					SongQuest
+				</Typography>
+				<Typography
+					variant='subtitle1'
+					color='white'
+					padding='10px 0 0'
+					style={{
+						letterSpacing: '1px'
+					}}
+				>
+					Powered by:
+				</Typography>
+				<img loading='lazy' width='100px' src={spotifyLogo} />
+			</Box>
+			<Box sx={{ textAlign: 'left', paddingTop: '2%' }}>
+				<Typography color='white' variant='subtitle2'>
+					Image by{' '}
+					<a
+						href='https://www.freepik.com/free-vector/realistic-galaxy-background_14960493.htm#query=space%20texture&position=8&from_view=search&track=ais&uuid=089902d2-5014-42e6-b3de-ccf9823c39b5'
+						style={{ textDecoration: 'none', color: 'white' }}
+					>
+						Freepik
+					</a>
+				</Typography>
+			</Box>
+		</Box>
+	);
 };

@@ -1,19 +1,22 @@
 <!DOCTYPE html>
+<!-- Entry Point for Django -->
 <html lang="en">
-  <head>
-    {% load static %}
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Discover your next favorite song. Take control of your algorithm. Get music recommendations based off of preferences you set." />
-    <title>SongQuest: Music Discovery</title>
-    <link rel="icon" href="{% static "./images/favicon.ico" %}" />
-    <script>
-      window.SPOTIFY_CLIENT_ID = "{{ SPOTIFY_CLIENT_ID }}";
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script src="{% static "js/main.js" %}"></script>
-  </body>
+	<head>
+		<!-- {% load static %} -->
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>SongQuest</title>
+		<!-- Update the path to the favicon.ico file -->
+		<link rel="icon" href="<%= require('./images/favicon.ico') %>" />
+		<!-- Make sure this path is also correct -->
+		<script>
+			window.SPOTIFY_CLIENT_ID = '{{ SPOTIFY_CLIENT_ID }}';
+		</script>
+	</head>
+	<body>
+		<div id="root"></div>
+		<noscript>You need to enable JavaScript to run this app.</noscript>
+		<!-- HtmlWebpackPlugin will inject scripts here -->
+	</body>
 </html>

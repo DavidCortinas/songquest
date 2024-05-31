@@ -1,146 +1,56 @@
-import React, { useEffect } from 'react';
-import SongForm from './components/SongForm';
-import SongDataTable from './components/SongDataTable';
-import Login from './components/Login';
-import { searchSongRequest } from './thunks';
-import { connect } from 'react-redux';
-import { searchSongSuccess } from './actions';
-import { Route, Routes, useNavigate } from 'react-router-dom';
-import Home from './components/Home';
-import { SongDetector } from './components/SongDetector';
-import SongDiscovery from './components/SongDiscovery';
-import { LyricSearch } from './components/LyricSearch';
+import React, { Suspense, lazy } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { Box } from '@mui/material';
 import TopBar from './components/TopBar';
-import { Box, makeStyles } from '@mui/material';
 import { BottomContainer } from './components/BottomContainer';
-import { SpotifyConnect } from './components/SpotifyConnect';
+import ProtectedRoute from './ProtectedRoute';
+import { LoadingState } from './components/LoadingState';
 
+// Lazy loaded components
+const Login = lazy(() => import('./components/auth/Login'));
+const ErrorPage = lazy(() => import('./components/ErrorPage'));
+const SongDiscovery = lazy(() => import('./components/SongDiscovery'));
+const SpotifyConnect = lazy(() => import('./components/SpotifyConnect'));
+const StripeCheckout = lazy(() => import('./components/checkout/StripeCheckout'));
+const Pricing = lazy(() => import('./components/checkout/Pricing'));
+const RegistrationSuccess = lazy(() => import('./components/auth/RegistrationSuccess'));
+const Onboard = lazy(() => import('./components/auth/Onboard'));
+const Profile = lazy(() => import('./components/auth/Profile'));
+const VerificationError = lazy(() => import('./components/VerificationError'));
+const CleanUrlAndHandlePaymentSuccess = lazy(() =>
+	import('./components/checkout/utilities/CleanUrlAndHandlePaymentSuccess')
+);
 
-const RoutesContainer = ({
-  query,
-  dataLoaded,
-  error,
-  onSearchPressed,
-  onDataLoaded,
-}) => {
-  const navigate = useNavigate();
-
-    const getDataTableRoutePath = (query) => {
-      const { song, performer } = query;
-      let path = '/songdata';
-
-      const searchParams = new URLSearchParams();
-      if (song) {
-        searchParams.set('song', song);
-      }
-      if (performer) {
-        searchParams.set('performer', performer);
-      }
-
-      const search = searchParams.toString();
-      if (search) {
-        path += `?${search}`;
-      }
-
-      return path;
-    };
-
-  useEffect(() => {
-    if (dataLoaded && !error) {
-      navigate(getDataTableRoutePath(query)); // Navigate to SongDataTable route programmatically
-    }
-  }, [dataLoaded, error, query, navigate]);
-
-  return (
-      <Box className='main'>
-        <TopBar collapse={true}/>
-        <Routes>
-          <Route
-            exact
-            path={'/'}
-            element={
-              <Home 
-                onSearchPressed={onSearchPressed}
-                onDataLoaded={onDataLoaded}
-              />
-            }
-          />
-          {/* <Route
-            path={'/discover'}
-            element={
-              <SongDiscovery
-                onSearchPressed={onSearchPressed}
-                onDataLoaded={onDataLoaded}
-              />
-            }
-          /> */}
-          {/* <Route
-            path={'/lyric-search'}
-            element={
-              <LyricSearch />
-            }
-          /> */}
-          {/* <Route
-            path={'/search'}
-            element={
-              <SongForm
-                onSearchPressed={onSearchPressed}
-                onDataLoaded={onDataLoaded}
-              />
-            }
-          /> */}
-          <Route 
-            path={'/login'}
-            element={
-              <Login />
-            }
-          />
-          <Route 
-            path={'/spotify-connect'}
-            element={
-              <SpotifyConnect />
-            }
-          />
-          {/* <Route
-            path={'/songdata'}
-            element={
-              <SongDataTable
-                query={query}
-                onSearchPressed={onSearchPressed}
-                onDataLoaded={onDataLoaded}
-                dataLoaded={dataLoaded}
-              />
-            }
-          /> */}
-          {/* <Route
-            path={'/song-detector'}
-            element={
-              <SongDetector />
-            }
-          /> */}
-        </Routes>
-        <BottomContainer />
-      </Box>
-  );
+const RoutesContainer = () => {
+	return (
+		<Box>
+			<TopBar collapse={true} />
+			<Suspense fallback={<LoadingState />}>
+				<Routes>
+					<Route
+						path={'/'}
+						element={
+							<CleanUrlAndHandlePaymentSuccess>
+								<SongDiscovery />
+							</CleanUrlAndHandlePaymentSuccess>
+						}
+					/>
+					<Route path={'/login'} element={<Login />} />
+					<Route path={'/error'} element={<ErrorPage />} />
+					<Route element={<ProtectedRoute />}>
+						<Route path={'/registration-success'} element={<RegistrationSuccess />} />
+						<Route path={'/onboard'} element={<Onboard />} />
+						<Route path={'/verification-error'} element={<VerificationError />} />
+						<Route path={'/profile'} element={<Profile />} />
+						<Route path={'/spotify-connect'} element={<SpotifyConnect />} />
+						<Route path={'/pricing'} element={<Pricing />} />
+						<Route path={'/checkout'} element={<StripeCheckout />} />
+					</Route>
+				</Routes>
+			</Suspense>
+			<BottomContainer />
+		</Box>
+	);
 };
 
-const mapStateToProps = (state) => {
-  return {
-    query: state.song?.query || {},
-    dataLoaded: state.song?.dataLoaded || false,
-    error: state.song?.error,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onSearchPressed: (query) => {
-      dispatch(searchSongRequest(query));
-    },
-    onDataLoaded: (songData, query) => {
-      dispatch(searchSongSuccess(songData, query));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(RoutesContainer);
+export default RoutesContainer;
