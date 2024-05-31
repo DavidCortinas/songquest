@@ -23,7 +23,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # Security settings
-DEBUG = True  # Set to False in production
+DEBUG = False  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = ["songquest.io", "www.songquest.io", "127.0.0.1"]
 
@@ -227,4 +227,3 @@ SESSION_CACHE_ALIAS = "default"
 # Media settings
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
