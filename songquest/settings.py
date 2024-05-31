@@ -8,6 +8,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Base URL
 BASE_URL = "https://songquest.com"
 
+# Frontend URL
+# FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = "http://localhost:8000"
+# FRONTEND_URL = 'https://songquest.com'
+
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -222,3 +227,4 @@ SESSION_CACHE_ALIAS = "default"
 # Media settings
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+

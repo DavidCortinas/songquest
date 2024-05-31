@@ -20,6 +20,7 @@ const VerificationError = lazy(() => import('./components/VerificationError'));
 const CleanUrlAndHandlePaymentSuccess = lazy(() =>
 	import('./components/checkout/utilities/CleanUrlAndHandlePaymentSuccess')
 );
+const ResetPassword = lazy(() => import('./components/auth/ResetPassword'));
 
 const RoutesContainer = () => {
 	return (
@@ -36,6 +37,7 @@ const RoutesContainer = () => {
 						}
 					/>
 					<Route path={'/login'} element={<Login />} />
+					<Route path={'/reset-password/:uid/:token'} element={<ResetPassword />} />
 					<Route path={'/error'} element={<ErrorPage />} />
 					<Route element={<ProtectedRoute />}>
 						<Route path={'/registration-success'} element={<RegistrationSuccess />} />

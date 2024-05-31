@@ -166,7 +166,11 @@ export const login = (email, password) => async dispatch => {
 		});
 
 		if (!response.ok) {
-			throw new Error('Request failed with status ' + response.status);
+			const errorData = await response.json();
+			const errorMessage = errorData.non_field_errors
+				? errorData.non_field_errors.join(' ')
+				: 'Request failed with status ' + response.status;
+			throw new Error(errorMessage);
 		}
 
 		const res = await response.json();
@@ -182,7 +186,64 @@ export const login = (email, password) => async dispatch => {
 
 		return res;
 	} catch (error) {
-		console.log('Error: ' + error.message);
+		dispatch(authSlice.actions.setError(error.message));
+	}
+};
+
+export const resetPassword = email => async dispatch => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const body = JSON.stringify({ email });
+		const response = await fetch(`http://localhost:8000/api/auth/password-reset/`, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken
+			},
+			method: 'post',
+			body
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			const errorMessage = errorData.non_field_errors
+				? errorData.non_field_errors.join(' ')
+				: 'Request failed with status ' + response.status;
+			throw new Error(errorMessage);
+		}
+
+		const res = await response.json();
+		dispatch(authSlice.actions.setSuccessMessage(res.detail));
+		return res;
+	} catch (error) {
+		dispatch(authSlice.actions.setError(error.message));
+	}
+};
+
+export const resetPasswordConfirm = (uid, token, newPassword) => async dispatch => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const body = JSON.stringify({ uid, token, new_password: newPassword });
+		const response = await fetch(`http://localhost:8000/api/auth/password-reset-confirm/`, {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken
+			},
+			method: 'post',
+			body
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			const errorMessage =
+				errorData.detail || 'Request failed with status ' + response.status;
+			throw new Error(errorMessage);
+		}
+
+		const res = await response.json();
+		dispatch(authSlice.actions.setSuccessMessage(res.detail));
+		return res;
+	} catch (error) {
+		dispatch(authSlice.actions.setError(error.message));
 	}
 };
 

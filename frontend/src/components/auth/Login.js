@@ -23,13 +23,20 @@ import CloseIcon from '@mui/icons-material/Close';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { checkRegistration, getUserPlaylists, login, registerUser } from '../../thunks';
+import {
+	checkRegistration,
+	getUserPlaylists,
+	login,
+	registerUser,
+	resetPassword
+} from '../../thunks';
 import { resetDataLoaded, setCurrentUser } from '../../actions';
 import { useStyles } from './classes';
 import { LoadingState } from '../../components/LoadingState';
 import { validatePassword } from '../../utils';
+import { authSlice } from '../../reducers';
 
-const PasswordRules = ({ password, confirmPassword }) => {
+export const PasswordRules = ({ password, confirmPassword }) => {
 	const rules = [
 		{ regex: /.{8,}/, message: 'Be at least 8 characters long' },
 		{ regex: /[A-Z]/, message: 'Have at least one uppercase letter' },
@@ -76,7 +83,7 @@ const PasswordRules = ({ password, confirmPassword }) => {
 	);
 };
 
-export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
+export const Login = ({ authError, authSuccess, onResetDataLoaded, onGetUserPlaylists, user }) => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 	const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -116,6 +123,22 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 		}
 	}, [user]);
 
+	useEffect(() => {
+		if (authError) {
+			setSnackbarMessage(authError);
+			setSnackbarSeverity('error');
+			setSnackbarOpen(true);
+		}
+	}, [authError]);
+
+	useEffect(() => {
+		if (authSuccess) {
+			setSnackbarMessage(authSuccess);
+			setSnackbarSeverity('success');
+			setSnackbarOpen(true);
+		}
+	}, [authSuccess]);
+
 	const onEmailSubmit = async () => {
 		if (!emailValue) {
 			setInvalidEmail(true);
@@ -152,8 +175,11 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 
 		try {
 			const currentUser = await dispatch(login(emailValue, passwordValue));
+			console.log(currentUser);
 
-			dispatch(setCurrentUser(currentUser));
+			if (currentUser) {
+				dispatch(setCurrentUser(currentUser));
+			}
 
 			if (currentUser && !currentUser.user.spotify_connected) {
 				navigate('/spotify-connect');
@@ -210,6 +236,14 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 		}
 	};
 
+	const onResetPassword = async () => {
+		setSnackbarSeverity('info');
+		setSnackbarMessage('One moment while we send you a reset email...');
+		setSnackbarOpen(true);
+
+		await dispatch(resetPassword(user.user.email));
+	};
+
 	const handleEmailChange = e => {
 		setInvalidEmail(false);
 		setEmailValue(e.target.value);
@@ -238,12 +272,19 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 		onCreatePassword();
 	};
 
+	const handleResetPassword = e => {
+		e.preventDefault();
+		onResetPassword();
+	};
+
 	const handleClose = (event, reason) => {
 		if (reason === 'clickaway') {
 			return;
 		}
 
 		setSnackbarOpen(false);
+		dispatch(authSlice.actions.clearError());
+		dispatch(authSlice.actions.clearSuccessMessage());
 	};
 
 	return (
@@ -320,8 +361,6 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 										})}
 									/>
 								</Box>
-								<br />
-								<br />
 								<Grid className={classes.buttonsContainer}>
 									<Tooltip
 										arrow
@@ -350,7 +389,6 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 										</Button>
 									</Tooltip>
 								</Grid>
-								<br />
 							</form>
 						</Box>
 					</Box>
@@ -361,7 +399,11 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 						<Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
 							<form className={classes.form} onSubmit={handlePasswordSubmit}>
 								<CardHeader
-									title='Welcome Back!'
+									title={
+										user?.user?.username
+											? `Welcome Back ${user?.user?.username}!`
+											: 'Welcome Back!'
+									}
 									titleTypographyProps={{
 										width: '100%',
 										variant: isSmScreen || isXsScreen ? 'h6' : 'h5',
@@ -437,8 +479,6 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 										})}
 									/>
 								</Box>
-								<br />
-								<br />
 								<Grid className={classes.buttonsContainer}>
 									<Tooltip
 										arrow
@@ -452,7 +492,9 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 												}}
 											>
 												<Typography variant='body2' letterSpacing='1px'>
-													{`Sign in as ${user?.user?.display_name}`}
+													{user?.user?.username
+														? `Sign in as ${user?.user?.username}`
+														: 'Sign in'}
 												</Typography>
 											</div>
 										}
@@ -462,12 +504,42 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 											className={classes.button}
 											onClick={handleSubmit(onPasswordSubmit)}
 										>
-											Login
+											{'Login'}
 											<NavigateNextIcon />
 										</Button>
 									</Tooltip>
 								</Grid>
-								<br />
+								<Grid className={classes.buttonsContainer}>
+									<Tooltip
+										arrow
+										title={
+											<div
+												style={{
+													maxHeight: '25vh',
+													overflowY: 'auto',
+													padding: '8px',
+													borderRadius: '8px'
+												}}
+											>
+												<Typography variant='body2' letterSpacing='1px'>
+													{`Sign in as ${user?.user?.username}`}
+												</Typography>
+											</div>
+										}
+									>
+										<Button
+											type='submit'
+											className={classes.button}
+											onClick={handleResetPassword}
+											sx={{
+												fontSize: '0.75rem'
+											}}
+										>
+											{'Reset Password'}
+											<NavigateNextIcon />
+										</Button>
+									</Tooltip>
+								</Grid>
 							</form>
 						</Box>
 					</Box>
@@ -624,8 +696,6 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 										confirmPassword={confirmPasswordValue}
 									/>
 								</Box>
-								<br />
-								<br />
 								<Grid className={classes.buttonsContainer}>
 									<Tooltip
 										arrow
@@ -654,7 +724,6 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 										</Button>
 									</Tooltip>
 								</Grid>
-								<br />
 							</form>
 						</Box>
 					</Box>
@@ -675,7 +744,9 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 };
 
 const mapStateToProps = state => ({
-	user: state.user.currentUser
+	user: state.user.currentUser,
+	authError: state.auth.error,
+	authSuccess: state.auth.successMessage
 });
 
 const mapDispatchToProps = dispatch => ({
