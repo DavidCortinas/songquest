@@ -194,7 +194,7 @@ export const resetPassword = email => async dispatch => {
 	try {
 		const csrfToken = await getCSRFToken();
 		const body = JSON.stringify({ email });
-		const response = await fetch(`http://localhost:8000/api/auth/password-reset/`, {
+		const response = await fetch(`/api/auth/password-reset/`, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken
@@ -223,7 +223,7 @@ export const resetPasswordConfirm = (uid, token, newPassword) => async dispatch 
 	try {
 		const csrfToken = await getCSRFToken();
 		const body = JSON.stringify({ uid, token, new_password: newPassword });
-		const response = await fetch(`http://localhost:8000/api/auth/password-reset-confirm/`, {
+		const response = await fetch(`/api/auth/password-reset-confirm/`, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken

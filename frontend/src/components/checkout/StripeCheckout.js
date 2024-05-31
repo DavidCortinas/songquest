@@ -68,7 +68,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 		const { error } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: 'http://localhost:3000/?payment=success'
+				return_url: 'https://www.songquest.io/?payment=success'
 			}
 		});
 
