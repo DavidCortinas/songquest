@@ -62,7 +62,6 @@ pycparser==2.21
 pycryptodomex==3.19.1
 PyDispatcher==2.0.7
 pydub==0.25.1
-pyee==11.1.0
 Pygments==2.15.0
 pyOpenSSL==23.1.1
 PySocks==1.7.1
