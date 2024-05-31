@@ -1,8 +1,7 @@
-from django.urls import path
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import path, re_path
 from .views import index
 
 urlpatterns = [
-    path('', index),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("", index, name="index"),
+    re_path(r"^.*$", index, name="catch-all"),  # Catch-all pattern for frontend routes
+]

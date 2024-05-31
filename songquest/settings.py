@@ -10,7 +10,8 @@ BASE_URL = "http://localhost:8000"
 # BASE_URL = 'https://songquest.com'
 
 # Frontend URL
-FRONTEND_URL = "http://localhost:3000"
+# FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = "http://localhost:8000"
 # FRONTEND_URL = 'https://songquest.com'
 
 # Email settings
@@ -233,3 +234,4 @@ SESSION_CACHE_ALIAS = "default"
 # Media settings
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
