@@ -27,15 +27,15 @@ import '../App.css';
 import theme from '../theme';
 import { LoadingState } from './LoadingState';
 import { Body } from './Body';
-import LeftPanel from './sidePanels/LeftPanel';
-import RightPanel from './sidePanels/RightPanel';
+import LeftPanel from './LeftPanel';
+import RightPanel from './RightPanel';
 import { initialDiscoveryState } from '../reducers';
 import { saveRequestParameters } from '../thunks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DemoModal } from './auth/DemoModal';
 
 const Recommendations = lazy(() => import('./Recommendations'));
-const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'));
+const SpotifyForm = lazy(() => import('./SpotifyForm'));
 const SaveQueryModal = lazy(() => import('./SaveQueryModal'));
 
 const useStyles = makeStyles(theme => ({
