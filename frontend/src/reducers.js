@@ -688,6 +688,12 @@ export const authSlice = createSlice({
 				account: action.payload
 			};
 		},
+		setError: (state, action) => {
+			state.error = action.payload;
+		},
+		clearError: state => {
+			state.error = null;
+		},
 		logout() {
 			return initialAuthState;
 		}
