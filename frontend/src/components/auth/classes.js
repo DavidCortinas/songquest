@@ -51,8 +51,7 @@ export const useStyles = makeStyles(() => ({
 	},
 	buttonsContainer: {
 		display: 'flex',
-		justifyContent: 'center',
-		marginTop: '1rem'
+		justifyContent: 'center'
 	},
 	button: {
 		color: 'white'

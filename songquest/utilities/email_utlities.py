@@ -23,5 +23,8 @@ def send_verification_email(user_email, verification_token):
     send_mail(subject, message, from_email, recipient_list)
 
 
-
-
+def send_password_reset_email(email, uid, token):
+    reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+    subject = "Password Reset Request"
+    message = f"Please use the following link to reset your password: {reset_url}"
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
