@@ -164,7 +164,7 @@ LOGGING = {
             "propagate": False,  # Prevent logs from being propagated to the root logger
         },
     },
-}}
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
