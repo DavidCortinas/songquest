@@ -12,6 +12,7 @@ import os
 from django.contrib.auth import get_user_model
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.http import HttpResponseForbidden, JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
@@ -143,7 +144,9 @@ def login_user():
 
 
 @csrf_exempt
+@require_http_methods(["PATCH"])
 def update_display_name(request):
+    print("update name")
     if request.method == "PATCH":
         try:
             user_id = request.headers.get("User-Id")

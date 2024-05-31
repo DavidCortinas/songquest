@@ -18,6 +18,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PaidIcon from '@mui/icons-material/Paid';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 import {
 	deletePlaylist,
 	removeFromCurrentPlaylistById,
@@ -31,6 +32,7 @@ import { authSlice } from '../reducers';
 import { makeStyles, withStyles } from '@mui/styles';
 import { TokenCounter, KarmaCounter } from '../utils';
 import logoIcon from '../../public/images/sq-logo-2.ico';
+import { DemoModal } from './auth/DemoModal';
 
 const StyledLinearProgress = withStyles({
 	colorPrimary: {
@@ -114,6 +116,16 @@ export const TopBar = ({
 	};
 
 	const xpPercentage = currentUser?.user?.karma;
+
+	const [openDemoVideo, setOpenDemoVideo] = React.useState(false);
+
+	const handleViewDemoVideo = () => {
+		setOpenDemoVideo(true);
+	};
+
+	const handleCloseDemoVideo = () => {
+		setOpenDemoVideo(false);
+	};
 
 	return (
 		<Box display='flex' justifyContent='space-between' p={isXsScreen ? 1 : 2} id='topBar'>
@@ -337,7 +349,7 @@ export const TopBar = ({
 								{`Profile`}
 							</Typography>
 						</MenuItem>
-						<MenuItem divider onClick={handleHomeClick}>
+						<MenuItem onClick={handleHomeClick}>
 							{!isXsScreen && (
 								<ListItemIcon
 									color='inherit'
@@ -356,6 +368,27 @@ export const TopBar = ({
 								color='white'
 							>
 								{`Home`}
+							</Typography>
+						</MenuItem>
+						<MenuItem divider onClick={handleViewDemoVideo}>
+							{!isXsScreen && (
+								<ListItemIcon
+									color='inherit'
+									component={Link}
+									style={{
+										textDecoration: 'none',
+										color: 'white'
+									}}
+								>
+									<SlideshowIcon />
+								</ListItemIcon>
+							)}
+							<Typography
+								variant={isXsScreen ? 'body2' : 'body1'}
+								letterSpacing='1px'
+								color='white'
+							>
+								{`Demo`}
 							</Typography>
 						</MenuItem>
 						<MenuItem onClick={handleLogout}>
@@ -380,6 +413,10 @@ export const TopBar = ({
 							</Typography>
 						</MenuItem>
 					</Menu>
+					<DemoModal
+						openDemoVideo={openDemoVideo}
+						handleCloseDemoVideo={handleCloseDemoVideo}
+					/>
 				</Box>
 			)}
 		</Box>

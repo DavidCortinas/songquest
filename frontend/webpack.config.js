@@ -43,7 +43,7 @@ module.exports = (env, argv) => {
 					use: [isProduction ? MiniCssExtractPlugin.loader : 'style-loader', 'css-loader']
 				},
 				{
-					test: /\.(png|jpg|jpeg|gif|svg|ico|webp)$/i,
+					test: /\.(png|jpg|jpeg|gif|svg|ico|webp|mp4)$/i,
 					type: 'asset/resource',
 					generator: {
 						filename: 'media/[name].[hash:8][ext]'

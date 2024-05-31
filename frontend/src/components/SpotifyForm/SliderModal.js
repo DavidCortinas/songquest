@@ -38,10 +38,10 @@ const SliderModal = ({
 					p: 4
 				}}
 			>
-				<Grid container columns={20} spacing={2} paddingBottom='15px'>
+				<Grid container columns={20} spacing={2} padding='0 15px 5px 0'>
 					{!(isSmScreen || isXsScreen) && (
 						<Grid item xs={4}>
-							<Typography>Fine Tuning Parameters</Typography>
+							<Typography>{'Secondary Preferences'}</Typography>
 						</Grid>
 					)}
 					<Grid item xs={isMdScreen || isLgScreen || isXlScreen ? 16 : 20}>
