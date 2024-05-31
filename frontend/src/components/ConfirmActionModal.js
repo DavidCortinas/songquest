@@ -15,7 +15,6 @@ const ConfirmActionModal = ({ open, onClose, onConfirm, item, actionType, tokens
 		: `Do you want to use ${tokens} tokens to complete this transaction?`;
 	const cancelButtonText = 'Cancel';
 	const confirmButtonText = isDeleteAction ? 'Delete' : 'Use Tokens';
-	const confirmButtonColor = isDeleteAction ? 'error' : 'success';
 
 	return (
 		<Modal
@@ -79,16 +78,20 @@ const ConfirmActionModal = ({ open, onClose, onConfirm, item, actionType, tokens
 						onClick={handleConfirm}
 						sx={{
 							color: 'white',
-							backgroundColor: `rgba(244,67,54, 0.5)`,
-							border: `2px solid ${theme.palette.primary.error}`,
+							backgroundColor: isDeleteAction
+								? `rgba(244,67,54, 0.5)`
+								: `rgba(44, 216, 207, 0.3)`,
+							border: `2px solid ${theme.palette.primary.analogous1}`,
 							borderRadius: '8px',
 							boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
 							width: 'fit-content',
 							padding: '2% 5%',
 							transition: 'border 0.3s, background 0.3s, boxShadow 0.3s width 0.3s',
 							'&:hover, &:active, &.MuiFocusVisible': {
-								border: `2px solid ${theme.palette.primary.error}`,
-								background: `rgba(244,67,54, 0.7)`,
+								border: `2px solid ${theme.palette.primary.analogous1}`,
+								background: isDeleteAction
+									? `rgba(244,67,54, 0.7)`
+									: `rgba(44, 216, 207, 0.5)`,
 								boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
 							}
 						}}

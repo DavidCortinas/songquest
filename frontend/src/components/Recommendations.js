@@ -101,7 +101,7 @@ const Recommendation = ({
 		}
 		setSnackbarOpen(true);
 	}, [
-		user?.user.spotifyConnected,
+		user?.user?.spotifyConnected,
 		playlistAction,
 		navigate,
 		recommendationInPlaylist,
@@ -283,9 +283,9 @@ const Recommendation = ({
 								}}
 							>
 								<Typography variant='body2' letterSpacing='1px'>
-									{user?.user.spotifyConnected && isSavedTrack
+									{user?.user?.spotifyConnected && isSavedTrack
 										? 'Remove from your Spotify library'
-										: user?.user.spotifyConnected
+										: user?.user?.spotifyConnected
 										? 'Save to your Spotify library'
 										: 'Connect to Spotify to save to libary'}
 								</Typography>

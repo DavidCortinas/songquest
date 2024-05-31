@@ -32,6 +32,7 @@ import RightPanel from './sidePanels/RightPanel';
 import { initialDiscoveryState } from '../reducers';
 import { saveRequestParameters } from '../thunks';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { DemoModal } from './auth/DemoModal';
 
 const Recommendations = lazy(() => import('./Recommendations'));
 const SpotifyForm = lazy(() => import('./spotifyForm/SpotifyForm'));
@@ -562,7 +563,7 @@ export const SongDiscovery = ({
 		if (source === 'onboard') {
 			setFromOnboard(true);
 
-			const achievements = currentUserProfile.achievements || [];
+			const achievements = currentUserProfile?.achievements || [];
 			const onboardAchievement = achievements.find(
 				ach => ach.name === 'Onboarding Completed'
 			);
@@ -760,13 +761,19 @@ export const SongDiscovery = ({
 		setToggleValue(e.target.value);
 	};
 
-	const handleViewDemo = () => {
-		setOpenDemo(true);
-	};
-
 	const handleCloseDemo = () => {
 		setAchievementModalOpen(false);
 		setOpenDemo(false);
+	};
+
+	const [openDemoVideo, setOpenDemoVideo] = useState(false);
+
+	const handleViewDemoVideo = () => {
+		setOpenDemoVideo(true);
+	};
+
+	const handleCloseDemoVideo = () => {
+		setOpenDemoVideo(false);
 	};
 
 	return (
@@ -1128,9 +1135,9 @@ export const SongDiscovery = ({
 										>
 											<Typography variant='body2' letterSpacing='1px'>
 												{`Watch the magic of SongQuest in action! Click here to 
-                              view our demo video and experience firsthand how our 
-                              AI-powered music discovery brings your musical journey 
-                              to life.`}
+                          view our demo video and experience firsthand how our 
+                          AI-powered music discovery brings your musical journey 
+                          to life.`}
 											</Typography>
 										</div>
 									}
@@ -1138,7 +1145,7 @@ export const SongDiscovery = ({
 									<Button
 										className={classes.button}
 										type='button'
-										onClick={handleViewDemo}
+										onClick={handleViewDemoVideo}
 									>
 										{'View Demo'}
 										<NavigateNextIcon />
@@ -1178,6 +1185,7 @@ export const SongDiscovery = ({
 					)}
 				</Box>
 			</Modal>
+			<DemoModal openDemoVideo={openDemoVideo} handleCloseDemoVideo={handleCloseDemoVideo} />
 			<Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar}>
 				<Alert
 					variant='filled'

@@ -233,7 +233,7 @@ const SpotifyForm = ({
 			});
 		}
 		startTransition(() => {
-			onSearchPressed(parameters, currentUser?.user.id)
+			onSearchPressed(parameters, currentUser?.user?.id)
 				.then(() => {
 					setIsLoading(false);
 				})
@@ -686,8 +686,8 @@ const SpotifyForm = ({
 																	className={classes.inputLabel}
 																	variant='standard'
 																>
-																	Set Recommendation Sources
-																	(Songs, Artists, or Genres)
+																	{`Set Primary Preferences (Songs,
+																	Artists, or Genres)`}
 																</InputLabel>
 																<Select
 																	multiple
@@ -698,7 +698,7 @@ const SpotifyForm = ({
 																	onClose={() =>
 																		setSelectOpen(false)
 																	}
-																	label='Set Recommendation Sources (Songs, Artists, or Genres)'
+																	label='Set Primary Preferences (Songs, Artists, or Genres)'
 																	value={targetParams}
 																	onChange={
 																		handleTargetParamChange
@@ -804,7 +804,7 @@ const SpotifyForm = ({
 																: Object.values(
 																		targetParamValues
 																  ).every(arr => arr.length === 0)
-																? `Choose Up to 5 Recommendation Sources`
+																? `Choose Up to 5 Primary Preferences`
 																: Object.values(
 																		targetParamValues
 																  ).every(arr => arr.length < 5)
@@ -819,8 +819,8 @@ const SpotifyForm = ({
 																				)
 																			]
 																		).length
-																  } More Recommendation Sources`
-																: `You Have Run Out Of Target Parameters To Set`}
+																  } More Primary Preferences`
+																: `You Have Run Out Of Primary Preferences To Set`}
 														</Typography>
 													</>
 												) : (
@@ -939,7 +939,7 @@ const SpotifyForm = ({
 										>
 											{isXsScreen || isSmScreen
 												? '* activate parameters and set the min, target, and max values'
-												: '* activate additional parameters and set the min, target, and max values to refine your recommendations'}
+												: '* activate secondary preferences and set the min, target, and max values to refine your recommendations'}
 										</Typography>
 										<SettingsSuggestIcon />
 									</Button>
@@ -1039,7 +1039,7 @@ const SpotifyForm = ({
 									variant='caption'
 									paddingTop='5%'
 								>
-									Or anywhere else on the screen to exit...
+									{'Or anywhere else on the screen to exit...'}
 								</Typography>
 							</Box>
 						)}

@@ -187,7 +187,7 @@ const SaveQueryModal = ({
 					</Button>
 				</Tooltip>
 				<Typography variant='h5' letterSpacing='1px' padding='2%'>
-					{'Recommendation Sources'}
+					{'Primary Preferences'}
 				</Typography>
 				<Box display='flex' flexDirection='column' width='90%'>
 					{formattedSongs && (
@@ -301,7 +301,7 @@ const SaveQueryModal = ({
 									padding='2%'
 									textAlign='center'
 								>
-									{'Fine Tuning Parameters'}
+									{'Secondary Preferences'}
 								</Typography>
 								<Box
 									display='flex'
