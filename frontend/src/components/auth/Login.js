@@ -5,6 +5,8 @@ import {
 	Button,
 	CardHeader,
 	Grid,
+	IconButton,
+	InputAdornment,
 	Snackbar,
 	TextField,
 	Tooltip,
@@ -19,6 +21,8 @@ import theme from '../../theme';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { checkRegistration, getUserPlaylists, login, registerUser } from '../../thunks';
 import { resetDataLoaded, setCurrentUser } from '../../actions';
 import { useStyles } from './classes';
@@ -90,6 +94,8 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 	const [emailValue, setEmailValue] = useState('');
 	const [passwordValue, setPasswordValue] = useState('');
 	const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [checkedRegistration, setCheckedRegistration] = useState(false);
 	const [userRegistered, setUserRegistered] = useState(false);
 	const [invalidEmail, setInvalidEmail] = useState(false);
@@ -218,6 +224,9 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 		setInvalidConfirmPassword(false);
 		setConfirmPasswordValue(e.target.value);
 	};
+
+	const handleClickShowPassword = () => setShowPassword(prev => !prev);
+	const handleClickShowConfirmPassword = () => setShowConfirmPassword(prev => !prev);
 
 	const handlePasswordSubmit = e => {
 		e.preventDefault();
@@ -394,14 +403,33 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 											},
 											sx: {
 												color: 'white'
-											}
+											},
+											endAdornment: (
+												<InputAdornment position='end'>
+													<IconButton
+														aria-label='toggle password visibility'
+														onClick={handleClickShowPassword}
+														sx={{ paddingRight: '5%' }}
+													>
+														{showPassword ? (
+															<VisibilityOffIcon
+																sx={{ color: 'whitesmoke' }}
+															/>
+														) : (
+															<VisibilityIcon
+																sx={{ color: 'whitesmoke' }}
+															/>
+														)}
+													</IconButton>
+												</InputAdornment>
+											)
 										}}
 										error={errors.password}
 										required
 										className={classes.textField}
 										value={passwordValue}
 										label={errors.password ? 'Invalid Password' : 'password'}
-										type='password'
+										type={showPassword ? 'text' : 'password'}
 										{...register('password', {
 											required: true,
 											onChange: e => handlePasswordChange(e),
@@ -492,14 +520,33 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 											},
 											sx: {
 												color: 'white'
-											}
+											},
+											endAdornment: (
+												<InputAdornment position='end'>
+													<IconButton
+														aria-label='toggle password visibility'
+														onClick={handleClickShowPassword}
+														sx={{ paddingRight: '5%' }}
+													>
+														{showPassword ? (
+															<VisibilityOffIcon
+																sx={{ color: 'whitesmoke' }}
+															/>
+														) : (
+															<VisibilityIcon
+																sx={{ color: 'whitesmoke' }}
+															/>
+														)}
+													</IconButton>
+												</InputAdornment>
+											)
 										}}
 										error={errors.password}
 										required
 										className={classes.textField}
 										value={passwordValue}
 										label={errors.password ? 'Invalid Password' : 'password'}
-										type='password'
+										type={showPassword ? 'text' : 'password'}
 										{...register('password', {
 											required: true,
 											onChange: e => handlePasswordChange(e),
@@ -533,7 +580,26 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 											},
 											sx: {
 												color: 'white'
-											}
+											},
+											endAdornment: (
+												<InputAdornment position='end'>
+													<IconButton
+														aria-label='toggle password visibility'
+														onClick={handleClickShowConfirmPassword}
+														sx={{ paddingRight: '5%' }}
+													>
+														{showConfirmPassword ? (
+															<VisibilityOffIcon
+																sx={{ color: 'whitesmoke' }}
+															/>
+														) : (
+															<VisibilityIcon
+																sx={{ color: 'whitesmoke' }}
+															/>
+														)}
+													</IconButton>
+												</InputAdornment>
+											)
 										}}
 										error={errors.reenterPassword}
 										required
@@ -544,7 +610,7 @@ export const Login = ({ onResetDataLoaded, onGetUserPlaylists, user }) => {
 												? 'Invalid Password'
 												: 're-enter password'
 										}
-										type='password'
+										type={showConfirmPassword ? 'text' : 'password'}
 										{...register('reenterPassword', {
 											required: true,
 											onChange: e => handleConfirmPasswordChange(e),

@@ -6,7 +6,7 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Base URL
-BASE_URL = 'https://songquest.com'
+BASE_URL = "https://songquest.com"
 
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
@@ -20,10 +20,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 # Security settings
 DEBUG = True  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
-ALLOWED_HOSTS = [
-    "songquest.io",
-    "www.songquest.io",
-]
+ALLOWED_HOSTS = ["songquest.io", "www.songquest.io", "127.0.0.1"]
 
 # Database settings
 DATABASES = {

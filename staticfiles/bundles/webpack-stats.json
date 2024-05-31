@@ -21,10 +21,10 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/14.96efe43e.chunk.js",
       "publicPath": "/static/js/14.96efe43e.chunk.js"
     },
-    "js/159.57596dfc.chunk.js": {
-      "name": "js/159.57596dfc.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/159.57596dfc.chunk.js",
-      "publicPath": "/static/js/159.57596dfc.chunk.js"
+    "js/140.0c033a12.chunk.js": {
+      "name": "js/140.0c033a12.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/140.0c033a12.chunk.js",
+      "publicPath": "/static/js/140.0c033a12.chunk.js"
     },
     "js/208.afcd0bd2.chunk.js": {
       "name": "js/208.afcd0bd2.chunk.js",
@@ -36,15 +36,10 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/234.23a750be.chunk.js",
       "publicPath": "/static/js/234.23a750be.chunk.js"
     },
-    "js/249.b8e2b96c.chunk.js": {
-      "name": "js/249.b8e2b96c.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/249.b8e2b96c.chunk.js",
-      "publicPath": "/static/js/249.b8e2b96c.chunk.js"
-    },
-    "js/253.8288db29.chunk.js": {
-      "name": "js/253.8288db29.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/253.8288db29.chunk.js",
-      "publicPath": "/static/js/253.8288db29.chunk.js"
+    "js/249.9d6efce3.chunk.js": {
+      "name": "js/249.9d6efce3.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/249.9d6efce3.chunk.js",
+      "publicPath": "/static/js/249.9d6efce3.chunk.js"
     },
     "js/266.495d94ef.chunk.js": {
       "name": "js/266.495d94ef.chunk.js",
@@ -66,20 +61,35 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/326.6ed34aef.chunk.js",
       "publicPath": "/static/js/326.6ed34aef.chunk.js"
     },
-    "js/366.12672a31.chunk.js": {
-      "name": "js/366.12672a31.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/366.12672a31.chunk.js",
-      "publicPath": "/static/js/366.12672a31.chunk.js"
+    "js/328.107a9f68.chunk.js": {
+      "name": "js/328.107a9f68.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/328.107a9f68.chunk.js",
+      "publicPath": "/static/js/328.107a9f68.chunk.js"
+    },
+    "js/366.e898eb79.chunk.js": {
+      "name": "js/366.e898eb79.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/366.e898eb79.chunk.js",
+      "publicPath": "/static/js/366.e898eb79.chunk.js"
     },
     "js/368.38ccefda.chunk.js": {
       "name": "js/368.38ccefda.chunk.js",
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/368.38ccefda.chunk.js",
       "publicPath": "/static/js/368.38ccefda.chunk.js"
     },
-    "js/51.9b01b439.chunk.js": {
-      "name": "js/51.9b01b439.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/51.9b01b439.chunk.js",
-      "publicPath": "/static/js/51.9b01b439.chunk.js"
+    "js/387.a8d6d449.chunk.js": {
+      "name": "js/387.a8d6d449.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/387.a8d6d449.chunk.js",
+      "publicPath": "/static/js/387.a8d6d449.chunk.js"
+    },
+    "js/453.f31c7d75.chunk.js": {
+      "name": "js/453.f31c7d75.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/453.f31c7d75.chunk.js",
+      "publicPath": "/static/js/453.f31c7d75.chunk.js"
+    },
+    "js/51.2b81d299.chunk.js": {
+      "name": "js/51.2b81d299.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/51.2b81d299.chunk.js",
+      "publicPath": "/static/js/51.2b81d299.chunk.js"
     },
     "js/533.0bde5073.chunk.js": {
       "name": "js/533.0bde5073.chunk.js",
@@ -106,11 +116,6 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/59.eeb9ddeb.chunk.js",
       "publicPath": "/static/js/59.eeb9ddeb.chunk.js"
     },
-    "js/652.0ac94e09.chunk.js": {
-      "name": "js/652.0ac94e09.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/652.0ac94e09.chunk.js",
-      "publicPath": "/static/js/652.0ac94e09.chunk.js"
-    },
     "js/658.e5891726.chunk.js": {
       "name": "js/658.e5891726.chunk.js",
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/658.e5891726.chunk.js",
@@ -136,11 +141,6 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/799.504b99e8.chunk.js",
       "publicPath": "/static/js/799.504b99e8.chunk.js"
     },
-    "js/811.bddf8dc4.chunk.js": {
-      "name": "js/811.bddf8dc4.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/811.bddf8dc4.chunk.js",
-      "publicPath": "/static/js/811.bddf8dc4.chunk.js"
-    },
     "js/860.5acb4fa7.chunk.js": {
       "name": "js/860.5acb4fa7.chunk.js",
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/860.5acb4fa7.chunk.js",
@@ -151,15 +151,15 @@
       "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/930.ced4f77a.chunk.js",
       "publicPath": "/static/js/930.ced4f77a.chunk.js"
     },
-    "js/947.cde34f2b.chunk.js": {
-      "name": "js/947.cde34f2b.chunk.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/947.cde34f2b.chunk.js",
-      "publicPath": "/static/js/947.cde34f2b.chunk.js"
+    "js/947.0883477b.chunk.js": {
+      "name": "js/947.0883477b.chunk.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/947.0883477b.chunk.js",
+      "publicPath": "/static/js/947.0883477b.chunk.js"
     },
-    "js/main.689904af.js": {
-      "name": "js/main.689904af.js",
-      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/main.689904af.js",
-      "publicPath": "/static/js/main.689904af.js"
+    "js/main.630f807f.js": {
+      "name": "js/main.630f807f.js",
+      "path": "/Users/david/Desktop/development/songquest/frontend/dist/js/main.630f807f.js",
+      "publicPath": "/static/js/main.630f807f.js"
     },
     "media/14960493_5532919.c3bda62c.jpg": {
       "name": "media/14960493_5532919.c3bda62c.jpg",
@@ -237,7 +237,7 @@
   "chunks": {
     "main": [
       "css/main.aef744dd.css",
-      "js/main.689904af.js"
+      "js/main.630f807f.js"
     ]
   },
   "publicPath": "/static/"

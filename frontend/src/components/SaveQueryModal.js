@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { getSpotifyArtists, getSpotifyTracks } from '../thunks';
 import { toCapitalCase } from '../utils';
-import { autocompleteParam } from './SpotifyForm';
+import { autocompleteParam } from './SpotifyForm/SpotifyForm';
 import CloseIcon from '@mui/icons-material/Close';
 import theme from '../theme';
 
