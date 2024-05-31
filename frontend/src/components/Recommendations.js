@@ -32,6 +32,7 @@ import {
 } from '../thunks';
 import { LoadingState } from './LoadingState';
 import defaultImage from '../images/defaultImage.webp';
+import { DemoModal } from './auth/DemoModal';
 
 const Recommendation = ({
 	classes,
@@ -446,6 +447,16 @@ const Recommendations = ({
 		setSnackbarOpen(false);
 	};
 
+	const [openDemoVideo, setOpenDemoVideo] = useState(false);
+
+	const handleViewDemoVideo = () => {
+		setOpenDemoVideo(true);
+	};
+
+	const handleCloseDemoVideo = () => {
+		setOpenDemoVideo(false);
+	};
+
 	if (loading) {
 		return <LoadingState />;
 	}
@@ -684,6 +695,44 @@ const Recommendations = ({
 									{'Use Song Explorer'}
 								</Typography>
 							</Button>
+							<Typography color={'white'} fontSize='large'>
+								{'OR'}
+							</Typography>
+							<Button
+								onClick={handleViewDemoVideo}
+								variant='contained'
+								sx={{
+									color: 'white',
+									backgroundColor: 'rgb(44, 216, 207, 0.3)',
+									border: '2px solid rgba(89, 149, 192, 0.5)',
+									borderRadius: '18px',
+									boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+									transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+									margin: '4%',
+									width: '22vw',
+									height: '7vh',
+									[theme.breakpoints.down('md')]: {
+										width: '70%'
+									},
+									'&:hover, &:active, &.MuiFocusVisible': {
+										border: '2px solid rgba(89, 149, 192, 0.5)',
+										backgroundColor: 'rgb(44, 216, 207, 0.5)',
+										boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+									}
+								}}
+							>
+								<Typography
+									variant='body2'
+									color='white'
+									letterSpacing='1px'
+									sx={{
+										fontWeight: 'bold',
+										cursor: 'pointer'
+									}}
+								>
+									{'View Demo'}
+								</Typography>
+							</Button>
 						</Box>
 					)}
 				</div>
@@ -700,6 +749,7 @@ const Recommendations = ({
 				</Typography>
 				<KeyboardDoubleArrowDownIcon sx={{ color: theme.palette.primary.triadic2 }} />
 			</Box>
+			<DemoModal openDemoVideo={openDemoVideo} handleCloseDemoVideo={handleCloseDemoVideo} />
 			<Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose}>
 				<Alert
 					onClose={handleClose}

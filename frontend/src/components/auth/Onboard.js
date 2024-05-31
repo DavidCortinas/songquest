@@ -83,34 +83,25 @@ const DisplayNameInput = ({
 		setDisplayNameValue(e.target.value);
 	};
 
+	console.log(displayNameValue);
+
 	const onCreateDisplayName = async () => {
-		if (displayNameValue.trim()) {
-			try {
-				// Only attempt to update if there is a non-empty, non-space-only display name
-				// eslint-disable-next-line no-unused-vars
-				const savedDisplayName = await onUpdateDisplayName(
-					currentUser?.user.id,
-					displayNameValue
-				);
-				// Move to the next step only if the display name is successfully updated
+		if (!currentUser?.user.id) {
+			console.error('No user ID found');
+			return;
+		}
+
+		let displayName = displayNameValue.trim() ? displayNameValue : null;
+
+		try {
+			const savedDisplayName = await onUpdateDisplayName(currentUser.user.id, displayName);
+			if (savedDisplayName) {
 				setCurrentStep('birthday');
-			} catch (error) {
-				console.error('Failed to update display name:', error);
-				// Optionally handle the error, e.g., show an error message to the user
-				// Do not move to the next step if there is an error
 			}
-		} else {
-			// If displayNameValue is empty or only spaces, set the display name to null
-			try {
-				// eslint-disable-next-line no-unused-vars
-				const savedDisplayName = await onUpdateDisplayName(currentUser?.user.id, null);
-				// Move to the next step
-				setCurrentStep('birthday');
-			} catch (error) {
-				console.error('Failed to update display name to null:', error);
-				// Optionally handle the error, e.g., show an error message to the user
-				// Do not move to the next step if there is an error
-			}
+		} catch (error) {
+			console.error('Failed to update display name:', error);
+			// Optionally handle the error, e.g., show an error message to the user
+			// Do not move to the next step if there is an error
 		}
 	};
 
