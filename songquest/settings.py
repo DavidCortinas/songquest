@@ -149,7 +149,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "django.log",  # Customize the log file path
+            "filename": os.path.join(BASE_DIR, "logs/django.log"),  # Full path to log file
         },
     },
     "root": {
@@ -164,7 +164,7 @@ LOGGING = {
             "propagate": False,  # Prevent logs from being propagated to the root logger
         },
     },
-}
+}}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
