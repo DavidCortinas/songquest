@@ -100,7 +100,7 @@ const useStyles = makeStyles(theme => ({
 		}
 	},
 	buttonWithMargin: {
-		margin: '4%',
+		margin: '2%',
 		width: '22vw',
 		height: '10vh',
 		[theme.breakpoints.down('md')]: {
@@ -944,7 +944,7 @@ export const SongDiscovery = ({
 										// textAlign='center'
 										variant='h6'
 										letterSpacing='1px'
-										padding='5% 3% 0'
+										padding='4% 3% 0'
 										width='100%'
 									>
 										{`Start discovering new music now. Simply choose from the songs,
@@ -955,7 +955,7 @@ export const SongDiscovery = ({
 										// textAlign='center'
 										variant='h6'
 										letterSpacing='1px'
-										padding='5% 3% 0'
+										padding='4% 3% 0'
 										width='100%'
 									>
 										{`Adjust your search by clicking on "Fine Tune Your Recommendations" 
@@ -979,9 +979,26 @@ export const SongDiscovery = ({
 										>
 											{'Get Started On Your Journey'}
 										</Typography>
-										{/* <Typography variant='h5' paddingLeft='2%'>
-                      🚀
-                    </Typography> */}
+									</Button>
+									<Typography color={'white'} fontSize='large'>
+										{'OR'}
+									</Typography>
+									<Button
+										className={`${classes.button} ${classes.buttonWithMargin}`}
+										onClick={handleViewDemoVideo}
+										variant='contained'
+									>
+										<Typography
+											variant='subtitle1'
+											color='white'
+											letterSpacing='1px'
+											sx={{
+												fontWeight: 'bold',
+												cursor: 'pointer'
+											}}
+										>
+											{'View Demo'}
+										</Typography>
 									</Button>
 								</Box>
 							) : (
