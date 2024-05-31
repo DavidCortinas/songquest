@@ -115,7 +115,7 @@ export const StripeCheckout = ({ user }) => {
 
 			const body = JSON.stringify(selectedPrice);
 
-			const response = await fetch('http://localhost:8000/create-payment-intent/', {
+			const response = await fetch('/create-payment-intent/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

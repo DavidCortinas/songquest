@@ -6,8 +6,7 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Base URL
-BASE_URL = "http://localhost:8000"
-# BASE_URL = 'https://songquest.com'
+BASE_URL = 'https://songquest.com'
 
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
@@ -22,9 +21,6 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEBUG = True  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "216.128.141.249",
     "songquest.io",
     "www.songquest.io",
 ]
@@ -33,11 +29,11 @@ ALLOWED_HOSTS = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "songquest",
-        "USER": "david",
-        "PASSWORD": "tootall33",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
@@ -49,7 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "corsheaders",
+    # "corsheaders",
     "rest_framework",
     "songquest",
     "songquest.user.apps.UserConfig",
@@ -62,7 +58,7 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    # "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -86,37 +82,37 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
 # CORS settings
-CORS_ALLOW_HEADERS = [
-    "Authorization",
-    "Content-Type",
-    "X-CSRFToken",
-    "X-Requested-With",
-    "User-Id",
-    "User-Email",
-]
+# CORS_ALLOW_HEADERS = [
+#     "Authorization",
+#     "Content-Type",
+#     "X-CSRFToken",
+#     "X-Requested-With",
+#     "User-Id",
+#     "User-Email",
+# ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    # "http://localhost:8000",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+# ]
 
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
+# CORS_ALLOW_METHODS = [
+#     "DELETE",
+#     "GET",
+#     "OPTIONS",
+#     "PATCH",
+#     "POST",
+#     "PUT",
+# ]
 
-CORS_ALLOW_ALL_ORIGINS = False
+# CORS_ALLOW_ALL_ORIGINS = False
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:8000",
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://localhost:8000",
+# ]
 
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
 
 
 # Authentication settings

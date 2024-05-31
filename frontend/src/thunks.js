@@ -98,7 +98,7 @@ export const searchSongRequest = query => async dispatch => {
 export const checkRegistration = user => async dispatch => {
 	try {
 		const csrfToken = await getCSRFToken();
-		const response = await fetch('http://localhost:8000/user/', {
+		const response = await fetch('/user/', {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -128,7 +128,7 @@ export const registerUser = (email, password) => async () => {
 			email: email,
 			password: password
 		});
-		const response = await fetch(`http://localhost:8000/api/auth/register/`, {
+		const response = await fetch(`/api/auth/register/`, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken
@@ -156,7 +156,7 @@ export const login = (email, password) => async dispatch => {
 			email: email,
 			password: password
 		});
-		const response = await fetch(`http://localhost:8000/api/auth/login/`, {
+		const response = await fetch(`/api/auth/login/`, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken
@@ -214,7 +214,7 @@ export const discoverSongRequest = (parameters, userId) => async (dispatch, getS
 			headers['User-Id'] = userId;
 		}
 
-		const response = await fetch('http://localhost:8000/api/discover/', {
+		const response = await fetch('/api/discover/', {
 			headers: headers,
 			method: 'post',
 			body: body
@@ -255,7 +255,7 @@ export const SpotifyAuth = ({ children }) => {
 	useEffect(() => {
 		async function fetchAccessToken() {
 			try {
-				const response = await fetch('http://localhost:8000/api/get-access-token/');
+				const response = await fetch('/api/get-access-token/');
 				const data = await response.json();
 				const { access_token, expires_at } = data;
 				setAccessToken(access_token);
@@ -274,7 +274,7 @@ export const SpotifyAuth = ({ children }) => {
 export const getSpotifyUserAuth = (userId, source) => async () => {
 	try {
 		const csrfToken = await getCSRFToken();
-		const response = await fetch('http://localhost:8000/request-authorization/', {
+		const response = await fetch('/request-authorization/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -377,7 +377,7 @@ export const getSpotifyTracks = (userId, trackIds) => async () => {
 			spotifyIds: trackIds
 		};
 
-		const response = await axios.post('http://localhost:8000/get-spotify-tracks/', data, {
+		const response = await axios.post('/get-spotify-tracks/', data, {
 			headers
 		});
 
@@ -404,7 +404,7 @@ export const getSpotifyArtists = (userId, artistIds) => async () => {
 			artistIds: artistIds
 		};
 
-		const response = await axios.post('http://localhost:8000/get-spotify-artists/', data, {
+		const response = await axios.post('/get-spotify-artists/', data, {
 			headers
 		});
 
@@ -423,7 +423,7 @@ export const checkTokenExpiration = async (accessToken, refreshToken, expiresAt)
 	const currentTime = Math.floor(Date.now() / 1000);
 	if (currentTime >= expiresAt) {
 		try {
-			const response = await fetch('http://localhost:8000/refresh-token/', {
+			const response = await fetch('/refresh-token/', {
 				method: 'POST',
 				body: JSON.stringify({ refresh_token: refreshToken }),
 				headers: {
@@ -460,7 +460,7 @@ export const handleUpdateDisplayName = (userId, newDisplayName) => async dispatc
 		const csrfToken = await getCSRFToken();
 		const data = { new_display_name: newDisplayName };
 
-		const response = await axios.patch(`http://localhost:8000/update-display-name/`, data, {
+		const response = await axios.patch(`/update-display-name/`, data, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -493,7 +493,7 @@ export const handleUpdateBirthday = (userId, date) => async dispatch => {
 		const csrfToken = await getCSRFToken();
 		const data = { date };
 
-		const response = await axios.patch(`http://localhost:8000/update-birthday/`, data, {
+		const response = await axios.patch(`/update-birthday/`, data, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -518,7 +518,7 @@ export const handleUpdatePreferredGenres = (userId, genres) => async dispatch =>
 		const csrfToken = await getCSRFToken();
 		const data = { genres };
 
-		const response = await axios.patch(`http://localhost:8000/update-preferred-genres/`, data, {
+		const response = await axios.patch(`/update-preferred-genres/`, data, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -543,7 +543,7 @@ export const handleUpdateUserType = (userId, userType) => async dispatch => {
 		const csrfToken = await getCSRFToken();
 		const data = { userType };
 
-		const response = await axios.patch(`http://localhost:8000/update-user-type/`, data, {
+		const response = await axios.patch(`/update-user-type/`, data, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -570,7 +570,7 @@ export const handleUpdateUserProfession = (userId, profession) => async dispatch
 		const csrfToken = await getCSRFToken();
 		const data = { profession };
 
-		const response = await axios.patch(`http://localhost:8000/update-user-profession/`, data, {
+		const response = await axios.patch(`/update-user-profession/`, data, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -596,7 +596,7 @@ export const handleUpdateProfileImage = (userId, imageFile) => async dispatch =>
 		const formData = new FormData();
 		formData.append('imageFile', imageFile);
 
-		const response = await axios.post(`http://localhost:8000/update-profile-image/`, formData, {
+		const response = await axios.post(`/update-profile-image/`, formData, {
 			headers: {
 				'X-CSRFToken': csrfToken,
 				'User-Id': userId
@@ -618,7 +618,7 @@ export const handleUpdateProfileImage = (userId, imageFile) => async dispatch =>
 export const getUserProfile = userId => async dispatch => {
 	dispatch(getUserProfileRequest());
 	try {
-		const response = await axios.get(`http://localhost:8000/get-user-profile/`, {
+		const response = await axios.get(`/get-user-profile/`, {
 			headers: {
 				'User-Id': userId
 			}
@@ -647,7 +647,7 @@ export const handleUpdateUserProfile = (userId, userInfo) => async dispatch => {
 		const csrfToken = await getCSRFToken();
 		const data = userInfo;
 
-		const response = await axios.patch(`http://localhost:8000/update-user-profile/`, data, {
+		const response = await axios.patch(`/update-user-profile/`, data, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -675,7 +675,7 @@ export const resendVerification = userId => async dispatch => {
 	dispatch(resendVerificationRequest());
 	try {
 		const csrfToken = await getCSRFToken();
-		const response = await fetch('http://localhost:8000/resend-verification-email/', {
+		const response = await fetch('/resend-verification-email/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -705,7 +705,7 @@ export const createPlaylistRequest = (userId, playlist) => async dispatch => {
 
 		const body = JSON.stringify({ playlist: playlist, action: 'collect' });
 
-		const response = await fetch(`http://localhost:8000/create-playlist/`, {
+		const response = await fetch(`/create-playlist/`, {
 			headers: headers,
 			method: 'POST',
 			body
@@ -742,7 +742,7 @@ export const deletePlaylistRequest = (playlistIds, userId, onSuccess) => async d
 
 		const body = { playlist_ids: playlistIds };
 
-		const response = await axios.post('http://localhost:8000/delete-playlist/', body, {
+		const response = await axios.post('/delete-playlist/', body, {
 			headers
 		});
 
@@ -778,11 +778,7 @@ export const addToSavedPlaylistRequest = (playlistId, userId, tracks) => async d
 			tracks: tracks
 		};
 
-		const response = await axios.post(
-			`http://localhost:8000/add-to-playlist/${playlistId}/`,
-			body,
-			{ headers }
-		);
+		const response = await axios.post(`/add-to-playlist/${playlistId}/`, body, { headers });
 
 		const playlist = response.data['playlist'];
 
@@ -807,7 +803,7 @@ export const removeFromPlaylistRequest = (playlistId, userId, tracks) => async d
 		// so we use the `data` field in the config parameter to send the body.
 		const config = {
 			method: 'delete',
-			url: `http://localhost:8000/remove-from-playlist/${playlistId}/`,
+			url: `/remove-from-playlist/${playlistId}/`,
 			headers: headers,
 			data: JSON.stringify({
 				id: playlistId,
@@ -837,7 +833,7 @@ export const updatePlaylistItemsRequest = (userId, playlistId, updatedData) => a
 
 		// Directly return the Axios call, which returns a promise
 		return axios
-			.put(`http://localhost:8000/update-playlist-items/${playlistId}/`, updatedData, {
+			.put(`/update-playlist-items/${playlistId}/`, updatedData, {
 				headers
 			})
 			.then(response => {
@@ -877,7 +873,7 @@ export const getUserPlaylists = userId => async dispatch => {
 			'User-Id': userId
 		};
 
-		const response = await axios.get(`http://localhost:8000/get-user-playlists/`, {
+		const response = await axios.get(`/get-user-playlists/`, {
 			headers
 		});
 
@@ -894,7 +890,7 @@ export const saveRequestParameters = (userId, query) => async dispatch => {
 	try {
 		const csrfToken = await getCSRFToken();
 
-		const response = await axios.post('http://localhost:8000/save-request-parameters/', query, {
+		const response = await axios.post('/save-request-parameters/', query, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -916,7 +912,7 @@ export const deleteRequestParameters = (userId, requestId) => async dispatch => 
 	try {
 		const csrfToken = await getCSRFToken();
 
-		const response = await axios.delete('http://localhost:8000/delete-request-parameters/', {
+		const response = await axios.delete('/delete-request-parameters/', {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
@@ -950,7 +946,7 @@ export const getRequestParameters = userId => async dispatch => {
 			'User-Id': userId
 		};
 
-		const response = await axios.get(`http://localhost:8000/get-user-requests/`, {
+		const response = await axios.get(`/get-user-requests/`, {
 			headers
 		});
 
@@ -973,7 +969,7 @@ export const getPricing = () => async () => {
 			'X-CSRFToken': csrfToken
 		};
 
-		const response = await axios.get(`http://localhost:8000/get-pricing/`, {
+		const response = await axios.get(`/get-pricing/`, {
 			headers
 		});
 
@@ -994,7 +990,7 @@ export const getUserTokens = userId => async dispatch => {
 			'User-Id': userId
 		};
 
-		const response = await axios.get('http://localhost:8000/get-user-tokens/', {
+		const response = await axios.get('/get-user-tokens/', {
 			headers
 		});
 
@@ -1016,7 +1012,7 @@ export const addToSpotify = async (recommendation, userId) => {
 		};
 
 		const response = await axios.post(
-			'http://localhost:8000/add-to-spotify/',
+			'/add-to-spotify/',
 			{ recommendation },
 			{ headers: headers }
 		);
@@ -1041,7 +1037,7 @@ export const checkUsersTracks = async (recommendations, userId) => {
 		};
 
 		const response = await axios.post(
-			'http://localhost:8000/check-users-tracks/',
+			'/check-users-tracks/',
 			{ recommendations },
 			{ headers: headers }
 		);
@@ -1066,7 +1062,7 @@ export const removeUsersTracks = async (recommendation, userId) => {
 		};
 
 		const response = await axios.post(
-			'http://localhost:8000/remove-users-tracks/',
+			'/remove-users-tracks/',
 			{ recommendation },
 			{ headers: headers }
 		);
@@ -1091,7 +1087,7 @@ export const followArtistsOnSpotify = async (artistIds, userId) => {
 		};
 
 		const response = await axios.put(
-			'http://localhost:8000/follow-artists/',
+			'/follow-artists/',
 			{ ids: artistIds },
 			{ headers: headers }
 		);
@@ -1112,10 +1108,9 @@ export const checkIfUserFollowsArtists = async (artistIds, userId) => {
 			'User-Id': userId
 		};
 
-		const response = await axios.get(
-			`http://localhost:8000/user-follows-artists/?ids=${artistIds.join(',')}`,
-			{ headers: headers }
-		);
+		const response = await axios.get(`/user-follows-artists/?ids=${artistIds.join(',')}`, {
+			headers: headers
+		});
 
 		if (response.status === 200) {
 			return response.data;
@@ -1136,7 +1131,7 @@ export const unfollowArtists = async (artistIds, userId) => {
 			'User-Id': userId
 		};
 
-		const response = await axios.delete('http://localhost:8000/unfollow-artists/', {
+		const response = await axios.delete('/unfollow-artists/', {
 			data: { ids: artistIds },
 			headers: headers
 		});

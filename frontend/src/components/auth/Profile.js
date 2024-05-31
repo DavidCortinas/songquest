@@ -1125,7 +1125,7 @@ export const Profile = ({
 		try {
 			const userId = currentUser.user.id;
 			const response = await fetch(
-				`http://localhost:8000/auth/spotify/callback?code=${code}&state=${encodedState}`,
+				`/auth/spotify/callback?code=${code}&state=${encodedState}`,
 				{
 					method: 'GET',
 					headers: {
