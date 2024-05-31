@@ -1,16 +1,14 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import update_last_login
-
-from songquest.user.models import User
-
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework import serializers
-from django.contrib.auth import authenticate
-
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth import get_user_model
 from songquest.user.serializers import UserSerializer
+from songquest.utilities.email_utlities import send_password_reset_email
+
+User = get_user_model()
 
 
 class LoginSerializer(TokenObtainPairSerializer):
@@ -44,12 +42,6 @@ class LoginSerializer(TokenObtainPairSerializer):
         return super().get_token(user)
 
 
-from django.contrib.auth import get_user_model
-from rest_framework import serializers
-
-User = get_user_model()
-
-
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, write_only=True, max_length=128)
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
@@ -71,3 +63,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value
+
+    def save(self):
+        email = self.validated_data["email"]
+        user = User.objects.get(email=email)
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        # Send the password reset email
+        send_password_reset_email(user.email, uid, token)

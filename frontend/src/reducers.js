@@ -694,6 +694,12 @@ export const authSlice = createSlice({
 		clearError: state => {
 			state.error = null;
 		},
+		setSuccessMessage(state, action) {
+			state.successMessage = action.payload;
+		},
+		clearSuccessMessage(state) {
+			state.successMessage = null;
+		},
 		logout() {
 			return initialAuthState;
 		}
