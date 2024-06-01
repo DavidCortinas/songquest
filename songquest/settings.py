@@ -61,9 +61,13 @@ INSTALLED_APPS = [
 
 # Webpack
 WEBPACK_LOADER = {
-    'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'bundles/',  # End with a slash
-        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+    "DEFAULT": {
+        "CACHE": not DEBUG,
+        "BUNDLE_DIR_NAME": "static/bundles/",  # must end with a slash
+        "STATS_FILE": os.path.join(BASE_DIR, "static/bundles/webpack-stats.json"),
+        "POLL_INTERVAL": 0.1,
+        "TIMEOUT": None,
+        "IGNORE": [r".+\.hot-update.js", r".+\.map"],
     }
 }
 
