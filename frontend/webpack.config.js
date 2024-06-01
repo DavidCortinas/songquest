@@ -21,7 +21,7 @@ module.exports = (env, argv) => {
 			filename: 'js/[name].[contenthash:8].js',
 			chunkFilename: 'js/[name].[contenthash:8].chunk.js',
 			path: isProduction
-				? path.resolve('./static/')
+				? path.resolve('../static')
 				: path.resolve(__dirname, 'static', 'bundles'),
 			publicPath: isProduction ? '/static/' : 'http://localhost:3000/'
 		},
