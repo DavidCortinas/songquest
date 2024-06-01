@@ -54,7 +54,7 @@ module.exports = (env, argv) => {
 		plugins: [
 			new webpack.HotModuleReplacementPlugin(),
 			new BundleTracker({
-				path: path.resolve(__dirname, 'static', 'bundles'),
+				path: path.resolve(__dirname, '../static/bundles'),
 				filename: 'webpack-stats.json'
 			}),
 			new webpack.DefinePlugin({

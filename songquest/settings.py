@@ -1,20 +1,21 @@
 import os
+import sys
 from dotenv import load_dotenv
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
 
 load_dotenv()
 
-# Read the Spotify Client ID from the environment
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 
 # Base URL
-BASE_URL = "https://songquest.com"
+BASE_URL = "https://songquest.io"
 
 # Frontend URL
 # FRONTEND_URL = "http://localhost:3000"
-FRONTEND_URL = "http://localhost:8000"
-# FRONTEND_URL = 'https://songquest.com'
+# FRONTEND_URL = "http://localhost:8000"
+FRONTEND_URL = 'https://songquest.io'
 
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
@@ -28,7 +29,9 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 # Security settings
 DEBUG = False  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
-ALLOWED_HOSTS = ["songquest.io", "www.songquest.io", "127.0.0.1"]
+ALLOWED_HOSTS = ["songquest.io", "www.songquest.io", "127.0.0.1", "216.128.141.249"]
+
+APPEND_SLASH = True
 
 # Database settings
 DATABASES = {
@@ -206,7 +209,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "context_processors.spotify_client_id",
+                "songquest.context_processors.spotify_client_id",
             ],
         },
     },

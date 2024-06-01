@@ -161,10 +161,10 @@
       "path": "/home/david/songquest/static/js/947.4baf2559.chunk.js",
       "publicPath": "/static/js/947.4baf2559.chunk.js"
     },
-    "js/main.c96c02f0.js": {
-      "name": "js/main.c96c02f0.js",
-      "path": "/home/david/songquest/static/js/main.c96c02f0.js",
-      "publicPath": "/static/js/main.c96c02f0.js"
+    "js/main.c79cf149.js": {
+      "name": "js/main.c79cf149.js",
+      "path": "/home/david/songquest/static/js/main.c79cf149.js",
+      "publicPath": "/static/js/main.c79cf149.js"
     },
     "media/14960493_5532919.c3bda62c.jpg": {
       "name": "media/14960493_5532919.c3bda62c.jpg",
@@ -242,7 +242,7 @@
   "chunks": {
     "main": [
       "css/main.aef744dd.css",
-      "js/main.c96c02f0.js"
+      "js/main.c79cf149.js"
     ]
   },
   "publicPath": "/static/"

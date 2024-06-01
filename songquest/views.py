@@ -37,6 +37,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def silly_little_test(request):
+    return JsonResponse({'status': 'success'})
+
+
 def generate_random_string(length):
     """Generate a random string of the specified length."""
     characters = string.ascii_letters + string.digits
