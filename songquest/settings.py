@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # "corsheaders",
     "rest_framework",
+    "webpack_loader",
     "songquest",
     "songquest.user.apps.UserConfig",
     "songquest.songs.apps.SongsConfig",
@@ -57,6 +58,14 @@ INSTALLED_APPS = [
     "songquest.payments.apps.PaymentsConfig",
     "frontend",
 ]
+
+# Webpack
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',  # End with a slash
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+    }
+}
 
 # Middleware
 MIDDLEWARE = [
@@ -223,7 +232,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend/dist"),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
