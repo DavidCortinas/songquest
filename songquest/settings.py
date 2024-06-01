@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Read the Spotify Client ID from the environment
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Base URL
@@ -162,7 +165,9 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "logs/django.log"),  # Full path to log file
+            "filename": os.path.join(
+                BASE_DIR, "logs/django.log"
+            ),  # Full path to log file
         },
     },
     "root": {
@@ -201,6 +206,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "context_processors.spotify_client_id",
             ],
         },
     },
