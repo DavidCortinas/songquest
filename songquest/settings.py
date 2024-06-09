@@ -27,7 +27,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # Security settings
-DEBUG = True  # Set to False in production
+DEBUG = False  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = [
     "songquest.io",
@@ -94,6 +94,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 
 # Cache settings
 CACHES = {

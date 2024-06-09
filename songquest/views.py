@@ -830,72 +830,68 @@ def serialize_profile(profile, request):
 
 @csrf_exempt
 def handle_spotify_callback(request):
-    logger.debug("Entered handle_spotify_callback")
-    try:
-        code = request.GET.get("code", "")
-        encoded_state = request.GET.get("state", "")
-        logger.debug(f"Code: {code}")
-        logger.debug(f"State: {encoded_state}")
 
+    code = request.GET.get("code", "")
+    encoded_state = request.GET.get("state", "")
+
+    try:
         decoded_state = base64.urlsafe_b64decode(encoded_state.encode()).decode("utf-8")
         state, source = decoded_state.split("|")
+    except Exception as e:
+        logging.error(f"Error decoding state: {str(e)}")
+        return HttpResponseForbidden("Invalid state parameter")
 
-        user_id = request.headers.get("User-Id")
-        logger.debug(f"User ID: {user_id}")
-        if not user_id:
-            logger.error("User ID not found in headers")
-            return HttpResponseForbidden("User ID not found in headers")
+    user_id = request.headers.get("User-Id")
+    if not user_id:
+        logging.error("User ID not found in headers")
+        return HttpResponseForbidden("User ID not found in headers")
 
-        User = get_user_model()
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            logger.error("User not found")
-            return HttpResponseForbidden("User not found")
+    User = get_user_model()
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        logging.error("User not found")
+        return HttpResponseForbidden("User not found")
 
-        if code:
-            token_info = get_spotify_token_info(code, source)
-            logger.debug(f"Token Info: {token_info}")
+    if code:
+        token_info = get_spotify_token_info(code, source)
 
-            if token_info and "access_token" in token_info:
-                access_token = token_info["access_token"]
-                refresh_token = token_info.get("refresh_token", "")
-                expires_at = time() + token_info.get("expires_in", 3600)
+        if token_info and "access_token" in token_info:
+            access_token = token_info["access_token"]
+            refresh_token = token_info.get("refresh_token", "")
+            expires_at = time() + token_info.get("expires_in", 3600)
 
-                with transaction.atomic():
-                    user.spotify_access = access_token
-                    user.spotify_refresh = refresh_token
-                    user.spotify_expires_at = expires_at
-                    user.save()
+            with transaction.atomic():
+                user.spotify_access = access_token
+                user.spotify_refresh = refresh_token
+                user.spotify_expires_at = expires_at
+                user.save()
 
-                    # Complete onboarding if necessary
-                    user.complete_onboarding()
+                # Complete onboarding if necessary
+                user.complete_onboarding()
 
-                spotify_connected = user.spotify_refresh is not None
-                user_profile_data = serialize_profile(user.profile, request)
+            spotify_connected = user.spotify_refresh is not None
+            user_profile_data = serialize_profile(user.profile, request)
 
-                return JsonResponse(
-                    {
-                        "spotify_connected": spotify_connected,
-                        "user_profile": user_profile_data,
-                        "user_karma": user.karma,
-                        "user_tokens": user.tokens,
-                        "source": source,
-                    }
-                )
-            else:
-                logger.error("Failed to retrieve access tokens from Spotify.")
-                return JsonResponse(
-                    {"error": "Failed to retrieve access tokens"}, status=500
-                )
+            return JsonResponse(
+                {
+                    "spotify_connected": spotify_connected,
+                    "user_profile": user_profile_data,
+                    "user_karma": user.karma,
+                    "user_tokens": user.tokens,
+                    "source": source,
+                }
+            )
 
         else:
-            logger.error("No authorization code provided in the request.")
-            return JsonResponse({"error": "No authorization code provided"}, status=400)
+            logging.error("Failed to retrieve access tokens from Spotify.")
+            return JsonResponse(
+                {"error": "Failed to retrieve access tokens"}, status=500
+            )
 
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=500)
+    else:
+        logging.error("No authorization code provided in the request.")
+        return JsonResponse({"error": "No authorization code provided"}, status=400)
 
 
 def token_expired(expiration_time):

@@ -1,1 +1,0 @@
-[{"model": "user.achievement", "pk": 1, "fields": {"name": "Onboarding Completed", "karma_reward": 5, "token_reward": 15, "badge_reward": 1}}]
