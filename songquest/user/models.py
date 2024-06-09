@@ -143,23 +143,35 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def complete_onboarding(self):
         """Award the onboarding achievement and badge if onboarding is complete."""
-        profile, profile_created = Profile.objects.get_or_create(user=self)
-        if (
-            self.is_onboarding_complete()
-            and not profile.achievements.filter(name="Onboarding Completed").exists()
-        ):
-            self.is_active = True
-            # self.save(update_fields=["is_active"])
-            onboarding_achievement = Achievement.objects.get(
-                name="Onboarding Completed"
-            )
+        try:
+            profile, profile_created = Profile.objects.get_or_create(user=self)
+            if (
+                self.is_onboarding_complete()
+                and not profile.achievements.filter(
+                    name="Onboarding Completed"
+                ).exists()
+            ):
+                self.is_active = True
+                # self.save(update_fields=["is_active"])
+                onboarding_achievement = Achievement.objects.get(
+                    name="Onboarding Completed"
+                )
 
-            self.karma += onboarding_achievement.karma_reward
-            self.tokens += onboarding_achievement.token_reward
-            self.save(update_fields=["is_active", "karma", "tokens"])
+                self.karma += onboarding_achievement.karma_reward
+                self.tokens += onboarding_achievement.token_reward
+                self.save(update_fields=["is_active", "karma", "tokens"])
 
-            profile.achievements.add(onboarding_achievement)
-            profile.badges.add(onboarding_achievement.badge_reward)
+                profile.achievements.add(onboarding_achievement)
+                profile.badges.add(onboarding_achievement.badge_reward)
+        except Achievement.DoesNotExist:
+            # Handle the missing achievement scenario
+            logger.error("Onboarding achievement does not exist")
+
+    def get_full_name(self):
+        return self.display_name or self.email
+
+    def get_short_name(self):
+        return self.display_name or self.email
 
     def __str__(self):
         return self.email
