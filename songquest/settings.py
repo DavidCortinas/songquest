@@ -7,7 +7,7 @@ sys.path.append(BASE_DIR)
 
 load_dotenv()
 
-SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 
 # Base URL
 BASE_URL = "https://songquest.io"
@@ -15,7 +15,7 @@ BASE_URL = "https://songquest.io"
 # Frontend URL
 # FRONTEND_URL = "http://localhost:3000"
 # FRONTEND_URL = "http://localhost:8000"
-FRONTEND_URL = 'https://songquest.io'
+FRONTEND_URL = "https://songquest.io"
 
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
@@ -29,7 +29,13 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 # Security settings
 DEBUG = False  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
-ALLOWED_HOSTS = ["songquest.io", "www.songquest.io", "127.0.0.1", "216.128.141.249"]
+ALLOWED_HOSTS = [
+    "songquest.io",
+    "www.songquest.io",
+    "127.0.0.1",
+    "216.128.141.249",
+    # "localhost",
+]
 
 APPEND_SLASH = True
 
@@ -80,14 +86,15 @@ WEBPACK_LOADER = {
 # Middleware
 MIDDLEWARE = [
     # "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 
 # Cache settings
 CACHES = {
@@ -96,7 +103,7 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
+        },
     }
 }
 

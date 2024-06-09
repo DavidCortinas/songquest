@@ -1125,7 +1125,7 @@ export const Profile = ({
 		try {
 			const userId = currentUser.user.id;
 			const response = await fetch(
-				`/auth/spotify/callback?code=${code}&state=${encodedState}`,
+				`/auth/spotify/callback/?code=${code}&state=${encodedState}`,
 				{
 					method: 'GET',
 					headers: {
@@ -1134,7 +1134,13 @@ export const Profile = ({
 					}
 				}
 			);
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
 			const data = await response.json();
+			console.log('data: ', data);
 
 			if (data.spotify_connected) {
 				dispatch(confirmSpotifyAccess(true));
