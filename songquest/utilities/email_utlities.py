@@ -28,3 +28,19 @@ def send_password_reset_email(email, uid, token):
     subject = "Password Reset Request"
     message = f"Please use the following link to reset your password: {reset_url}"
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+
+def notify_user_of_failed_charge(user, charge):
+    subject = "Payment Failed"
+    message = f"Dear {user.username},\n\nUnfortunately, your payment attempt has failed. Please try again or contact support if the issue persists.\n\nBest regards,\nSongQuest"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [user.email]
+    send_mail(subject, message, from_email, recipient_list)
+
+
+def notify_user_of_failed_payment(user, payment_intent):
+    subject = "Payment Intent Failed"
+    message = f"Dear {user.username},\n\nUnfortunately, your payment attempt has failed. Please try again or contact support if the issue persists.\n\nBest regards,\nSongQuest"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [user.email]
+    send_mail(subject, message, from_email, recipient_list)
