@@ -44,6 +44,8 @@ const useStyles = makeStyles(() => ({
 	}
 }));
 
+console.log('Stripe Public Key:', process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 // eslint-disable-next-line no-unused-vars

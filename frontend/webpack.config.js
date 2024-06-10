@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+require('dotenv').config();
 
 module.exports = (env, argv) => {
 	const isProduction = argv.mode === 'production';
@@ -59,7 +60,9 @@ module.exports = (env, argv) => {
 			}),
 			new webpack.DefinePlugin({
 				'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
-				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(process.env.REACT_APP_STRIPE_KEY)
+				'process.env.REACT_APP_STRIPE_PUBLIC_KEY': JSON.stringify(
+					process.env.REACT_APP_STRIPE_PUBLIC_KEY
+				)
 			}),
 			new HtmlWebpackPlugin({
 				template: isProduction ? './public/index.prod.html' : './public/index.html',
