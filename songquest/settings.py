@@ -27,14 +27,14 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # Security settings
-DEBUG = True  # Set to False in production
+DEBUG = False  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = [
     "songquest.io",
     "www.songquest.io",
     "127.0.0.1",
     "216.128.141.249",
-    "localhost",
+    # "localhost",
 ]
 
 APPEND_SLASH = True
