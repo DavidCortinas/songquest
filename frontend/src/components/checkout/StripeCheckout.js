@@ -67,14 +67,30 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 
 		setIsLoading(true);
 
-		const { error } = await stripe.confirmPayment({
+		// const baseReturnUrl = 'https://www.songquest.io/';
+		const baseReturnUrl = 'http://localhost:8000/';
+
+		const { error, paymentIntent } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: 'https://www.songquest.io/?payment=success'
+				return_url: baseReturnUrl // Initially set to the base URL
 			}
 		});
 
-		// Handle errors from Stripe
+		const returnUrl = error
+			? `${baseReturnUrl}?redirect_status=failed`
+			: paymentIntent
+			? `${baseReturnUrl}?redirect_status=${paymentIntent.status}`
+			: baseReturnUrl;
+
+		// Update the return_url with the appropriate query parameter
+		await stripe.confirmPayment({
+			elements,
+			confirmParams: {
+				return_url: returnUrl
+			}
+		});
+
 		if (error) {
 			setMessage(error.message);
 		}
