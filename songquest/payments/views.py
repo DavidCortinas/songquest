@@ -9,19 +9,37 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from songquest.payments.models import PricingPackage
-from songquest.utilities.email_utlities import notify_user_of_failed_charge, notify_user_of_failed_payment
+from songquest.utilities.email_utlities import (
+    notify_user_of_failed_charge,
+    notify_user_of_failed_payment,
+)
 
-stripe.api_key = os.environ.get('STRIPE_TEST_SECRET')
+stripe.api_key = os.environ.get("STRIPE_SECRET")
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def test_payment(request):
     test_payment_intent = stripe.PaymentIntent.create(
-        amount=1000, currency='pln', 
-        payment_method_types=['acss_debit', 'au_becs_debit', 'bacs_debit', 
-            'bancontact', 'blik', 'boleto', 'card', 'cashapp', 'eps', 'giropay',
-            'ideal', 'link' 'paypal' 'pix', 'us_bank_account'],
-        receipt_email='test@example.com')
-    
+        amount=1000,
+        currency="pln",
+        payment_method_types=[
+            "acss_debit",
+            "au_becs_debit",
+            "bacs_debit",
+            "bancontact",
+            "blik",
+            "boleto",
+            "card",
+            "cashapp",
+            "eps",
+            "giropay",
+            "ideal",
+            "link" "paypal" "pix",
+            "us_bank_account",
+        ],
+        receipt_email="test@example.com",
+    )
+
     return Response(status=status.HTTP_200_OK, data=test_payment_intent)
 
 
@@ -38,52 +56,54 @@ def create_stripe_customer(user):
 @csrf_exempt
 def create_payment(request):
     try:
-        if request.method != 'POST':
-            return JsonResponse({'error': 'Invalid request method'}, status=405)
+        if request.method != "POST":
+            return JsonResponse({"error": "Invalid request method"}, status=405)
 
         data = json.loads(request.body)
-        
-        user_id = request.headers.get('User-Id')
+
+        user_id = request.headers.get("User-Id")
 
         user = get_user_model().objects.get(id=user_id)
         stripe_customer_id = create_stripe_customer(user)
 
         intent = stripe.PaymentIntent.create(
-            amount=data['price'],
-            currency='usd',
+            amount=data["price"],
+            currency="usd",
             customer=stripe_customer_id,
             automatic_payment_methods={
-                'enabled': True,
+                "enabled": True,
             },
             receipt_email=user.email,
-            setup_future_usage='on_session',
+            setup_future_usage="on_session",
         )
 
-        return JsonResponse({
-            'clientSecret': intent.client_secret  
-        }, status=200)
+        return JsonResponse({"clientSecret": intent.client_secret}, status=200)
 
     except Exception as e:
-        return JsonResponse({'error': f'Failed to Create Payment: {str(e)}'}, status=403)
+        return JsonResponse(
+            {"error": f"Failed to Create Payment: {str(e)}"}, status=403
+        )
 
 
 @csrf_exempt
 def get_all_pricing_packages(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed(['GET'])
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET"])
 
     pricing_packages = PricingPackage.objects.all()
     packages_data = [
         {
-            'id': package.id,
-            'name': package.name,
-            'price': package.price,  # Keep as integer
-            'image': request.build_absolute_uri(package.image.url) if package.image else None
+            "id": package.id,
+            "name": package.name,
+            "price": package.price,  # Keep as integer
+            "image": (
+                request.build_absolute_uri(package.image.url) if package.image else None
+            ),
         }
         for package in pricing_packages
     ]
 
-    return JsonResponse({'pricing_packages': packages_data})
+    return JsonResponse({"pricing_packages": packages_data})
 
 
 @csrf_exempt

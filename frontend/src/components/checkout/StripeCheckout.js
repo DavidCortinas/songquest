@@ -44,9 +44,7 @@ const useStyles = makeStyles(() => ({
 	}
 }));
 
-console.log('Stripe Public Key:', process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY);
-
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY);
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 // eslint-disable-next-line no-unused-vars
 const CheckoutForm = ({ clientSecret, selectedPrice }) => {
@@ -67,13 +65,12 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 
 		setIsLoading(true);
 
-		// const baseReturnUrl = 'https://www.songquest.io/';
-		const baseReturnUrl = 'http://localhost:8000/';
+		const baseReturnUrl = 'https://www.songquest.io/';
 
 		const { error, paymentIntent } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: baseReturnUrl // Initially set to the base URL
+				return_url: baseReturnUrl
 			}
 		});
 
@@ -83,7 +80,6 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 			? `${baseReturnUrl}?redirect_status=${paymentIntent.status}`
 			: baseReturnUrl;
 
-		// Update the return_url with the appropriate query parameter
 		await stripe.confirmPayment({
 			elements,
 			confirmParams: {
