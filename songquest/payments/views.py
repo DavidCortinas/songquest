@@ -91,13 +91,10 @@ def get_all_pricing_packages(request):
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
-    temp_endpoint_secret = os.environ.get("STRIPE_TEMP_ENDPOINT_SECRET", "")
     endpoint_secret = os.environ.get("STRIPE_ENDPOINT_SECRET", "")
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except ValueError as e:
         return JsonResponse({"error": "Invalid payload"}, status=400)
     except stripe.error.SignatureVerificationError as e:
@@ -106,14 +103,12 @@ def stripe_webhook(request):
     event_type = event.get("type")
     data_object = event.get("data", {}).get("object", {})
 
-    if event_type == "charge.succeeded":
-        return handle_charge_succeeded(data_object)
-    elif event_type == "charge.failed":
-        return handle_charge_failed(data_object)
-    elif event_type == "payment_intent.succeeded":
+    if event_type == "payment_intent.succeeded":
         return handle_payment_intent_succeeded(data_object)
     elif event_type == "payment_intent.payment_failed":
         return handle_payment_intent_failed(data_object)
+    elif event_type == "charge.failed":
+        return handle_charge_failed(data_object)
     else:
         return JsonResponse({"error": f"Unhandled event type {event_type}"}, status=400)
 
@@ -121,71 +116,22 @@ def stripe_webhook(request):
 def calculate_tokens(amount_paid):
     """
     Calculate the number of tokens based on the amount paid.
-    
+
     Args:
     amount_paid (int): The amount paid in cents.
-    
+
     Returns:
     int: The number of tokens corresponding to the amount paid.
     """
-    # Define the price to token mapping
     price_to_token = {
-        200: 8,   # $2 for 8 tokens
+        200: 8,  # $2 for 8 tokens
         800: 40,  # $8 for 40 tokens
-        1250: 80  # $12.50 for 80 tokens
+        1250: 80,  # $12.50 for 80 tokens
     }
 
-    # Calculate tokens based on the amount paid
-    return price_to_token.get(amount_paid, 0)  # Default to 0 if amount is not in the mapping
-
-
-def handle_charge_succeeded(charge):
-    customer_id = charge.get("customer")
-    if customer_id:
-        customer = stripe.Customer.retrieve(customer_id)
-        customer_email = customer.email
-
-        User = get_user_model()
-        try:
-            user = User.objects.get(email=customer_email)
-        except User.DoesNotExist:
-            return JsonResponse(
-                {"error": f"No user found for email {customer_email}"}, status=404
-            )
-
-        token_amount = calculate_tokens(charge["amount"])
-        user.tokens += token_amount
-        user.save()
-
-        return JsonResponse({"status": "success"}, status=200)
-    else:
-        return JsonResponse(
-            {"error": "No customer ID associated with this charge."}, status=400
-        )
-
-
-def handle_charge_failed(charge):
-    customer_id = charge.get("customer")
-    if customer_id:
-        customer = stripe.Customer.retrieve(customer_id)
-        customer_email = customer.email
-
-        User = get_user_model()
-        try:
-            user = User.objects.get(email=customer_email)
-        except User.DoesNotExist:
-            return JsonResponse(
-                {"error": f"No user found for email {customer_email}"}, status=404
-            )
-
-        notify_user_of_failed_charge(user, charge)
-        return JsonResponse(
-            {"status": "failure", "message": "Charge failed"}, status=402
-        )
-    else:
-        return JsonResponse(
-            {"error": "No customer ID associated with this failed charge."}, status=400
-        )
+    return price_to_token.get(
+        amount_paid, 0
+    )  # Default to 0 if amount is not in the mapping
 
 
 def handle_payment_intent_succeeded(payment_intent):
@@ -210,6 +156,30 @@ def handle_payment_intent_succeeded(payment_intent):
     else:
         return JsonResponse(
             {"error": "No customer ID associated with this payment intent."}, status=400
+        )
+
+
+def handle_charge_failed(charge):
+    customer_id = charge.get("customer")
+    if customer_id:
+        customer = stripe.Customer.retrieve(customer_id)
+        customer_email = customer.email
+
+        User = get_user_model()
+        try:
+            user = User.objects.get(email=customer_email)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"error": f"No user found for email {customer_email}"}, status=404
+            )
+
+        notify_user_of_failed_charge(user, charge)
+        return JsonResponse(
+            {"status": "failure", "message": "Charge failed"}, status=402
+        )
+    else:
+        return JsonResponse(
+            {"error": "No customer ID associated with this failed charge."}, status=400
         )
 
 
