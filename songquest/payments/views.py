@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from songquest.payments.models import PricingPackage
 from songquest.utilities.email_utlities import notify_user_of_failed_charge, notify_user_of_failed_payment
 
-stripe.api_key = os.environ.get('STRIPE_SECRET')
+stripe.api_key = os.environ.get('STRIPE_TEST_SECRET')
 
 @api_view(['POST'])
 def test_payment(request):
@@ -92,6 +92,7 @@ def stripe_webhook(request):
     payload = request.body
     sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
     endpoint_secret = os.environ.get("STRIPE_ENDPOINT_SECRET", "")
+    temp_endpoint_secret = os.environ.get("STRIPE_TEMP_ENDPOINT_SECRET", "")
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
