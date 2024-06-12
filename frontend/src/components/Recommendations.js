@@ -71,7 +71,9 @@ const Recommendation = ({
 			: recommendation.image || defaultImage;
 
 	const handleAddToPlaylistClick = useCallback(() => {
-		if (!user?.user.spotifyConnected) {
+		if (!user?.user) {
+			navigate('/login');
+		} else if (!user?.user?.spotifyConnected) {
 			navigate('/spotify-connect');
 		} else if (playlistAction === 'create') {
 			if (recommendationInPlaylist) {
@@ -115,7 +117,9 @@ const Recommendation = ({
 	const recommendationInSongsToAdd = songsToAdd.some(obj => obj.id === recommendation.id);
 
 	const handleLikeClick = () => {
-		if (user?.user.spotifyConnected) {
+		if (!user?.user) {
+			navigate('/login');
+		} else if (user?.user?.spotifyConnected) {
 			const updatedSavedTracks = [...savedTracks];
 			updatedSavedTracks[index] = !isSavedTrack;
 
@@ -140,7 +144,9 @@ const Recommendation = ({
 	}, [recommendation, recommendationInSongsToAdd, setSongsToAdd, songsToAdd]);
 
 	const handleFollowArtist = async () => {
-		if (user?.user.spotifyConnected) {
+		if (!user?.user) {
+			navigate('/login');
+		} else if (user?.user?.spotifyConnected) {
 			const updatedFollowedArtists = [...followedArtists];
 			updatedFollowedArtists[index] = !artistIsFollowed;
 
@@ -257,8 +263,10 @@ const Recommendation = ({
 								<Typography variant='body2' letterSpacing='1px'>
 									{user?.user?.spotifyConnected && !recommendationInPlaylist
 										? 'Add to current collection'
-										: recommendationInPlaylist
+										: user?.user?.spotifyConnected && recommendationInPlaylist
 										? 'Remove from current collection'
+										: user?.user
+										? 'Connect to Spotify to build collections and more'
 										: 'Login to build collections and more'}
 								</Typography>
 							</div>
@@ -288,7 +296,9 @@ const Recommendation = ({
 										? 'Remove from your Spotify library'
 										: user?.user?.spotifyConnected
 										? 'Save to your Spotify library'
-										: 'Connect to Spotify to save to libary'}
+										: user?.user
+										? 'Connect to Spotify to save to libary'
+										: 'Login to save to your Spotify library'}
 								</Typography>
 							</div>
 						}
@@ -304,39 +314,63 @@ const Recommendation = ({
 						</Button>
 					</Tooltip>
 				</Box>
-				<Button
-					variant='contained'
-					sx={{
-						position: 'absolute',
-						bottom: '-50%',
-						left: '50%',
-						transform: 'translateX(-50%)',
-						color: 'white',
-						background: artistIsFollowed
-							? 'rgba(216,44,139, 0.7)'
-							: 'rgba(44, 216, 207, 0.3)',
-						border: '2px solid rgba(89, 149, 192, 0.5)',
-						borderRadius: '18px',
-						overflow: 'hidden',
-						textOverflow: 'ellipsis',
-						whiteSpace: 'nowrap',
-						padding: '0 5%',
-						maxWidth: '50%',
-						boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
-						transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
-						'&:hover, &:active, &.MuiFocusVisible': {
-							border: '2px solid rgba(89, 149, 192, 0.5)',
-							backgroundColor: artistIsFollowed
-								? 'rgba(216,44,139, 0.9)'
-								: 'rgba(44, 216, 207, 0.5)',
-							boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
-						},
-						zIndex: 2
-					}}
-					onClick={handleFollowArtist}
+				<Tooltip
+					arrow
+					title={
+						<div
+							style={{
+								maxHeight: '25vh',
+								overflowY: 'auto',
+								padding: '8px',
+								borderRadius: '18px'
+							}}
+						>
+							<Typography variant='body2' letterSpacing='1px'>
+								{user?.user?.spotifyConnected && isSavedTrack
+									? `Unfollow ${artistName} on Spotify`
+									: user?.user?.spotifyConnected
+									? `Follow ${artistName} on Spotify`
+									: user?.user
+									? `Connect to Spotify to follow ${artistName}`
+									: `Login and connect to Spotify to follow ${artistName}`}
+							</Typography>
+						</div>
+					}
 				>
-					{artistIsFollowed ? `Unfollow ${artistName}` : `Follow ${artistName}`}
-				</Button>
+					<Button
+						variant='contained'
+						sx={{
+							position: 'absolute',
+							bottom: '-50%',
+							left: '50%',
+							transform: 'translateX(-50%)',
+							color: 'white',
+							background: artistIsFollowed
+								? 'rgba(216,44,139, 0.7)'
+								: 'rgba(44, 216, 207, 0.3)',
+							border: '2px solid rgba(89, 149, 192, 0.5)',
+							borderRadius: '18px',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+							padding: '0 5%',
+							maxWidth: '50%',
+							boxShadow: '1px 1px 3px 3px rgba(0,0,0,0.75)',
+							transition: 'border 0.3s, background 0.3s, boxShadow 0.3s',
+							'&:hover, &:active, &.MuiFocusVisible': {
+								border: '2px solid rgba(89, 149, 192, 0.5)',
+								backgroundColor: artistIsFollowed
+									? 'rgba(216,44,139, 0.9)'
+									: 'rgba(44, 216, 207, 0.5)',
+								boxShadow: '3px 3px 3px 3px rgba(0,0,0,0.75)'
+							},
+							zIndex: 2
+						}}
+						onClick={handleFollowArtist}
+					>
+						{artistIsFollowed ? `Unfollow ${artistName}` : `Follow ${artistName}`}
+					</Button>
+				</Tooltip>
 			</Box>
 		</Box>
 	);
@@ -374,7 +408,7 @@ const Recommendations = ({
 
 	useEffect(() => {
 		async function fetchData() {
-			if (user?.user && recommendations?.length) {
+			if (user?.user?.spotifyConnected && recommendations?.length) {
 				try {
 					const artistIds = recommendations.map(rec => rec.artists[0].id);
 					const [trackStatus, followStatus] = await Promise.all([
