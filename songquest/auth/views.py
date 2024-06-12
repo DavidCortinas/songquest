@@ -36,16 +36,16 @@ def verify_email(request, token):
         user = User.objects.get(email_verification_token=token)
     except User.DoesNotExist:
         return HttpResponseBadRequest("Invalid or expired verification token.")
-    
+
     email_verified = user.email_verified
-    
+
     # Mark the email as verified if it's not already
     if not email_verified:
         user.email_verified = True
         user.save()
-    
+
     # Construct the redirect URL with the email_verified status as a query parameter
-    redirect_url = f"http://localhost:3000/onboard?email_verified={user.email_verified}&token={token}"
-    
+    redirect_url = f"https://www.songquest.io/onboard?email_verified={user.email_verified}&token={token}"
+
     # Redirect the user to the frontend URL
     return HttpResponseRedirect(redirect_url)
