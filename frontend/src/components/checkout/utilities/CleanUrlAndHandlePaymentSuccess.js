@@ -1,29 +1,63 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getUserTokens } from '../../../thunks';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const CleanUrlAndHandlePaymentSuccess = ({ onGetUserTokens, userId, children }) => {
 	const location = useLocation();
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
+	const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
 	useEffect(() => {
 		const params = new URLSearchParams(location.search);
-		const paymentSuccess = params.get('payment');
+		const redirectStatus = params.get('redirect_status');
 
-		if (paymentSuccess === 'success' && userId) {
-			onGetUserTokens(userId);
+		if (redirectStatus) {
+			if (redirectStatus === 'succeeded') {
+				setSnackbarMessage('Payment succeeded!');
+				setSnackbarSeverity('success');
+				if (userId) {
+					onGetUserTokens(userId);
+				}
+			} else if (redirectStatus === 'failed') {
+				setSnackbarMessage('Payment failed. Please try again.');
+				setSnackbarSeverity('error');
+			}
+			setSnackbarOpen(true);
 		}
 
-		if (paymentSuccess) {
-			params.delete('payment');
-			params.delete('payment_intent');
-			params.delete('payment_intent_client_secret');
-			params.delete('redirect_status');
-			window.history.replaceState(null, '', '?' + params.toString());
-		}
+		params.delete('payment_intent');
+		params.delete('payment_intent_client_secret');
+		params.delete('redirect_status');
+		window.history.replaceState(null, '', '?' + params.toString());
 	}, [location.search, onGetUserTokens, userId]);
 
-	return <>{children}</>;
+	const handleSnackbarClose = () => {
+		setSnackbarOpen(false);
+	};
+
+	return (
+		<>
+			{children}
+			<Snackbar
+				open={snackbarOpen}
+				autoHideDuration={6000}
+				onClose={handleSnackbarClose}
+				anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+			>
+				<Alert
+					onClose={handleSnackbarClose}
+					severity={snackbarSeverity}
+					sx={{ width: '100%' }}
+				>
+					{snackbarMessage}
+				</Alert>
+			</Snackbar>
+		</>
+	);
 };
 
 const mapStateToProps = state => ({

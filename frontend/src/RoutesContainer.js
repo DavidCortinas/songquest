@@ -43,7 +43,7 @@ const RoutesContainer = () => {
 						<Route path={'/registration-success'} element={<RegistrationSuccess />} />
 						<Route path={'/onboard'} element={<Onboard />} />
 						<Route path={'/verification-error'} element={<VerificationError />} />
-						<Route path={'/profile'} element={<Profile />} />
+						<Route path={'/profile/*'} element={<Profile />} />
 						<Route path={'/spotify-connect'} element={<SpotifyConnect />} />
 						<Route path={'/pricing'} element={<Pricing />} />
 						<Route path={'/checkout'} element={<StripeCheckout />} />

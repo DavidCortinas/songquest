@@ -36,9 +36,9 @@ def verify_email(request, token):
         user = User.objects.get(email_verification_token=token)
     except User.DoesNotExist:
         return HttpResponseBadRequest("Invalid or expired verification token.")
-    
+
     email_verified = user.email_verified
-    
+
     # Mark the email as verified if it's not already
     if not email_verified:
         user.email_verified = True

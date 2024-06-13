@@ -65,6 +65,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     user_type = models.CharField(max_length=20, choices=USER_TYPES, default="fan")
     preferred_genres = models.ManyToManyField("Genre", related_name="users", blank=True)
 
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
     @property
     def spotify_connected(self):
         return all([self.spotify_access, self.spotify_refresh, self.spotify_expires_at])
@@ -83,10 +88,8 @@ class User(AbstractBaseUser, PermissionsMixin):
             return self.profession
         return None
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
-
-    objects = UserManager()
+    def get_short_name(self):
+        return self.display_name or self.email
 
     def update_karma(self, action):
         """Update user's XP based on the action"""

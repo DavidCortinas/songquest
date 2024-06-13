@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <!-- Entry Point for Django -->
 <html lang="en">
-  <head>
-    {% load static %}
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>SongQuest</title>
-    <link rel="icon" href="{% static 'images/favicon.ico' %}" />
-    <script>
-      window.SPOTIFY_CLIENT_ID = "{{ SPOTIFY_CLIENT_ID }}";
-    </script>
-    <!-- {% render_bundle 'main' 'css' %} -->
-  </head>
-  <body>
-    <div id="root"></div>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <!-- {% render_bundle 'main' 'js' %} -->
-  </body>
+	<head>
+		{% load render_bundle from webpack_loader %} {% load static %}
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>SongQuest</title>
+		<link rel="icon" href="{% static 'images/favicon.ico' %}" />
+		<script>
+			window.SPOTIFY_CLIENT_ID = '{{ SPOTIFY_CLIENT_ID }}';
+		</script>
+		{% render_bundle 'main' 'css' %}
+	</head>
+	<body>
+		<div id="root"></div>
+		<noscript>You need to enable JavaScript to run this app.</noscript>
+		{% render_bundle 'main' 'js' %}
+	</body>
 </html>

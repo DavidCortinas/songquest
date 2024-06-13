@@ -1,5 +1,9 @@
 import os
+import sys
 from dotenv import load_dotenv
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
 
 load_dotenv()
 
@@ -11,7 +15,7 @@ BASE_URL = "http://localhost:8000"
 
 # Frontend URL
 # FRONTEND_URL = "http://localhost:3000"
-FRONTEND_URL = "http://localhost:8000"
+FRONTEND_URL = "http://localhost:3000"
 # FRONTEND_URL = 'https://songquest.com'
 
 # Email settings
@@ -27,22 +31,24 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEBUG = True  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "216.128.141.249",
     "songquest.io",
     "www.songquest.io",
+    "127.0.0.1",
+    "216.128.141.249",
+    "localhost",
 ]
+
+APPEND_SLASH = True
 
 # Database settings
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "songquest",
-        "USER": "david",
-        "PASSWORD": "tootall33",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PROD_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
@@ -56,6 +62,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "webpack_loader",
     "songquest",
     "songquest.user.apps.UserConfig",
     "songquest.songs.apps.SongsConfig",
@@ -65,12 +72,24 @@ INSTALLED_APPS = [
     "frontend",
 ]
 
+# Webpack
+WEBPACK_LOADER = {
+    "DEFAULT": {
+        "CACHE": not DEBUG,
+        "BUNDLE_DIR_NAME": "static/bundles/",  # must end with a slash
+        "STATS_FILE": os.path.join(BASE_DIR, "static/bundles/webpack-stats.json"),
+        "POLL_INTERVAL": 0.1,
+        "TIMEOUT": None,
+        "IGNORE": [r".+\.hot-update.js", r".+\.map"],
+    }
+}
+
 # Middleware
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -87,8 +106,6 @@ CACHES = {
         },
     }
 }
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
 
 # CORS settings
 CORS_ALLOW_HEADERS = [
@@ -151,7 +168,9 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "django.log",  # Customize the log file path
+            "filename": os.path.join(
+                BASE_DIR, "logs/django.log"
+            ),  # Full path to log file
         },
     },
     "root": {
@@ -190,6 +209,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "songquest.context_processors.spotify_client_id",
             ],
         },
     },
@@ -225,7 +245,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend/dist"),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -234,4 +254,3 @@ SESSION_CACHE_ALIAS = "default"
 # Media settings
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-

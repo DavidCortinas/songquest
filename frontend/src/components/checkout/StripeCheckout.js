@@ -44,7 +44,7 @@ const useStyles = makeStyles(() => ({
 	}
 }));
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY);
 
 // eslint-disable-next-line no-unused-vars
 const CheckoutForm = ({ clientSecret, selectedPrice }) => {
@@ -65,14 +65,28 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 
 		setIsLoading(true);
 
-		const { error } = await stripe.confirmPayment({
+		const baseReturnUrl = 'http://localhost:3000//';
+
+		const { error, paymentIntent } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: 'http://localhost:3000/?payment=success'
+				return_url: baseReturnUrl
 			}
 		});
 
-		// Handle errors from Stripe
+		const returnUrl = error
+			? `${baseReturnUrl}?redirect_status=failed`
+			: paymentIntent
+			? `${baseReturnUrl}?redirect_status=${paymentIntent.status}`
+			: baseReturnUrl;
+
+		await stripe.confirmPayment({
+			elements,
+			confirmParams: {
+				return_url: returnUrl
+			}
+		});
+
 		if (error) {
 			setMessage(error.message);
 		}

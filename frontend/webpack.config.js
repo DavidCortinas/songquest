@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+require('dotenv').config();
 
 module.exports = (env, argv) => {
 	const isProduction = argv.mode === 'production';
@@ -21,7 +22,7 @@ module.exports = (env, argv) => {
 			filename: 'js/[name].[contenthash:8].js',
 			chunkFilename: 'js/[name].[contenthash:8].chunk.js',
 			path: isProduction
-				? path.resolve(__dirname, 'dist')
+				? path.resolve('../static')
 				: path.resolve(__dirname, 'static', 'bundles'),
 			publicPath: isProduction ? '/static/' : 'http://localhost:3000/'
 		},
@@ -54,12 +55,14 @@ module.exports = (env, argv) => {
 		plugins: [
 			new webpack.HotModuleReplacementPlugin(),
 			new BundleTracker({
-				path: path.resolve(__dirname, 'static', 'bundles'),
+				path: path.resolve(__dirname, '../static/bundles'),
 				filename: 'webpack-stats.json'
 			}),
 			new webpack.DefinePlugin({
 				'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
-				'process.env.REACT_APP_STRIPE_KEY': JSON.stringify(process.env.REACT_APP_STRIPE_KEY)
+				'process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY': JSON.stringify(
+					process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY
+				)
 			}),
 			new HtmlWebpackPlugin({
 				template: isProduction ? './public/index.prod.html' : './public/index.html',

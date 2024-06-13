@@ -37,6 +37,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def silly_little_test(request):
+    return JsonResponse({"status": "success"})
+
+
 def generate_random_string(length):
     """Generate a random string of the specified length."""
     characters = string.ascii_letters + string.digits
@@ -752,11 +756,15 @@ def get_spotify_artists(request):
         return JsonResponse({"error": "Server error"}, status=500)
 
 
-def get_spotify_token_info(code):
+def get_spotify_token_info(code, source):
     # Define your Spotify API credentials
     client_id = os.environ.get("SPOTIFY_CLIENT_ID")
     client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-    redirect_uri = os.environ.get("SPOTIFY_DEFAULT_REDIRECT_URI")
+    default_redirect_uri = os.environ.get("SPOTIFY_DEFAULT_REDIRECT_URI")
+    profile_redirect_uri = os.environ.get("SPOTIFY_PROFILE_REDIRECT_URI")
+
+    redirect_uri = profile_redirect_uri if source == "profile" else default_redirect_uri
+    print("redirect uri: ", redirect_uri)
 
     # Prepare the data to send to the Spotify API to obtain an access token
     token_data = {
@@ -834,16 +842,18 @@ def handle_spotify_callback(request):
 
     user_id = request.headers.get("User-Id")
     if not user_id:
+        logging.error("User ID not found in headers")
         return HttpResponseForbidden("User ID not found in headers")
 
     User = get_user_model()
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
+        logging.error("User not found")
         return HttpResponseForbidden("User not found")
 
     if code:
-        token_info = get_spotify_token_info(code)
+        token_info = get_spotify_token_info(code, source)
 
         if token_info and "access_token" in token_info:
             access_token = token_info["access_token"]

@@ -7,11 +7,11 @@ from songquest.auth.views import ResendVerificationEmail, verify_email
 from songquest.payments import views as paymentViews
 from .songs.views import SongUploadView
 from django.views.generic import TemplateView
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("search/", views.search_song, name="search-song"),
+    path("silly-little-test/", views.silly_little_test, name="silly-little-test"),
     path("api/discover/", views.discover_song, name="discover-song"),
     path("user/", views.get_user, name="user"),
     path("update-display-name/", views.update_display_name, name="update-display-name"),
@@ -36,6 +36,11 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("api/upload/", SongUploadView.as_view(), name="song-upload"),
     path(
+        "auth/spotify/callback/",
+        views.handle_spotify_callback,
+        name="spotify-auth-callback",
+    ),
+    path(
         "api/", include(("songquest.routers", "songquest"), namespace="songquest-api")
     ),
     path("payments/", include("songquest.payments.urls")),
@@ -45,12 +50,6 @@ urlpatterns = [
         views.request_authorization,
         name="request-authorization",
     ),
-    path(
-        "auth/spotify/callback/",
-        views.handle_spotify_callback,
-        name="spotify-auth-callback",
-    ),
-    #     path('redirect/', views.spotify_redirect, name='spotify-redirect'),
     path("refresh-token/", views.refresh_access_token, name="refresh-token"),
     path("get-user-playlists/", views.get_user_playlists, name="get-user-playlists"),
     path("create-playlist/", views.create_playlist, name="create-playlist"),
@@ -72,7 +71,6 @@ urlpatterns = [
     ),
     path("create-payment-intent/", paymentViews.create_payment, name="create-payment"),
     path("webhooks/stripe/", paymentViews.stripe_webhook, name="stripe-webhook"),
-    path("<path>", TemplateView.as_view(template_name="index.html"), name="catch-all"),
     path("get-spotify-tracks/", views.get_spotify_tracks, name="get-spotify-tracks"),
     path("get-spotify-artists/", views.get_spotify_artists, name="get-spotify-artists"),
     path(
@@ -92,11 +90,13 @@ urlpatterns = [
     path(
         "resend-verification-email/",
         ResendVerificationEmail.as_view(),
-        name="resend_verification_email",
+        name="resend-verification_email",
     ),
     path("add-to-spotify/", views.add_to_spotify, name="add-to-spotify"),
     path("check-users-tracks/", views.check_users_tracks, name="check-users-tracks"),
-    path("remove-users-tracks/", views.remove_users_tracks, name="remove-users-tracks"),
+    path(
+        "remove-users-tracks/", views.remove_users_tracks, name="remove-users-tracks"
+    ),
     path("follow-artists/", views.follow_artists_on_spotify, name="follow-artists"),
     path("unfollow-artists/", views.unfollow_artists, name="unfollow-artists"),
     path(
@@ -105,12 +105,15 @@ urlpatterns = [
         name="user-follows-artist",
     ),
     path("", include("frontend.urls")),
-    #     path('search-lyrics/', views.search_lyrics, name='search-lyrics'),
-    # path('get-openai-initial-response/', views.get_openai_initial_response),
-    # path('get-openai-subsequent-response/', views.get_openai_subsequent_response),
 ]
-
-# urlpatterns += staticfiles_urlpatterns()
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns.append(
+    path(
+        "<path:path>",
+        TemplateView.as_view(template_name="index.html"),
+        name="catch-all",
+    )
+)

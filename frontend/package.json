@@ -46,6 +46,7 @@
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "webpack": "^5.91.0",
+    "webpack-bundle-tracker": "^3.1.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"
   },
@@ -101,8 +102,7 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
     "use-debounce": "^10.0.0",
-    "web-vitals": "^2.1.4",
-    "webpack-bundle-tracker": "^3.1.0"
+    "web-vitals": "^2.1.4"
   },
   "overrides": {
     "@svgr/webpack": "$@svgr/webpack"
