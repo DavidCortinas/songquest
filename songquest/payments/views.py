@@ -14,7 +14,7 @@ from songquest.utilities.email_utlities import (
     notify_user_of_failed_payment,
 )
 
-stripe.api_key = os.environ.get("STRIPE_SECRET")
+stripe.api_key = os.environ.get("STRIPE_TEST_SECRET")
 
 
 @api_view(["POST"])
@@ -115,7 +115,7 @@ def stripe_webhook(request):
     temp_endpoint_secret = os.environ.get("STRIPE_TEMP_ENDPOINT_SECRET", "")
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        event = stripe.Webhook.construct_event(payload, sig_header, temp_endpoint_secret)
     except ValueError as e:
         return JsonResponse({"error": "Invalid payload"}, status=400)
     except stripe.error.SignatureVerificationError as e:

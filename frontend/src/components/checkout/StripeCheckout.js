@@ -44,7 +44,7 @@ const useStyles = makeStyles(() => ({
 	}
 }));
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY);
 
 // eslint-disable-next-line no-unused-vars
 const CheckoutForm = ({ clientSecret, selectedPrice }) => {
