@@ -70,7 +70,7 @@ python-dotenv==1.0.0
 pytz==2023.3
 queuelib==1.6.2
 redis==4.5.5
-requests==2.31.0
+requests==2.32.2
 requests-file==1.5.1
 selenium==4.8.3
 service-identity==21.1.0
