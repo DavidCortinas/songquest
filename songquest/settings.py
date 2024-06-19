@@ -10,12 +10,13 @@ load_dotenv()
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 
 # Base URL
-BASE_URL = "https://songquest.io"
+# BASE_URL = "http://localhost:8000"
+BASE_URL = "https://songquest.com"
 
 # Frontend URL
 # FRONTEND_URL = "http://localhost:3000"
 # FRONTEND_URL = "http://localhost:8000"
-FRONTEND_URL = "https://songquest.io"
+FRONTEND_URL = "https://songquest.com"
 
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
@@ -27,7 +28,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # Security settings
-DEBUG = False  # Set to False in production
+DEBUG = True  # Set to False in production
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = [
     "songquest.io",
@@ -46,7 +47,7 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
         "PASSWORD": os.getenv("DB_PROD_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
+        "HOST": os.getenv("DB_PROD_HOST"),
         "PORT": os.getenv("DB_PORT"),
     }
 }
@@ -59,7 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # "corsheaders",
+    "corsheaders",
     "rest_framework",
     "webpack_loader",
     "songquest",
@@ -85,7 +86,7 @@ WEBPACK_LOADER = {
 
 # Middleware
 MIDDLEWARE = [
-    # "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -94,7 +95,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 
 # Cache settings
 CACHES = {
@@ -106,7 +106,6 @@ CACHES = {
         },
     }
 }
-
 
 # CORS settings
 # CORS_ALLOW_HEADERS = [
@@ -120,7 +119,7 @@ CACHES = {
 
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
+#     # "http://localhost:8000",
 # ]
 
 # CORS_ALLOW_METHODS = [
@@ -134,13 +133,13 @@ CACHES = {
 
 # CORS_ALLOW_ALL_ORIGINS = False
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://localhost:8000",
-# ]
-
 # CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    # "http://localhost:3000",
+    # "http://localhost:8000",
+    "https://www.songquest.io",
+]
 
 # Authentication settings
 AUTH_USER_MODEL = "user.User"

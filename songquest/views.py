@@ -830,7 +830,6 @@ def serialize_profile(profile, request):
 
 @csrf_exempt
 def handle_spotify_callback(request):
-
     code = request.GET.get("code", "")
     encoded_state = request.GET.get("state", "")
 

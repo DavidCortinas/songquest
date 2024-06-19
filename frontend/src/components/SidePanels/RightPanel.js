@@ -232,28 +232,35 @@ const CreateOrEditPlaylist = ({
 	}, [playlist?.tracks]);
 
 	const isPlaylistItemChecked = item => {
-		return songsToRemove.some(spotifyId => spotifyId === item.spotifyId);
+		return songsToRemove.some(song => song.spotifyId === item.spotifyId);
 	};
 
-	const handleBulkRemove = () => {
-		onRemoveFromCurrentPlaylistById(...songsToRemove.map(songId => songId));
+	const handleBulkRemove = async () => {
+		if (playlistAction === 'create') {
+			const idsToRemove = songsToRemove.map(song => song.spotifyId);
+			onRemoveFromCurrentPlaylistById(...idsToRemove);
+		} else {
+			songsToRemove.forEach(song => {
+				onRemoveFromPlaylistToEdit(song);
+			});
+		}
 	};
 
 	const playlistItemInSongsToRemove = spotifyId => {
-		return songsToRemove.includes(spotifyId);
+		return songsToRemove.some(song => song.spotifyId === spotifyId);
 	};
 
 	const handlePlaylistSelectClick = item => {
 		if (playlistItemInSongsToRemove(item.spotifyId)) {
-			setSongsToRemove(songsToRemove.filter(id => id !== item.spotifyId));
+			setSongsToRemove(songsToRemove.filter(song => song.spotifyId !== item.spotifyId));
 		} else {
-			setSongsToRemove([...songsToRemove, item.spotifyId]);
+			setSongsToRemove([...songsToRemove, item]);
 		}
 	};
 
 	const handlePlaylistSelectAll = () => {
 		if (songsToRemove.length !== playlist.tracks.length) {
-			setSongsToRemove(playlist.tracks.map(song => song.spotifyId));
+			setSongsToRemove([...playlist.tracks]);
 		} else {
 			setSongsToRemove([]);
 		}
@@ -262,10 +269,9 @@ const CreateOrEditPlaylist = ({
 	const handleConnectToSpotify = () => {
 		if (!currentUser?.user) {
 			navigate('/login');
+		} else {
+			navigate('/spotify-connect');
 		}
-		// else {
-
-		// }
 	};
 
 	const handleChange = (event, newValue) => {
@@ -563,9 +569,15 @@ const CreateOrEditPlaylist = ({
 								}}
 							>
 								<Typography variant='body2' letterSpacing='1px'>
-									{songsToRemove.length === 0
+									{songsToRemove.length !== playlist.tracks.length &&
+									playlistAction === 'create'
 										? 'Select all tracks in current collection'
-										: 'Deselect all tracks in current collection'}
+										: songsToRemove.length !== playlist.tracks.length &&
+										  playlistAction === 'edit'
+										? `Select all tracks in ${playlist.name}`
+										: playlistAction === 'create'
+										? 'Deselect all tracks in current collection'
+										: `Deselct all tracks in ${playlist.name}`}
 								</Typography>
 							</div>
 						}
@@ -668,7 +680,9 @@ const CreateOrEditPlaylist = ({
 								}}
 							>
 								<Typography variant='body2' letterSpacing='1px'>
-									{'Clear selected from playlist'}
+									{playlistAction === 'create'
+										? 'Clear selected from playlist'
+										: `Clear selected from ${playlist.name}`}
 								</Typography>
 							</div>
 						}

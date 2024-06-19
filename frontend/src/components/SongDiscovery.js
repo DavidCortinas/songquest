@@ -313,7 +313,8 @@ const MobileResults = ({
 	setShowPlaylists,
 	handleToggle,
 	toggleValue,
-	setToggleValue
+	setToggleValue,
+	editPlaylist
 }) => {
 	return (
 		<Box
@@ -438,6 +439,7 @@ const MobileResults = ({
 								isMdScreen={isMdScreen}
 								toggleValue={toggleValue}
 								handleExploreMoreClick={handleExploreMoreClick}
+								editPlaylist={editPlaylist}
 							/>
 						</Suspense>
 					</Box>
@@ -916,6 +918,7 @@ export const SongDiscovery = ({
 										isMdScreen={isMdScreen}
 										toggleValue={toggleValue}
 										handleExploreMoreClick={handleExploreMoreClick}
+										editPlaylist={editPlaylist}
 									/>
 								</Suspense>
 							</Box>
@@ -1043,6 +1046,7 @@ export const SongDiscovery = ({
 					toggleValue={toggleValue}
 					setToggleValue={setToggleValue}
 					selectedPlaylist={selectedPlaylist}
+					editPlaylist={editPlaylist}
 				/>
 			)}
 			<SaveQueryModal
