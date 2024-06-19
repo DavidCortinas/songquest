@@ -261,10 +261,22 @@ const Recommendation = ({
 								}}
 							>
 								<Typography variant='body2' letterSpacing='1px'>
-									{user?.user?.spotifyConnected && !recommendationInPlaylist
+									{user?.user?.spotifyConnected &&
+									!recommendationInPlaylist &&
+									playlistAction === 'create'
 										? 'Add to current collection'
-										: user?.user?.spotifyConnected && recommendationInPlaylist
+										: user?.user?.spotifyConnected &&
+										  recommendationInPlaylist &&
+										  playlistAction === 'create'
 										? 'Remove from current collection'
+										: user?.user?.spotifyConnected &&
+										  !recommendationInPlaylist &&
+										  playlistAction === 'edit'
+										? `Add to ${editPlaylist.name}`
+										: user?.user?.spotifyConnected &&
+										  recommendationInPlaylist &&
+										  playlistAction === 'edit'
+										? `Remove from ${editPlaylist.name}`
 										: user?.user
 										? 'Connect to Spotify to build collections and more'
 										: 'Login to build collections and more'}
@@ -452,10 +464,17 @@ const Recommendations = ({
 					: song.image || defaultImage
 		}));
 
-		onAddToCurrentPlaylist(...songsToAddData);
-		setSnackbarMessage(`Added ${songsToAddData.length} songs to current playlist`);
-		setSnackbarSeverity('success');
-		setSnackbarOpen(true);
+		if (playlistAction === 'create') {
+			onAddToCurrentPlaylist(...songsToAddData);
+			setSnackbarMessage(`Added ${songsToAddData.length} songs to current playlist`);
+			setSnackbarSeverity('success');
+			setSnackbarOpen(true);
+		} else {
+			onAddToPlaylistToEdit(...songsToAddData);
+			setSnackbarMessage(`Added ${songsToAddData.length} songs to ${editPlaylist.name}`);
+			setSnackbarSeverity('success');
+			setSnackbarOpen(true);
+		}
 	};
 
 	const handleSaveRequestParameters = () => {
@@ -604,7 +623,9 @@ const Recommendations = ({
 								}}
 							>
 								<Typography variant='body2' letterSpacing='1px'>
-									{'Add selected to playlist'}
+									{playlistAction === 'create'
+										? 'Add selected to current playlist'
+										: `Add selected to ${editPlaylist.name}`}
 								</Typography>
 							</div>
 						}
