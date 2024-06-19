@@ -7,7 +7,7 @@ sys.path.append(BASE_DIR)
 
 load_dotenv()
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 
 # Base URL
 BASE_URL = "http://localhost:8000"
