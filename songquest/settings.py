@@ -14,8 +14,8 @@ BASE_URL = "http://localhost:8000"
 # BASE_URL = "https://songquest.com"
 
 # Frontend URL
-# FRONTEND_URL = "http://localhost:3000"
-FRONTEND_URL = "http://localhost:8000"
+FRONTEND_URL = "http://localhost:3000"
+# FRONTEND_URL = "http://localhost:8000"
 # FRONTEND_URL = "https://songquest.com"
 
 # Email settings
@@ -46,8 +46,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PROD_PASSWORD"),
-        "HOST": os.getenv("DB_PROD_HOST"),
+        "PASSWORD": os.getenv("DB_DEV_PASSWORD"),
+        "HOST": os.getenv("DB_DEV_HOST"),
         "PORT": os.getenv("DB_PORT"),
     }
 }
@@ -136,7 +136,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
-    # "http://localhost:3000",
+    "http://localhost:3000",
     "http://localhost:8000",
     # "https://www.songquest.io",
 ]

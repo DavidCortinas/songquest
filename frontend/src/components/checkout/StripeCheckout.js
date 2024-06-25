@@ -65,7 +65,7 @@ const CheckoutForm = ({ clientSecret, selectedPrice }) => {
 
 		setIsLoading(true);
 
-		const baseReturnUrl = process.env.REACT_APP_BASE_TESTING_URL;
+		const baseReturnUrl = process.env.REACT_APP_BASE_DEVELOPMENT_URL;
 
 		const { error, paymentIntent } = await stripe.confirmPayment({
 			elements,
