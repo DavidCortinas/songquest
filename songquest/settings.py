@@ -10,13 +10,13 @@ load_dotenv()
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 
 # Base URL
-# BASE_URL = "http://localhost:8000"
-BASE_URL = "https://songquest.com"
+BASE_URL = "http://localhost:8000"
+# BASE_URL = "https://songquest.com"
 
 # Frontend URL
 # FRONTEND_URL = "http://localhost:3000"
-# FRONTEND_URL = "http://localhost:8000"
-FRONTEND_URL = "https://songquest.com"
+FRONTEND_URL = "http://localhost:8000"
+# FRONTEND_URL = "https://songquest.com"
 
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
@@ -35,7 +35,7 @@ ALLOWED_HOSTS = [
     "www.songquest.io",
     "127.0.0.1",
     "216.128.141.249",
-    # "localhost",
+    "localhost",
 ]
 
 APPEND_SLASH = True
@@ -108,37 +108,37 @@ CACHES = {
 }
 
 # CORS settings
-# CORS_ALLOW_HEADERS = [
-#     "Authorization",
-#     "Content-Type",
-#     "X-CSRFToken",
-#     "X-Requested-With",
-#     "User-Id",
-#     "User-Email",
-# ]
+CORS_ALLOW_HEADERS = [
+    "Authorization",
+    "Content-Type",
+    "X-CSRFToken",
+    "X-Requested-With",
+    "User-Id",
+    "User-Email",
+]
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     # "http://localhost:8000",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
 
-# CORS_ALLOW_METHODS = [
-#     "DELETE",
-#     "GET",
-#     "OPTIONS",
-#     "PATCH",
-#     "POST",
-#     "PUT",
-# ]
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 
-# CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = False
 
-# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     # "http://localhost:3000",
-    # "http://localhost:8000",
-    "https://www.songquest.io",
+    "http://localhost:8000",
+    # "https://www.songquest.io",
 ]
 
 # Authentication settings

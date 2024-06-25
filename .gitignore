@@ -11,3 +11,5 @@ env/
 .pytest_cache/
 .coverage
 frontend/.env
+static/
+staticfiles/
