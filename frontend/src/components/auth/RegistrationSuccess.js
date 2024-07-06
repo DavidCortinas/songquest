@@ -58,7 +58,7 @@ const RegistrationSuccess = ({
 					letterSpacing: '2px'
 				}}
 			>
-				{`Welcome to SongQuest`}
+				{`Verify Your Email`}
 			</Typography>
 			{!currentUser?.user?.emailVerified ? (
 				<>

@@ -37,8 +37,7 @@ import {
 } from '../../thunks';
 import { toCapitalCase } from '../../utils';
 import { DropzoneArea } from 'mui-file-dropzone';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { emailVerificationFailure, emailVerificationSuccess } from '../../actions';
+import { useNavigate } from 'react-router-dom';
 import { LoadingState } from '../../components/LoadingState';
 import spotifyLogo from '../../../public/images/spotifyLogo.png';
 
@@ -901,8 +900,6 @@ const OnboardSpotify = ({
 
 export const Onboard = ({
 	onGetSpotifyUserAuth,
-	onEmailVerificationSuccess,
-	onEmailVerificationFailure,
 	onUpdateDisplayName,
 	onUpdateBirthday,
 	onUpdatePreferredGenres,
@@ -927,37 +924,12 @@ export const Onboard = ({
 	const [currentStep, setCurrentStep] = useState('displayName');
 
 	const classes = useStyles();
-	const location = useLocation();
-	const navigate = useNavigate();
 
 	const {
 		handleSubmit,
 		register,
 		formState: { errors }
 	} = useForm();
-
-	useEffect(() => {
-		const params = new URLSearchParams(location.search);
-		const emailVerified = params.get('email_verified');
-		const token = params.get('token');
-
-		if (emailVerified === 'True' && token) {
-			onEmailVerificationSuccess(true);
-		} else {
-			onEmailVerificationFailure(false, 'Email verification failed');
-			// navigate('/verification-error');
-		}
-
-		params.delete('email_verified');
-		params.delete('token');
-		window.history.replaceState(null, '', '?' + params.toString());
-	}, [location.search]);
-
-	useEffect(() => {
-		if (currentStep === 'demo') {
-			navigate('/registration-success');
-		}
-	}, [currentStep]);
 
 	useEffect(() => {
 		if (userLoading) {
@@ -1117,9 +1089,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
 	onGetSpotifyUserAuth: (userId, source) => dispatch(getSpotifyUserAuth(userId, source)),
-	onEmailVerificationSuccess: emailVerified => dispatch(emailVerificationSuccess(emailVerified)),
-	onEmailVerificationFailure: (emailVerified, error) =>
-		dispatch(emailVerificationFailure(emailVerified, error)),
 	onUpdateDisplayName: (userId, displayName) =>
 		dispatch(handleUpdateDisplayName(userId, displayName)),
 	onUpdateBirthday: (userId, date) => dispatch(handleUpdateBirthday(userId, date)),

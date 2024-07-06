@@ -3,11 +3,11 @@ import { combineReducers } from 'redux';
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/es/stateReconciler/autoMergeLevel2';
-import { song, user, discovery, playlist, verification, userProfile } from './reducers';
+import { user, discovery, playlist, verification, userProfile } from './reducers';
 import { authSlice } from './reducers';
 
 const rootReducer = combineReducers({
-	song,
+	// song,
 	user,
 	userProfile,
 	verification,

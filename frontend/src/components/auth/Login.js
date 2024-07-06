@@ -30,7 +30,12 @@ import {
 	registerUser,
 	resetPassword
 } from '../../thunks';
-import { resetDataLoaded, setCurrentUser } from '../../actions';
+import {
+	emailVerificationFailure,
+	emailVerificationSuccess,
+	resetDataLoaded,
+	setCurrentUser
+} from '../../actions';
 import { useStyles } from './classes';
 import { LoadingState } from '../../components/LoadingState';
 import { validatePassword } from '../../utils';
@@ -83,7 +88,15 @@ export const PasswordRules = ({ password, confirmPassword }) => {
 	);
 };
 
-export const Login = ({ authError, authSuccess, onResetDataLoaded, onGetUserPlaylists, user }) => {
+export const Login = ({
+	authError,
+	authSuccess,
+	onResetDataLoaded,
+	onGetUserPlaylists,
+	onEmailVerificationSuccess,
+	onEmailVerificationFailure,
+	user
+}) => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 	const isMdScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -109,6 +122,8 @@ export const Login = ({ authError, authSuccess, onResetDataLoaded, onGetUserPlay
 	const [invalidPassword, setInvalidPassword] = useState(false);
 	const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  // After login, send user to onboard if they haven't onboarded already
 
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -116,6 +131,23 @@ export const Login = ({ authError, authSuccess, onResetDataLoaded, onGetUserPlay
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		const params = new URLSearchParams(location.search);
+		const emailVerified = params.get('email_verified');
+		const token = params.get('token');
+
+		if (emailVerified === 'True' && token) {
+			onEmailVerificationSuccess(true);
+		} else {
+			onEmailVerificationFailure(false, 'Email verification failed');
+			// navigate('/verification-error');
+		}
+
+		params.delete('email_verified');
+		params.delete('token');
+		window.history.replaceState(null, '', '?' + params.toString());
+	}, [location.search]);
 
 	useEffect(() => {
 		if (user?.user?.id) {
@@ -175,7 +207,6 @@ export const Login = ({ authError, authSuccess, onResetDataLoaded, onGetUserPlay
 
 		try {
 			const currentUser = await dispatch(login(emailValue, passwordValue));
-			console.log(currentUser);
 
 			if (currentUser) {
 				dispatch(setCurrentUser(currentUser));
@@ -183,7 +214,12 @@ export const Login = ({ authError, authSuccess, onResetDataLoaded, onGetUserPlay
 
 			if (currentUser && !currentUser.user.spotify_connected) {
 				navigate('/spotify-connect');
-			} else if (currentUser) {
+			} else if (currentUser === null) {
+        // Check if user is onboarded. If not navigate to onboarding
+        // Need to update user model and send onboarding state with user info upon login
+        navigate('/onboarding');
+      }
+      else if (currentUser) {
 				navigate('/');
 			}
 
@@ -221,8 +257,8 @@ export const Login = ({ authError, authSuccess, onResetDataLoaded, onGetUserPlay
 
 		try {
 			await dispatch(registerUser(emailValue, passwordValue));
-			const currentUser = await dispatch(login(emailValue, passwordValue));
-			dispatch(setCurrentUser(currentUser));
+			// const currentUser = await dispatch(login(emailValue, passwordValue));
+			// dispatch(setCurrentUser(currentUser));
 			navigate('/registration-success');
 		} catch (error) {
 			setSnackbarSeverity('error');
@@ -751,7 +787,10 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
 	onGetUserPlaylists: userId => dispatch(getUserPlaylists(userId)),
-	onResetDataLoaded: () => dispatch(resetDataLoaded())
+	onResetDataLoaded: () => dispatch(resetDataLoaded()),
+	onEmailVerificationSuccess: emailVerified => dispatch(emailVerificationSuccess(emailVerified)),
+	onEmailVerificationFailure: (emailVerified, error) =>
+		dispatch(emailVerificationFailure(emailVerified, error))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

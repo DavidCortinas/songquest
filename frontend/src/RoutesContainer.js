@@ -37,10 +37,10 @@ const RoutesContainer = () => {
 						}
 					/>
 					<Route path={'/login'} element={<Login />} />
+					<Route path={'/registration-success'} element={<RegistrationSuccess />} />
 					<Route path={'/reset-password/:uid/:token'} element={<ResetPassword />} />
 					<Route path={'/error'} element={<ErrorPage />} />
 					<Route element={<ProtectedRoute />}>
-						<Route path={'/registration-success'} element={<RegistrationSuccess />} />
 						<Route path={'/onboard'} element={<Onboard />} />
 						<Route path={'/verification-error'} element={<VerificationError />} />
 						<Route path={'/profile/*'} element={<Profile />} />

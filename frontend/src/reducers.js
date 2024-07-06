@@ -3,7 +3,7 @@ import {
 	ADD_TO_CURRENT_PLAYLIST,
 	ADD_TO_SAVED_PLAYLIST,
 	CLEAR_RECOMMENDATIONS,
-	CLEAR_SEARCH_SONG_ERROR,
+	// CLEAR_SEARCH_SONG_ERROR,
 	CLEAR_SEEDS_ARRAY,
 	CONFIRM_SPOTIFY_ACCESS,
 	CONFIRM_USER,
@@ -40,9 +40,9 @@ import {
 	RESET_QUERY_PARAMETER,
 	SAVE_PREVIOUS_QUERY,
 	SAVE_QUERY,
-	SEARCH_SONG,
-	SEARCH_SONG_FAILURE,
-	SEARCH_SONG_SUCCESS,
+	// SEARCH_SONG,
+	// SEARCH_SONG_FAILURE,
+	// SEARCH_SONG_SUCCESS,
 	SET_SELECTED_PLAYLIST,
 	SET_CURRENT_USER,
 	SET_QUERY_PARAMETER,
@@ -78,16 +78,16 @@ import {
 } from './actions';
 import { toCamelCase } from './utils';
 
-const initialSongState = {
-	query: { song: '', performer: '' },
-	songData: { ascap_results: {}, bmi_results: {} },
-	dataLoaded: false,
-	error: null,
-	user: {
-		email: '',
-		isRegistered: false
-	}
-};
+// const initialSongState = {
+// 	query: { song: '', performer: '' },
+// 	songData: { ascap_results: {}, bmi_results: {} },
+// 	dataLoaded: false,
+// 	error: null,
+// 	user: {
+// 		email: '',
+// 		isRegistered: false
+// 	}
+// };
 
 const initialAuthState = {
 	token: null,
@@ -324,48 +324,48 @@ export const initialDiscoveryState = {
 	error: null
 };
 
-export const song = (state = initialSongState, action) => {
-	const { type, payload } = action;
+// export const song = (state = initialSongState, action) => {
+// 	const { type, payload } = action;
 
-	switch (type) {
-		case SEARCH_SONG: {
-			return {
-				...state,
-				query: payload.query,
-				dataLoaded: false
-			};
-		}
-		case SEARCH_SONG_SUCCESS: {
-			return {
-				...state,
-				songData: payload.songData,
-				query: payload.query,
-				dataLoaded: true
-			};
-		}
-		case SEARCH_SONG_FAILURE: {
-			return {
-				...state,
-				error: payload
-			};
-		}
-		case CLEAR_SEARCH_SONG_ERROR:
-			return {
-				...state,
-				error: null
-			};
-		case RESET_DATA_LOADED:
-			return {
-				...state,
-				dataLoaded: false
-			};
-		default:
-			return {
-				...state,
-				dataLoaded: false
-			};
-	}
-};
+// 	switch (type) {
+// 		case SEARCH_SONG: {
+// 			return {
+// 				...state,
+// 				query: payload.query,
+// 				dataLoaded: false
+// 			};
+// 		}
+// 		case SEARCH_SONG_SUCCESS: {
+// 			return {
+// 				...state,
+// 				songData: payload.songData,
+// 				query: payload.query,
+// 				dataLoaded: true
+// 			};
+// 		}
+// 		case SEARCH_SONG_FAILURE: {
+// 			return {
+// 				...state,
+// 				error: payload
+// 			};
+// 		}
+// 		case CLEAR_SEARCH_SONG_ERROR:
+// 			return {
+// 				...state,
+// 				error: null
+// 			};
+// 		case RESET_DATA_LOADED:
+// 			return {
+// 				...state,
+// 				dataLoaded: false
+// 			};
+// 		default:
+// 			return {
+// 				...state,
+// 				dataLoaded: false
+// 			};
+// 	}
+// };
 
 export const user = (state = { currentUser: null }, action) => {
 	const { type, payload = {} } = action;

@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import render
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -45,7 +45,7 @@ def verify_email(request, token):
         user.save()
     
     # Construct the redirect URL with the email_verified status as a query parameter
-    redirect_url = f"http://localhost:3000/onboard?email_verified={user.email_verified}&token={token}"
+    redirect_url = f"{settings.FRONTEND_URL}/login?email_verified={user.email_verified}&token={token}"
     
     # Redirect the user to the frontend URL
     return HttpResponseRedirect(redirect_url)
