@@ -11,12 +11,12 @@ SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 
 # Base URL
 # BASE_URL = "http://localhost:8000"
-BASE_URL = "https://songquest.com"
+BASE_URL = "https://www.songquest.io"
 
 # Frontend URL
 # FRONTEND_URL = "http://localhost:3000"
 # FRONTEND_URL = "http://localhost:8000"
-FRONTEND_URL = "https://songquest.com"
+FRONTEND_URL = "https://www.songquest.io"
 
 # Email settings
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")

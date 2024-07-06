@@ -45,7 +45,7 @@ def verify_email(request, token):
         user.save()
     
     # Construct the redirect URL with the email_verified status as a query parameter
-    redirect_url = f"http://localhost:3000/onboard?email_verified={user.email_verified}&token={token}"
+    redirect_url = f"https://www.songquest.io/login?email_verified={user.email_verified}&token={token}"
     
     # Redirect the user to the frontend URL
     return HttpResponseRedirect(redirect_url)

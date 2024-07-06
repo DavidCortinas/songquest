@@ -15,7 +15,7 @@ def send_verification_email(user_email, verification_token):
         "Thank you for joining us at SongQuest. Get ready to discover, explore, and enjoy music like never before!\n\n"
         "Warm regards,\n\n"
         "The SongQuest Team\n\n"
-        "P.S. If you have any questions or need assistance, feel free to reach out to us at support@songquest.com. Let the music play!"
+        "P.S. If you have any questions or need assistance, feel free to reach out to us at support@songquest.io. Let the music play!"
     )
     from_email = settings.DEFAULT_FROM_EMAIL
     recipient_list = [user_email]

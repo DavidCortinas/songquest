@@ -60,8 +60,8 @@ module.exports = (env, argv) => {
 			}),
 			new webpack.DefinePlugin({
 				'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
-				'process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY': JSON.stringify(
-					process.env.REACT_APP_STRIPE_TEST_PUBLIC_KEY
+				'process.env.REACT_APP_STRIPE_PUBLIC_KEY': JSON.stringify(
+					process.env.REACT_APP_STRIPE_PUBLIC_KEY
 				)
 			}),
 			new HtmlWebpackPlugin({
