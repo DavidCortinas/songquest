@@ -95,6 +95,7 @@ export const Login = ({
 	onGetUserPlaylists,
 	onEmailVerificationSuccess,
 	onEmailVerificationFailure,
+	onLogin,
 	user
 }) => {
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -122,8 +123,6 @@ export const Login = ({
 	const [invalidPassword, setInvalidPassword] = useState(false);
 	const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
-  // After login, send user to onboard if they haven't onboarded already
 
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -206,21 +205,19 @@ export const Login = ({
 		}
 
 		try {
-			const currentUser = await dispatch(login(emailValue, passwordValue));
+			const currentUser = await onLogin(emailValue, passwordValue);
 
 			if (currentUser) {
 				dispatch(setCurrentUser(currentUser));
-			}
 
-			if (currentUser && !currentUser.user.spotify_connected) {
-				navigate('/spotify-connect');
-			} else if (currentUser === null) {
-        // Check if user is onboarded. If not navigate to onboarding
-        // Need to update user model and send onboarding state with user info upon login
-        navigate('/onboarding');
-      }
-      else if (currentUser) {
-				navigate('/');
+				if (
+					currentUser.user.profile &&
+					currentUser.user.profile.achievements?.includes(1)
+				) {
+					navigate('/');
+				} else {
+					navigate('/onboard');
+				}
 			}
 
 			onResetDataLoaded();
@@ -257,8 +254,6 @@ export const Login = ({
 
 		try {
 			await dispatch(registerUser(emailValue, passwordValue));
-			// const currentUser = await dispatch(login(emailValue, passwordValue));
-			// dispatch(setCurrentUser(currentUser));
 			navigate('/registration-success');
 		} catch (error) {
 			setSnackbarSeverity('error');
@@ -790,7 +785,8 @@ const mapDispatchToProps = dispatch => ({
 	onResetDataLoaded: () => dispatch(resetDataLoaded()),
 	onEmailVerificationSuccess: emailVerified => dispatch(emailVerificationSuccess(emailVerified)),
 	onEmailVerificationFailure: (emailVerified, error) =>
-		dispatch(emailVerificationFailure(emailVerified, error))
+		dispatch(emailVerificationFailure(emailVerified, error)),
+	onLogin: (email, password) => dispatch(login(email, password))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

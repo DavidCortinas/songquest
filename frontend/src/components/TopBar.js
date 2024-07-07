@@ -28,11 +28,11 @@ import {
 import { connect } from 'react-redux';
 import '../App.css';
 import theme from '../theme';
-import { authSlice } from '../reducers';
 import { makeStyles, withStyles } from '@mui/styles';
 import { TokenCounter, KarmaCounter } from '../utils';
 import logoIcon from '../../public/images/sq-logo-2.ico';
 import { DemoModal } from './auth/DemoModal';
+import { logout } from '../thunks';
 
 const StyledLinearProgress = withStyles({
 	colorPrimary: {
@@ -71,7 +71,9 @@ export const TopBar = ({
 	user,
 	currentUser,
 	userPlaylists,
-	currentPlaylist
+	currentPlaylist,
+	refresh,
+	access
 }) => {
 	const classes = useStyles();
 	const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -94,7 +96,7 @@ export const TopBar = ({
 	const handleLogout = () => {
 		navigate('/');
 		setAnchorEl(null);
-		onLogout();
+		onLogout(access, refresh);
 		onDeletePlaylist(...userPlaylists.map(playlist => playlist.id));
 		onRemoveFromCurrentPlaylistById(...(currentPlaylist?.tracks?.map(song => song) || []));
 		onSetCurrentUser(null);
@@ -428,7 +430,9 @@ const mapStateToProps = state => {
 		user: state.auth.account,
 		currentUser: state.user.currentUser,
 		currentPlaylist: state.playlist.currentPlaylist.createPlaylist,
-		userPlaylists: state.playlist.playlists
+		userPlaylists: state.playlist.playlists,
+		refresh: state.auth.refreshToken,
+		access: state.auth.token
 	};
 };
 
@@ -439,7 +443,7 @@ const mapDispatchToProps = dispatch => {
 		onDeletePlaylist: (...playlistIds) => dispatch(deletePlaylist(...playlistIds)),
 		onRemoveFromCurrentPlaylistById: (...songs) =>
 			dispatch(removeFromCurrentPlaylistById(...songs)),
-		onLogout: () => dispatch(authSlice.actions.logout())
+		onLogout: (access, refresh) => dispatch(logout(access, refresh))
 	};
 };
 

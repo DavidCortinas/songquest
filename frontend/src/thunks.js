@@ -190,6 +190,75 @@ export const login = (email, password) => async dispatch => {
 	}
 };
 
+export const refreshAccessToken = refreshToken => async dispatch => {
+	const csrfToken = await getCSRFToken();
+
+	const response = await fetch('/api/auth/refresh/', {
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken
+		},
+		method: 'post',
+		body: JSON.stringify({ refresh: refreshToken })
+	});
+
+	if (!response.ok) {
+		const responseText = await response.text();
+		console.log('Failed to refresh token response:', responseText);
+		throw new Error('Failed to refresh token');
+	}
+
+	const res = await response.json();
+	dispatch(authSlice.actions.refreshAccessToken(res.access));
+	return res.access;
+};
+
+export const logout = (accessToken, refreshToken) => async dispatch => {
+	try {
+		const csrfToken = await getCSRFToken();
+		const body = { refresh: refreshToken };
+
+		let response = await fetch('/api/auth/logout/', {
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				Authorization: `Bearer ${accessToken}`
+			},
+			method: 'POST',
+			body: JSON.stringify(body)
+		});
+
+		if (response.status === 401) {
+			try {
+				accessToken = await dispatch(refreshAccessToken(refreshToken)).then(result => {
+					if (!result) throw new Error('Token refresh failed');
+					return result;
+				});
+				console.log('New access token after refresh:', accessToken);
+				response = await fetch('/api/auth/logout/', {
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': csrfToken,
+						Authorization: `Bearer ${accessToken}`
+					},
+					method: 'POST',
+					body: JSON.stringify(body)
+				});
+			} catch (refreshError) {
+				console.log('Failed to refresh access token:', refreshError);
+				dispatch(authSlice.actions.setError(refreshError.message));
+				return;
+			}
+		}
+
+		if (response.status === 205) {
+			dispatch(authSlice.actions.logout());
+		}
+	} catch (error) {
+		dispatch(authSlice.actions.setError(error.message));
+	}
+};
+
 export const resetPassword = email => async dispatch => {
 	try {
 		const csrfToken = await getCSRFToken();

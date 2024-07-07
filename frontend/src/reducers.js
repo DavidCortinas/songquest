@@ -702,6 +702,12 @@ export const authSlice = createSlice({
 		},
 		logout() {
 			return initialAuthState;
+		},
+		refreshAccessToken(state, action) {
+			return {
+				...state,
+				token: action.payload
+			};
 		}
 	}
 });

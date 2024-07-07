@@ -548,36 +548,9 @@ export const SongDiscovery = ({
 		const searchParams = new URLSearchParams(location.search);
 		const code = searchParams.get('code');
 		const encodedState = searchParams.get('state');
-		let source = 'default';
-
-		if (encodedState) {
-			try {
-				const decodedState = window.atob(encodedState);
-				const parts = decodedState.split('|');
-				if (parts.length === 2) {
-					source = parts[1];
-				}
-			} catch (error) {
-				console.error('Error decoding state:', error);
-			}
-		}
-
-		if (source === 'onboard') {
-			setFromOnboard(true);
-
-			const achievements = currentUserProfile?.achievements || [];
-			const onboardAchievement = achievements.find(
-				ach => ach.name === 'Onboarding Completed'
-			);
-
-			if (onboardAchievement) {
-				setNewAchievement(onboardAchievement);
-				setAchievementModalOpen(true);
-			}
-		}
 
 		if (code) {
-			fetchUserProfile(code, encodedState, source);
+			fetchUserProfile(code, encodedState);
 			searchParams.delete('code');
 			searchParams.delete('state');
 			navigate(
@@ -593,7 +566,7 @@ export const SongDiscovery = ({
 	let fetchCalled = false;
 
 	// eslint-disable-next-line no-unused-vars
-	const fetchUserProfile = async (code, encodedState, source) => {
+	const fetchUserProfile = async (code, encodedState) => {
 		if (fetchCalled) return;
 		fetchCalled = true;
 
@@ -625,6 +598,20 @@ export const SongDiscovery = ({
 
 			if (data.user_tokens !== currentUser.user.tokens) {
 				dispatch(getUserTokensSuccess(data.user_tokens));
+			}
+
+			if (data.source) {
+				setFromOnboard(true);
+
+				const achievements = currentUserProfile?.achievements || [];
+				const onboardAchievement = achievements.find(
+					ach => ach.name === 'Onboarding Completed'
+				);
+
+				if (onboardAchievement) {
+					setNewAchievement(onboardAchievement);
+					setAchievementModalOpen(true);
+				}
 			}
 		} catch (error) {
 			console.error('Error fetching user profile:', error);

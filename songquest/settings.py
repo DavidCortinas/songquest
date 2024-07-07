@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 import sys
 from dotenv import load_dotenv
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     "webpack_loader",
     "songquest",
     "songquest.user.apps.UserConfig",
@@ -71,6 +73,10 @@ INSTALLED_APPS = [
     "songquest.payments.apps.PaymentsConfig",
     "frontend",
 ]
+
+SIMPLE_JWT = {
+  'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10),
+}
 
 # Webpack
 WEBPACK_LOADER = {

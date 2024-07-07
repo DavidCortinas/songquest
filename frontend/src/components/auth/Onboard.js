@@ -109,7 +109,7 @@ const DisplayNameInput = ({
 			<Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
 				<form className={classes.form} onSubmit={handleSubmit(onCreateDisplayName)}>
 					<CardHeader
-						title='Your Email is Verified!'
+						title='Complete Onboarding To Unlock Your Passport'
 						titleTypographyProps={{
 							width: '100%',
 							variant: isSmScreen || isXsScreen ? 'h6' : 'h5',

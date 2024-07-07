@@ -3,6 +3,7 @@ from songquest.user.viewsets import UserViewSet
 from songquest.songs.views import SongViewSet
 from songquest.auth.viewsets import (
     LoginViewSet,
+    LogoutViewSet,
     PasswordResetConfirmViewSet,
     PasswordResetViewSet,
     RegistrationViewSet,
@@ -22,7 +23,7 @@ routes.register(
     PasswordResetConfirmViewSet,
     basename="password-reset-confirm",
 )
-
+routes.register(r"logout", LogoutViewSet, basename="logout")
 # USER
 routes.register(r"user", UserViewSet, basename="user")
 
