@@ -82,8 +82,6 @@ const DisplayNameInput = ({
 		setDisplayNameValue(e.target.value);
 	};
 
-	console.log(displayNameValue);
-
 	const onCreateDisplayName = async () => {
 		if (!currentUser?.user.id) {
 			console.error('No user ID found');
@@ -93,7 +91,11 @@ const DisplayNameInput = ({
 		let displayName = displayNameValue.trim() ? displayNameValue : null;
 
 		try {
-			const savedDisplayName = await onUpdateDisplayName(currentUser.user.id, displayName);
+			const savedDisplayName = await onUpdateDisplayName(
+				currentUser.access,
+				currentUser.refresh,
+				displayName
+			);
 			if (savedDisplayName) {
 				setCurrentStep('birthday');
 			}
@@ -218,14 +220,18 @@ const BirthdayInput = ({
 
 	const onSaveBirthday = async () => {
 		// eslint-disable-next-line no-unused-vars
-		const savedBirthday = await onUpdateBirthday(currentUser?.user.id, date);
+		const savedBirthday = await onUpdateBirthday(
+			currentUser?.access,
+			currentUser?.refresh,
+			date
+		);
 		setCurrentStep('genres');
 	};
 
 	return (
 		<Box display='flex' justifyContent='center' paddingTop='1rem'>
 			<Box width={isMdScreen || isSmScreen || isXsScreen ? '75%' : '50%'}>
-				<form className={classes.form}>
+				<form className={classes.form} onSubmit={handleSubmit(onSaveBirthday)}>
 					<CardHeader
 						title={`Nice to meet you, ${currentUser.user.displayName}!`}
 						titleTypographyProps={{
@@ -298,7 +304,6 @@ const BirthdayInput = ({
 							<Button
 								type='submit'
 								className={classes.button}
-								onClick={handleSubmit(onSaveBirthday)}
 								sx={{
 									letterSpacing: '1px'
 								}}
@@ -343,7 +348,11 @@ const GenresInput = ({
 
 	const onSaveGenres = async () => {
 		// eslint-disable-next-line no-unused-vars
-		const preferredGenres = await onUpdatePreferredGenres(currentUser?.user.id, selectedGenres);
+		const preferredGenres = await onUpdatePreferredGenres(
+			currentUser?.access,
+			currentUser?.refresh,
+			selectedGenres
+		);
 		setCurrentStep('userType');
 	};
 
@@ -524,10 +533,14 @@ const UserTypeInput = ({
 	};
 
 	const onSubmitTypeAndProfession = async () => {
-		const userType = await onUpdateUserType(currentUser?.user.id, toggleValue);
+		const userType = await onUpdateUserType(
+			currentUser?.access,
+			currentUser?.refresh,
+			toggleValue
+		);
 
 		if (userType === 'Professional') {
-			onUpdateUserProfession(currentUser?.user.id, professionValue);
+			onUpdateUserProfession(currentUser?.access, currentUser?.refresh, professionValue);
 		}
 
 		setCurrentStep('image');
@@ -743,7 +756,11 @@ const ImageInput = ({
 
 	const onSubmitImage = async () => {
 		// eslint-disable-next-line no-unused-vars
-		const image = await onUpdateProfileImage(currentUser?.user.id, imageFile);
+		const image = await onUpdateProfileImage(
+			currentUser?.access,
+			currentUser?.refresh,
+			imageFile
+		);
 		setCurrentStep('spotifyConnect');
 	};
 
@@ -1089,16 +1106,18 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
 	onGetSpotifyUserAuth: (userId, source) => dispatch(getSpotifyUserAuth(userId, source)),
-	onUpdateDisplayName: (userId, displayName) =>
-		dispatch(handleUpdateDisplayName(userId, displayName)),
-	onUpdateBirthday: (userId, date) => dispatch(handleUpdateBirthday(userId, date)),
-	onUpdatePreferredGenres: (userId, genres) =>
-		dispatch(handleUpdatePreferredGenres(userId, genres)),
-	onUpdateUserType: (userId, userType) => dispatch(handleUpdateUserType(userId, userType)),
-	onUpdateUserProfession: (userId, profession) =>
-		dispatch(handleUpdateUserProfession(userId, profession)),
-	onUpdateProfileImage: (userId, imageFile) =>
-		dispatch(handleUpdateProfileImage(userId, imageFile))
+	onUpdateDisplayName: (accessToken, refreshToken, displayName) =>
+		dispatch(handleUpdateDisplayName(accessToken, refreshToken, displayName)),
+	onUpdateBirthday: (accessToken, refreshToken, date) =>
+		dispatch(handleUpdateBirthday(accessToken, refreshToken, date)),
+	onUpdatePreferredGenres: (accessToken, refreshToken, genres) =>
+		dispatch(handleUpdatePreferredGenres(accessToken, refreshToken, genres)),
+	onUpdateUserType: (accessToken, refreshToken, userType) =>
+		dispatch(handleUpdateUserType(accessToken, refreshToken, userType)),
+	onUpdateUserProfession: (accessToken, refreshToken, profession) =>
+		dispatch(handleUpdateUserProfession(accessToken, refreshToken, profession)),
+	onUpdateProfileImage: (accessToken, refreshToken, imageFile) =>
+		dispatch(handleUpdateProfileImage(accessToken, refreshToken, imageFile))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Onboard);

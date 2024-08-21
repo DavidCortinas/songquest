@@ -164,6 +164,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             profile.achievements.add(onboarding_achievement)
             profile.badges.add(onboarding_achievement.badge_reward)
 
+    def save(self, *args, **kwargs):
+        self.email = self.email.lower().strip()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.email
 
@@ -299,6 +303,8 @@ class UserAdmin(admin.ModelAdmin):
         "spotify_refresh",
         "email_verification_token",
         "email_verified",
+        "tokens",
+        "karma"
     )
     list_filter = (
         "is_staff",
@@ -312,7 +318,7 @@ class UserAdmin(admin.ModelAdmin):
     filter_horizontal = ()
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Personal Info", {"fields": ["display_name"]}),
+        ("Personal Info", {"fields": ["display_name", "tokens", "karma"]}),
         (
             "Permissions",
             {"fields": ("is_active", "is_staff", "is_superuser", "user_permissions")},

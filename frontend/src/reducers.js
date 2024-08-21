@@ -46,13 +46,7 @@ import {
 	SET_SELECTED_PLAYLIST,
 	SET_CURRENT_USER,
 	SET_QUERY_PARAMETER,
-	UPDATE_EMAIL,
 	UPDATE_DISPLAY_NAME_SUCCESS,
-	UPDATE_BIRTHDAY,
-	UPDATE_PREFERRED_GENRES,
-	UPDATE_USER_TYPE,
-	UPDATE_USER_PROFESSION,
-	UPDATE_PROFILE_IMAGE,
 	SET_EDIT_PLAYLIST,
 	SET_PLAYLIST_TO_EDIT,
 	SET_CREATE_PLAYLIST,
@@ -74,7 +68,25 @@ import {
 	ADD_TO_SAVED_PLAYLIST_SUCCESS,
 	ADD_TO_SAVED_PLAYLIST_FAILURE,
 	REORDER_PLAYLIST_TRACKS,
-	DELETE_QUERY
+	DELETE_QUERY,
+	UPDATE_EMAIL_SUCCESS,
+	UPDATE_PROFILE_IMAGE_SUCCESS,
+	UPDATE_USER_PROFESSION_SUCCESS,
+	UPDATE_USER_TYPE_SUCCESS,
+	UPDATE_PREFERRED_GENRES_SUCCESS,
+	UPDATE_BIRTHDAY_SUCCESS,
+	UPDATE_BIRTHDAY_FAILURE,
+	UPDATE_PREFERRED_GENRES_FAILURE,
+	UPDATE_USER_TYPE_FAILURE,
+	UPDATE_USER_PROFESSION_FAILURE,
+	UPDATE_PROFILE_IMAGE_FAILURE,
+	UPDATE_EMAIL_FAILURE,
+	UPDATE_BIRTHDAY_REQUEST,
+	UPDATE_PREFERRED_GENRES_REQUEST,
+	UPDATE_USER_TYPE_REQUEST,
+	UPDATE_USER_PROFESSION_REQUEST,
+	UPDATE_PROFILE_IMAGE_REQUEST,
+	UPDATE_EMAIL_REQUEST
 } from './actions';
 import { toCamelCase } from './utils';
 
@@ -433,11 +445,18 @@ export const user = (state = { currentUser: null }, action) => {
 				error: payload.error
 			};
 		case UPDATE_DISPLAY_NAME_REQUEST:
+		case UPDATE_BIRTHDAY_REQUEST:
+		case UPDATE_PREFERRED_GENRES_REQUEST:
+		case UPDATE_USER_TYPE_REQUEST:
+		case UPDATE_USER_PROFESSION_REQUEST:
+		case UPDATE_PROFILE_IMAGE_REQUEST:
+		case UPDATE_EMAIL_REQUEST:
 			return {
 				...state,
 				loading: true,
 				error: null
 			};
+
 		case UPDATE_DISPLAY_NAME_SUCCESS:
 			return {
 				...state,
@@ -451,13 +470,21 @@ export const user = (state = { currentUser: null }, action) => {
 				loading: false,
 				error: null
 			};
+
 		case UPDATE_DISPLAY_NAME_FAILURE:
+		case UPDATE_BIRTHDAY_FAILURE:
+		case UPDATE_PREFERRED_GENRES_FAILURE:
+		case UPDATE_USER_TYPE_FAILURE:
+		case UPDATE_USER_PROFESSION_FAILURE:
+		case UPDATE_PROFILE_IMAGE_FAILURE:
+		case UPDATE_EMAIL_FAILURE:
 			return {
 				...state,
 				loading: false,
 				error: payload.error
 			};
-		case UPDATE_BIRTHDAY:
+
+		case UPDATE_BIRTHDAY_SUCCESS:
 			return {
 				...state,
 				currentUser: {
@@ -466,9 +493,12 @@ export const user = (state = { currentUser: null }, action) => {
 						...state.currentUser.user,
 						birthday: payload.birthday
 					}
-				}
+				},
+				loading: false,
+				error: null
 			};
-		case UPDATE_PREFERRED_GENRES:
+
+		case UPDATE_PREFERRED_GENRES_SUCCESS:
 			return {
 				...state,
 				currentUser: {
@@ -477,9 +507,12 @@ export const user = (state = { currentUser: null }, action) => {
 						...state.currentUser.user,
 						preferredGenres: payload.genres
 					}
-				}
+				},
+				loading: false,
+				error: null
 			};
-		case UPDATE_USER_TYPE:
+
+		case UPDATE_USER_TYPE_SUCCESS:
 			return {
 				...state,
 				currentUser: {
@@ -488,9 +521,12 @@ export const user = (state = { currentUser: null }, action) => {
 						...state.currentUser.user,
 						userType: payload.user_type
 					}
-				}
+				},
+				loading: false,
+				error: null
 			};
-		case UPDATE_USER_PROFESSION:
+
+		case UPDATE_USER_PROFESSION_SUCCESS:
 			return {
 				...state,
 				currentUser: {
@@ -499,9 +535,12 @@ export const user = (state = { currentUser: null }, action) => {
 						...state.currentUser.user,
 						profession: payload.profession
 					}
-				}
+				},
+				loading: false,
+				error: null
 			};
-		case UPDATE_PROFILE_IMAGE:
+
+		case UPDATE_PROFILE_IMAGE_SUCCESS:
 			return {
 				...state,
 				currentUser: {
@@ -510,9 +549,12 @@ export const user = (state = { currentUser: null }, action) => {
 						...state.currentUser.user,
 						profileImage: payload.imageUrl
 					}
-				}
+				},
+				loading: false,
+				error: null
 			};
-		case UPDATE_EMAIL:
+
+		case UPDATE_EMAIL_SUCCESS:
 			return {
 				...state,
 				currentUser: {
@@ -521,7 +563,9 @@ export const user = (state = { currentUser: null }, action) => {
 						...state.currentUser.user,
 						email: payload.newEmail
 					}
-				}
+				},
+				loading: false,
+				error: null
 			};
 		case RESEND_VERIFICATION_REQUEST:
 			return {

@@ -105,40 +105,106 @@ export const updateDisplayNameFailure = error => ({
 	payload: { error }
 });
 
-export const UPDATE_BIRTHDAY = 'UPDATE_BIRTHDAY';
-export const updateBirthday = birthday => ({
-	type: UPDATE_BIRTHDAY,
+export const UPDATE_BIRTHDAY_REQUEST = 'UPDATE_BIRTHDAY_REQUEST';
+export const updateBirthdayRequest = () => ({
+	type: UPDATE_BIRTHDAY_REQUEST
+});
+
+export const UPDATE_BIRTHDAY_SUCCESS = 'UPDATE_BIRTHDAY_SUCCESS';
+export const updateBirthdaySuccess = birthday => ({
+	type: UPDATE_BIRTHDAY_SUCCESS,
 	payload: { birthday }
 });
 
-export const UPDATE_PREFERRED_GENRES = 'UPDATE_PREFERRED_GENRES';
-export const updatePreferredGenres = genres => ({
-	type: UPDATE_PREFERRED_GENRES,
+export const UPDATE_BIRTHDAY_FAILURE = 'UPDATE_BIRTHDAY_FAILURE';
+export const updateBirthdayFailure = error => ({
+	type: UPDATE_BIRTHDAY_FAILURE,
+	payload: { error }
+});
+
+export const UPDATE_PREFERRED_GENRES_REQUEST = 'UPDATE_PREFERRED_GENRES_REQUEST';
+export const updatePreferredGenresRequest = () => ({
+	type: UPDATE_PREFERRED_GENRES_REQUEST
+});
+
+export const UPDATE_PREFERRED_GENRES_SUCCESS = 'UPDATE_PREFERRED_GENRES_SUCCESS';
+export const updatePreferredGenresSuccess = genres => ({
+	type: UPDATE_PREFERRED_GENRES_SUCCESS,
 	payload: { genres }
 });
 
-export const UPDATE_USER_TYPE = 'UPDATE_USER_TYPE';
-export const updateUserType = user_type => ({
-	type: UPDATE_USER_TYPE,
+export const UPDATE_PREFERRED_GENRES_FAILURE = 'UPDATE_PREFERRED_GENRES_FAILURE';
+export const updatePreferredGenresFailure = error => ({
+	type: UPDATE_PREFERRED_GENRES_FAILURE,
+	payload: { error }
+});
+
+export const UPDATE_USER_TYPE_REQUEST = 'UPDATE_USER_TYPE_REQUEST';
+export const updateUserTypeRequest = () => ({
+	type: UPDATE_USER_TYPE_REQUEST
+});
+
+export const UPDATE_USER_TYPE_SUCCESS = 'UPDATE_USER_TYPE_SUCCESS';
+export const updateUserTypeSuccess = user_type => ({
+	type: UPDATE_USER_TYPE_SUCCESS,
 	payload: { user_type }
 });
 
-export const UPDATE_USER_PROFESSION = 'UPDATE_USER_PROFESSION';
-export const updateUserProfession = profession => ({
-	type: UPDATE_USER_PROFESSION,
+export const UPDATE_USER_TYPE_FAILURE = 'UPDATE_USER_TYPE_FAILURE';
+export const updateUserTypeFailure = error => ({
+	type: UPDATE_USER_TYPE_FAILURE,
+	payload: { error }
+});
+
+export const UPDATE_USER_PROFESSION_REQUEST = 'UPDATE_USER_PROFESSION_REQUEST';
+export const updateUserProfessionRequest = () => ({
+	type: UPDATE_USER_PROFESSION_REQUEST
+});
+
+export const UPDATE_USER_PROFESSION_SUCCESS = 'UPDATE_USER_PROFESSION_SUCCESS';
+export const updateUserProfessionSuccess = profession => ({
+	type: UPDATE_USER_PROFESSION_SUCCESS,
 	payload: { profession }
 });
 
-export const UPDATE_PROFILE_IMAGE = 'UPDATE_PROFILE_IMAGE';
-export const updateProfileImage = imageUrl => ({
-	type: UPDATE_PROFILE_IMAGE,
+export const UPDATE_USER_PROFESSION_FAILURE = 'UPDATE_USER_PROFESSION_FAILURE';
+export const updateUserProfessionFailure = error => ({
+	type: UPDATE_USER_PROFESSION_FAILURE,
+	payload: { error }
+});
+
+export const UPDATE_PROFILE_IMAGE_REQUEST = 'UPDATE_PROFILE_IMAGE_REQUEST';
+export const updateProfileImageRequest = () => ({
+	type: UPDATE_PROFILE_IMAGE_REQUEST
+});
+
+export const UPDATE_PROFILE_IMAGE_SUCCESS = 'UPDATE_PROFILE_IMAGE_SUCCESS';
+export const updateProfileImageSuccess = imageUrl => ({
+	type: UPDATE_PROFILE_IMAGE_SUCCESS,
 	payload: { imageUrl }
 });
 
-export const UPDATE_EMAIL = 'UPDATE_EMAIL';
-export const updateEmail = newEmail => ({
-	type: UPDATE_EMAIL,
+export const UPDATE_PROFILE_IMAGE_FAILURE = 'UPDATE_PROFILE_IMAGE_FAILURE';
+export const updateProfileImageFailure = error => ({
+	type: UPDATE_PROFILE_IMAGE_FAILURE,
+	payload: { error }
+});
+
+export const UPDATE_EMAIL_REQUEST = 'UPDATE_EMAIL_REQUEST';
+export const updateEmailRequest = () => ({
+	type: UPDATE_EMAIL_REQUEST
+});
+
+export const UPDATE_EMAIL_SUCCESS = 'UPDATE_EMAIL_SUCCESS';
+export const updateEmailSuccess = newEmail => ({
+	type: UPDATE_EMAIL_SUCCESS,
 	payload: { newEmail }
+});
+
+export const UPDATE_EMAIL_FAILURE = 'UPDATE_EMAIL_FAILURE';
+export const updateEmailFailure = error => ({
+	type: UPDATE_EMAIL_FAILURE,
+	payload: { error }
 });
 
 export const RESEND_VERIFICATION_REQUEST = 'RESEND_VERIFICATION_REQUEST';

@@ -12,10 +12,12 @@ import os
 from django.contrib.auth import get_user_model
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.http import HttpResponseForbidden, JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from time import time
 
 from songquest.playlists.models import Playlist, PlaylistSong, Song
@@ -37,8 +39,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def silly_little_test(request):
-    return JsonResponse({"status": "success"})
+# def silly_little_test(request):
+#     return JsonResponse({"status": "success"})
 
 
 def generate_random_string(length):
@@ -147,21 +149,215 @@ def login_user():
     pass
 
 
-@csrf_exempt
-@require_http_methods(["PATCH"])
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
 def update_display_name(request):
-    print("update name")
-    if request.method == "PATCH":
-        try:
-            user_id = request.headers.get("User-Id")
-            user = User.objects.get(pk=user_id)
+    try:
+        user = request.user
 
-            data = json.loads(request.body.decode("utf-8"))
-            new_display_name = data.get("new_display_name")
+        data = json.loads(request.body.decode("utf-8"))
+        new_display_name = data.get("new_display_name")
 
+        if (
+            User.objects.exclude(pk=user.pk)
+            .filter(display_name=new_display_name)
+            .exists()
+        ):
+            return JsonResponse(
+                {"error": "Display name already exists, please select another option"},
+                status=400,
+            )
+
+        user.display_name = new_display_name
+        user.save()
+
+        with transaction.atomic():
+            user.complete_onboarding()
+
+        user_data = {
+            "id": user.id,
+            "email": user.email,
+            "display_name": user.display_name,
+            "spotifyConnected": user.spotify_connected,
+            "tokens": user.tokens,
+            "karma": user.karma,
+        }
+
+        return JsonResponse(
+            {"message": "Display name updated successfully", "user": user_data}
+        )
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_birthday(request):
+    try:
+        user = request.user
+
+        data = json.loads(request.body.decode("utf-8"))
+        birthday = data.get("date")
+
+        parsed_birthday = dateutil.parser.isoparse(birthday).date()
+        formatted_birthday = parsed_birthday.strftime("%Y-%m-%d")
+
+        user.birthday = formatted_birthday
+        user.save()
+
+        with transaction.atomic():
+            user.complete_onboarding()
+
+        return JsonResponse(
+            {"message": "Birthday updated successfully", "birthday": user.birthday}
+        )
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_preferred_genres(request):
+    try:
+        user = request.user
+
+        data = json.loads(request.body.decode("utf-8"))
+        genre_names = [genre_name.lower() for genre_name in data.get("genres")]
+
+        for genre_name in genre_names:
+            Genre.objects.get_or_create(name=genre_name)
+
+        genre_objects = Genre.objects.filter(name__in=genre_names)
+
+        user.preferred_genres.set(genre_objects)
+
+        with transaction.atomic():
+            user.complete_onboarding()
+
+        updated_genre_names = [genre.name for genre in genre_objects]
+
+        return JsonResponse(
+            {
+                "message": "Preferred genres updated successfully",
+                "preferred_genres": updated_genre_names,
+            }
+        )
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_user_type(request):
+    try:
+        user = request.user
+
+        data = json.loads(request.body.decode("utf-8"))
+        user_type = data.get("userType")
+
+        user.user_type = user_type
+        user.save()
+
+        with transaction.atomic():
+            user.complete_onboarding()
+
+        if user.user_type == "fan":
+            user.profession = None
+
+        return JsonResponse(
+            {
+                "message": "User type updated successfully",
+                "user_type": user.user_type,
+                "profession": user.profession,
+            }
+        )
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_user_profession(request):
+    try:
+        user = request.user
+
+        data = json.loads(request.body.decode("utf-8"))
+        profession = data.get("profession")
+
+        user.profession = profession
+        user.save()
+
+        return JsonResponse(
+            {
+                "message": "Profession updated successfully",
+                "saved_profession": user.profession,
+            }
+        )
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from PIL import Image
+from io import BytesIO
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_profile_image(request):
+    try:
+        user = request.user
+        file = request.FILES.get("imageFile")
+
+        if not file:
+            return JsonResponse({"error": "No file provided"}, status=400)
+
+        # Assuming resize_image is a function that processes the image file
+        def resize_image(image):
+            img = Image.open(image)
+            img = img.convert("RGB")
+            img.thumbnail((500, 500))
+            buffer = BytesIO()
+            img.save(buffer, format="JPEG")
+            return InMemoryUploadedFile(
+                buffer, None, image.name, "image/jpeg", buffer.tell(), None
+            )
+
+        resized_image = resize_image(file)
+        user.profile_image.save(resized_image.name, resized_image)
+
+        with transaction.atomic():
+            user.complete_onboarding()
+
+        profile_image_url = (
+            settings.BASE_URL + user.profile_image.url if user.profile_image else None
+        )
+
+        return JsonResponse(
+            {
+                "message": "Profile image updated successfully",
+                "profile_image": profile_image_url,
+            }
+        )
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_user_profile(request):
+    try:
+        user = request.user
+
+        data = json.loads(request.body.decode("utf-8"))
+
+        display_name = data.get("display_name")
+        if display_name:
             if (
-                User.objects.exclude(pk=user_id)
-                .filter(display_name=new_display_name)
+                User.objects.exclude(pk=user.pk)
+                .filter(display_name=display_name)
                 .exists()
             ):
                 return JsonResponse(
@@ -170,267 +366,57 @@ def update_display_name(request):
                     },
                     status=400,
                 )
+            user.display_name = display_name
 
-            user.display_name = new_display_name
-            user.save()
-
-            with transaction.atomic():
-                user.complete_onboarding()
-
-            user_data = {
-                "id": user.id,
-                "email": user.email,
-                "display_name": user.display_name,
-                "spotifyConnected": user.spotify_connected,
-                "tokens": user.tokens,
-                "karma": user.karma,
-            }
-
-            return JsonResponse(
-                {"message": "Display name updated successfully", "user": user_data}
-            )
-        except User.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
-def update_birthday(request):
-    if request.method == "PATCH":
-        try:
-            user_id = request.headers.get("User-Id")
-            user = User.objects.get(pk=user_id)
-
-            data = json.loads(request.body.decode("utf-8"))
-            birthday = data.get("date")
-
+        birthday = data.get("birth_date")
+        if birthday:
             parsed_birthday = dateutil.parser.isoparse(birthday).date()
-            formatted_birthday = parsed_birthday.strftime("%Y-%m-%d")
+            user.birthday = parsed_birthday
 
-            user.birthday = formatted_birthday
-            user.save()
-
-            with transaction.atomic():
-                user.complete_onboarding()
-
-            return JsonResponse(
-                {"message": "Birthday updated successfully", "birthday": user.birthday}
-            )
-        except User.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
-def update_preferred_genres(request):
-    if request.method == "PATCH":
-        try:
-            user_id = request.headers.get("User-Id")
-            user = User.objects.get(pk=user_id)
-
-            data = json.loads(request.body.decode("utf-8"))
-            genre_names = [genre_name.lower() for genre_name in data.get("genres")]
-
-            for genre_name in genre_names:
-                Genre.objects.get_or_create(name=genre_name)
-
-            genre_objects = Genre.objects.filter(name__in=genre_names)
-
-            user.preferred_genres.set(genre_objects)
-
-            with transaction.atomic():
-                user.complete_onboarding()
-
-            updated_genre_names = [genre.name for genre in genre_objects]
-
-            return JsonResponse(
-                {
-                    "message": "Preferred genres updated successfully",
-                    "preferred_genres": updated_genre_names,
-                }
-            )
-        except User.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
-def update_user_type(request):
-    if request.method == "PATCH":
-        try:
-            user_id = request.headers.get("User-Id")
-            user = User.objects.get(pk=user_id)
-
-            data = json.loads(request.body.decode("utf-8"))
-            user_type = data.get("userType")
-
+        user_type = data.get("user_type")
+        if user_type:
             user.user_type = user_type
-            user.save()
 
-            with transaction.atomic():
-                user.complete_onboarding()
-
-            if user.user_type == "fan":
-                user.profession = None
-
-            return JsonResponse(
-                {
-                    "message": "Preferred genres updated successfully",
-                    "user_type": user.user_type,
-                    "profession": user.profession,
-                }
-            )
-        except User.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
-def update_user_profession(request):
-    if request.method == "PATCH":
-        try:
-            user_id = request.headers.get("User-Id")
-            user = User.objects.get(pk=user_id)
-
-            data = json.loads(request.body.decode("utf-8"))
-            profession = data.get("profession")
-
+        profession = data.get("profession")
+        if profession:
             user.profession = profession
-            user.save()
 
-            return JsonResponse(
-                {
-                    "message": "Preferred genres updated successfully",
-                    "saved_profession": user.profession,
-                }
-            )
-        except User.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
+        genre_names = [genre_name.lower() for genre_name in data.get("genres")]
 
+        for genre_name in genre_names:
+            Genre.objects.get_or_create(name=genre_name)
 
-@csrf_exempt
-def update_profile_image(request):
-    if request.method == "POST":
-        try:
-            user_id = request.headers.get("User-Id")
-            user = User.objects.get(pk=user_id)
-            file = request.FILES["imageFile"] if "imageFile" in request.FILES else None
+        genre_objects = Genre.objects.filter(name__in=genre_names)
 
-            if not file:
-                return JsonResponse({"error": "No file provided"}, status=400)
+        user.preferred_genres.set(genre_objects)
 
-            resized_image = resize_image(file)
+        updated_genre_names = [genre.name for genre in genre_objects]
 
-            user.profile_image.save(resized_image.name, resized_image)
+        user.save()
 
-            with transaction.atomic():
-                user.complete_onboarding()
+        with transaction.atomic():
+            user.complete_onboarding()
 
-            profile_image_url = (
-                settings.BASE_URL + user.profile_image.url
-                if user.profile_image
-                else None
-            )
+        user_data = {
+            "displayName": user.display_name,
+            "birthday": user.birthday.strftime("%Y-%m-%d") if user.birthday else None,
+            "userType": user.user_type,
+            "profession": user.profession,
+            "preferredGenres": updated_genre_names,
+            "tokens": user.tokens,
+            "karma": user.karma,
+        }
 
-            return JsonResponse(
-                {
-                    "message": "Profile image updated successfully",
-                    "profile_image": profile_image_url,
-                }
-            )
-        except User.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
-        except Exception as e:
-            # Catch other errors
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
-def update_user_profile(request):
-    if request.method == "PATCH":
-        try:
-            user_id = request.headers.get("User-Id")
-            user = User.objects.get(pk=user_id)
-
-            data = json.loads(request.body.decode("utf-8"))
-
-            display_name = data.get("display_name")
-
-            if display_name:
-                if (
-                    User.objects.exclude(pk=user_id)
-                    .filter(display_name=display_name)
-                    .exists()
-                ):
-                    return JsonResponse(
-                        {
-                            "error": "Display name already exists, please select another option"
-                        },
-                        status=400,
-                    )
-                user.display_name = display_name
-
-            birthday = data.get("birth_date")
-            if birthday:
-                parsed_birthday = dateutil.parser.isoparse(birthday).date()
-                user.birthday = parsed_birthday
-
-            user_type = data.get("user_type")
-            if user_type:
-                user.user_type = user_type
-
-            profession = data.get("profession")
-            if profession:
-                user.profession = profession
-
-            genre_names = [genre_name.lower() for genre_name in data.get("genres")]
-
-            for genre_name in genre_names:
-                Genre.objects.get_or_create(name=genre_name)
-
-            genre_objects = Genre.objects.filter(name__in=genre_names)
-
-            user.preferred_genres.set(genre_objects)
-
-            updated_genre_names = [genre.name for genre in genre_objects]
-
-            user.save()
-
-            with transaction.atomic():
-                user.complete_onboarding()
-
-            user_data = {
-                "displayName": user.display_name,
-                "birthday": (
-                    user.birthday.strftime("%Y-%m-%d") if user.birthday else None
-                ),
-                "userType": user.user_type,
-                "profession": user.profession,
-                "preferredGenres": updated_genre_names,
-                "tokens": user.tokens,
-                "karma": user.karma,
-            }
-
-            return JsonResponse(
-                {"message": "User info updated successfully", "user": user_data}
-            )
-        except User.DoesNotExist:
-            return JsonResponse(
-                {
-                    "error": "There was an issue with your request. If the issue persists, please contact support@songquest.io"
-                },
-                status=404,
-            )
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
+        return JsonResponse(
+            {"message": "User info updated successfully", "user": user_data}
+        )
+    except User.DoesNotExist:
+        return JsonResponse(
+            {
+                "error": "There was an issue with your request. If the issue persists, please contact support@songquest.io"
+            },
+            status=404,
+        )
 
 
 @csrf_exempt

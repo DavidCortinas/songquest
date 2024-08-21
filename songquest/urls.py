@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("search/", views.search_song, name="search-song"),
-    path("silly-little-test/", views.silly_little_test, name="silly-little-test"),
+    # path("silly-little-test/", views.silly_little_test, name="silly-little-test"),
     path("api/discover/", views.discover_song, name="discover-song"),
     path("api/user/", views.get_user, name="user"),
     path("api/update-display-name/", views.update_display_name, name="update-display-name"),

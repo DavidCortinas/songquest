@@ -74,9 +74,13 @@ INSTALLED_APPS = [
     "frontend",
 ]
 
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(seconds=10),
+# }
 SIMPLE_JWT = {
-  'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
 }
+
 
 # Webpack
 WEBPACK_LOADER = {

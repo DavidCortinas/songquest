@@ -1030,7 +1030,8 @@ export const Profile = ({
 				genres: selectedGenres
 			};
 
-			await onSaveUserProfile(currentUser?.user?.id, userInfo);
+			console.log('onSaveUserPRofile: ', currentUser?.user?.id);
+			await onSaveUserProfile(currentUser?.access, currentUser?.refresh, userInfo);
 			const updatedProfile = await onGetUserProfile(currentUser?.user?.id);
 
 			const initialBadgeNames = new Set(initialBadges?.map(badge => badge.name));
@@ -1714,9 +1715,10 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
 	onGetSpotifyUserAuth: (userId, source) => dispatch(getSpotifyUserAuth(userId, source)),
-	onUpdateProfileImage: (userId, imageFile) =>
-		dispatch(handleUpdateProfileImage(userId, imageFile)),
-	onSaveUserProfile: (userId, userInfo) => dispatch(handleUpdateUserProfile(userId, userInfo)),
+	onUpdateProfileImage: (accessToken, userId, imageFile) =>
+		dispatch(handleUpdateProfileImage(accessToken, userId, imageFile)),
+	onSaveUserProfile: (accessToken, refreshToken, userInfo) =>
+		dispatch(handleUpdateUserProfile(accessToken, refreshToken, userInfo)),
 	onGetUserProfile: userId => dispatch(getUserProfile(userId))
 });
 

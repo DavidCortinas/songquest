@@ -31,11 +31,6 @@ import {
 	getUserTokensSuccess,
 	getUserKarmaSuccess,
 	deletePlaylist,
-	updateBirthday,
-	updatePreferredGenres,
-	updateUserType,
-	updateUserProfession,
-	updateProfileImage,
 	removeFromSavedPlaylist,
 	updatePlaylistOrderSuccess,
 	updatePlaylistOrderFailure,
@@ -50,11 +45,27 @@ import {
 	getUserProfileFailure,
 	addToSavedPlaylistSuccess,
 	addToSavedPlaylistFailure,
-	deleteQuery
+	deleteQuery,
+	updateBirthdaySuccess,
+	updateBirthdayFailure,
+	updateBirthdayRequest,
+	updatePreferredGenresFailure,
+	updatePreferredGenresSuccess,
+	updatePreferredGenresRequest,
+	updateUserTypeRequest,
+	updateUserTypeSuccess,
+	updateUserTypeFailure,
+	updateUserProfessionFailure,
+	updateUserProfessionSuccess,
+	updateUserProfessionRequest,
+	updateProfileImageRequest,
+	updateProfileImageSuccess,
+	updateProfileImageFailure
 } from './actions';
 import getCSRFToken from './csrf';
 import { authSlice } from './reducers';
 import { transformResponseToQueryStructure } from './utils';
+import { withAuth } from './components/auth/utils';
 
 // export const searchSongRequest = query => async dispatch => {
 // 	try {
@@ -123,9 +134,10 @@ export const checkRegistration = user => async dispatch => {
 
 export const registerUser = (email, password) => async () => {
 	try {
+		const normalizedEmail = email.trim().toLowerCase();
 		const csrfToken = await getCSRFToken();
 		const body = JSON.stringify({
-			email: email,
+			email: normalizedEmail,
 			password: password
 		});
 		const response = await fetch(`/api/auth/register/`, {
@@ -151,9 +163,10 @@ export const registerUser = (email, password) => async () => {
 
 export const login = (email, password) => async dispatch => {
 	try {
+		const normalizedEmail = email.trim().toLowerCase();
 		const csrfToken = await getCSRFToken();
 		const body = JSON.stringify({
-			email: email,
+			email: normalizedEmail,
 			password: password
 		});
 		const response = await fetch(`/api/auth/login/`, {
@@ -213,51 +226,28 @@ export const refreshAccessToken = refreshToken => async dispatch => {
 	return res.access;
 };
 
-export const logout = (accessToken, refreshToken) => async dispatch => {
-	try {
-		const csrfToken = await getCSRFToken();
-		const body = { refresh: refreshToken };
+export const logoutThunk = async (dispatch, accessToken, refreshToken) => {
+	const csrfToken = await getCSRFToken();
+	const body = { refresh: refreshToken };
 
-		let response = await fetch('/api/auth/logout/', {
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken,
-				Authorization: `Bearer ${accessToken}`
-			},
-			method: 'POST',
-			body: JSON.stringify(body)
-		});
+	const response = await fetch('/api/auth/logout/', {
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			Authorization: `Bearer ${accessToken}`
+		},
+		method: 'POST',
+		body: JSON.stringify(body)
+	});
 
-		if (response.status === 401) {
-			try {
-				accessToken = await dispatch(refreshAccessToken(refreshToken)).then(result => {
-					if (!result) throw new Error('Token refresh failed');
-					return result;
-				});
-				console.log('New access token after refresh:', accessToken);
-				response = await fetch('/api/auth/logout/', {
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRFToken': csrfToken,
-						Authorization: `Bearer ${accessToken}`
-					},
-					method: 'POST',
-					body: JSON.stringify(body)
-				});
-			} catch (refreshError) {
-				console.log('Failed to refresh access token:', refreshError);
-				dispatch(authSlice.actions.setError(refreshError.message));
-				return;
-			}
-		}
-
-		if (response.status === 205) {
-			dispatch(authSlice.actions.logout());
-		}
-	} catch (error) {
-		dispatch(authSlice.actions.setError(error.message));
+	if (response.status === 205) {
+		dispatch(authSlice.actions.logout());
 	}
+
+	return response;
 };
+
+export const logout = withAuth(logoutThunk);
 
 export const resetPassword = email => async dispatch => {
 	try {
@@ -583,7 +573,12 @@ export const checkTokenExpiration = async (accessToken, refreshToken, expiresAt)
 	return accessToken;
 };
 
-export const handleUpdateDisplayName = (userId, newDisplayName) => async dispatch => {
+export const handleUpdateDisplayNameThunk = async (
+	dispatch,
+	accessToken,
+	refreshToken,
+	newDisplayName
+) => {
 	dispatch(updateDisplayNameRequest());
 
 	try {
@@ -594,7 +589,7 @@ export const handleUpdateDisplayName = (userId, newDisplayName) => async dispatc
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
@@ -615,35 +610,57 @@ export const handleUpdateDisplayName = (userId, newDisplayName) => async dispatc
 
 		console.error(`Error: ${errorMessage}`);
 		dispatch(updateDisplayNameFailure(errorMessage));
+		throw error;
 	}
 };
 
-export const handleUpdateBirthday = (userId, date) => async dispatch => {
+export const handleUpdateDisplayName = withAuth(handleUpdateDisplayNameThunk);
+
+export const handleUpdateBirthdayThunk = async (dispatch, accessToken, refreshToken, date) => {
+	dispatch(updateBirthdayRequest());
 	try {
 		const csrfToken = await getCSRFToken();
+		console.log('csrf: ', csrfToken);
 		const data = { date };
 
 		const response = await axios.patch(`/api/update-birthday/`, data, {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
 		const { birthday } = response.data;
 		if (birthday) {
-			dispatch(updateBirthday(birthday));
+			dispatch(updateBirthdaySuccess(birthday));
 		}
 
 		return birthday;
 	} catch (error) {
-		console.error(`Error: ${error.response ? error.response.data : error.message}`);
-		// Handle error accordingly. You can dispatch a failure action here if you have one.
+		let errorMessage = 'An unexpected error occurred';
+
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
+
+		console.error(`Error: ${errorMessage}`);
+		dispatch(updateBirthdayFailure(errorMessage));
+		throw error;
 	}
 };
 
-export const handleUpdatePreferredGenres = (userId, genres) => async dispatch => {
+export const handleUpdateBirthday = withAuth(handleUpdateBirthdayThunk);
+
+export const handleUpdatePreferredGenresThunk = async (
+	dispatch,
+	accessToken,
+	refreshToken,
+	genres
+) => {
+	dispatch(updatePreferredGenresRequest());
 	try {
 		const csrfToken = await getCSRFToken();
 		const data = { genres };
@@ -652,23 +669,36 @@ export const handleUpdatePreferredGenres = (userId, genres) => async dispatch =>
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
 		const { preferred_genres } = response.data;
 		if (preferred_genres) {
-			dispatch(updatePreferredGenres(preferred_genres));
+			dispatch(updatePreferredGenresSuccess(preferred_genres));
 		}
 
 		return preferred_genres;
 	} catch (error) {
-		console.error(`Error: ${error.response ? error.response.data : error.message}`);
-		// Handle error accordingly. You can dispatch a failure action here if you have one.
+		let errorMessage = 'An unexpected error occurred';
+
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
+
+		console.error(`Error: ${errorMessage}`);
+		dispatch(updatePreferredGenresFailure(errorMessage));
+
+		throw error;
 	}
 };
 
-export const handleUpdateUserType = (userId, userType) => async dispatch => {
+export const handleUpdatePreferredGenres = withAuth(handleUpdatePreferredGenresThunk);
+
+export const handleUpdateUserTypeThunk = async (dispatch, accessToken, refreshToken, userType) => {
+	dispatch(updateUserTypeRequest());
 	try {
 		const csrfToken = await getCSRFToken();
 		const data = { userType };
@@ -677,25 +707,42 @@ export const handleUpdateUserType = (userId, userType) => async dispatch => {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
 		const { user_type, profession } = response.data;
 		if (user_type) {
-			dispatch(updateUserType(user_type));
+			dispatch(updateUserTypeSuccess(user_type));
 		}
 
-		dispatch(updateUserProfession(profession));
+		dispatch(updateUserProfessionSuccess(profession));
 
 		return user_type;
 	} catch (error) {
-		console.error(`Error: ${error.response ? error.response.data : error.message}`);
-		// Handle error accordingly. You can dispatch a failure action here if you have one.
+		let errorMessage = 'An unexpected error occurred';
+
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
+
+		console.error(`Error: ${errorMessage}`);
+		dispatch(updateUserTypeFailure(errorMessage));
+		throw error;
 	}
 };
 
-export const handleUpdateUserProfession = (userId, profession) => async dispatch => {
+export const handleUpdateUserType = withAuth(handleUpdateUserTypeThunk);
+
+export const handleUpdateUserProfessionThunk = async (
+	dispatch,
+	accessToken,
+	refreshToken,
+	profession
+) => {
+	dispatch(updateUserProfessionRequest());
 	try {
 		const csrfToken = await getCSRFToken();
 		const data = { profession };
@@ -704,46 +751,76 @@ export const handleUpdateUserProfession = (userId, profession) => async dispatch
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
 		const { saved_profession } = response.data;
 		if (saved_profession) {
-			dispatch(updateUserProfession(saved_profession));
+			dispatch(updateUserProfessionSuccess(saved_profession));
 		}
 
 		return saved_profession;
 	} catch (error) {
-		console.error(`Error: ${error.response ? error.response.data : error.message}`);
-		// Handle error accordingly. You can dispatch a failure action here if you have one.
+		let errorMessage = 'An unexpected error occurred';
+
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
+
+		console.error(`Error: ${errorMessage}`);
+		dispatch(updateUserProfessionFailure(errorMessage));
+		throw error;
 	}
 };
 
-export const handleUpdateProfileImage = (userId, imageFile) => async dispatch => {
+export const handleUpdateUserProfession = withAuth(handleUpdateUserProfessionThunk);
+
+export const handleUpdateProfileImageThunk = async (
+	dispatch,
+	accessToken,
+	refreshToken,
+	imageFile
+) => {
+	dispatch(updateProfileImageRequest());
 	try {
 		const csrfToken = await getCSRFToken();
 		const formData = new FormData();
 		formData.append('imageFile', imageFile);
 
-		const response = await axios.post(`/api/update-profile-image/`, formData, {
+		const response = await axios.patch(`/api/update-profile-image/`, formData, {
 			headers: {
+				'Content-Type': 'multipart/form-data',
 				'X-CSRFToken': csrfToken,
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
 		const { profile_image } = response.data;
 		if (profile_image) {
-			dispatch(updateProfileImage(profile_image));
+			dispatch(updateProfileImageSuccess(profile_image));
 		}
 
 		return profile_image;
 	} catch (error) {
-		console.error(`Error: ${error.response ? error.response.data : error.message}`);
-		// Handle error accordingly. You can dispatch a failure action here if you have one.
+		let errorMessage = 'An unexpected error occurred';
+
+		if (error.response && error.response.data && error.response.data.error) {
+			errorMessage = error.response.data.error;
+		} else if (error.message) {
+			errorMessage = error.message;
+		}
+
+		console.error(`Error: ${errorMessage}`);
+		dispatch(updateProfileImageFailure(errorMessage));
+
+		throw error;
 	}
 };
+
+export const handleUpdateProfileImage = withAuth(handleUpdateProfileImageThunk);
 
 export const getUserProfile = userId => async dispatch => {
 	dispatch(getUserProfileRequest());
@@ -771,8 +848,14 @@ export const getUserProfile = userId => async dispatch => {
 	}
 };
 
-export const handleUpdateUserProfile = (userId, userInfo) => async dispatch => {
+export const handleUpdateUserProfileThunk = async (
+	dispatch,
+	accessToken,
+	refreshToken,
+	userInfo
+) => {
 	dispatch(updateUserProfileRequest());
+
 	try {
 		const csrfToken = await getCSRFToken();
 		const data = userInfo;
@@ -781,12 +864,15 @@ export const handleUpdateUserProfile = (userId, userInfo) => async dispatch => {
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': csrfToken,
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
 		const { user } = response.data;
 		dispatch(updateUserProfileSuccess(user));
+
+		// Return the response so it can be handled by withAuth
+		return response;
 	} catch (error) {
 		let errorMessage = 'An unexpected error occurred';
 
@@ -798,8 +884,13 @@ export const handleUpdateUserProfile = (userId, userInfo) => async dispatch => {
 
 		console.error(`Error: ${errorMessage}`);
 		dispatch(updateUserProfileFailure(errorMessage));
+
+		// Throw the error to be caught by withAuth
+		throw error;
 	}
 };
+
+export const handleUpdateUserProfile = withAuth(handleUpdateUserProfileThunk);
 
 export const resendVerification = userId => async dispatch => {
 	dispatch(resendVerificationRequest());

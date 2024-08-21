@@ -205,7 +205,8 @@ export const Login = ({
 		}
 
 		try {
-			const currentUser = await onLogin(emailValue, passwordValue);
+			const normalizedEmail = emailValue.trim().toLowerCase();
+			const currentUser = await onLogin(normalizedEmail, passwordValue);
 
 			if (currentUser) {
 				dispatch(setCurrentUser(currentUser));
@@ -253,7 +254,8 @@ export const Login = ({
 		}
 
 		try {
-			await dispatch(registerUser(emailValue, passwordValue));
+			const normalizedEmail = emailValue.trim().toLowerCase();
+			await dispatch(registerUser(normalizedEmail, passwordValue));
 			navigate('/registration-success');
 		} catch (error) {
 			setSnackbarSeverity('error');
