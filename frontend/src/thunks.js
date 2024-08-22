@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
@@ -822,12 +823,12 @@ export const handleUpdateProfileImageThunk = async (
 
 export const handleUpdateProfileImage = withAuth(handleUpdateProfileImageThunk);
 
-export const getUserProfile = userId => async dispatch => {
+export const getUserProfileThunk = (accessToken, refreshToken) => async dispatch => {
 	dispatch(getUserProfileRequest());
 	try {
 		const response = await axios.get(`/api/get-user-profile/`, {
 			headers: {
-				'User-Id': userId
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
@@ -845,8 +846,12 @@ export const getUserProfile = userId => async dispatch => {
 
 		console.error(`Error: ${errorMessage}`);
 		dispatch(getUserProfileFailure(errorMessage));
+
+		throw error;
 	}
 };
+
+export const getUserProfile = withAuth(getUserProfileThunk);
 
 export const handleUpdateUserProfileThunk = async (
 	dispatch,

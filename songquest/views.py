@@ -419,15 +419,12 @@ def update_user_profile(request):
         )
 
 
-@csrf_exempt
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_user_profile(request):
-    user_id = request.headers.get("User-Id")
-    if not user_id:
-        return JsonResponse({"error": "User-Id not found in headers"}, status=400)
-
     try:
-        user = get_user_model().objects.get(id=user_id)
-    except get_user_model().DoesNotExist:
+        user = request.user
+    except User.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
 
     try:

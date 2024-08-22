@@ -935,9 +935,9 @@ export const Profile = ({
 	);
 
 	useEffect(() => {
-		onGetUserProfile(currentUser?.user?.id);
+		onGetUserProfile(currentUser?.access, currentUser?.refresh);
 		setInitialBadges(currentUserProfile?.achievements.map(achievment => achievment.badge));
-	}, [currentUser?.user?.id]);
+	}, [currentUser?.access, currentUser?.refresh]);
 
 	useEffect(() => {
 		if (currentUser?.user?.displayName) {
@@ -1030,9 +1030,11 @@ export const Profile = ({
 				genres: selectedGenres
 			};
 
-			console.log('onSaveUserPRofile: ', currentUser?.user?.id);
 			await onSaveUserProfile(currentUser?.access, currentUser?.refresh, userInfo);
-			const updatedProfile = await onGetUserProfile(currentUser?.user?.id);
+			const updatedProfile = await onGetUserProfile(
+				currentUser?.access,
+				currentUser?.refresh
+			);
 
 			const initialBadgeNames = new Set(initialBadges?.map(badge => badge.name));
 			const newBadges = updatedProfile.achievements.filter(
@@ -1719,7 +1721,8 @@ const mapDispatchToProps = dispatch => ({
 		dispatch(handleUpdateProfileImage(accessToken, userId, imageFile)),
 	onSaveUserProfile: (accessToken, refreshToken, userInfo) =>
 		dispatch(handleUpdateUserProfile(accessToken, refreshToken, userInfo)),
-	onGetUserProfile: userId => dispatch(getUserProfile(userId))
+	onGetUserProfile: (accessToken, refreshToken) =>
+		dispatch(getUserProfile(accessToken, refreshToken))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);
