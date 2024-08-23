@@ -66,7 +66,11 @@ import {
 import getCSRFToken from './csrf';
 import { authSlice } from './reducers';
 import { transformResponseToQueryStructure } from './utils';
-import { withAuth } from './components/auth/utils';
+import {
+	withAuthForDispatchThunk,
+	withAuthForParamsThunk,
+	withAuthForSimpleThunk
+} from './components/auth/utils';
 
 // export const searchSongRequest = query => async dispatch => {
 // 	try {
@@ -248,7 +252,7 @@ export const logoutThunk = async (dispatch, accessToken, refreshToken) => {
 	return response;
 };
 
-export const logout = withAuth(logoutThunk);
+export const logout = withAuthForDispatchThunk(logoutThunk);
 
 export const resetPassword = email => async dispatch => {
 	try {
@@ -372,7 +376,7 @@ export const discoverSongRequestThunk =
 		}
 	};
 
-export const discoverSongRequest = withAuth(discoverSongRequestThunk);
+export const discoverSongRequest = withAuthForParamsThunk(discoverSongRequestThunk);
 
 export const SpotifyAuth = ({ children }) => {
 	const [accessToken, setAccessToken] = useState('');
@@ -518,7 +522,7 @@ export const getSpotifyTracksThunk = (accessToken, refreshToken, trackIds) => as
 	}
 };
 
-export const getSpotifyTracks = withAuth(getSpotifyTracksThunk);
+export const getSpotifyTracks = withAuthForSimpleThunk(getSpotifyTracksThunk);
 
 export const getSpotifyArtists = (userId, artistIds) => async () => {
 	try {
@@ -623,7 +627,7 @@ export const handleUpdateDisplayNameThunk = async (
 	}
 };
 
-export const handleUpdateDisplayName = withAuth(handleUpdateDisplayNameThunk);
+export const handleUpdateDisplayName = withAuthForDispatchThunk(handleUpdateDisplayNameThunk);
 
 export const handleUpdateBirthdayThunk = async (dispatch, accessToken, refreshToken, date) => {
 	dispatch(updateBirthdayRequest());
@@ -661,7 +665,7 @@ export const handleUpdateBirthdayThunk = async (dispatch, accessToken, refreshTo
 	}
 };
 
-export const handleUpdateBirthday = withAuth(handleUpdateBirthdayThunk);
+export const handleUpdateBirthday = withAuthForDispatchThunk(handleUpdateBirthdayThunk);
 
 export const handleUpdatePreferredGenresThunk = async (
 	dispatch,
@@ -704,7 +708,9 @@ export const handleUpdatePreferredGenresThunk = async (
 	}
 };
 
-export const handleUpdatePreferredGenres = withAuth(handleUpdatePreferredGenresThunk);
+export const handleUpdatePreferredGenres = withAuthForDispatchThunk(
+	handleUpdatePreferredGenresThunk
+);
 
 export const handleUpdateUserTypeThunk = async (dispatch, accessToken, refreshToken, userType) => {
 	dispatch(updateUserTypeRequest());
@@ -743,7 +749,7 @@ export const handleUpdateUserTypeThunk = async (dispatch, accessToken, refreshTo
 	}
 };
 
-export const handleUpdateUserType = withAuth(handleUpdateUserTypeThunk);
+export const handleUpdateUserType = withAuthForDispatchThunk(handleUpdateUserTypeThunk);
 
 export const handleUpdateUserProfessionThunk = async (
 	dispatch,
@@ -785,7 +791,7 @@ export const handleUpdateUserProfessionThunk = async (
 	}
 };
 
-export const handleUpdateUserProfession = withAuth(handleUpdateUserProfessionThunk);
+export const handleUpdateUserProfession = withAuthForDispatchThunk(handleUpdateUserProfessionThunk);
 
 export const handleUpdateProfileImageThunk = async (
 	dispatch,
@@ -829,7 +835,7 @@ export const handleUpdateProfileImageThunk = async (
 	}
 };
 
-export const handleUpdateProfileImage = withAuth(handleUpdateProfileImageThunk);
+export const handleUpdateProfileImage = withAuthForDispatchThunk(handleUpdateProfileImageThunk);
 
 export const getUserProfileThunk = (accessToken, refreshToken) => async dispatch => {
 	dispatch(getUserProfileRequest());
@@ -859,7 +865,7 @@ export const getUserProfileThunk = (accessToken, refreshToken) => async dispatch
 	}
 };
 
-export const getUserProfile = withAuth(getUserProfileThunk);
+export const getUserProfile = withAuthForDispatchThunk(getUserProfileThunk);
 
 export const handleUpdateUserProfileThunk = async (
 	dispatch,
@@ -903,7 +909,7 @@ export const handleUpdateUserProfileThunk = async (
 	}
 };
 
-export const handleUpdateUserProfile = withAuth(handleUpdateUserProfileThunk);
+export const handleUpdateUserProfile = withAuthForDispatchThunk(handleUpdateUserProfileThunk);
 
 export const resendVerification = userId => async dispatch => {
 	dispatch(resendVerificationRequest());
