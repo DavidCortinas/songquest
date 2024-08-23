@@ -601,18 +601,12 @@ def get_spotify_user_display_name(access_token):
         return None  # Email not available
 
 
-@csrf_exempt
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def get_spotify_tracks(request):
     try:
+        user = request.user
         data = json.loads(request.body.decode("utf-8"))
-        user_id = request.headers.get("User-Id")
-        if not user_id:
-            return JsonResponse({"error": "User-Id not found in headers"}, status=400)
-
-        try:
-            user = get_user_model().objects.get(id=user_id)
-        except get_user_model().DoesNotExist:
-            return JsonResponse({"error": "Invalid User-Id"}, status=400)
 
         spotify_access = user.spotify_access
         spotify_refresh = user.spotify_refresh

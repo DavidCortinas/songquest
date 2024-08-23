@@ -267,7 +267,9 @@ const SpotifyForm = ({
 
 	const fetchData = async (ids, actionCreator) => {
 		try {
-			const data = await dispatch(actionCreator(currentUser?.user.id, ids));
+			const data = await dispatch(
+				actionCreator(currentUser?.access, currentUser?.refresh, ids)
+			);
 			return data || [];
 		} catch (error) {
 			console.error('Error fetching Spotify data:', error.message);

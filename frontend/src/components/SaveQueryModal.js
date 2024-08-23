@@ -30,7 +30,7 @@ const SaveQueryModal = ({
 			const songIdsToSave = queryToSave.songs;
 
 			try {
-				const songs = await onGetSpotifyTracks(user?.user.id, songIdsToSave);
+				const songs = await onGetSpotifyTracks(user?.access, user?.refresh, songIdsToSave);
 				setSongsToSave(songs);
 			} catch (error) {
 				console.error('Error fetching Spotify tracks:', error.message);
@@ -392,7 +392,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-	onGetSpotifyTracks: (userId, spotifyIds) => dispatch(getSpotifyTracks(userId, spotifyIds)),
+	onGetSpotifyTracks: (accessToken, refreshToken, spotifyIds) =>
+		dispatch(getSpotifyTracks(accessToken, refreshToken, spotifyIds)),
 	onGetSpotifyArtists: (userId, artistIds) => dispatch(getSpotifyArtists(userId, artistIds))
 });
 

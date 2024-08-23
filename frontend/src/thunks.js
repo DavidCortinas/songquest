@@ -490,13 +490,13 @@ export const getSpotifyMarkets = accessToken => async dispatch => {
 	}
 };
 
-export const getSpotifyTracks = (userId, trackIds) => async () => {
+export const getSpotifyTracksThunk = (accessToken, refreshToken, trackIds) => async () => {
 	try {
 		const csrfToken = await getCSRFToken();
 		const headers = {
 			'Content-Type': 'application/json',
 			'X-CSRFToken': csrfToken,
-			'User-Id': userId
+			Authorization: `Bearer ${accessToken}`
 		};
 
 		const data = {
@@ -514,8 +514,11 @@ export const getSpotifyTracks = (userId, trackIds) => async () => {
 		}
 	} catch (error) {
 		console.error('Error fetching Spotify tracks:', error.message);
+		throw error;
 	}
 };
+
+export const getSpotifyTracks = withAuth(getSpotifyTracksThunk);
 
 export const getSpotifyArtists = (userId, artistIds) => async () => {
 	try {
