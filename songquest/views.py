@@ -437,7 +437,8 @@ def get_user_profile(request):
         )
 
 
-@csrf_exempt
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def discover_song(request):
     try:
         data = json.loads(request.body)
@@ -451,19 +452,16 @@ def discover_song(request):
             "recommendations": get_recommendations(parameters),
         }
 
-        # Process for registered users
-        user_id = request.headers.get("User-Id")
-        if user_id and user_id != "undefined":
-            try:
-                user = get_user_model().objects.get(id=user_id)
-                user.update_karma(action)
+        try:
+            user = request.user
+            user.update_karma(action)
 
-                response["updated_tokens"] = user.tokens
-                response["updated_karma"] = user.karma
+            response["updated_tokens"] = user.tokens
+            response["updated_karma"] = user.karma
 
-            except get_user_model().DoesNotExist:
-                # If user_id is provided but invalid, return an error
-                return JsonResponse({"error": "Invalid User-Id"}, status=404)
+        except User.DoesNotExist:
+            # If user_id is provided but invalid, return an error
+            return JsonResponse({"error": "User not found"}, status=404)
 
         # For unregistered users, recommendations are still provided without updating tokens or XP
         return JsonResponse(response, status=200)

@@ -316,58 +316,63 @@ export const resetPasswordConfirm = (uid, token, newPassword) => async dispatch 
 //   fetch(UPLOAD_URL, data)
 // }
 
-export const discoverSongRequest = (parameters, userId) => async (dispatch, getState) => {
-	dispatch(discoverSong(false, parameters));
-	try {
-		const csrfToken = await getCSRFToken(); // Retrieve the CSRF token
-		const body = JSON.stringify({
-			action: 'dig',
-			parameters: parameters
-		});
+export const discoverSongRequestThunk =
+	(parameters, accessToken, refreshToken) => async (dispatch, getState) => {
+		dispatch(discoverSong(false, parameters));
+		try {
+			const csrfToken = await getCSRFToken();
+			const body = JSON.stringify({
+				action: 'dig',
+				parameters: parameters
+			});
 
-		let headers = {
-			'Content-Type': 'application/json',
-			'X-CSRFToken': csrfToken
-		};
+			let headers = {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				Authorization: `Bearer ${accessToken}`
+			};
 
-		// Conditionally add the 'User-Id' header if 'userId' is present
-		if (userId) {
-			headers['User-Id'] = userId;
+			const response = await fetch('/api/discover/', {
+				headers: headers,
+				method: 'post',
+				body: body
+			});
+
+			if (!response.ok) {
+				const error = new Error(`Request failed with status ${response.status}`);
+				error.response = {
+					status: response.status,
+					data: await response.json()
+				};
+				throw error;
+			}
+
+			const res = await response.json();
+
+			const discovery = res['recommendations'];
+			const userTokens = res['updated_tokens'];
+			const userKarma = res['updated_karma'];
+
+			if (typeof userTokens === 'number') {
+				dispatch(getUserTokensSuccess(userTokens));
+			}
+
+			if (typeof userKarma === 'number') {
+				dispatch(getUserKarmaSuccess(userKarma));
+			}
+
+			const prevQuery = getState().discovery.query;
+			dispatch(savePreviousQuery(prevQuery));
+
+			dispatch(discoverSongSuccess(discovery, true));
+			return discovery;
+		} catch (error) {
+			console.error(`Error in discoverSongRequestThunk: ${error.message}`);
+			throw error;
 		}
+	};
 
-		const response = await fetch('/api/discover/', {
-			headers: headers,
-			method: 'post',
-			body: body
-		});
-
-		if (!response.ok) {
-			throw new Error(`Request failed with status ${response.status}`);
-		}
-
-		const res = await response.json();
-
-		const discovery = res['recommendations'];
-		const userTokens = res['updated_tokens'];
-		const userKarma = res['updated_karma'];
-
-		if (typeof userTokens === 'number') {
-			dispatch(getUserTokensSuccess(userTokens));
-		}
-
-		if (typeof userKarma === 'number') {
-			dispatch(getUserKarmaSuccess(userKarma));
-		}
-
-		const prevQuery = getState().discovery.query;
-		dispatch(savePreviousQuery(prevQuery));
-
-		dispatch(discoverSongSuccess(discovery, true));
-		return discovery;
-	} catch (error) {
-		console.error(`Error: ${error.message}`);
-	}
-};
+export const discoverSongRequest = withAuth(discoverSongRequestThunk);
 
 export const SpotifyAuth = ({ children }) => {
 	const [accessToken, setAccessToken] = useState('');

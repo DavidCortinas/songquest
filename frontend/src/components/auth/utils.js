@@ -3,15 +3,20 @@ import { refreshAccessToken } from '../../thunks';
 
 export const withAuth = thunk => {
 	return (accessToken, refreshToken, ...args) =>
-		async dispatch => {
+		async (dispatch, getState) => {
 			const executeThunk = async currentAccessToken => {
-				return await thunk(currentAccessToken, refreshToken, ...args)(dispatch);
+				// This should log when the thunk is about to be executed
+				console.log('Executing thunk with token:', currentAccessToken);
+				return await thunk(currentAccessToken, refreshToken, ...args)(dispatch, getState);
 			};
 
 			try {
 				const response = await executeThunk(accessToken);
 				return response;
 			} catch (error) {
+				console.log('caught error');
+				console.log(error.response);
+				console.log(error.response.status);
 				if (error.response && error.response.status === 401) {
 					const errorMessage = error.response.data.detail;
 

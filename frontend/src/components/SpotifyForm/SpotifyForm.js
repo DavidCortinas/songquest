@@ -233,7 +233,7 @@ const SpotifyForm = ({
 			});
 		}
 		startTransition(() => {
-			onSearchPressed(parameters, currentUser?.user?.id)
+			onSearchPressed(parameters, currentUser?.access, currentUser?.refresh)
 				.then(() => {
 					setIsLoading(false);
 				})
@@ -1092,7 +1092,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-	onSearchPressed: (query, userId) => dispatch(discoverSongRequest(query, userId)),
+	onSearchPressed: (query, accessToken, refreshToken) =>
+		dispatch(discoverSongRequest(query, accessToken, refreshToken)),
 	onClearSeedsArray: () => dispatch(clearSeedsArray()),
 	onResetQueryParameter: () => dispatch(resetQueryParameter()),
 	onResetDataLoaded: () => dispatch(resetDataLoaded()),
